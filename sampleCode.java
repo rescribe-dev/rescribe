@@ -47,13 +47,13 @@ public class Calculator extends JFrame{
     /**
      * @param args the command line arguments
      */
-   
+            //..forloop(2:4:6)
     class MouseEvent implements ActionListener{
 
     @Override  //override javas version of this function 
     public void actionPerformed(ActionEvent e) {
         //this is where my actions will go
-        for(int i = 0; i< 16; i++){
+        for(int i = 0; i< 16; i++){  //..forloop(8:9:0)
             if (e.getSource() == jba[i]){
                 text.append(jbaChar[i] + "");
                 if(i == 15){
