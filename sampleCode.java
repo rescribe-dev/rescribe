@@ -13,7 +13,7 @@ import java.util.*;
  * @author mycicle
  */
 
-//..forloop[1:10:1]
+//..forloop(1:10:1)
 public class Calculator extends JFrame{
     private JButton[] jba = new JButton[16];
     private String[] jbaChar = {"7", "8", "9", "*", "4", "5", "6","-", "1", "2", "3", "+", "0", ".", "=", "C"};
@@ -47,13 +47,13 @@ public class Calculator extends JFrame{
     /**
      * @param args the command line arguments
      */
-   
+            //..forloop(2:4:6)
     class MouseEvent implements ActionListener{
 
     @Override  //override javas version of this function 
     public void actionPerformed(ActionEvent e) {
         //this is where my actions will go
-        for(int i = 0; i< 16; i++){
+        for(int i = 0; i< 16; i++){  //..forloop(8:9:0)
             if (e.getSource() == jba[i]){
                 text.append(jbaChar[i] + "");
                 if(i == 15){

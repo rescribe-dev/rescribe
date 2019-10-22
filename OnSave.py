@@ -19,7 +19,17 @@ from watchdog.events import FileSystemEventHandler
 
 class MyHandler(FileSystemEventHandler):
     def on_modified(self, event):
-        print("Thats illegal")
+    	x=True
+    	with open('./text.txt') as f:
+    		while x is True:
+    			line = f.readline()
+    			if line:
+    				print(line)
+    			if line == '':
+    				x=False
+    				f.close()
+
+
 if __name__ == "__main__":
     event_handler = MyHandler()
     observer = Observer()
