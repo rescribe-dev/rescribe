@@ -6,7 +6,7 @@
 #{line_number_of_command_in_file : code_to_be_inserted_into_file}
 
 
-class dotParser:
+class DotParser:
     def __init__(self):
         pass
     def dottin(self, path):
