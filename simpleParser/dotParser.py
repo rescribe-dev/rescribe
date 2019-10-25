@@ -53,9 +53,6 @@ class DotParser:
         DOTTIN = "//.."
         #start of where the args are
         arg_start_delim = "("
-        #filepath
-        path = "../sampleCode.java"
-
 
         #Open the file at the specified path and proceed to create a dictionary of the format:
         #key = line number ::: contents = line contents
