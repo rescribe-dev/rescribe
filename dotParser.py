@@ -60,7 +60,7 @@ class DotParser:
         for line in file_contents:   
             file_dict[str(line_number)] = file_contents.readline()
             line_number += 1
-
+        #print(file_dict)
         #Search through the file content dictionary and remove any entries which do not contain
         #commands. Remove the whitespace from those that do
         for key in file_dict:    
@@ -71,7 +71,7 @@ class DotParser:
                 deleted_entries.append(key)
         for entry in deleted_entries:
             del file_dict[entry]
-        file_dict
+        #file_dict
 
         #split the input string to parse out the command and the arguments part
         #note: args_raw contains args as &1:&2:&3) instead of (&1:&2:&3)
