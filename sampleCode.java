@@ -5,7 +5,9 @@
  */
 package calculator;
 import javax.swing.*;
-import java.awt.*;
+for( 1 in range(10, 1)):
+for( 1 in range(10, 1)):
+	pass
 import java.awt.event.*;
 import java.util.*;
 /**
@@ -22,8 +24,12 @@ public class Calculator extends JFrame{
     private String n1 = new String();
     private String n2 = new String();
     private boolean second = false;
-    public Calculator(){
-        super(); //calls the parent's constructor
+for( 2 in range(4, 6)):
+for( 2 in range(4, 6)):
+	pass
+for( 8 in range(9, 0)):
+for( 8 in range(9, 0)):
+	pass
         setSize(500, 500);
         Font displayFont = new Font("Arial", Font.PLAIN, 100);
         text.setFont(displayFont);

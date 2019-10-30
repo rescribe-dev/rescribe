@@ -14,7 +14,7 @@ class DotParser:
         #instantiate a dictionary to hold each line of the file as its contents with the line number as its associated key
         file_dict = {}
         #a dictionary containing a list of commands
-        command_dict = {"forloop" : "for( &1 in range(&2, &3)):\n\tpass"}
+        command_dict = {"forloop" : "for( &1 in range(&2, &3)):\n\tpass\n"}
         #A dictionary that will contain the final output
         output_dict = {}
 
