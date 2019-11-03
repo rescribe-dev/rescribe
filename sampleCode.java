@@ -5,9 +5,6 @@
  */
 package calculator;
 import javax.swing.*;
-for( 1 in range(10, 1)):
-for( 1 in range(10, 1)):
-	pass
 import java.awt.event.*;
 import java.util.*;
 /**
@@ -15,7 +12,9 @@ import java.util.*;
  * @author mycicle
  */
 
-//..forloop(1:10:1)
+for( 1 in range(2, 3)):
+for( 1 in range(2, 3)):
+	pass
 public class Calculator extends JFrame{
     private JButton[] jba = new JButton[16];
     private String[] jbaChar = {"7", "8", "9", "*", "4", "5", "6","-", "1", "2", "3", "+", "0", ".", "=", "C"};
@@ -24,12 +23,6 @@ public class Calculator extends JFrame{
     private String n1 = new String();
     private String n2 = new String();
     private boolean second = false;
-for( 2 in range(4, 6)):
-for( 2 in range(4, 6)):
-	pass
-for( 8 in range(9, 0)):
-for( 8 in range(9, 0)):
-	pass
         setSize(500, 500);
         Font displayFont = new Font("Arial", Font.PLAIN, 100);
         text.setFont(displayFont);
@@ -49,17 +42,19 @@ for( 8 in range(9, 0)):
         
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
-    }
-    /**
-     * @param args the command line arguments
-     */
+for( 2 in range(4, 6)):
+for( 2 in range(4, 6)):
+	pass
+    
             //..forloop(2:4:6)
     class MouseEvent implements ActionListener{
-
+for( 8 in range(9, 0)):
+for( 8 in range(9, 0)):
+	pass
     @Override  //override javas version of this function 
     public void actionPerformed(ActionEvent e) {
         //this is where my actions will go
-        for(int i = 0; i< 16; i++){  //..forloop(8:9:0)
+        for(int i = 0; i< 16; i++){
             if (e.getSource() == jba[i]){
                 text.append(jbaChar[i] + "");
                 if(i == 15){
