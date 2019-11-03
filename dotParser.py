@@ -53,14 +53,22 @@ class DotParser:
         DOTTIN = "//.."
         #start of where the args are
         arg_start_delim = "("
+        #filepath
+        #path = "../sampleCode.java"
+
 
         #Open the file at the specified path and proceed to create a dictionary of the format:
         #key = line number ::: contents = line contents
-        file_contents = open(path)          
+        file_contents = open(path).read().split('\n')
+        #file_contents = open(path)          
         for line in file_contents:   
-            file_dict[str(line_number)] = file_contents.readline()
+            #file_dict[str(line_number)] = file_contents.readline()
+            #the -1 is to offset the fact that line number starts at 1
+            #adn python indexing starts at 0
+            file_dict[str(line_number)] = file_contents[line_number-1]
             line_number += 1
-        #print(file_dict)
+#         for key in file_dict:
+#             print(file_dict[key])
         #Search through the file content dictionary and remove any entries which do not contain
         #commands. Remove the whitespace from those that do
         for key in file_dict:    
@@ -71,7 +79,7 @@ class DotParser:
                 deleted_entries.append(key)
         for entry in deleted_entries:
             del file_dict[entry]
-        #file_dict
+        file_dict
 
         #split the input string to parse out the command and the arguments part
         #note: args_raw contains args as &1:&2:&3) instead of (&1:&2:&3)
@@ -92,6 +100,19 @@ class DotParser:
             for i, arguments in enumerate(args):
                 tempStr = tempStr.replace(args_delim[i], args[i][index])
             return_strings.append(tempStr)
+
+        # print(arg1)
+        # print(arg2)
+        # print(arg3)
+        # print(return_strings)
+
+        # for i in return_strings:
+        #     print(i)
+
+        # for key in file_dict:
+        #     print(key)
+        # print(file_dict)
+
 
         for index, key in enumerate(file_dict):
             output_dict[key] = return_strings[index]
