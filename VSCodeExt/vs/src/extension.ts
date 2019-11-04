@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "vs" is now active!');
-	const execLocation = context.asAbsolutePath("script");
+	const execLocation = context.asAbsolutePath("");
 	console.log("Absolute exec location: " + execLocation);
 
 	// The command has been defined in the package.json file
@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 				//For spawn('python, ['filepathtoscript', 'arg1')
 				//arg1 = file to be rescribed
 				const spawn = require("child_process").spawn;
-				const pythonProcess = spawn('python',["C:/Users/Trevor/vs/vscodeext.py", currentlyOpenTabfilePath]);
+				const pythonProcess = spawn('python',[execLocation + "/vscodeext.py", currentlyOpenTabfilePath]);
 				
 				//Looks for python output
 				pythonProcess.stdout.on('data', (data: any) => { 
