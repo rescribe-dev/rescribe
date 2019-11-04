@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 				//For spawn('python, ['filepathtoscript', 'arg1')
 				//arg1 = file to be rescribed
 				const spawn = require("child_process").spawn;
-				const pythonProcess = spawn('python',["C:/Users/Trevor/vs/vsext.py", currentlyOpenTabfilePath]);
+				const pythonProcess = spawn('python',["C:/Users/Trevor/vs/vscodeext.py", currentlyOpenTabfilePath]);
 				
 				//Looks for python output
 				pythonProcess.stdout.on('data', (data: any) => { 
@@ -50,14 +50,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 				//If script has error then this prints
 				pythonProcess.stderr.on('data', (data: any) => { 
-					vscode.window.showInformationMessage('Rescribe!');
+					vscode.window.showInformationMessage('Rescribe! Error');
 					console.log('Error: ');
   	      			console.log(data);
 				} ); 
 
 				//At end of process this will print
 				pythonProcess.stdout.on('end', () => { 
-				vscode.window.showInformationMessage('Rescribe!');
+				//vscode.window.showInformationMessage('Rescribe!');
 				console.log('Hi! I\'m dead');
 				} );
 			} else {
