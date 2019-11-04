@@ -1,6 +1,6 @@
 from tkinter import *
 from dotParser import DotParser
-from rescriber import Rescriber
+from expRescribe import Rescriber
 
 root = Tk()
 

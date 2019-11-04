@@ -1,4 +1,4 @@
-/*
+Xno/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -12,8 +12,7 @@ import java.util.*;
  * @author mycicle
  */
 
-for( 1 in range(2, 3)):
-for( 1 in range(2, 3)):
+for( 1 in range(10, 1)):
 	pass
 public class Calculator extends JFrame{
     private JButton[] jba = new JButton[16];
@@ -39,18 +38,11 @@ public class Calculator extends JFrame{
         //p.add(b);
         c.add(BorderLayout.CENTER, p);
         c.add(BorderLayout.NORTH, text);
-        
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+       
         setVisible(true);
 for( 2 in range(4, 6)):
-for( 2 in range(4, 6)):
 	pass
-    
-            //..forloop(2:4:6)
     class MouseEvent implements ActionListener{
-for( 8 in range(9, 0)):
-for( 8 in range(9, 0)):
-	pass
     @Override  //override javas version of this function 
     public void actionPerformed(ActionEvent e) {
         //this is where my actions will go
@@ -74,6 +66,3 @@ for( 8 in range(9, 0)):
     }
     
 }
-
-
-
