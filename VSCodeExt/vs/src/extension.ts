@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 				//For spawn('python, ['filepathtoscript', 'arg1')
 				//arg1 = file to be rescribed
 				const spawn = require("child_process").spawn;
-				const pythonProcess = spawn('python',["C:/Users/Trevor/vs/vsext.py", currentlyOpenTabfilePath]);
+				const pythonProcess = spawn('python',["C:/github/reScribe/vscodeext.py", currentlyOpenTabfilePath]);
 				
 				//Looks for python output
 				pythonProcess.stdout.on('data', (data: any) => { 
