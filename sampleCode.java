@@ -12,8 +12,7 @@ import java.util.*;
  * @author mycicle
  */
 
-for( 1 in range(10, 1)):
-	pass
+//..forloop(1:10:1)
 public class Calculator extends JFrame{
     private JButton[] jba = new JButton[16];
     private String[] jbaChar = {"7", "8", "9", "*", "4", "5", "6","-", "1", "2", "3", "+", "0", ".", "=", "C"};
@@ -40,8 +39,7 @@ public class Calculator extends JFrame{
         c.add(BorderLayout.NORTH, text);
        
         setVisible(true);
-for( 2 in range(4, 6)):
-	pass
+    //..forloop(2:6:4)
     class MouseEvent implements ActionListener{
     @Override  //override javas version of this function 
     public void actionPerformed(ActionEvent e) {
