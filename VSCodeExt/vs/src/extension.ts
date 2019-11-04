@@ -8,8 +8,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "vs" is now active!');
-	const execLocation = context.asAbsolutePath("");
+	const execLocation = context.asAbsolutePath("script");
 	console.log("Absolute exec location: " + execLocation);
+	var newExec = execLocation.replace(/\\/g, '/');
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -17,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerTextEditorCommand('extension.rescribe', () => {
 		// The code you place here will be executed every time your command is executed
 		//vscode.window.showInformationMessage('Rescribe!');
-
+		
 		var vscode = require("vscode");
 		var path = require("path");
 
@@ -25,13 +26,13 @@ export function activate(context: vscode.ExtensionContext) {
 		var currentlyOpenTabfileName = path.basename(currentlyOpenTabfilePath);
 		console.log('Current File Path: ' + currentlyOpenTabfilePath);
 		console.log('Current File: ' + currentlyOpenTabfileName);
-		
+		var newPath = currentlyOpenTabfilePath.replace(/\\/g, '\\\\');
+		console.log(newPath);
 		//Tests to see if the file exits and therefore can be edited
 		const fs = require("fs");
 		fs.exists(currentlyOpenTabfilePath, (exist: any) => {
 			if (exist) {
 				console.log("File exists");
-
 				//arg is used for testing
 				const arg = 'C:/Users/Trevor/vs/sampleCode.java';
 
@@ -39,20 +40,20 @@ export function activate(context: vscode.ExtensionContext) {
 				//For spawn('python, ['filepathtoscript', 'arg1')
 				//arg1 = file to be rescribed
 				const spawn = require("child_process").spawn;
-				const pythonProcess = spawn('python',[execLocation + "/vscodeext.py", currentlyOpenTabfilePath]);
+				const pythonProcess = spawn('python',[newExec + "/vscodeext.py", newPath]);
 				
 				//Looks for python output
 				pythonProcess.stdout.on('data', (data: any) => { 
 					vscode.window.showInformationMessage('Rescribe!');
-					console.log('Hi');
-  	      			console.log(data);
+					console.log('No Errors:');
+  	      			console.log(data.toString());
 				} ); 
 
 				//If script has error then this prints
 				pythonProcess.stderr.on('data', (data: any) => { 
 					vscode.window.showInformationMessage('Rescribe! Error');
 					console.log('Error: ');
-  	      			console.log(data);
+  	      			console.log(data.toString());
 				} ); 
 
 				//At end of process this will print
