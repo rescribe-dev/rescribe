@@ -6,10 +6,10 @@
 #{line_number_of_command_in_file : code_to_be_inserted_into_file}
 
 
-class DotParser:
+class Scriber:
     def __init__(self):
         pass
-    def dottin(self, path):
+    def rescribe(self, path):
         import re
         #instantiate a dictionary to hold each line of the file as its contents with the line number as its associated key
         file_dict = {}
