@@ -1,9 +1,7 @@
-from dotParser import DotParser
+from scriber import Scriber
 from rescriber import Rescriber
 import sys
 
-parser = DotParser()
-
-r = Rescriber("sampleCode.java", parser.dottin("sampleCode.java"))
-r = Rescriber(sys.argv[1], parser.dottin(sys.argv[2]))
+parser = Scriber()
+r = Rescriber(sys.argv[1], parser.rescribe(sys.argv[1]))
 r.replaceWithDictionary()
