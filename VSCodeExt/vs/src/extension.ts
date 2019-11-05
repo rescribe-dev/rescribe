@@ -27,11 +27,13 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log('Current File Path: ' + currentlyOpenTabfilePath);
 		console.log('Current File: ' + currentlyOpenTabfileName);
 		var newPath = currentlyOpenTabfilePath.replace(/\\/g, '\\\\');
-		console.log(newPath);
 		//Tests to see if the file exits and therefore can be edited
 		const fs = require("fs");
 		fs.exists(currentlyOpenTabfilePath, (exist: any) => {
 			if (exist) {
+				vscode.workspace.saveAll().then(() => {
+					console.log('yes');
+				});
 				console.log("File exists");
 				//arg is used for testing
 				const arg = 'C:/Users/Trevor/vs/sampleCode.java';
