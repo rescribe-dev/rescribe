@@ -15,10 +15,10 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerTextEditorCommand('extension.rescribe', () => {
+	let disposable = vscode.commands.registerTextEditorCommand('extension.rescribe', async () => {
 		// The code you place here will be executed every time your command is executed
 		//vscode.window.showInformationMessage('Rescribe!');
-		
+
 		var vscode = require("vscode");
 		var path = require("path");
 
@@ -30,10 +30,13 @@ export function activate(context: vscode.ExtensionContext) {
 		//Tests to see if the file exits and therefore can be edited
 		const fs = require("fs");
 		fs.exists(currentlyOpenTabfilePath, (exist: any) => {
+
 			if (exist) {
-				vscode.workspace.saveAll().then(() => {
-					console.log('yes');
-				});
+				//Saves all files in workspaace
+				//vscode.workspace.saveAll()
+				//Saves current document
+				vscode.window.activeTextEditor.document.save();
+
 				console.log("File exists");
 				//arg is used for testing
 				const arg = 'C:/Users/Trevor/vs/sampleCode.java';
