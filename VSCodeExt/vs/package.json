@@ -3,6 +3,7 @@
 	"displayName": "rescribe",
 	"description": "",
 	"version": "0.0.1",
+	"publisher": "reScribe",
 	"engines": {
 		"vscode": "^1.39.0"
 	},
