@@ -1,16 +1,17 @@
 ##USAGE
-#parser = dotParser()
-#parser.dottin(file_path)
+#parser = Scriber(command_dict_path)
+#parser.rescribe(file_path)
 #Returns a dictionary with the following format:
 #{key : contents}
 #{line_number_of_command_in_file : code_to_be_inserted_into_file}
 
 
 class Scriber:
-    def __init__(self):
-        pass
-    def addNewToDictionary(command, contents, path, encoding='utf-8', errors='ignore', strict=False):
-        command_dict = self.loadCommandDict(path)
+    def __init__(self, path):
+        self.path = path
+        
+    def addNewToDictionary(command, contents):
+        command_dict = self.loadCommandDict(self.path)
         #if the command does not exist in the dictonary then append it to the command dictionary
         if (command_dict[contents] != None): 
             command_dict[command] = contents
@@ -21,7 +22,7 @@ class Scriber:
         #open the old file back up and write the updates contents into it, otherwise tell the user you can't and exit
         #original dictionary shouldn't be modified
         try:
-            with open(filepath, "w") as json_file:
+            with open(self.path, "w") as json_file:
                 json.dump(command_dict, json_file)
             print("Successfully wrote to dictionary")
             return 0
@@ -29,7 +30,7 @@ class Scriber:
             print("Cannot reopen json file to write new commands to it")
             return 1
         
-    def loadCommandDict(path):
+    def loadCommandDict(self, path, encoding='utf-8', errors='ignore', strict=False):
         #file imports
         import json
         #open the file with the command dictionary in it, be sure to use the proper encoding or you will get a 
@@ -40,14 +41,15 @@ class Scriber:
             return command_dict
         except:
             print("There was an error retrieving the command dictionary")
-            return 1
+            return
     
     def rescribe(self, path):
         import re
         #instantiate a dictionary to hold each line of the file as its contents with the line number as its associated key
         file_dict = {}
         #a dictionary containing a list of commands
-        command_dict = self.loadCommandDict(path)
+        command_dict = self.loadCommandDict(self.path)
+        print("LLLLLLLLLLLLLLLLLLLLLLLLLL")
         #{"forloop" : "2\nfor( &1 in range(&2, &3)):\n\tpass\n"}
         #A dictionary that will contain the final output
         output_dict = {}
