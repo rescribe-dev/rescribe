@@ -21,7 +21,7 @@ class Scriber:
         #a regular expression which can pull out our command format //..command(arg1:arg2:arg3)
         regexp = re.compile(r'\/\/\.\.[a-zA-Z0-9]*\([a-zA-Z0-9\_\-]*:[a-zA-Z0-9\_\-]*:[a-zA-Z0-9\_\-]*\)')
         #regular expression for parsing out our arguments
-        arg_raw_regexp = re.compile(r'[a-zA-Z0-9]*')
+        #arg_raw_regexp = re.compile(r'[a-zA-Z0-9]*')
 
         #empty list made to hold the commands
         command = []
@@ -36,23 +36,23 @@ class Scriber:
         return_strings = []
 
         #the digits 0-9
-        digits = ['0','1', '2', '3', '4', '5', '6', '7', '8', '9']
+        #digits = ['0','1', '2', '3', '4', '5', '6', '7', '8', '9']
         #delimiters for arguments 1, 2, and 3
         args_delim = ["&1", "&2", "&3"]
         #list of the arguments which will be used
         args = [arg1, arg2, arg3]
 
         #counter to hold the index the command ends at
-        cmd_end_counter = 0 
+        #cmd_end_counter = 0 
         #counter to get the position of the last char of the command and the start of the arguments
-        arg_start_counter = 4
+        #arg_start_counter = 4
         #line number counter
         line_number = 1
 
         #DOTTIN Delimiter
-        DOTTIN = "//.."
+        #DOTTIN = "//.."
         #start of where the args are
-        arg_start_delim = "("
+        #arg_start_delim = "("
         #filepath
         #path = "../sampleCode.java"
 
