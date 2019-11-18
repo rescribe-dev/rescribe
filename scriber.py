@@ -9,12 +9,46 @@
 class Scriber:
     def __init__(self):
         pass
+    def addNewToDictionary(command, contents, path, encoding='utf-8', errors='ignore', strict=False):
+        command_dict = self.loadCommandDict(path)
+        #if the command does not exist in the dictonary then append it to the command dictionary
+        if (command_dict[contents] != None): 
+            command_dict[command] = contents
+        else:
+        #if that command exists in the dictoinary tell the user and then overwrite
+            print("Replacing command: %s's contents: %s with %s" % (command, command_dict[command], contents))
+            command_dict[command] = contents
+        #open the old file back up and write the updates contents into it, otherwise tell the user you can't and exit
+        #original dictionary shouldn't be modified
+        try:
+            with open(filepath, "w") as json_file:
+                json.dump(command_dict, json_file)
+            print("Successfully wrote to dictionary")
+            return 0
+        except:
+            print("Cannot reopen json file to write new commands to it")
+            return 1
+        
+    def loadCommandDict(path):
+        #file imports
+        import json
+        #open the file with the command dictionary in it, be sure to use the proper encoding or you will get a 
+        #JSON Error akin to JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+        try:
+            with open(path, encoding=encoding, errors=errors) as json_data:
+                command_dict = json.load(json_data, strict=strict)
+            return command_dict
+        except:
+            print("There was an error retrieving the command dictionary")
+            return 1
+    
     def rescribe(self, path):
         import re
         #instantiate a dictionary to hold each line of the file as its contents with the line number as its associated key
         file_dict = {}
         #a dictionary containing a list of commands
-        command_dict = {"forloop" : "2\nfor( &1 in range(&2, &3)):\n\tpass\n"}
+        command_dict = self.loadCommandDict(path)
+        #{"forloop" : "2\nfor( &1 in range(&2, &3)):\n\tpass\n"}
         #A dictionary that will contain the final output
         output_dict = {}
 
