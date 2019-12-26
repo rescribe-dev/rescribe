@@ -56,7 +56,11 @@ public class Calculator extends JFrame{
         }
     }
     //action listener is an interface whichwe implement not extend
-    
+    //..joeMamma(someJumbo){
+            print("It seems as if Mike has succeded in adding this to the command dictionary")
+            print("It also seems as if this is a snippet of python code in a java file")
+    }
+        
 }
     public static void main(String[] args) {
         // TODO code application logic here
