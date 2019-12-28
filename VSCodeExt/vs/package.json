@@ -2,7 +2,7 @@
 	"name": "vs",
 	"displayName": "rescribe",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "reScribe",
 	"engines": {
 		"vscode": "^1.39.0"
@@ -11,19 +11,20 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.rescribe"
+		"onCommand:extension.rescribe",
+		"onCommand:extension.traverse"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "extension.rescribe",
-				"title": "Rescribe",
+				"title": "reScribe",
 				"when": "editorTextFocus"
 			},
 			{
 				"command": "extension.traverse",
-				"title": "Rescribe"
+				"title": "Traverse"
 			}
 		],
 		"keybindings": [
