@@ -64,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
 				//At end of process this will print
 				pythonProcess.stdout.on('end', () => { 
 				//vscode.window.showInformationMessage('Rescribe!');
-				console.log('Hi! I\'m dead');
+				console.log('Process Ended');
 				} );
 			} else {
 				console.log("File doesn't exists");
