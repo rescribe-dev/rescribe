@@ -1,10 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-<<<<<<< HEAD
-=======
-import {PythonShell} from 'python-shell';
->>>>>>> ce42ece824bdc0d83907f981fd34e8547c2039d9
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
