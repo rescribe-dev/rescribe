@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerTextEditorCommand('extension.rescribe', async () => {
+	let reScribe = vscode.commands.registerTextEditorCommand('extension.rescribe', async () => {
 		// The code you place here will be executed every time your command is executed
 		//vscode.window.showInformationMessage('Rescribe!');
 
@@ -43,20 +43,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 				//These 2 lines are for spawning/running the python script
 				//For spawn('python, ['filepathtoscript', 'arg1')
-				//arg1 = file to be rescribed
+				//arg1 = file to be rescribed arg2 = reScribe or traverse
 				const spawn = require("child_process").spawn;
-				const pythonProcess = spawn('python',[newExec + "/vscodeext.py", newPath]);
+				const pythonProcess = spawn('python',[newExec + "/vscodeext.py", newPath, "reScribe"]);
 				
 				//Looks for python output
 				pythonProcess.stdout.on('data', (data: any) => { 
-					vscode.window.showInformationMessage('Rescribe!');
+					vscode.window.showInformationMessage('reScribe!');
 					console.log('No Errors:');
   	      			console.log(data.toString());
 				} ); 
 
 				//If script has error then this prints
 				pythonProcess.stderr.on('data', (data: any) => { 
-					vscode.window.showInformationMessage('Rescribe! Error');
+					vscode.window.showInformationMessage('reScribe! Error');
 					console.log('Error: ');
   	      			console.log(data.toString());
 				} ); 
@@ -67,12 +67,63 @@ export function activate(context: vscode.ExtensionContext) {
 				console.log('Process Ended');
 				} );
 			} else {
-				console.log("File doesn't exists");
-				vscode.window.showErrorMessage('Please save the file before using rescribe!');
+				console.log("File does not exist");
+				vscode.window.showErrorMessage('Please save the file before using reScribe!');
 			}
 		});
 });
-	context.subscriptions.push(disposable);
+let traverse = vscode.commands.registerCommand('extension.traverse', async () => {
+	// The code you place here will be executed every time your command is executed
+	var vscode = require("vscode");
+	var path = require("path");
+	var currentlyOpenTabfilePath = vscode.window.activeTextEditor.document.fileName;
+	var currentlyOpenTabfileName = path.basename(currentlyOpenTabfilePath);
+	console.log('Current File Path: ' + currentlyOpenTabfilePath);
+	console.log('Current File: ' + currentlyOpenTabfileName);
+	var newPath = currentlyOpenTabfilePath.replace(/\\/g, '\\\\');
+	//Tests to see if the file exits and therefore can be edited
+	const fs = require("fs");
+	fs.exists(currentlyOpenTabfilePath, (exist: any) => {
+
+		if (exist) {
+			//Saves all files in workspaace
+			//vscode.workspace.saveAll()
+			//Saves current document
+			vscode.window.activeTextEditor.document.save();
+			console.log("File exists");
+
+			//These 2 lines are for spawning/running the python script
+			//For spawn('python, ['filepathtoscript', 'arg1', 'arg2')
+			//arg1 = file to be rescribed
+			const spawn = require("child_process").spawn;
+			const search = spawn('python',[newExec + "/vscodeext.py", newPath, "traverse"]);
+			
+			//Looks for python output
+			search.stdout.on('data', (data: any) => { 
+				vscode.window.showInformationMessage('reScribe!');
+				console.log('No Errors:');
+					console.log(data.toString());
+			} ); 
+
+			//If script has error then this prints
+			search.stderr.on('data', (data: any) => { 
+				vscode.window.showInformationMessage('Error!');
+				console.log('Error: ');
+					console.log(data.toString());
+			} ); 
+
+			//At end of process this will print
+			search.stdout.on('end', () => { 
+			console.log('Process Ended');
+			} );
+		} else {
+			console.log("File does not exist");
+			vscode.window.showErrorMessage('Please save the file before using reScribe!');
+		}
+	});
+});
+	context.subscriptions.push(reScribe);
+	context.subscriptions.push(traverse);
 }
 
 // this method is called when your extension is deactivated

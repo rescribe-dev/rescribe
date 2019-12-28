@@ -11,14 +11,20 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.rescribe"
+		"onCommand:extension.rescribe",
+		"onCommand:extension.traverse"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "extension.rescribe",
-				"title": "Rescribe",
+				"title": "reScribe",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "extension.traverse",
+				"title": "Traverse",
 				"when": "editorTextFocus"
 			}
 		],
