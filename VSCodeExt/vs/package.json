@@ -20,6 +20,10 @@
 				"command": "extension.rescribe",
 				"title": "Rescribe",
 				"when": "editorTextFocus"
+			},
+			{
+				"command": "extension.traverse",
+				"title": "Rescribe"
 			}
 		],
 		"keybindings": [
