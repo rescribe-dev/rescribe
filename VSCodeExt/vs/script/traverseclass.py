@@ -5,6 +5,9 @@ class Traverse:
 	def __init__(self):
 		pass
 	def search(self):
+		#Preview all preset themes in sg
+		#sg.theme_previewer()
+
 		#load command dict
 		commands = json.load(open('command_dict.json'))
 

@@ -44,7 +44,7 @@ while True:
 		print("Command not found in dictionary")
 		cw_active = True
 		window.Hide()
-		layout2 = [ [sg.Text('Command' + "\"" + values[0] + "\"" + ' not found')],
+		layout2 = [ [sg.Text('Command \"' + values[0] '\" not found')],
 					[sg.Button('Exit')]]
 		cw = sg.Window(values[0], layout2)
 	if cw_active:
