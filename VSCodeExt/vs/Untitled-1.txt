@@ -1,1 +1,4 @@
-//..forloop(2:3:4)
+//..test(commands){
+    test = new Test()
+}
+//..forloop(d:i:c)

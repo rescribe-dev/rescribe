@@ -12,7 +12,8 @@
 	],
 	"activationEvents": [
 		"onCommand:extension.rescribe",
-		"onCommand:extension.traverse"
+		"onCommand:extension.traverse",
+		"onCommand:extension.addToDict"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
