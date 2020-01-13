@@ -31,7 +31,7 @@
 		"keybindings": [
 			{
 				"command": "extension.rescribe",
-				"key": "ctrl+d",
+				"key": "ctrl+r",
 				"when": "editorTextFocus"
 			}
 		]
