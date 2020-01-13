@@ -10,31 +10,44 @@ class Scriber:
     def __init__(self, path):
         self.path = path
         
-    def addNewToDictionary(command, contents):
+    def addNewToDictionary(self, command, contents, encoding='utf-8', errors='ignore'):
+        import json
+        path = self.path
         command_dict = self.loadCommandDict(self.path)
+        count = contents.count('\n')
+        contents = str(count) + contents
         #if the command does not exist in the dictonary then append it to the command dictionary
-        if (command_dict[contents] != None): 
+        if ~(command in command_dict.keys()): 
             command_dict[command] = contents
         else:
         #if that command exists in the dictoinary tell the user and then overwrite
             print("Replacing command: %s's contents: %s with %s" % (command, command_dict[command], contents))
             command_dict[command] = contents
+        #print('')
+        #print("Command Dict: ")
+        #print(command_dict)
+        #print('')
         #open the old file back up and write the updates contents into it, otherwise tell the user you can't and exit
         #original dictionary shouldn't be modified
         try:
-            with open(self.path, "w") as json_file:
+            with open("command_dict.json", "w", encoding=encoding, errors=errors) as json_file:
                 json.dump(command_dict, json_file)
+                #json_file.write("lets hope")
             print("Successfully wrote to dictionary")
             return 0
         except:
             print("Cannot reopen json file to write new commands to it")
+            print("Expected Command: " + command)
+            print("Expected Contents: " + contents)
+            
+            print(self.path)
             return 1
         
     def loadCommandDict(self, path, encoding='utf-8', errors='ignore', strict=False):
         #file imports
         import json
         #open the file with the command dictionary in it, be sure to use the proper encoding or you will get a 
-        #JSON Error akin to JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+        #JSON Error akin to: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
         try:
             with open(path, encoding=encoding, errors=errors) as json_data:
                 command_dict = json.load(json_data, strict=strict)
@@ -42,20 +55,61 @@ class Scriber:
         except:
             print("There was an error retrieving the command dictionary")
             return
-    
+        
+    def findNewCommands(self, path):
+        import re
+        #the first part of this will be exceedingly similar to the first part of rescribe, however, we will not need to
+        #store line numbers, just the contents of the add new command block
+        file_dict = {}
+        
+        #load the command dictionary
+        try:
+            command_dict = self.loadCommandDict(self.path)
+        except:
+            print("There was an error loading the command dictionary")
+        
+        output_dict = {}
+        
+        #regular expression to pull out //..commandName(*whatever*)   {code}
+        regexp = re.compile(r'\/\/\.\.[a-zA-Z0-9\_\-]*\([a-zA-Z0-9\_\-\,]*\)[\t\s]*\{[a-zA-Z0-9\_\-\t\s\!\@\#\$\%\^\&\*\(\)\+\=\?\>\<\'\;\:\"\]\[\`\~]*\}')
+        
+        command = []
+        code= []
+        
+        code_start_delim = '{'
+        command_end_delim = '('
+        
+        file_contents = open(path).read()
+        
+        raw_additions = regexp.search(file_contents)
+        print(raw_additions.group())
+        #print(file_contents)
+        if(raw_additions == None):
+            print("No new commands to be added, make sure your commands are formatted properly")
+        else:
+            #print(raw_additions.group())
+            command = raw_additions.group().split('(')[0]
+            command = command.split('..')[1]
+            contents = raw_additions.group().split('{')[1].strip('}')
+            print("\nCommand: " + command)
+            self.addNewToDictionary(command, contents)
+        
     def rescribe(self, path):
         import re
         #instantiate a dictionary to hold each line of the file as its contents with the line number as its associated key
         file_dict = {}
         #a dictionary containing a list of commands
-        command_dict = self.loadCommandDict(self.path)
-        print("LLLLLLLLLLLLLLLLLLLLLLLLLL")
+        try:
+            command_dict = self.loadCommandDict(self.path)
+        except:
+            print("unable to load command dictionary")
+            return
         #{"forloop" : "2\nfor( &1 in range(&2, &3)):\n\tpass\n"}
         #A dictionary that will contain the final output
         output_dict = {}
 
         #a regular expression which can pull out our command format //..command(arg1:arg2:arg3)
-        regexp = re.compile(r'\/\/\.\.[a-zA-Z0-9]*\([a-zA-Z0-9\_\-]*:[a-zA-Z0-9\_\-]*:[a-zA-Z0-9\_\-]*\)')
+        regexp = re.compile(r'\/\/\.\.[a-zA-Z0-9\_\-]*\([a-zA-Z0-9\_\-]*:[a-zA-Z0-9\_\-]*:[a-zA-Z0-9\_\-]*\)')
         #regular expression for parsing out our arguments
         arg_raw_regexp = re.compile(r'[a-zA-Z0-9]*')
 
