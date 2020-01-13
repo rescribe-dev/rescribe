@@ -21,6 +21,12 @@
 				"command": "extension.rescribe",
 				"title": "reScribe",
 				"when": "editorTextFocus"
+				
+			},
+			{
+				"command": "extension.addToDict",
+				"title": "Add To Dict",
+				"when": "editorTextFocus"
 			},
 			{
 				"command": "extension.traverse",
@@ -32,6 +38,11 @@
 			{
 				"command": "extension.rescribe",
 				"key": "ctrl+r",
+				"when": "editorTextFocus"
+			},
+			{
+				"command": "extension.addToDict",
+				"key": "ctrl+e",
 				"when": "editorTextFocus"
 			}
 		]
