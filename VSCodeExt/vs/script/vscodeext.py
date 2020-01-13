@@ -9,3 +9,6 @@ if sys.argv[2] == 'reScribe':
 elif sys.argv[2] == 'traverse':
 	t = Traverse()
 	t.search()
+elif sys.argv[2] == 'addToDict':
+	parser = Scriber()
+	parer.findNewCommands(sys.argv[1])
