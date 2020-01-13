@@ -4,7 +4,7 @@
 #Returns a dictionary with the following format:
 #{key : contents}
 #{line_number_of_command_in_file : code_to_be_inserted_into_file}
-
+from io import open
 
 class Scriber:
     def __init__(self, path):
@@ -30,7 +30,7 @@ class Scriber:
         #open the old file back up and write the updates contents into it, otherwise tell the user you can't and exit
         #original dictionary shouldn't be modified
         try:
-            with open("command_dict.json", "w", encoding=encoding, errors=errors) as json_file:
+            with open(path, "w", encoding=encoding, errors=errors) as json_file:
                 json.dump(command_dict, json_file)
                 #json_file.write("lets hope")
             print("Successfully wrote to dictionary")
