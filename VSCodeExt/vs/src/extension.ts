@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 				//For spawn('python, ['filepathtoscript', 'arg1')
 				//arg1 = file to be rescribed arg2 = reScribe or traverse
 				const spawn = require("child_process").spawn;
-				const pythonProcess = spawn('python',[newExec + "/vscodeext.py", newPath, "reScribe"]);
+				const pythonProcess = spawn('python',[newExec + "/vscodeext.py", "reScribe", newPath, newExec + "/command_dict.json"]);
 				
 				//Looks for python output
 				pythonProcess.stdout.on('data', (data: any) => { 
@@ -77,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
 let traverse = vscode.commands.registerCommand('extension.traverse', async () => {
 
 	const spawn = require("child_process").spawn;
-	const search = spawn('python',[newExec + "/vscodeext.py", "None", "traverse"]);
+	const search = spawn('python',[newExec + "/vscodeext.py", "traverse"]);
 
 	//Looks for python output
 	search.stdout.on('data', (data: any) => { 
@@ -126,7 +126,7 @@ let addToDict = vscode.commands.registerCommand('extension.addToDict', async () 
 			//For spawn('python, ['filepathtoscript', 'arg1')
 			//arg1 = file to be rescribed arg2 = reScribe or traverse
 			const spawn = require("child_process").spawn;
-			const pythonProcess = spawn('python',[newExec + "/vscodeext.py", newPath, "addToDict"]);
+			const pythonProcess = spawn('python',[newExec + "/vscodeext.py", "addToDict", newPath, newExec + "/command_dict.json"]);
 			
 			//Looks for python output
 			pythonProcess.stdout.on('data', (data: any) => { 

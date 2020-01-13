@@ -1,14 +1,14 @@
 from scriber import Scriber
 from rescriber import Rescriber
-from traverseclass import Traverse
+#from traverse import Traverse
 import sys
-if sys.argv[2] == 'reScribe':
-	parser = Scriber()
-	r = Rescriber(sys.argv[1], parser.rescribe(sys.argv[1]))
+if sys.argv[1] == 'reScribe':
+	parser = Scriber(sys.argv[3])
+	r = Rescriber(sys.argv[2], parser.rescribe(sys.argv[2]))
 	r.replaceWithDictionary()
-elif sys.argv[2] == 'traverse':
-	t = Traverse()
-	t.search()
-elif sys.argv[2] == 'addToDict':
-	parser = Scriber()
-	parer.findNewCommands(sys.argv[1])
+#elif sys.argv[1] == 'traverse':
+#	t = Traverse()
+#	t.search()
+elif sys.argv[1] == 'addToDict':
+	parser = Scriber(sys.argv[3])
+	parser.findNewCommands(sys.argv[2])
