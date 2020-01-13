@@ -15,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
+
 	let reScribe = vscode.commands.registerTextEditorCommand('extension.rescribe', async () => {
 		// The code you place here will be executed every time your command is executed
 		//vscode.window.showInformationMessage('Rescribe!');
@@ -72,10 +73,36 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		});
 });
+
 let traverse = vscode.commands.registerCommand('extension.traverse', async () => {
-	// The code you place here will be executed every time your command is executed
+
+	const spawn = require("child_process").spawn;
+	const search = spawn('python',[newExec + "/vscodeext.py", "None", "traverse"]);
+
+	//Looks for python output
+	search.stdout.on('data', (data: any) => { 
+		vscode.window.showInformationMessage('reScribe!');
+		console.log('No Errors:');
+		console.log(data.toString());
+	} ); 
+
+	//If script has error then this prints
+	search.stderr.on('data', (data: any) => { 
+		vscode.window.showInformationMessage('Error!');
+		console.log('Error: ');
+		console.log(data.toString());
+	} ); 
+
+	//At end of process this will print
+	search.stdout.on('end', () => { 
+		console.log('Process Ended');
+	} );
+	});
+
+let addToDict = vscode.commands.registerCommand('extension.addToDict', async () => {
 	var vscode = require("vscode");
 	var path = require("path");
+
 	var currentlyOpenTabfilePath = vscode.window.activeTextEditor.document.fileName;
 	var currentlyOpenTabfileName = path.basename(currentlyOpenTabfilePath);
 	console.log('Current File Path: ' + currentlyOpenTabfilePath);
@@ -90,30 +117,34 @@ let traverse = vscode.commands.registerCommand('extension.traverse', async () =>
 			//vscode.workspace.saveAll()
 			//Saves current document
 			vscode.window.activeTextEditor.document.save();
+
 			console.log("File exists");
+			//arg is used for testing
+			const arg = 'C:/Users/Trevor/vs/sampleCode.java';
 
 			//These 2 lines are for spawning/running the python script
-			//For spawn('python, ['filepathtoscript', 'arg1', 'arg2')
-			//arg1 = file to be rescribed
+			//For spawn('python, ['filepathtoscript', 'arg1')
+			//arg1 = file to be rescribed arg2 = reScribe or traverse
 			const spawn = require("child_process").spawn;
-			const search = spawn('python',[newExec + "/vscodeext.py", newPath, "traverse"]);
+			const pythonProcess = spawn('python',[newExec + "/vscodeext.py", newPath, "addToDict"]);
 			
 			//Looks for python output
-			search.stdout.on('data', (data: any) => { 
-				vscode.window.showInformationMessage('reScribe!');
+			pythonProcess.stdout.on('data', (data: any) => { 
+				vscode.window.showInformationMessage('Successfully added command to dictonary!');
 				console.log('No Errors:');
 					console.log(data.toString());
 			} ); 
 
 			//If script has error then this prints
-			search.stderr.on('data', (data: any) => { 
-				vscode.window.showInformationMessage('Error!');
+			pythonProcess.stderr.on('data', (data: any) => { 
+				vscode.window.showInformationMessage('Error! Could not add command to dictionary');
 				console.log('Error: ');
 					console.log(data.toString());
 			} ); 
 
 			//At end of process this will print
-			search.stdout.on('end', () => { 
+			pythonProcess.stdout.on('end', () => { 
+			//vscode.window.showInformationMessage('Rescribe!');
 			console.log('Process Ended');
 			} );
 		} else {
@@ -122,8 +153,10 @@ let traverse = vscode.commands.registerCommand('extension.traverse', async () =>
 		}
 	});
 });
+
 	context.subscriptions.push(reScribe);
 	context.subscriptions.push(traverse);
+	context.subscriptions.push(addToDict);
 }
 
 // this method is called when your extension is deactivated
