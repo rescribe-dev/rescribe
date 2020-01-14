@@ -2,11 +2,12 @@ import json
 import PySimpleGUI as sg
 
 class Traverse:
-	def __init__(self):
-		pass
-	def search(self):
+	def __init__(self, path):
+		self.path = path
+	def search(self, path):
 		#load command dict
-		commands = json.load(open('command_dict.json'))
+		print(self)
+		commands = json.load(open(path))
 
 		sg.theme('DarkAmber')   # Make Window in dark mode
 
@@ -58,3 +59,4 @@ class Traverse:
 					window.UnHide()
 					cw.Close()
 		window.close()
+		return
