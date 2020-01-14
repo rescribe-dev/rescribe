@@ -1,1 +1,1 @@
-{"forloop" : "2\nfor( &1 in range(&2, &3)):\n\tpass\n"}
+{"forloop": "2\nfor( &1 in range(&2, &3)):\n\tpass\n", "test": "2\n    test = new Test()\n"}

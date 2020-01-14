@@ -4,15 +4,12 @@
 #Returns a dictionary with the following format:
 #{key : contents}
 #{line_number_of_command_in_file : code_to_be_inserted_into_file}
-from io import open
-
 class Scriber:
     def __init__(self, path):
         self.path = path
         
     def addNewToDictionary(self, command, contents, encoding='utf-8', errors='ignore'):
         import json
-        path = self.path
         command_dict = self.loadCommandDict(self.path)
         count = contents.count('\n')
         contents = str(count) + contents
@@ -30,16 +27,16 @@ class Scriber:
         #open the old file back up and write the updates contents into it, otherwise tell the user you can't and exit
         #original dictionary shouldn't be modified
         try:
-            with open(path, "w", encoding=encoding, errors=errors) as json_file:
+            with open(self.path, 'w', encoding=encoding, errors=errors) as json_file:
                 json.dump(command_dict, json_file)
-                #json_file.write("lets hope")
+                    #json_file.write("lets hope")
             print("Successfully wrote to dictionary")
             return 0
         except:
             print("Cannot reopen json file to write new commands to it")
             print("Expected Command: " + command)
             print("Expected Contents: " + contents)
-            
+                
             print(self.path)
             return 1
         
