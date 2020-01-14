@@ -6,7 +6,7 @@ class Traverse:
 		self.path = path
 	def search(self, path):
 		#load command dict
-		print(self)
+		print('Beginning search process...')
 		commands = json.load(open(path))
 
 		sg.theme('DarkAmber')   # Make Window in dark mode
