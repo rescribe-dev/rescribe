@@ -1,4 +1,4 @@
-/*
+Xno/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -11,6 +11,10 @@ import java.util.*;
  *
  * @author mycicle
  */
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6daeb2fceeda5c0f9c5915af790ff8edcfe54f43
 //..forloop(1:10:1)
 public class Calculator extends JFrame{
     private JButton[] jba = new JButton[16];
@@ -36,11 +40,18 @@ public class Calculator extends JFrame{
         //p.add(b);
         c.add(BorderLayout.CENTER, p);
         c.add(BorderLayout.NORTH, text);
+<<<<<<< HEAD
         
         setDefaultCloseOperation(EXIT_ON_CLOSE);
  //..forloop(2:4:6)
     class MouseEvent implements ActionListener{
 
+=======
+       
+        setVisible(true);
+    //..forloop(2:6:4)
+    class MouseEvent implements ActionListener{
+>>>>>>> 6daeb2fceeda5c0f9c5915af790ff8edcfe54f43
     @Override  //override javas version of this function 
     public void actionPerformed(ActionEvent e) {
         //this is where my actions will go
@@ -56,7 +67,12 @@ public class Calculator extends JFrame{
         }
     }
     //action listener is an interface whichwe implement not extend
-    
+
+    //..joeMummy(moreJUmbo){
+        print("pridhvi eats cake"):
+        for i in range(yourmom)
+            hello
+}
 }
     public static void main(String[] args) {
         // TODO code application logic here
@@ -64,5 +80,8 @@ public class Calculator extends JFrame{
     }
     
 }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 6daeb2fceeda5c0f9c5915af790ff8edcfe54f43

@@ -1,0 +1,3 @@
+//..test(commands){
+    test = new Test()
+}
