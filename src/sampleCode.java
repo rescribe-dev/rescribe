@@ -38,7 +38,7 @@ public class Calculator extends JFrame{
         c.add(BorderLayout.NORTH, text);
         
         setDefaultCloseOperation(EXIT_ON_CLOSE);
- //..forloop(2:4:6)
+
     class MouseEvent implements ActionListener{
 
     @Override  //override javas version of this function 
