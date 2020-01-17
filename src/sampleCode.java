@@ -11,7 +11,9 @@ import java.util.*;
  *
  * @author mycicle
  */
-//..forloop(1,2,3)
+//..neuralNetwork(float a, int b, c){
+    
+}
 public class Calculator extends JFrame{
     private JButton[] jba = new JButton[16];
     private String[] jbaChar = {"7", "8", "9", "*", "4", "5", "6","-", "1", "2", "3", "+", "0", ".", "=", "C"};

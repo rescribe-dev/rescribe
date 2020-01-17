@@ -42,13 +42,14 @@ def parse_dict_for_lines_with_commands(file_dict, regular_expression):
     file_dict, commands, args_raw
     """
     commands = []
+    args = []
     lines_to_kill = []
     for key in file_dict:
         if (regular_expression.search(file_dict[key])):
             file_dict[key] = file_dict[key].strip()
             temp_str = file_dict[key].split("//..")[1]
             commands.append(temp_str.split("(")[0])
-            args = temp_str.split("(")[1].split(")")[0]
+            args.append(temp_str.split("(")[1].split(")")[0])
         else:
             lines_to_kill.append(key)
     
@@ -71,9 +72,9 @@ def get_insertion_text(command_path, file_path, regular_expression):
 
     try:
         file_dict, commands, args = parse_dict_for_lines_with_commands(file_dict, regular_expression)
-        args = args.split(',')
+        args = args[0].split(',')
     except:
-        print("failed to parse the file dictionary for commands : check the regex")
+        print("failed to parse the file dictionary for commands")
         return 
 
     return_strings = []
