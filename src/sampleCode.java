@@ -12,7 +12,8 @@ import java.util.*;
  * @author mycicle
  */
 //..neuralNetwork(float a, int b, c){
-    
+    hello { how are you }
+    I am well, thank you()
 }
 public class Calculator extends JFrame{
     private JButton[] jba = new JButton[16];
