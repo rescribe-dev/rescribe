@@ -91,7 +91,7 @@ def grammar_parser(file_contents):
                         if grammar_stack == []:
                             reached_end = True
                             end = (line_index, character_index)
-                            return convert(output)
+                            return convert(output, start, end)
     
                     except:
                         reached_end = True
@@ -104,9 +104,10 @@ def grammar_parser(file_contents):
     print("There is a syntax error in the rescribe command, check for improper curly brace usage\nReturning start and end coordinates realtive to //..\n Touple (line_number, character_number) - indexed from zero\n")
     return start, end
 
-def convert(s):
-    output = ""
-    return output.join(s)
+def convert(s, start, end):
+    output = "".join(s)
+    output = str(end[0] - start[0] - 1) + output
+    return output
 
 if __name__ == "__main__":
     import re
