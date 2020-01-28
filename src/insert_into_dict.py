@@ -104,12 +104,12 @@ def grammar_parser(file_contents):
     print("There is a syntax error in the rescribe command, check for improper curly brace usage\nReturning start and end coordinates realtive to //..\n Touple (line_number, character_number) - indexed from zero\n")
     return start, end
 
-def load_to_json_command_dict(path, command, command_contents, encoding='utf-8', errors='ignore', strict=False):
+def load_to_json_command_dict(path, command, command_contents, encoding='utf-8', errors='ignore'):
     import json
     command_dict = dict()
     command_dict[command] = command_contents
-    with open(path, encoding=encoding, errors=errors, 'w+'):
-        json.dump(command_dict, strict=False)
+    with open(path, 'a+', encoding=encoding, errors=errors) as file:
+        json.dump(command_dict, file)
     print(command_dict)
     return
 
