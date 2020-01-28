@@ -104,6 +104,15 @@ def grammar_parser(file_contents):
     print("There is a syntax error in the rescribe command, check for improper curly brace usage\nReturning start and end coordinates realtive to //..\n Touple (line_number, character_number) - indexed from zero\n")
     return start, end
 
+def load_to_json_command_dict(path, command, command_contents, encoding='utf-8', errors='ignore', strict=False):
+    import json
+    command_dict = dict()
+    command_dict[command] = command_contents
+    with open(path, encoding=encoding, errors=errors, 'w+'):
+        json.dump(command_dict, strict=False)
+    print(command_dict)
+    return
+
 def convert(s, start, end):
     output = "".join(s)
     output = str(end[0] - start[0] - 1) + output
@@ -116,4 +125,6 @@ if __name__ == "__main__":
     print("Line Numbers: ", line_numbers, " Commands: ", commands, " args: ", args)
 
     command_contents = get_command_contents("command_dict.json", "sampleCode.java", regexp)
-    print(command_contents)
+    
+    load_to_json_command_dict("command_dict.json", commands[0], command_contents)
+    #print(command_contents)
