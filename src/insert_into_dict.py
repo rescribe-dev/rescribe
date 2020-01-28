@@ -107,9 +107,14 @@ def grammar_parser(file_contents):
 def load_to_json_command_dict(path, command, command_contents, encoding='utf-8', errors='ignore'):
     import json
     command_dict = dict()
-    command_dict[command] = command_contents
-    with open(path, 'a+', encoding=encoding, errors=errors) as file:
+    with open(path, 'r', encoding=encoding, errors=errors) as file:
+        command_dict = json.load(file) 
+
+    command_dict[command] = command_contents  
+    
+    with open(path, 'w', encoding=encoding, errors=errors) as file:
         json.dump(command_dict, file)
+
     print(command_dict)
     return
 

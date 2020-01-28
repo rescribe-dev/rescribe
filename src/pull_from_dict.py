@@ -98,5 +98,5 @@ def get_insertion_text(command_path, file_path, regular_expression):
 if __name__ == "__main__":
     import re
     regexp = re.compile(r'\/\/\.\.[a-zA-Z0-9\_\-]*\([a-zA-Z0-9\_\-\,]*\)')
-    insertion_text = get_insertion_text("command_dict.json", "sampleCode.java", regexp)
+    insertion_text = get_insertion_text("command_dict.json", "test.py", regexp)
     print(insertion_text)
