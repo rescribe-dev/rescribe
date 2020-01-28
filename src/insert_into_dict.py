@@ -91,8 +91,9 @@ def grammar_parser(file_contents):
                         if grammar_stack == []:
                             reached_end = True
                             end = (line_index, character_index)
-                            return convert(output, start, end)
-    
+                            contents = convert(output, start, end)
+                            return contents.replace("{", "", 1)
+                            
                     except:
                         reached_end = True
                         end = (line_index, character_index)
