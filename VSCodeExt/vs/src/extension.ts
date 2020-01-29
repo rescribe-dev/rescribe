@@ -44,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 				//These 2 lines are for spawning/running the python script
 				//For spawn('python, ['filepathtoscript', 'arg1')
-				//arg1 = file to be rescribed arg2 = reScribe or traverse
+				//arg1 = file to be rescribed arg2 = reScribe, traverse, or addToDict
 				const spawn = require("child_process").spawn;
 				const pythonProcess = spawn('python3',[newExec + "/vscodeext.py", "reScribe", newPath, newExec + "/command_dict.json"]);
 				

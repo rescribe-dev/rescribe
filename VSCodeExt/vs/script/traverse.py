@@ -11,13 +11,13 @@ class Traverse:
 
 		sg.theme('DarkAmber')   # Make Window in dark mode
 
-		#Create the layout of the window
+		#Creawte the layout of the indow
 		layout = [  [sg.Text('reScribe Simple Command Search')],
 					[sg.Text('Enter Command Here'), sg.InputText()],
 					[sg.Button('Search'), sg.Button('Close')] ]
 
 		# Create the Window
-		window = sg.Window('reScribe Search', layout)
+		window = sg.Window('reScribe Library Search', layout)
 		# Event Loop to process "events" and get the "values" of the inputs
 		#set command window to not be active
 		cw_active = False
