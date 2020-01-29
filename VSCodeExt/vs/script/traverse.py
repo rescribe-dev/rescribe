@@ -55,6 +55,9 @@ class Traverse:
 				if found:
 					print("Command found!")
 					window['_display_'].update(str(output))
+				else:
+					print("Command not found!")
+					window['_display_'].update("Command " + values[0] + " not found.")
 			for k in commandList:
 				if event in k[0]:
 					output = 'Command:\n //..' + k[0] + '\n' + 'Arguments: \n' + 'Code:\n' + k[1]
