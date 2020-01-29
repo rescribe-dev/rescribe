@@ -127,10 +127,10 @@ def convert(s, start, end):
 if __name__ == "__main__":
     import re
     regexp = re.compile(r'\/\/\.\.[a-zA-Z0-9\_\-]*\([a-zA-Z0-9\_\-\,\s]*\)')
-    line_numbers, commands, args = get_command_parameters("command_dict.json", "sampleCode.java", regexp)
+    line_numbers, commands, args = get_command_parameters("command_dict.json", "../demo_code/demo.py", regexp)
     print("Line Numbers: ", line_numbers, " Commands: ", commands, " args: ", args)
 
-    command_contents = get_command_contents("command_dict.json", "sampleCode.java", regexp)
+    command_contents = get_command_contents("command_dict.json", "../demo_code/demo.py", regexp)
     
     load_to_json_command_dict("command_dict.json", commands[0], command_contents)
     #print(command_contents)
