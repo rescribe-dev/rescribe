@@ -1,3 +1,1 @@
-//..test(commands){
-    test = new Test()
-}
+//..forloop(2:3:4)
