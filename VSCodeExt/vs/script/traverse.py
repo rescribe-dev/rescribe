@@ -9,21 +9,17 @@ class Traverse:
 		print('Beginning search process...')
 		commands = json.load(open(path))
 
-#		Example Theme Layout:
-#		 'LightGreen3': {'BACKGROUND': '#A8C1B4',
-#               'TEXT': 'black',
-#               'INPUT': '#DDE0DE',
-#               'SCROLL': '#E3E3E3',
-#               'TEXT_INPUT': 'black',
-#               'BUTTON': ('white', '#6D9F85'),
-#               'PROGRESS': DEFAULT_PROGRESS_BAR_COLOR,
-#               'BORDER': 1,
-#               'SLIDER_DEPTH': 0,
-#               'PROGRESS_DEPTH': 0}
+		sg.LOOK_AND_FEEL_TABLE['reScribe'] = {'BACKGROUND': '#4D4D4D',
+												'TEXT': '#3CA0F4',
+												'INPUT': '#FFFFFF',
+												'TEXT_INPUT': '#707070',
+												'SCROLL': '#3CA0F4',
+												'BUTTON': ('#3CA0F4', '#707070'),
+												'PROGRESS': ('#3CA0F4', '707070'),
+												'BORDER': 1, 'SLIDER_DEPTH': 0, 'PROGRESS_DEPTH': 0,
+                                        }
 
-#		Themes are located in the LOOK_AND_FEEL_TABLE variable
-
-		sg.theme('DarkAmber')   # Make Window in dark mode
+		sg.theme('reScribe')   # Make Window in dark mode
 
 		#Create the layout of the window
 		col = []
