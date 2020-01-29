@@ -1,5 +1,6 @@
 import json
 import PySimpleGUI as sg
+from fast_autocomplete import AutoComplete
 
 class Traverse:
 	def __init__(self, path):
@@ -21,12 +22,18 @@ class Traverse:
 
 		sg.theme('reScribe')   # Make Window in dark mode
 
+		commandList = [[k,v] for (k, v) in commands.items()]
+		#create empty dict for autocomplete
+		words = {}
 		#Create the layout of the window
 		col = []
-		commandList = [[k,v] for (k, v) in commands.items()]
-
 		for (k, v) in commands.items():
+			#Creates Sidebar of buttons for each command in the dict
 			col += [[sg.Button(k, key = k, size = (10,1))]]
+			#adds each command to the word dict to be used for autocomplete
+			words[k] = {}
+		#loading up the autocomplete options:
+		autocomplete = AutoComplete(words=words)
 
 
 
@@ -36,9 +43,8 @@ class Traverse:
 
 		# Create the Window
 		window = sg.Window('reScribe Search', layout)
+		
 		# Event Loop to process "events" and get the "values" of the inputs
-		#set command window to not be active
-		cw_active = False
 		while True:
 			event, values = window.read()
 			if event in (None, 'Close'):   # if user closes window or clicks cancel
