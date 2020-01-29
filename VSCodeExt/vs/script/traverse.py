@@ -30,8 +30,8 @@ class Traverse:
 
 
 
-		layout = [  [sg.Text('//..reScribe'), sg.InputText(), sg.Button('Search')],
-					[sg.Column(col), sg.Text('Choose a command from the left to see the format and what it produces. \nAlternatively you can use the search bar above to search for a command', key = '_display_', size = (40,10))],
+		layout = [  [sg.Text('', size = (1,1)), sg.Text('//..reScribe'), sg.Text('', size = (2,1)), sg.InputText(size = (50,1)), sg.Button('Search')],
+					[sg.Column(col), sg.Text('Choose a command from the left to see the format and code it contains. \nAlternatively you can use the search bar above to search for a command.', key = '_display_', size = (55,10))],
 					[sg.Button('Close')] ]
 
 		# Create the Window
