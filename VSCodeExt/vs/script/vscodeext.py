@@ -2,7 +2,7 @@ from scriber import Scriber
 from rescriber import Rescriber
 from traverse import Traverse
 import sys
-
+print(sys.argv[1])
 if sys.argv[1] == 'reScribe':
 	parser = Scriber(sys.argv[3])
 	r = Rescriber(sys.argv[2], parser.rescribe(sys.argv[2]))

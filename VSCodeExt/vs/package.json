@@ -22,7 +22,6 @@
 				"command": "extension.rescribe",
 				"title": "reScribe",
 				"when": "editorTextFocus"
-				
 			},
 			{
 				"command": "extension.addToDict",
@@ -31,8 +30,7 @@
 			},
 			{
 				"command": "extension.traverse",
-				"title": "Traverse",
-				"when": "editorTextFocus"
+				"title": "Traverse"
 			}
 		],
 		"keybindings": [
