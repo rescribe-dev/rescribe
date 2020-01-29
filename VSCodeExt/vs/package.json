@@ -22,7 +22,6 @@
 				"command": "extension.rescribe",
 				"title": "reScribe",
 				"when": "editorTextFocus"
-				
 			},
 			{
 				"command": "extension.addToDict",
