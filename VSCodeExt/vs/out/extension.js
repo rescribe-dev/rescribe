@@ -34,7 +34,7 @@ function activate(context) {
         var currentlyOpenTabfileName = path.basename(currentlyOpenTabfilePath);
         console.log('Current File Path: ' + currentlyOpenTabfilePath);
         console.log('Current File: ' + currentlyOpenTabfileName);
-        var newPath = currentlyOpenTabfilePath.replace(/\\/g, '\\\\');
+        var newPath = currentlyOpenTabfilePath.replace(/\\/g, '/');
         //Tests to see if the file exits and therefore can be edited
         const fs = require("fs");
         fs.exists(currentlyOpenTabfilePath, (exist) => {
@@ -101,7 +101,7 @@ function activate(context) {
         var currentlyOpenTabfileName = path.basename(currentlyOpenTabfilePath);
         console.log('Current File Path: ' + currentlyOpenTabfilePath);
         console.log('Current File: ' + currentlyOpenTabfileName);
-        var newPath = currentlyOpenTabfilePath.replace(/\\/g, '\\\\');
+        var newPath = currentlyOpenTabfilePath.replace(/\\/g, '/');
         //Tests to see if the file exits and therefore can be edited
         const fs = require("fs");
         fs.exists(currentlyOpenTabfilePath, (exist) => {
