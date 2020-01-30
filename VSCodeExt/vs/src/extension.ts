@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 		var currentlyOpenTabfileName = path.basename(currentlyOpenTabfilePath);
 		console.log('Current File Path: ' + currentlyOpenTabfilePath);
 		console.log('Current File: ' + currentlyOpenTabfileName);
-		var newPath = currentlyOpenTabfilePath.replace(/\\/g, '\\\\');
+		var newPath = currentlyOpenTabfilePath.replace(/\\/g, '/');
 		//Tests to see if the file exits and therefore can be edited
 		const fs = require("fs");
 		fs.exists(currentlyOpenTabfilePath, (exist: any) => {
@@ -106,7 +106,7 @@ let addToDict = vscode.commands.registerCommand('extension.addToDict', async () 
 	var currentlyOpenTabfileName = path.basename(currentlyOpenTabfilePath);
 	console.log('Current File Path: ' + currentlyOpenTabfilePath);
 	console.log('Current File: ' + currentlyOpenTabfileName);
-	var newPath = currentlyOpenTabfilePath.replace(/\\/g, '\\\\');
+	var newPath = currentlyOpenTabfilePath.replace(/\\/g, '/');
 	//Tests to see if the file exits and therefore can be edited
 	const fs = require("fs");
 	fs.exists(currentlyOpenTabfilePath, (exist: any) => {
