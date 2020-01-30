@@ -1,6 +1,7 @@
 import json
 import PySimpleGUI as sg
 from fast_autocomplete import AutoComplete
+import pyperclip
 
 class Traverse:
 	def __init__(self, path):
@@ -26,30 +27,39 @@ class Traverse:
 		#create empty dict for autocomplete
 		words = {}
 		#Create the layout of the window
+
+		#Create layout sizing:
+		length = 1000
+		height = 500
+
 		col = []
+		combo = []
 		for (k, v) in commands.items():
 			#Creates Sidebar of buttons for each command in the dict
-			col += [[sg.Button(k, key = k, size = (10,1))]]
+			col += [[sg.Button(k, key = k, font = ('Courier', 12), size = (int(.02*length),int(.005*height)))]]
 			#adds each command to the word dict to be used for autocomplete
 			words[k] = {}
+			combo += [k]
 		#loading up the autocomplete options:
 		autocomplete = AutoComplete(words=words)
 
-
-
-		layout = [  [sg.Text('', size = (1,1)), sg.Text('//..reScribe'), sg.Text('', size = (2,1)), sg.InputText(size = (50,1)), sg.Button('Search')],
-					[sg.Column(col), sg.Text('Choose a command from the left to see the format and code it contains. \nAlternatively you can use the search bar above to search for a command.', key = '_display_', size = (55,10))],
-					[sg.Button('Close')] ]
+		layout = [  [sg.Text('',size = (int(.001*length), 1)), sg.Text('//..reScribe'), sg.Text('',size = (int(.003*length), 1)), sg.InputCombo(combo, size = (int(.04*length), 1)), sg.Button('Search', size = (int(.02*length), 1))],
+					[sg.Column(col), sg.Text('Choose a command from the left to see the format and code it contains. \nAlternatively you can use the search bar above to search for a command.', key = '_display_', font = ('Helvetica', 12), size = (int(.05*length),int(.05*height)))],
+					[sg.Button('Close'),sg.Text('',size = (int(.055*length), 1)), sg.Button('Copy Command', key = 'copy')] ]
 
 		# Create the Window
-		window = sg.Window('reScribe Search', layout)
+		window = sg.Window('reScribe Search', layout, return_keyboard_events=True, font = ('Courier', 18), size = (length, height))
 		
+		out_command = ''
 		# Event Loop to process "events" and get the "values" of the inputs
 		while True:
 			event, values = window.read()
+			event_found = False
 			if event in (None, 'Close'):   # if user closes window or clicks cancel
+				event_found = True
 				break
-			elif event in 'Search':
+			elif event is 'Search':
+				event_found = True
 				print('Searching for commmand: ', values[0])
 				found = False
 				#search for request in command dict
@@ -65,9 +75,19 @@ class Traverse:
 					print("Command not found!")
 					window['_display_'].update("Command " + values[0] + " not found.")
 			for k in commandList:
-				if event in k[0]:
-					output = 'Command:\n //..' + k[0] + '\n' + 'Arguments: \n' + 'Code:\n' + k[1]
+				if event is k[0]:
+					event_found = True
+					#output = 'Command:\n //..' + k[0] + '\n' + 'Arguments: \n' + 'Code:\n' + k[1]
+					out_command = '//..' + k[0] + '()'
+					codefix = k[1].split('\n',1)
+					output = 'Command:\n\n' + out_command + '\n\n' + 'Code:\n\n' + codefix[1]
 					window['_display_'].update(str(output))
-
+					pyperclip.copy('//..' + k[0] + '()')
+					break
+			if event is 'copy':
+				pyperclip.copy(out_command)
+			#if not event_found:
+			#	loc = window.Location
+			#	window['_display_'].update(event)
 		window.close()
 		return
