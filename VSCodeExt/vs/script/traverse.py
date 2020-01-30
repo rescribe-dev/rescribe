@@ -31,12 +31,13 @@ class Traverse:
 		#Create layout sizing:
 		length = 1000
 		height = 500
+		font = 'Consolas'
 
 		col = []
 		combo = []
 		for (k, v) in commands.items():
 			#Creates Sidebar of buttons for each command in the dict
-			col += [[sg.Button(k, key = k, font = ('Courier', 12), size = (int(.02*length),int(.005*height)))]]
+			col += [[sg.Button(k, key = k, font = (font, 12), size = (int(.02*length),int(2)))]]
 			#adds each command to the word dict to be used for autocomplete
 			words[k] = {}
 			combo += [k]
@@ -44,11 +45,11 @@ class Traverse:
 		autocomplete = AutoComplete(words=words)
 
 		layout = [  [sg.Text('',size = (int(.001*length), 1)), sg.Text('//..reScribe'), sg.Text('',size = (int(.003*length), 1)), sg.InputCombo(combo, size = (int(.04*length), 1)), sg.Button('Search', size = (int(.02*length), 1))],
-					[sg.Column(col), sg.Text('Choose a command from the left to see the format and code it contains. \nAlternatively you can use the search bar above to search for a command.', key = '_display_', font = ('Helvetica', 12), size = (int(.05*length),int(.05*height)))],
-					[sg.Button('Close'),sg.Text('',size = (int(.055*length), 1)), sg.Button('Copy Command', key = 'copy')] ]
+					[sg.Column(col), sg.Text('Choose a command from the left to see the format and code it contains. \nAlternatively you can use the search bar above to search for a command.', key = '_display_', font = (font, 10), size = (int(.05*length),int(.05*height)))],
+					[sg.Text('',size = (int(.001*length), 1)), sg.Button('Close', font =(font, 12), size = (6,2)),sg.Text('',size = (int(.055*length), 1)), sg.Button('Copy Command', font =(font, 12), size = (13,2), key = 'copy')] ]
 
 		# Create the Window
-		window = sg.Window('reScribe Search', layout, return_keyboard_events=True, font = ('Courier', 18), size = (length, height))
+		window = sg.Window('reScribe Search', layout, return_keyboard_events=True, font = (font, 18), size = (length, height))
 		
 		out_command = ''
 		# Event Loop to process "events" and get the "values" of the inputs

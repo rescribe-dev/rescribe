@@ -25,12 +25,12 @@
 			},
 			{
 				"command": "extension.addToDict",
-				"title": "Add To Dict",
+				"title": "Add Command To reScribe Dictionary",
 				"when": "editorTextFocus"
 			},
 			{
 				"command": "extension.traverse",
-				"title": "Traverse"
+				"title": "Search reScribe Dictionary"
 			}
 		],
 		"keybindings": [
