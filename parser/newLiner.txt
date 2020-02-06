@@ -1,0 +1,26 @@
+public ArrayList spellCheck(String text_path) throws Exception{
+         int counter = 0;
+         String line;
+         Pattern p = Pattern.compile("[^\\s0-9\\.\\?\\#\\@\\^\\,\\/\\+\\=\\&\\`\\~\\%][A-Z]?[a-z]+");
+         Matcher m;
+         this.fr_text =  new FileReader(text_path);
+         this.br_text = new BufferedReader(fr_text);
+         
+         while((line = br_text.readLine()) != null){
+             m = p.matcher(line);
+             while (m.find()){
+                 all_words.add(m.group());
+                 if(!unique_words.contains(m.group())){
+                     unique_words.add(m.group());
+                 }
+                 if (dict.get(m.group()) == null){
+                     if (dict.get(m.group().toLowerCase()) == null){
+                         flagged_words.add(m.group());
+                     }
+                 }
+             }
+         }
+         
+         br_text.close();
+         return flagged_words;
+}
