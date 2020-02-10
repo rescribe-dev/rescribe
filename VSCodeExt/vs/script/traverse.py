@@ -23,8 +23,6 @@ class Traverse:
 		sg.theme('reScribe')   # Make Window in dark mode
 
 		commandList = [[k,v] for (k, v) in commands.items()]
-		#create empty dict for autocomplete
-		words = {}
 		#Create the layout of the window
 
 		#Create layout sizing:
@@ -37,11 +35,7 @@ class Traverse:
 		for (k, v) in commands.items():
 			#Creates Sidebar of buttons for each command in the dict
 			col += [[sg.Button(k, key = k, font = (font, 12), size = (int(.02*length),int(2)))]]
-			#adds each command to the word dict to be used for autocomplete
-			words[k] = {}
 			combo += [k]
-		#loading up the autocomplete options:
-		autocomplete = AutoComplete(words=words)
 
 		layout = [  [sg.Text('',size = (int(.001*length), 1)), sg.Text('//..reScribe'), sg.Text('',size = (int(.003*length), 1)), sg.InputCombo(combo, size = (int(.04*length), 1)), sg.Button('Search', size = (int(.02*length), 1))],
 					[sg.Column(col), sg.Text('Choose a command from the left to see the format and code it contains. \nAlternatively you can use the search bar above to search for a command.', key = '_display_', font = (font, 10), size = (int(.05*length),int(.05*height)))],
