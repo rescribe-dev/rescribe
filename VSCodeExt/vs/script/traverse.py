@@ -1,6 +1,5 @@
 import json
 import PySimpleGUI as sg
-from fast_autocomplete import AutoComplete
 import pyperclip
 
 class Traverse:
