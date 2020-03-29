@@ -116,7 +116,7 @@ def load_to_json_command_dict(path, command, command_contents, encoding='utf-8',
     with open(path, 'w', encoding=encoding, errors=errors) as file:
         json.dump(command_dict, file)
 
-    print(command_dict)
+    # print(command_dict)
     return
 
 def convert(s, start, end):
