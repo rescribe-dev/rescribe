@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": "",
   "author": {
-    "name": "NASA SUITS TEAM"
+    "name": "rescribe"
   },
   "keywords": [
     "backend",
@@ -28,9 +28,11 @@
     "test": "jest",
     "coverage": "jest --coverage",
     "watch": "npm run build -- --watch",
-    "watch:test": "jest --watch"
+    "watch:test": "jest --watch",
+    "antlr4ts": "antlr4ts -visitor src/grammer/Hello.g4"
   },
   "dependencies": {
+    "antlr4ts": "^0.5.0-alpha.3",
     "apollo-server-express": "^2.11.0",
     "bcrypt": "^4.0.1",
     "compression": "^1.7.4",
@@ -50,6 +52,7 @@
     "@types/jest": "^23.3.3",
     "@types/mongodb": "^3.5.2",
     "@types/node": "^10.11.4",
+    "antlr4ts-cli": "^0.5.0-alpha.3",
     "coveralls": "^3.0.2",
     "jest": "^23.6.0",
     "prettier": "^1.14.3",
