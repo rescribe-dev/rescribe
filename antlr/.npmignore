@@ -1,3 +1,5 @@
+# gitignore
+
 coverage/
 node_modules/
 npm-debug.log*
@@ -6,4 +8,9 @@ yarn-error.log*
 .nyc_output
 lib
 lib_test
-.env
+
+# npmignore
+
+src/
+__tests__/
+.vscode/
