@@ -7,5 +7,5 @@ yarn-error.log*
 lib
 lib_test
 .env
-src/grammer/*
-!src/grammer/*.g4
+src/grammer/gen
+.antlr

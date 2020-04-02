@@ -29,28 +29,14 @@
     "coverage": "jest --coverage",
     "watch": "npm run build -- --watch",
     "watch:test": "jest --watch",
-    "antlr4ts": "antlr4ts -visitor src/grammer/Hello.g4"
+    "antlr4ts": "cd src/grammer && antlr4ts -visitor Hello.g4 -o gen && cd -"
   },
   "dependencies": {
     "antlr4ts": "^0.5.0-alpha.3",
-    "apollo-server-express": "^2.11.0",
-    "bcrypt": "^4.0.1",
-    "compression": "^1.7.4",
-    "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "graphql": "^14.6.0",
-    "graphql-depth-limit": "^1.1.0",
-    "graphql-tools": "^4.0.7",
-    "graphql-upload": "^10.0.0",
-    "mongodb": "^3.5.4"
+    "dotenv": "^8.2.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^3.0.0",
-    "@types/compression": "^1.7.0",
-    "@types/graphql-depth-limit": "^1.1.2",
     "@types/jest": "^23.3.3",
-    "@types/mongodb": "^3.5.2",
     "@types/node": "^10.11.4",
     "antlr4ts-cli": "^0.5.0-alpha.3",
     "coveralls": "^3.0.2",
