@@ -29,7 +29,9 @@
     "coverage": "jest --coverage",
     "watch": "npm run build -- --watch",
     "watch:test": "jest --watch",
-    "antlr4ts": "cd src/grammer && antlr4ts -visitor Hello.g4 -o gen && cd -"
+    "antlr4ts": "cd src/grammer && antlr4ts -visitor Hello.g4 -o gen && cd -",
+    "genOutput" : "run(){ node script.js --grammer-dir=./src/grammer/ --grammer-name=$1 --output-folder=gen;}; run",
+    "cleangen" : "rm src/grammer/gen/*"
   },
   "dependencies": {
     "antlr4ts": "^0.5.0-alpha.3",
