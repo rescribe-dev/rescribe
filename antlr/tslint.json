@@ -5,6 +5,16 @@
   ],
   "rules": {
     "no-console": false,
-    "variable-name": [true, "allow-leading-underscore"]
+    "variable-name": [
+      true,
+      "allow-leading-underscore"
+    ],
+    "no-submodule-imports": false
+  },
+  "linterOptions": {
+    "exclude": [
+      "src/grammar/grammars/**/*",
+      "src/grammar/gen/**/*"
+    ]
   }
 }
