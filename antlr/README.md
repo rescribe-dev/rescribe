@@ -4,3 +4,10 @@
 - build with `javac Hello*.java`
 - run with `grun Hello -r gui`
 - enter `hello <world><newline>`, `^D` to generate, `^C` to exit
+
+for cpp replace broken gen with this:
+```typescript
+if (!_localctx._val || !_localctx._val.text || _localctx._val.text !== '0') {
+  throw new InputMismatchException(this);
+}
+```

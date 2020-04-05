@@ -1,0 +1,6 @@
+{
+  "files.watcherExclude": {
+    "antlr/src/grammar/**": true,
+    "antlr/samples/*": true
+  }
+}
