@@ -20,7 +20,7 @@
     "start": "node lib/index",
     "dev": "yarn lint && yarn build && yarn start",
     "clean": "rimraf lib && rimraf coverage",
-    "format": "prettier --write \"{src,__tests__}/**/*.ts\" --single-quote --trailing-comma es5",
+    "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "tslint --force --format verbose \"src/**/*.ts\" --fix",
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run format && npm run lint && echo Using TypeScript && tsc --version",
@@ -29,9 +29,9 @@
     "coverage": "jest --coverage",
     "watch": "npm run build -- --watch",
     "watch:test": "jest --watch",
-    "antlr4ts": "cd src/grammer && antlr4ts -visitor Hello.g4 -o gen && cd -",
-    "genOutput" : "run(){ node script.js --grammer-dir=./src/grammer/ --grammer-name=$1 --output-folder=gen;}; run",
-    "cleangen" : "rm src/grammer/gen/*"
+    "antlr:gen": "./grammar_gen.sh",
+    "genOutput" : "node script.js --grammer-dir=./src/grammer/ --grammer-name=$1 --output-folder=gen",
+    "cleangen" : "rm src/grammar/gen/*"
   },
   "dependencies": {
     "antlr4ts": "^0.5.0-alpha.3",
