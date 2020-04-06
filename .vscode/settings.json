@@ -1,6 +1,8 @@
 {
   "files.watcherExclude": {
-    "antlr/src/grammar/**": true,
-    "antlr/samples/*": true
+    "antlr/api/src/grammar/**": true,
+    "antlr/api/samples/*": true,
+    "antlr/antlr/grammars/**": true,
+    "antlr/antlr/samples/*": true
   }
 }
