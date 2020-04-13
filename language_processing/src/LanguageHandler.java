@@ -1,9 +1,11 @@
 import grammar.gen.cpp.CPP14Lexer;
 import grammar.gen.cpp.CPP14Parser;
 import grammar.gen.java.*;
+import grammar.gen.python3.*;
 import java.io.*;
+
+import grammar.gen.python3.Python3Parser;
 import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.*;
 public class LanguageHandler {
@@ -27,39 +29,43 @@ public class LanguageHandler {
         return tree;
     }
 
+    public static ParseTree getPython3ParseTree(String file_contents){
+        Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(file_contents));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Python3Parser parser = new Python3Parser(tokens);
+        ParseTree tree = parser.file_input();
+        return tree;
+    }
+
     public static void main(String[] args) throws Exception{
-        if (args.length != 1){
-            System.out.println("Wrong number of arguments. This takes a filepath\n");
+        if (args.length == 0) {
+            System.out.println("Wrong number of arguments. This takes one or more filepaths\n");
             throw illegal_argument_exception;
         }
-        System.out.println(args[0]);
-        String path = args[0];
-        Reader reader = new Reader(path);
-        String file_contents = reader.readFile();
-        String file_extension = reader.getFileExtension();
 
-        ParseTreeWalker walker = new ParseTreeWalker();
+        for (String path : args) {
 
+            Reader reader = new Reader(path);
+            String file_contents = reader.readFile();
+            String file_extension = reader.getFileExtension();
 
+            ParseTreeWalker walker = new ParseTreeWalker();
 
-        if (file_extension.equals("java")){
-            ParseTree tree = getJavaParseTree(file_contents);
-            JavaDeclarationListener jdl = new JavaDeclarationListener();
-            walker.walk(jdl, tree);
-        }
-
-        else if (file_extension.equals("cpp")){
-            ParseTree tree = getCppParseTree(file_contents);
-            CppDeclarationListener cdl= new CppDeclarationListener();
-            walker.walk(cdl, tree);
-        }
-
-
-        else if (file_extension.equals("py")){
-            System.out.println("py!");
-        }
-        else{
-            System.out.println("unsupported file extension");
+            if (file_extension.equals("java")) {
+                ParseTree tree = getJavaParseTree(file_contents);
+                JavaDeclarationListener jdl = new JavaDeclarationListener();
+                walker.walk(jdl, tree);
+            } else if (file_extension.equals("cpp")) {
+                ParseTree tree = getCppParseTree(file_contents);
+                CppDeclarationListener cdl = new CppDeclarationListener();
+                walker.walk(cdl, tree);
+            } else if (file_extension.equals("py")) {
+                ParseTree tree = getPython3ParseTree(file_contents);
+                Python3DeclarationListener p3dl = new Python3DeclarationListener();
+                walker.walk(p3dl, tree);
+            } else {
+                System.out.println("unsupported file extension");
+            }
         }
 
     }
