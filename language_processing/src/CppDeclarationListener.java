@@ -1,4 +1,4 @@
-import grammar.gen.cpp .CPP14BaseListener;
+import grammar.gen.cpp.CPP14BaseListener;
 import grammar.gen.cpp.CPP14Parser;
 
 public class CppDeclarationListener extends CPP14BaseListener{
