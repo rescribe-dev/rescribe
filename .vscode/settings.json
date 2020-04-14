@@ -4,5 +4,6 @@
     "antlr/api/samples/*": true,
     "antlr/antlr/grammars/**": true,
     "antlr/antlr/samples/*": true
-  }
+  },
+  "java.configuration.updateBuildConfiguration": "disabled"
 }
