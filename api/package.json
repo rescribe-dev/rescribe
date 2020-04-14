@@ -1,0 +1,61 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "backend",
+  "license": "MIT",
+  "repository": "",
+  "author": {
+    "name": "rescribe"
+  },
+  "keywords": [
+    "backend",
+    "api"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index",
+  "types": "lib/index",
+  "scripts": {
+    "start": "node lib/index",
+    "dev": "yarn lint && yarn build && yarn start",
+    "clean": "rimraf lib && rimraf coverage",
+    "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
+    "lint": "tslint --force --format verbose \"src/**/*.ts\" --fix",
+    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean && npm run format && npm run lint && echo Using TypeScript && tsc --version",
+    "build": "tsc --pretty",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "watch": "npm run build -- --watch",
+    "watch:test": "jest --watch",
+    "antlr:gen": "./grammar_gen.sh",
+    "genOutput": "node script.js --grammer-dir=./src/grammer/ --grammer-name=$1 --output-folder=gen",
+    "cleangen": "rm src/grammar/gen/*"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.6.1",
+    "antlr4ts": "^0.5.0-alpha.3",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.3",
+    "@types/node": "^10.11.4",
+    "antlr4ts-cli": "^0.5.0-alpha.3",
+    "coveralls": "^3.0.2",
+    "jest": "^23.6.0",
+    "prettier": "^1.14.3",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.3",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "typescript": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest"
+  }
+}

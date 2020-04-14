@@ -1,1 +1,2 @@
-/antlr/antlr/antlr/nbproject/private/
+# ignore node modules always
+node_modules/
