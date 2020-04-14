@@ -1,11 +1,14 @@
-package antlr;
+package com.rescribe.antlr.parse;
 
-import antlr.gen.cpp.CPP14Lexer;
-import antlr.gen.cpp.CPP14Parser;
-import antlr.gen.java.JavaLexer;
-import antlr.gen.java.JavaParser;
-import antlr.gen.python3.Python3Lexer;
-import antlr.gen.python3.Python3Parser;
+import com.rescribe.antlr.gen.cpp.CPP14Lexer;
+import com.rescribe.antlr.gen.cpp.CPP14Parser;
+import com.rescribe.antlr.gen.java.JavaLexer;
+import com.rescribe.antlr.gen.java.JavaParser;
+import com.rescribe.antlr.gen.python3.Python3Lexer;
+import com.rescribe.antlr.gen.python3.Python3Parser;
+import com.rescribe.antlr.parse.listeners.CPPDeclarationListener;
+import com.rescribe.antlr.parse.listeners.JavaDeclarationListener;
+import com.rescribe.antlr.parse.listeners.Python3DeclarationListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -14,7 +17,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class LanguageHandler {
+public class RawFileLanguageHandler {
 
     public static IllegalArgumentException illegal_argument_exception;
 

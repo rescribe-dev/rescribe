@@ -5,7 +5,7 @@ bin/
 .gradle
 
 # ignore generated files
-src/main/java/antlr/gen/*
+src/main/java/com/rescribe/antlr/gen/*
 
 # ignore cloned grammars
 grammars/
