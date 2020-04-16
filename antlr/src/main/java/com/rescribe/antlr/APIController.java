@@ -27,6 +27,12 @@ class APIController {
         }
     }
 
+    @GetMapping("/ping")
+    @ResponseBody
+    void ping() {
+        return;
+    }
+
     @GetMapping("/hello")
     @ResponseBody
     HelloResponse hello() {

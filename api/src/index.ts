@@ -1,5 +1,7 @@
-import { Client } from '@elastic/elasticsearch'
+import { Client, errors } from '@elastic/elasticsearch';
 import { config } from 'dotenv';
+import { initializeAntlr } from './antlrBridge';
+import { initializeServer } from './server';
 
 let elasticClient: Client
 
@@ -12,11 +14,18 @@ const runAPI = () => {
     node: process.env.ELASTICSEARCH_URI
   });
   elasticClient.ping().then(res => {
-    console.log(res.statusCode)
-  }).catch(err => {
-    console.error(err)
+    console.log(`elastic connection status ${res.statusCode}`);
+  }).catch((err: errors.ElasticsearchClientError) => {
+    throw new Error(err.message);
   })
-  console.log(`Hello world 🚀`);
+  initializeAntlr().then(() => {
+    if (!process.env.PORT) {
+      throw new Error('cannot find port');
+    }
+    initializeServer(parseFloat(process.env.PORT));
+  }).catch((err: Error) => {
+    throw err;
+  });
 };
 
 if (!module.parent) {
