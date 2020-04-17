@@ -2,9 +2,9 @@
 
 set -e
 
-classpath=src/main/java/antlr
+classpath=src/main/java/com/rescribe/antlr
 
-package_base=antlr.gen
+package_base=com.rescribe.antlr.gen
 
 mkdir -p $classpath/gen
 rm -rf $classpath/gen/*
