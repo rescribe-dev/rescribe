@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 
+
 let antlrURI: string;
 
 let antlrClient: AxiosInstance;
@@ -40,7 +41,7 @@ export const pingAntlr = (): Promise<boolean> => {
   });
 }
 
-export const initializeAntlr = (): Promise<void> => {
+export const initializeAntlr = (): Promise<boolean> => {
   if (!process.env.ANTLR_URI) {
     throw new Error('cannot find antlr uri');
   }
@@ -57,8 +58,8 @@ export const initializeAntlr = (): Promise<void> => {
     },
     timeout: 3000,
   })
-  return pingAntlr().then(() => {
-    console.log('connected to antlr');
+  return pingAntlr().then((res) => {
+    return res
   }).catch((err: Error) => {
     const message = `cannot connect to antlr server: ${err.message}`;
     throw new Error(message);
