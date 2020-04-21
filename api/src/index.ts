@@ -1,45 +1,28 @@
 import { config } from 'dotenv';
-import { initializeAntlr } from './antlrBridge';
-import { initializeElastic } from './elaticInit';
-import { initializeLogger } from './logger'
+import { initializeElastic } from './elastic/init';
 import { initializeServer } from './server';
+import { initializeAntlr } from './utils/antlrBridge';
+import { initializeLogger } from './utils/logger'
 
-const runAPI = () => {
+const runAPI = async () => {
   config();
   const logger = initializeLogger();
-  if (!process.env.ELASTICSEARCH_URI) {
-    const message = 'cannot find elasticsearch uri'
-    logger.error(message)
-    throw new Error(message)
-  }
   let useAntlr = true
   if (process.env.CONNECT_ANTLR === 'false') {
     useAntlr = false;
   }
-  if (useAntlr) {
-    initializeAntlr().then(() => {
+  try {
+    if (useAntlr) {
+      await initializeAntlr()
       logger.info(`connected to antlr`)
-    }).catch((err: Error) => {
-      throw err;
-    });
-  }
-  initializeElastic().then(() => {
+    }
+    await initializeElastic()
     logger.info('connected to elasticsearch')
-  }).catch((err: Error) => {
-    throw err;
-  });
-  if (!process.env.PORT) {
-    const message = 'cannot find port'
-    logger.error(message)
-    throw new Error(message);
+    await initializeServer()
+    logger.info('server started')
+  } catch(err) {
+    logger.fatal(err.message)
   }
-  const port = Number(process.env.PORT)
-  if (!port) {
-    const message = 'port is not numeric'
-    logger.error(message)
-    throw new Error(message);
-  }
-  initializeServer(port);
 };
 
 if (!module.parent) {
