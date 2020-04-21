@@ -61,7 +61,6 @@ export const initializeAntlr = (): Promise<boolean> => {
   return pingAntlr().then((res) => {
     return res
   }).catch((err: Error) => {
-    const message = `cannot connect to antlr server: ${err.message}`;
-    throw new Error(message);
+    throw new Error(`cannot connect to antlr server: ${err.message}`);
   })
 }

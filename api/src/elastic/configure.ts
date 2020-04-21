@@ -1,24 +1,11 @@
-import { Client, errors } from '@elastic/elasticsearch';
+import { Client } from '@elastic/elasticsearch';
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js'
+import { getElasticClient } from './init'
 
 const logger = getLogger()
 
-let elasticClient: Client
-
-export const initializeElastic = (): Promise<Client> => {
-  elasticClient = new Client({
-    node: process.env.ELASTICSEARCH_URI
-  });
-  return elasticClient.ping().then(() => {
-    // logger.info(`elastic connection status ${res.statusCode}`);
-    return elasticClient
-  }).catch((err: errors.ElasticsearchClientError) => {
-    throw new Error(err.message);
-  })
-}
-
-const fileIndexName = 'files'
+export const fileIndexName = 'files'
 
 const fileType = 'file'
 
@@ -58,7 +45,7 @@ const fileIndexSettings = {
   number_of_replicas: 0
 }
 
-const initializeMapping = async (indexName: string, indexSettings: object, indexMappings: object, indexType: string) => {
+const initializeMapping = async (elasticClient: Client, indexName: string, indexSettings: object, indexMappings: object, indexType: string) => {
   const deleteRes = await elasticClient.indices.delete({
     index: indexName,
     ignore_unavailable: true
@@ -81,5 +68,6 @@ const initializeMapping = async (indexName: string, indexSettings: object, index
 }
 
 export const initializeMappings = async () => {
-  await initializeMapping(fileIndexName, fileIndexSettings, fileMappings, fileType)
+  const elasticClient = getElasticClient()
+  await initializeMapping(elasticClient, fileIndexName, fileIndexSettings, fileMappings, fileType)
 }

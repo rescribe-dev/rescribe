@@ -1,24 +1,44 @@
-import Joi from '@hapi/joi';
+import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
+import compression from 'compression';
+import cors from 'cors';
 import express from 'express';
+import depthLimit from 'graphql-depth-limit';
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js'
-import { IProcessFileInput, processFile } from './antlrBridge';
-import { initializeMappings } from './elaticInit';
-import { isDebug } from './mode';
+import { initializeMappings } from './elastic/configure';
+import resolvers from './resolvers';
+import schema from './schema';
+import { isDebug } from './utils/mode';
 
 const logger = getLogger()
 
-export const initializeServer = (port: number) => {
+export const initializeServer = async () => {
+  if (!process.env.PORT) {
+    const message = 'cannot find port'
+    throw new Error(message);
+  }
+  const port = Number(process.env.PORT)
+  if (!port) {
+    const message = 'port is not numeric'
+    throw new Error(message);
+  }
   const app = express();
+  app.use('*', cors());
+  const server = new ApolloServer({
+    resolvers,
+    typeDefs: schema,
+    validationRules: [depthLimit(7)],
+  });
+  app.use(server.graphqlPath, compression());
+  server.applyMiddleware({
+    app,
+    path: server.graphqlPath,
+  });
   app.use(bodyParser.urlencoded({
     extended: true
   }));
   app.use(bodyParser.json());
-  const validateProcessFileInput = Joi.object({
-    contents: Joi.string().required(),
-    name: Joi.string().required()
-  })
   app.get('/hello', (_, res) => {
     res.json({
       message: 'hello world!'
@@ -38,16 +58,5 @@ export const initializeServer = (port: number) => {
       })
     })
   }
-  app.post('/processFile', (req, res) => {
-    const validationRes = validateProcessFileInput.validate(req.body)
-    if (validationRes.error) {
-      throw validationRes.error
-    }
-    processFile(req.body as IProcessFileInput).then(antlrRes => {
-      res.json(antlrRes).status(HttpStatus.OK);
-    }).catch((err: Error) => {
-      throw err;
-    })
-  })
-  app.listen(port, () => logger.info(`Api started: http://localhost:${port} 🚀`));
+  app.listen(port, () => logger.info(`Api started: http://localhost:${port}/graphql 🚀`));
 }
