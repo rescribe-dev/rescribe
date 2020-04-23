@@ -1,7 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
-import { getElasticClient } from './init';
+import { elasticClient } from './init';
 
 const logger = getLogger();
 
@@ -45,7 +45,7 @@ const fileIndexSettings = {
   number_of_replicas: 0
 };
 
-const initializeMapping = async (elasticClient: Client, indexName: string, indexSettings: object, indexMappings: object, indexType: string) => {
+const initializeMapping = async (indexName: string, indexSettings: object, indexMappings: object, indexType: string) => {
   const deleteRes = await elasticClient.indices.delete({
     index: indexName,
     ignore_unavailable: true
@@ -68,6 +68,5 @@ const initializeMapping = async (elasticClient: Client, indexName: string, index
 };
 
 export const initializeMappings = async () => {
-  const elasticClient = getElasticClient();
-  await initializeMapping(elasticClient, fileIndexName, fileIndexSettings, fileMappings, fileType);
+  await initializeMapping(fileIndexName, fileIndexSettings, fileMappings, fileType);
 };

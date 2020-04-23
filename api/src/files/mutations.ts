@@ -3,7 +3,7 @@ import { FileUpload } from 'graphql-upload';
 import { getLogger } from 'log4js';
 import { nanoid } from 'nanoid';
 import { fileIndexName } from '../elastic/configure';
-import { getElasticClient } from '../elastic/init';
+import { elasticClient } from '../elastic/init';
 import { IElasticFile } from '../elastic/types';
 import { processFile } from "../utils/antlrBridge";
 
@@ -21,7 +21,6 @@ interface IDeleteFileInput {
 const logger = getLogger();
 
 const mutations = (): IResolverObject => {
-  const elasticClient = getElasticClient();
   return {
     async indexFile(_: any, args: IIndexFileInput): Promise<string> {
       return new Promise<string>((resolve, reject) => {

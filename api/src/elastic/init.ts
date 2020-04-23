@@ -1,6 +1,6 @@
 import { Client, errors } from '@elastic/elasticsearch';
 
-let elasticClient: Client;
+export let elasticClient: Client;
 
 export const initializeElastic = (): Promise<string> => {
   if (!process.env.ELASTICSEARCH_URI) {
@@ -14,8 +14,4 @@ export const initializeElastic = (): Promise<string> => {
   }).catch((err: errors.ElasticsearchClientError) => {
     throw new Error(err.message);
   });
-};
-
-export const getElasticClient = (): Client => {
-  return elasticClient;
 };
