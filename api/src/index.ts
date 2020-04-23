@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
+import { initializeDB } from './db/connect';
 import { initializeElastic } from './elastic/init';
 import { initializeServer } from './server';
 import { initializeAntlr } from './utils/antlrBridge';
@@ -18,6 +19,8 @@ const runAPI = async () => {
     }
     await initializeElastic();
     logger.info('connected to elasticsearch');
+    await initializeDB();
+    logger.info('database connection set up');
     await initializeServer();
     logger.info('server started');
   } catch(err) {

@@ -1,4 +1,10 @@
+"""
+Mutations
+mutations for schema
+"""
 type Mutation {
+  "register using email password"
+  register(name: String!, email: String!, password: String!): String!
   indexFile(project: ID!, repository: ID!, path: String!, file: Upload!): String!
   deleteFile(id: ID!): String!
 }
