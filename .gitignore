@@ -1,2 +1,4 @@
 # ignore node modules always
 node_modules/
+.gradle
+.ipynb_checkpoints

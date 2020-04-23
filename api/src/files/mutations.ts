@@ -1,7 +1,7 @@
 import { IResolverObject } from "apollo-server-express";
 import { FileUpload } from 'graphql-upload';
 import { getLogger } from 'log4js';
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 import { fileIndexName } from '../elastic/configure';
 import { getElasticClient } from '../elastic/init';
 import { IElasticFile } from '../elastic/types';
@@ -25,18 +25,18 @@ const mutations = (): IResolverObject => {
   return {
     async indexFile(_: any, args: IIndexFileInput): Promise<string> {
       return new Promise<string>((resolve, reject) => {
-        const readStream = args.file.createReadStream()
-        const data: Uint8Array[] = []
-        readStream.on('data', (chunk: Uint8Array) => data.push(chunk))
-        readStream.on('error', reject)
+        const readStream = args.file.createReadStream();
+        const data: Uint8Array[] = [];
+        readStream.on('data', (chunk: Uint8Array) => data.push(chunk));
+        readStream.on('error', reject);
         readStream.on('end', async () => {
-          const contents = Buffer.concat(data).toString('utf8')
+          const contents = Buffer.concat(data).toString('utf8');
           const fileProcessData = await processFile({
             name: args.file.filename,
             contents,
-          })
-          const currentTime = new Date().getTime()
-          const id = nanoid()
+          });
+          const currentTime = new Date().getTime();
+          const id = nanoid();
           const elasticContent: IElasticFile = {
             _id: id,
             project: args.project,
@@ -46,14 +46,14 @@ const mutations = (): IResolverObject => {
             name: args.file.filename,
             created: currentTime,
             updated: currentTime,
-          }
+          };
           const indexResult = await elasticClient.index({
             index: fileIndexName,
             body: elasticContent
-          })
-          logger.info(`got update result of ${JSON.stringify(indexResult.body)}`)
-          resolve(`indexed file with id ${id}`)
-        })
+          });
+          logger.info(`got update result of ${JSON.stringify(indexResult.body)}`);
+          resolve(`indexed file with id ${id}`);
+        });
       });
     },
     async deleteFile(_: any, _args: IDeleteFileInput): Promise<string> {
@@ -61,7 +61,7 @@ const mutations = (): IResolverObject => {
         resolve('not implemented');
       });
     },
-  }
+  };
 };
 
-export default mutations
+export default mutations;

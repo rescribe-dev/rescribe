@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class UnsupportedFileException extends RuntimeException {
-    @Getter
-    private String fileExtension;
-    public UnsupportedFileException(String fileExtension) {
-        super("Unsupported File Extension in file " + fileExtension);
-        this.fileExtension = fileExtension;
-    }
+  @Getter private String fileExtension;
+
+  public UnsupportedFileException(String fileExtension) {
+    super("Unsupported File Extension in file " + fileExtension);
+    this.fileExtension = fileExtension;
+  }
 }

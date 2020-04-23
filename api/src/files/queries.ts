@@ -9,10 +9,10 @@ const queries = (): IResolverObject => {
   return {
     async file(_: any, _args: IFileInput): Promise<IFile> {
       return new Promise<IFile>((resolve, _reject) => {
-        resolve()
+        resolve();
       });
     },
-  }
-}
+  };
+};
 
-export default queries
+export default queries;

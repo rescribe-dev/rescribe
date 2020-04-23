@@ -23,12 +23,12 @@ export const processFile = (inputData: IProcessFileInput): Promise<IProcessFileO
     if (res.status === 200) {
       return res.data;
     } else {
-      throw new Error(`invalid response status ${res.status}`)
+      throw new Error(`invalid response status ${res.status}`);
     }
   }).catch((err: AxiosError) => {
     throw new Error(err.message);
   });
-}
+};
 
 export const pingAntlr = (): Promise<boolean> => {
   return antlrClient.get('/ping').then(res => {
@@ -39,7 +39,7 @@ export const pingAntlr = (): Promise<boolean> => {
   }).catch((err: AxiosError) => {
     throw new Error(err.message);
   });
-}
+};
 
 export const initializeAntlr = (): Promise<boolean> => {
   if (!process.env.ANTLR_URI) {
@@ -57,10 +57,10 @@ export const initializeAntlr = (): Promise<boolean> => {
       },
     },
     timeout: 3000,
-  })
+  });
   return pingAntlr().then((res) => {
-    return res
+    return res;
   }).catch((err: Error) => {
     throw new Error(`cannot connect to antlr server: ${err.message}`);
-  })
-}
+  });
+};

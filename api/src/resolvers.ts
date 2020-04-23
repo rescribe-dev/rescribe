@@ -14,4 +14,4 @@ const resolvers: IResolvers = {
   },
 };
 
-export default resolvers
+export default resolvers;

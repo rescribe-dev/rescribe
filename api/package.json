@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "0.0.1",
   "description": "backend",
-  "license": "MIT",
+  "license": "CC-BY-NC-SA-4.0",
   "repository": "",
   "author": {
     "name": "rescribe"
@@ -18,24 +18,22 @@
   "types": "lib/index",
   "scripts": {
     "start": "node lib/index",
-    "dev": "yarn lint && yarn build && yarn start",
+    "dev": "npm run precommit && npm run build && npm run start",
     "clean": "rimraf lib && rimraf coverage",
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "tslint --force --format verbose \"src/**/*.ts\" --fix",
+    "precommit": "npm run clean && npm run lint && npm run format",
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run format && npm run lint && echo Using TypeScript && tsc --version",
-    "build": "tsc --pretty",
+    "build": "tsc --pretty && npm run copy-graphql",
+    "copy-graphql": "cp -r src/schemas lib/schemas",
     "test": "jest",
     "coverage": "jest --coverage",
     "watch": "npm run build -- --watch",
-    "watch:test": "jest --watch",
-    "antlr:gen": "./grammar_gen.sh",
-    "genOutput": "node script.js --grammer-dir=./src/grammer/ --grammer-name=$1 --output-folder=gen",
-    "cleangen": "rm src/grammar/gen/*"
+    "watch:test": "jest --watch"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.6.1",
-    "antlr4ts": "^0.5.0-alpha.3",
     "apollo-server-express": "^2.12.0",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
@@ -48,6 +46,7 @@
     "graphql-upload": "^10.0.0",
     "http-status-codes": "^1.4.0",
     "log4js": "^6.2.1",
+    "merge-graphql-schemas": "^1.7.8",
     "nanoid": "^3.1.3"
   },
   "devDependencies": {
@@ -56,7 +55,6 @@
     "@types/graphql-depth-limit": "^1.1.2",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.11.4",
-    "antlr4ts-cli": "^0.5.0-alpha.3",
     "coveralls": "^3.0.2",
     "jest": "^23.6.0",
     "prettier": "^1.14.3",
