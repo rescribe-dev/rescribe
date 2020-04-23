@@ -19,4 +19,6 @@ type Query {
   file(id: ID!): File!
   "search for something (fuzzy search)"
   search(query: String!): SearchOutput!
+  "login email password"
+  login(email: String!, password: String!): String!
 }
