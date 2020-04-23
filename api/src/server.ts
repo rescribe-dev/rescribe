@@ -8,8 +8,10 @@ import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
 import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
 import { join } from 'path';
+import { decodeAuth } from './auth/jwt';
 import { initializeMappings } from './elastic/configure';
 import resolvers from './resolvers';
+import { getContext } from './utils/context';
 import { isDebug } from './utils/mode';
 
 const maxDepth = 7;
@@ -36,6 +38,7 @@ export const initializeServer = async () => {
     resolvers,
     typeDefs,
     validationRules: [depthLimit(maxDepth)],
+    context: req => getContext(req)
   });
   app.use(server.graphqlPath, compression());
   server.applyMiddleware({

@@ -1,10 +1,11 @@
 import { Collection, Db, MongoClient } from 'mongodb';
+import IUser from '../auth/type';
 
 export const userCollectionName = 'users';
 
 export let db: Db;
 
-export let userCollection: Collection;
+export let userCollection: Collection<IUser>;
 
 export const getUserCollection = (): Collection => {
   return userCollection;
