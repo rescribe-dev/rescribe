@@ -10,7 +10,7 @@ export const initializeLogger = (): Logger => {
       default: { appenders: ['console'], level: isDebug() ? 'all' : 'error' }
     }
   });
-  const logger = getLogger()
-  logger.info('logger initialized')
-  return logger
-}
+  const logger = getLogger();
+  logger.info('logger initialized');
+  return logger;
+};

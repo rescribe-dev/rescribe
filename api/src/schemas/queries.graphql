@@ -1,0 +1,22 @@
+"""
+SearchOutput contains results of a given query.
+"""
+type SearchOutput {
+  "confidence level for output"
+  confidence: Int!
+  "optional message for error or success"
+  message: String
+  "projects user has access to"
+  projects: [Project!]!
+  "repositories that user has direct access to"
+  standalone_repositories: [Repository!]!
+}
+
+type Query {
+  "test query (hello world)"
+  hello: String!
+  "query for a specific file"
+  file(id: ID!): File!
+  "search for something (fuzzy search)"
+  search(query: String!): SearchOutput!
+}

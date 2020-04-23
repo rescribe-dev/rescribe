@@ -1,0 +1,23 @@
+type Project {
+  _id: ID!
+  name: String!
+  repositories: [Repository!]!
+}
+
+type Repository {
+  _id: ID!
+  name: String!
+  files: [File!]!
+  project: ID!
+}
+
+type File {
+  _id: ID!
+  name: String!
+  mime: String!
+  encoding: String!
+  path: String!
+  classes: [Class!]!
+  globalVariables: [Variable!]!
+  standaloneFunctions: [StandaloneFunction!]!
+}

@@ -4,18 +4,13 @@
     "tslint-config-prettier"
   ],
   "rules": {
-    "no-console": false,
+    "no-console": true,
     "variable-name": [
       true,
       "allow-leading-underscore"
     ],
     "no-submodule-imports": false,
-    "object-literal-sort-keys": false
-  },
-  "linterOptions": {
-    "exclude": [
-      "src/grammar/grammars/**/*",
-      "src/grammar/gen/**/*"
-    ]
+    "object-literal-sort-keys": false,
+    "semicolon": [true, "always"]
   }
 }

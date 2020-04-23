@@ -1,13 +1,13 @@
 import { Client } from '@elastic/elasticsearch';
 import HttpStatus from 'http-status-codes';
-import { getLogger } from 'log4js'
-import { getElasticClient } from './init'
+import { getLogger } from 'log4js';
+import { getElasticClient } from './init';
 
-const logger = getLogger()
+const logger = getLogger();
 
-export const fileIndexName = 'files'
+export const fileIndexName = 'files';
 
-const fileType = 'file'
+const fileType = 'file';
 
 const fileMappings = {
   properties: {
@@ -38,36 +38,36 @@ const fileMappings = {
       format: 'epoch_millis'
     }
   }
-}
+};
 
 const fileIndexSettings = {
   number_of_shards: 1,
   number_of_replicas: 0
-}
+};
 
 const initializeMapping = async (elasticClient: Client, indexName: string, indexSettings: object, indexMappings: object, indexType: string) => {
   const deleteRes = await elasticClient.indices.delete({
     index: indexName,
     ignore_unavailable: true
-  })
-  logger.info(`deleted ${fileIndexName} from elasticsearch: ${deleteRes.body.acknowledged as boolean}`)
+  });
+  logger.info(`deleted ${fileIndexName} from elasticsearch: ${deleteRes.body.acknowledged as boolean}`);
   const createIndexRes = await elasticClient.indices.create({
     index: indexName,
     body: {
       settings: indexSettings
     }
-  })
-  logger.info(`created ${fileIndexName} index: ${createIndexRes.statusCode === HttpStatus.OK}`)
+  });
+  logger.info(`created ${fileIndexName} index: ${createIndexRes.statusCode === HttpStatus.OK}`);
   const setIndexMappingsRes = await elasticClient.indices.putMapping({
     index: indexName,
     type: indexType,
     body: indexMappings,
     include_type_name: true
-  })
-  logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`)
-}
+  });
+  logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`);
+};
 
 export const initializeMappings = async () => {
-  const elasticClient = getElasticClient()
-  await initializeMapping(elasticClient, fileIndexName, fileIndexSettings, fileMappings, fileType)
-}
+  const elasticClient = getElasticClient();
+  await initializeMapping(elasticClient, fileIndexName, fileIndexSettings, fileMappings, fileType);
+};

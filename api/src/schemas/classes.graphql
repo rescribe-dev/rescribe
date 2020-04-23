@@ -1,0 +1,10 @@
+type Class {
+  _id: ID!
+  location: String!
+  name: String!
+  classVariables: [Variable!]!
+  constructor: ID!
+  functions: [ID!]!
+  description: String!
+  variables: [Variable!]!
+}

@@ -1,0 +1,13 @@
+enum VariableParentType {
+  FILE
+  CLASS
+  FUNCTION
+}
+
+type Variable {
+  _id: ID!
+  name: String!
+  type: String!
+  parentType: VariableParentType!
+  parent: ID!   
+}

@@ -1,0 +1,4 @@
+type Mutation {
+  indexFile(project: ID!, repository: ID!, path: String!, file: Upload!): String!
+  deleteFile(id: ID!): String!
+}
