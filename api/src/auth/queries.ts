@@ -1,12 +1,11 @@
 import { IResolverObject } from 'apollo-server-express';
 import bcrypt from 'bcrypt';
 import { userCollection } from '../db/connect';
+import { IGraphQLContext } from '../utils/context';
+import { verifyLoggedIn } from './checkAuth';
 import { generateJWT } from './jwt';
-import IFile from './type';
+import IUser from './type';
 
-interface IFileInput {
-  id: string;
-}
 
 interface ILoginInput {
   email: string;
@@ -15,13 +14,27 @@ interface ILoginInput {
 
 const queries = (): IResolverObject => {
   return {
-    async file(_: any, _args: IFileInput): Promise<IFile> {
-      return new Promise<IFile>((resolve, _reject) => {
-        resolve();
+    async user(_: any, _args: any, ctx: IGraphQLContext): Promise<IUser> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          if (!verifyLoggedIn(ctx)) {
+            throw new Error('user not logged in');
+          }
+          const userID = ctx.auth?.id;
+          const user = await userCollection.findOne({
+            _id: userID,
+          });
+          if (!user) {
+            throw new Error(`cannot find user with id ${userID?.toHexString()}`);
+          }
+          resolve(user);
+        } catch(err) {
+          reject(err as Error);
+        }
       });
     },
     async login(_: any, args: ILoginInput): Promise<string> {
-      return new Promise<string>(async (resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         try {
           const user = await userCollection.findOne({
             email: args.email

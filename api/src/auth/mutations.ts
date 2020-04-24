@@ -19,6 +19,18 @@ interface IRegisterInput {
   password: string;
 }
 
+interface IUpdateInput {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
+interface IUserUpdateData {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
 const logger = getLogger();
 
 interface IDeleteInput {
@@ -34,7 +46,7 @@ const accountExists = async (email: string): Promise<boolean> => {
 const mutations = (): IResolverObject => {
   return {
     async register(_: any, args: IRegisterInput): Promise<string> {
-      return new Promise<string>(async (resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         try {
           if (!emailVerificationRegex.test(args.email)) {
             throw new Error('invalid email provided');
@@ -59,8 +71,37 @@ const mutations = (): IResolverObject => {
         }
       });
     },
+    async updateAccount(_: any, args: IUpdateInput, ctx: IGraphQLContext): Promise<string> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          if (!verifyLoggedIn(ctx)) {
+            throw new Error('user not logged in');
+          }
+          if (!ctx.auth) { return; }
+          const userUpdateData: IUserUpdateData = {};
+          if (args.email) {
+            if (!emailVerificationRegex.test(args.email)) {
+              throw new Error('invalid email provided');
+            }
+            userUpdateData.email = args.email;
+          }
+          if (args.password) {
+            userUpdateData.password = await bcrypt.hash(args.password, saltRounds);
+          }
+          const userID = ctx.auth?.id;
+          await userCollection.updateOne({
+            _id: userID,
+          }, userUpdateData);
+          resolve(`updated user ${userID.toHexString()}`);
+        } catch(err) {
+          const theError: Error = err;
+          logger.error(theError.message);
+          reject(theError as Error);
+        }
+      });
+    },
     async deleteAccount(_: any, args: IDeleteInput, ctx: IGraphQLContext): Promise<string> {
-      return new Promise<string>(async (resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         try {
           const isAdmin = args.email !== undefined;
           if (isAdmin) {
@@ -75,7 +116,7 @@ const mutations = (): IResolverObject => {
           let userData: IUser;
           const filter: any = {};
           if (!isAdmin) {
-            filter._id = new ObjectID(ctx.auth?.id);
+            filter._id = ctx.auth?.id;
           } else {
             filter.email = args.email;
           }

@@ -17,6 +17,8 @@ type Query {
   hello: String!
   "query for a specific file"
   file(id: ID!): File!
+  "get user data"
+  user: User!
   "search for something (fuzzy search)"
   search(query: String!): SearchOutput!
   "login email password"
