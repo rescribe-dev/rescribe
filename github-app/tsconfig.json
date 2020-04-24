@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "es5",
+    "module": "commonjs",
+    "lib": [
+      "es6"
+    ],
+    "declaration": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "outDir": "./lib",
+    "removeComments": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "pretty": false
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "compileOnSave": false,
+  "exclude": [
+    "node_modules"
+  ]
+}
