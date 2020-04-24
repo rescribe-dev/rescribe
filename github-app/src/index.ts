@@ -1,13 +1,25 @@
 import { Application } from 'probot'; // eslint-disable-line no-unused-vars
 
-export = (app: Application): void => {
-  app.on('issues.opened', async (context) => {
-    const issueComment = context.issue({ body: 'Thanks for opening this issue!' });
-    await context.github.issues.createComment(issueComment);
-  });
-  // For more information on building apps:
-  // https://probot.github.io/docs/
+interface Commit {
+  id: string;
+  tree_id: string;
+  added: string[];
+  removed: string[];
+  modified: string[];
+}
 
-  // To get your app running against GitHub, see:
-  // https://probot.github.io/docs/development/
+export = (app: Application): void => {
+  app.on('push', async (context) => {
+    if (context.payload.commits.length === 0) {
+      app.log.error(new Error(`no commits found for ${context.id}`))
+      return
+    }
+    const commits = context.payload.commits as Commit[];
+    let reindexFiles: string[] = []
+    for (const commit of commits) {
+      reindexFiles = reindexFiles.concat(commit.added);
+      reindexFiles = reindexFiles.concat(commit.modified);
+      reindexFiles = reindexFiles.filter(file => !commit.removed.includes(file));
+    }
+  });
 };
