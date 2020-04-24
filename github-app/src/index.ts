@@ -1,4 +1,7 @@
 import { Application } from 'probot';
+import ApolloClient from 'apollo-boost';
+import gql from 'graphql-tag';
+import 'cross-fetch/polyfill';
 
 interface Commit {
   id: string;
@@ -9,6 +12,12 @@ interface Commit {
 }
 
 export = (app: Application): void => {
+  if (!process.env.API_URL){
+    throw new Error('no api url provided');
+  }
+  const api = new ApolloClient({
+    uri: `${process.env.API_URL}/graphql`,
+  });
   app.on('push', async (context): Promise<void> => {
     if (context.payload.commits.length === 0) {
       app.log.error(new Error(`no commits found for ${context.id}`))
@@ -28,9 +37,25 @@ export = (app: Application): void => {
         indexFiles.delete(elem);
       }
     }
-    // eslint-disable-next-line no-console
-    // console.log(app.auth)
-    // const auth = await context.github.oauthAuthorizations.getAuthorization()
-    // app.log.info(auth)
+    const octokit = await app.auth()
+    const { data: installation } = await octokit.apps.getRepoInstallation({ 
+      owner: context.payload.repository.owner.name as string,
+      repo: context.payload.repository.name
+    })
+    try {
+      const res = await api.mutate({
+        mutation: gql`
+          mutation indexGithub($installationID: Int!) {
+            indexGithub(installationID: $installationID)
+          }
+        `,
+        variables: {
+          installationID: installation.id
+        }
+      });
+      app.log.info(res.data.indexGithub as string);
+    } catch(err) {
+      app.log.error((err as Error).message);
+    }
   });
 };

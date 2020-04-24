@@ -4,7 +4,8 @@
     "target": "es5",
     "module": "commonjs",
     "lib": [
-      "es6"
+      "es6",
+      "dom"
     ],
     "declaration": true,
     "inlineSourceMap": true,

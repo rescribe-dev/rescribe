@@ -27,7 +27,7 @@
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
     "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
     "build": "tsc && npm run copy-graphql",
-    "copy-graphql": "cp -r src/schema lib/schema",
+    "copy-graphql": "rm -rf lib/schema && cp -r src/schema lib/schema",
     "test": "jest",
     "coverage": "jest --coverage",
     "postbuild": "npm run lint && npm run format && npm run copy-graphql && npm run printTypescriptVersion && npm start",
@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.6.1",
+    "@octokit/auth-app": "^2.4.5",
+    "@octokit/graphql": "^4.3.1",
     "apollo-server-express": "^2.12.0",
     "axios": "^0.19.2",
     "bcrypt": "^4.0.1",

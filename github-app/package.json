@@ -30,6 +30,10 @@
     "watch:test": "jest --watch"
   },
   "dependencies": {
+    "apollo-boost": "^0.4.7",
+    "apollo-client": "^2.6.8",
+    "cross-fetch": "^3.0.4",
+    "graphql": "14.6.0",
     "probot": "^9.11.3"
   },
   "devDependencies": {
