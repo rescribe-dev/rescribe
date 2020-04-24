@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "start": "probot run ./lib/index",
-    "dev": "tsc-watch --onSuccess \"npm run postbuild\"",
+    "dev": "tsc-watch --onSuccess \"npm run postbuildWatch\"",
     "clean": "rimraf lib && rimraf coverage",
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
@@ -23,10 +23,10 @@
     "prepublishOnly": "npm run build",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
     "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
-    "build": "tsc && npm run copy-graphql",
+    "build": "tsc",
     "test": "jest",
     "coverage": "jest --coverage",
-    "postbuild": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
+    "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
     "watch:test": "jest --watch"
   },
   "dependencies": {

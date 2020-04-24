@@ -9,5 +9,5 @@ export const verifyAdmin = (ctx: GraphQLContext): boolean => {
 };
 
 export const verifyLoggedIn = (ctx: GraphQLContext): boolean => {
-  return ctx.auth !== undefined;
+  return ctx.auth !== undefined; // TODO && ctx.auth.emailVerified;
 };

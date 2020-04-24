@@ -16,4 +16,5 @@ export default interface User {
   password: string;
   plan: string;
   type: string;
+  emailVerified: boolean;
 }
