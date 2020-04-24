@@ -4,6 +4,7 @@ import { initializeElastic } from './elastic/init';
 import { initializeServer } from './server';
 import { initializeAntlr } from './utils/antlrBridge';
 import { initializeLogger } from './utils/logger';
+import { initializeGithub } from './utils/github';
 
 const runAPI = async (): Promise<void> => {
   config();
@@ -15,8 +16,10 @@ const runAPI = async (): Promise<void> => {
   try {
     if (useAntlr) {
       await initializeAntlr();
-      logger.info(`connected to antlr`);
+      logger.info('connected to antlr');
     }
+    await initializeGithub();
+    logger.info('github client initialized');
     await initializeElastic();
     logger.info('connected to elasticsearch');
     await initializeDB();

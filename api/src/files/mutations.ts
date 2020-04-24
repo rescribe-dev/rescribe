@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 import { fileIndexName } from '../elastic/configure';
 import { elasticClient } from '../elastic/init';
 import { ElasticFile } from '../elastic/types';
+import { createClient } from "../utils/github";
 // import { processFile } from "../utils/antlrBridge";
 
 interface FileIndexInput {
@@ -18,10 +19,36 @@ interface DeleteFileInput {
   id: string;
 }
 
+interface GithubIndexInput {
+  installationID: number;
+  files?: string[];
+}
+
 const logger = getLogger();
 
 const mutations = (): IResolverObject => {
   return {
+    async indexGithub(_: any, args: GithubIndexInput): Promise<string> {
+      return new Promise(async (resolve, reject) => {
+        // https://github.com/octokit/graphql.js/
+        const githubClient = createClient(args.installationID);
+        try {
+          const res = await githubClient(`
+            query {
+              repository(owner: "jschmidtnj", name: "garbage"){
+                name
+              }
+            }
+          `);
+          logger.info(res?.repository.name);
+          resolve('success');
+        } catch(err) {
+          logger.info('got an error');
+          logger.error((err as Error).message);
+          reject(err as Error);
+        }
+      });
+    },
     async indexFile(_: any, args: FileIndexInput): Promise<string> {
       return new Promise((resolve, reject) => {
         const readStream = args.file.createReadStream();
@@ -66,3 +93,34 @@ const mutations = (): IResolverObject => {
 };
 
 export default mutations;
+
+
+
+
+// repository(owner: "jschmidtnj", name: "garbage") {
+//   ref(qualifiedName: "master") {
+//     target {
+//       ... on Commit {
+//         id
+//         history(first: 5) {
+//           pageInfo {
+//             hasNextPage
+//           }
+//           edges {
+//             node {
+//               messageHeadline
+//               oid
+//               message
+//               author {
+//                 name
+//                 email
+//                 date
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+// }
