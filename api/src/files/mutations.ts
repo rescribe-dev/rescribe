@@ -20,8 +20,16 @@ interface DeleteFileInput {
 }
 
 interface GithubIndexInput {
+  files: string[];
+  ref: string;
+  repositoryName: string;
+  repositoryOwner: string;
   installationID: number;
-  files?: string[];
+}
+
+interface GithubFileRes {
+  isBinary: boolean;
+  text: string;
 }
 
 const logger = getLogger();
@@ -33,17 +41,37 @@ const mutations = (): IResolverObject => {
         // https://github.com/octokit/graphql.js/
         const githubClient = createClient(args.installationID);
         try {
-          const res = await githubClient(`
-            query {
-              repository(owner: "jschmidtnj", name: "garbage"){
-                name
+          for (const filePath of args.files) {
+            const expression = `${args.ref}:${filePath}`
+            const res = await githubClient(`
+              query files($name: String!, $owner: String!, $expression: String!) { 
+                repository(name: $name, owner: $owner) { 
+                  object(expression: $expression) {
+                    ...on Blob {
+                      isBinary
+                      text
+                    }
+                  }
+                }
               }
+            `, {
+              expression,
+              name: args.repositoryName,
+              owner: args.repositoryOwner
+            });
+            if (!res) {
+              throw new Error(`no response found for file query ${expression}`);
             }
-          `);
-          logger.info(res?.repository.name);
-          resolve('success');
+            const fileData = res.repository.object as GithubFileRes;
+            // logger.info(res);
+            if (fileData.isBinary) {
+              logger.info(`file ${expression} is binary`)
+            } else {
+              logger.info(`file contents: "${fileData.text}"`)
+            }
+          }
+          resolve(`successfully processed repo ${args.repositoryName}`);
         } catch(err) {
-          logger.info('got an error');
           logger.error((err as Error).message);
           reject(err as Error);
         }
