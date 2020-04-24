@@ -1,4 +1,4 @@
-import { Application } from 'probot'; // eslint-disable-line no-unused-vars
+import { Application } from 'probot';
 
 interface Commit {
   id: string;
@@ -9,17 +9,28 @@ interface Commit {
 }
 
 export = (app: Application): void => {
-  app.on('push', async (context) => {
+  app.on('push', async (context): Promise<void> => {
     if (context.payload.commits.length === 0) {
       app.log.error(new Error(`no commits found for ${context.id}`))
       return
     }
     const commits = context.payload.commits as Commit[];
-    let reindexFiles: string[] = []
-    for (const commit of commits) {
-      reindexFiles = reindexFiles.concat(commit.added);
-      reindexFiles = reindexFiles.concat(commit.modified);
-      reindexFiles = reindexFiles.filter(file => !commit.removed.includes(file));
+    const indexFiles = new Set<string>();
+    const addToIndexed = (arr: string[]): void => {
+      for (const elem of arr){
+        indexFiles.add(elem);
+      }
     }
+    for (const commit of commits) {
+      addToIndexed(commit.added);
+      addToIndexed(commit.modified);
+      for (const elem of commit.removed){
+        indexFiles.delete(elem);
+      }
+    }
+    // eslint-disable-next-line no-console
+    // console.log(app.auth)
+    // const auth = await context.github.oauthAuthorizations.getAuthorization()
+    // app.log.info(auth)
   });
 };

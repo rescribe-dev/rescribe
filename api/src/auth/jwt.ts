@@ -6,6 +6,7 @@ export interface AuthData {
   id: ObjectID;
   plan: string;
   type: string;
+  emailVerified: boolean;
 }
 
 const jwtExpiration = '2h';
@@ -45,6 +46,7 @@ export const generateJWT = (user: User): Promise<string> => {
       id: user._id,
       plan: user.plan,
       type: user.type,
+      emailVerified: user.emailVerified,
     };
     jwt.sign(authData, secret, {
       expiresIn: jwtExpiration,
@@ -75,7 +77,8 @@ export const decodeAuth = (token: string): Promise<AuthData> => {
         const data: AuthData = {
           id: new ObjectID(res.id),
           plan: res.plan,
-          type: res.type
+          type: res.type,
+          emailVerified: res.emailVerified
         };
         resolve(data);
       }

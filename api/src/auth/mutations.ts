@@ -59,7 +59,8 @@ const mutations = (): IResolverObject => {
             email: args.email,
             password: hashedPassword,
             plan: plans.free,
-            type: userTypes.user
+            type: userTypes.user,
+            emailVerified: false
           };
           const userCreateRes = await userCollection.insertOne(newUser);
           resolve(`created user ${userCreateRes.insertedId}`);
