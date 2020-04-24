@@ -38,19 +38,27 @@ export = (app: Application): void => {
       }
     }
     const octokit = await app.auth()
+    const repositoryName = context.payload.repository.name
+    const repositoryOwner = context.payload.repository.owner.name as string
     const { data: installation } = await octokit.apps.getRepoInstallation({ 
-      owner: context.payload.repository.owner.name as string,
-      repo: context.payload.repository.name
+      owner: repositoryOwner,
+      repo: repositoryName
     })
+    const ref = context.payload.ref
+    const files = Array.from(indexFiles);
     try {
       const res = await api.mutate({
         mutation: gql`
-          mutation indexGithub($installationID: Int!) {
-            indexGithub(installationID: $installationID)
+          mutation indexGithub($files: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
+            indexGithub(files: $files, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
           }
         `,
         variables: {
-          installationID: installation.id
+          files,
+          ref,
+          repositoryName,
+          repositoryOwner,
+          installationID: installation.id,
         }
       });
       app.log.info(res.data.indexGithub as string);
