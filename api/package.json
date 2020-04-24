@@ -26,7 +26,7 @@
     "prepublishOnly": "npm run build",
     "prebuild": "npm run clean && npm run format && npm run lint && echo Using TypeScript && tsc --version",
     "build": "tsc --pretty && npm run copy-graphql",
-    "copy-graphql": "cp -r src/schemas lib/schemas",
+    "copy-graphql": "cp -r src/schema lib/schema",
     "test": "jest",
     "coverage": "jest --coverage",
     "watch": "npm run build -- --watch",

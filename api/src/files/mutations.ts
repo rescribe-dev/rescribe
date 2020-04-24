@@ -23,7 +23,7 @@ const logger = getLogger();
 const mutations = (): IResolverObject => {
   return {
     async indexFile(_: any, args: IIndexFileInput): Promise<string> {
-      return new Promise<string>((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const readStream = args.file.createReadStream();
         const data: Uint8Array[] = [];
         readStream.on('data', (chunk: Uint8Array) => data.push(chunk));
@@ -56,7 +56,7 @@ const mutations = (): IResolverObject => {
       });
     },
     async deleteFile(_: any, _args: IDeleteFileInput): Promise<string> {
-      return new Promise<string>((resolve, _reject) => {
+      return new Promise((resolve, _reject) => {
         resolve('not implemented');
       });
     },

@@ -29,7 +29,7 @@ export const initializeServer = async () => {
   }
   const app = express();
   app.use('*', cors());
-  const typeDefs = mergeTypes(fileLoader(join(__dirname, './schemas/*.graphql'), {
+  const typeDefs = mergeTypes(fileLoader(join(__dirname, './schema/*.graphql'), {
     recursive: true
   }), {
     all: true

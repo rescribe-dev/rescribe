@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
+import { ObjectID } from 'mongodb';
 import IUser from './type';
 
 export interface IAuthData {
-  id: string;
+  id: ObjectID;
   plan: string;
   type: string;
 }
@@ -41,7 +42,7 @@ export const generateJWT = (user: IUser): Promise<string> => {
       return;
     }
     const authData: IAuthData = {
-      id: user._id.toHexString(),
+      id: user._id,
       plan: user.plan,
       type: user.type,
     };
@@ -67,11 +68,16 @@ export const decodeAuth = (token: string): Promise<IAuthData> => {
       reject(err as Error);
       return;
     }
-    jwt.verify(token, secret, {}, (err, res) => {
+    jwt.verify(token, secret, {}, (err, res: any) => {
       if (err) {
         reject(err as Error);
       } else {
-        resolve(res as IAuthData);
+        const data: IAuthData = {
+          id: new ObjectID(res.id),
+          plan: res.plan,
+          type: res.type
+        };
+        resolve(data);
       }
     });
   });
