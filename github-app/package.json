@@ -1,0 +1,63 @@
+{
+  "name": "github-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "rescribe github integration",
+  "author": "Rescribe <maintainer@rescribe.com>",
+  "license": "ISC",
+  "repository": "https://github.com/rescribe/rescribe.git",
+  "homepage": "https://github.com/rescribe/rescribe",
+  "bugs": "https://github.com/rescribe/rescribe/issues",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "start": "probot run ./lib/index",
+    "dev": "tsc-watch --onSuccess \"npm run postbuild\"",
+    "clean": "rimraf lib && rimraf coverage",
+    "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "precommit": "npm run clean && npm run lint && npm run format",
+    "prepublishOnly": "npm run build",
+    "printTypescriptVersion": "echo Using TypeScript && tsc --version",
+    "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
+    "build": "tsc && npm run copy-graphql",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "postbuild": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
+    "watch:test": "jest --watch"
+  },
+  "dependencies": {
+    "probot": "^9.11.3"
+  },
+  "devDependencies": {
+    "@types/bunyan": "^1.8.6",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.2",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsdoc": "^24.0.0",
+    "eslint-plugin-prefer-arrow": "^1.2.0",
+    "eslint-plugin-typescript": "^0.14.0",
+    "jest": "^25.4.0",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "smee-client": "^1.1.0",
+    "standard": "^14.3.3",
+    "ts-jest": "^25.4.0",
+    "tsc-watch": "^4.2.3",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest"
+  }
+}

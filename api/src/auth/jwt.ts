@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { ObjectID } from 'mongodb';
-import IUser from './type';
+import User from './type';
 
-export interface IAuthData {
+export interface AuthData {
   id: ObjectID;
   plan: string;
   type: string;
@@ -26,7 +26,7 @@ const getJWTIssuer = (): string => {
   return jwtIssuer;
 };
 
-export const generateJWT = (user: IUser): Promise<string> => {
+export const generateJWT = (user: User): Promise<string> => {
   return new Promise((resolve, reject) => {
     let secret: string;
     let jwtIssuer: string;
@@ -41,7 +41,7 @@ export const generateJWT = (user: IUser): Promise<string> => {
       reject('id required');
       return;
     }
-    const authData: IAuthData = {
+    const authData: AuthData = {
       id: user._id,
       plan: user.plan,
       type: user.type,
@@ -59,7 +59,7 @@ export const generateJWT = (user: IUser): Promise<string> => {
   });
 };
 
-export const decodeAuth = (token: string): Promise<IAuthData> => {
+export const decodeAuth = (token: string): Promise<AuthData> => {
   return new Promise((resolve, reject) => {
     let secret: string;
     try {
@@ -72,7 +72,7 @@ export const decodeAuth = (token: string): Promise<IAuthData> => {
       if (err) {
         reject(err as Error);
       } else {
-        const data: IAuthData = {
+        const data: AuthData = {
           id: new ObjectID(res.id),
           plan: res.plan,
           type: res.type

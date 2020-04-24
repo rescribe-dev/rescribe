@@ -1,4 +1,4 @@
-export default interface IFile {
+export default interface File {
   id?: string;
   name: string;
   mime: string;

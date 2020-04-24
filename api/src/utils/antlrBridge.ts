@@ -5,7 +5,7 @@ let antlrURI: string;
 
 let antlrClient: AxiosInstance;
 
-export interface IProcessFileOutput {
+export interface ProcessFileOutput {
   name: string;
   content: string;
   returnType: string | undefined;
@@ -13,13 +13,13 @@ export interface IProcessFileOutput {
   endIndex: number;
 }
 
-export interface IProcessFileInput {
+export interface ProcessFileInput {
   name: string;
   contents: string;
 }
 
-export const processFile = (inputData: IProcessFileInput): Promise<IProcessFileOutput[]> => {
-  return antlrClient.post<IProcessFileOutput[]>('/processFile', inputData).then(res => {
+export const processFile = (inputData: ProcessFileInput): Promise<ProcessFileOutput[]> => {
+  return antlrClient.post<ProcessFileOutput[]>('/processFile', inputData).then(res => {
     if (res.status === 200) {
       return res.data;
     } else {

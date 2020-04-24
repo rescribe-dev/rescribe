@@ -1,13 +1,13 @@
-import { IGraphQLContext } from "../utils/context";
+import { GraphQLContext } from "../utils/context";
 import { userTypes } from "./type";
 
-export const verifyAdmin = (ctx: IGraphQLContext): boolean => {
+export const verifyAdmin = (ctx: GraphQLContext): boolean => {
   if (!ctx.auth) {
     return false;
   }
   return ctx.auth.type === userTypes.admin;
 };
 
-export const verifyLoggedIn = (ctx: IGraphQLContext): boolean => {
+export const verifyLoggedIn = (ctx: GraphQLContext): boolean => {
   return ctx.auth !== undefined;
 };

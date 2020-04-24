@@ -22,11 +22,13 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "pretty": false
   },
   "include": [
     "src/**/*.ts"
   ],
+  "compileOnSave": false,
   "exclude": [
     "node_modules",
     "**/*-spec.ts",

@@ -4,17 +4,17 @@ import { getLogger } from 'log4js';
 import { nanoid } from 'nanoid';
 import { fileIndexName } from '../elastic/configure';
 import { elasticClient } from '../elastic/init';
-import { IElasticFile } from '../elastic/types';
-import { processFile } from "../utils/antlrBridge";
+import { ElasticFile } from '../elastic/types';
+// import { processFile } from "../utils/antlrBridge";
 
-interface IIndexFileInput {
+interface FileIndexInput {
   path: string;
   file: FileUpload;
   project: string;
   repository: string;
 }
 
-interface IDeleteFileInput {
+interface DeleteFileInput {
   id: string;
 }
 
@@ -22,7 +22,7 @@ const logger = getLogger();
 
 const mutations = (): IResolverObject => {
   return {
-    async indexFile(_: any, args: IIndexFileInput): Promise<string> {
+    async indexFile(_: any, args: FileIndexInput): Promise<string> {
       return new Promise((resolve, reject) => {
         const readStream = args.file.createReadStream();
         const data: Uint8Array[] = [];
@@ -30,13 +30,15 @@ const mutations = (): IResolverObject => {
         readStream.on('error', reject);
         readStream.on('end', async () => {
           const contents = Buffer.concat(data).toString('utf8');
+          /*
           const fileProcessData = await processFile({
             name: args.file.filename,
             contents,
           });
+          */
           const currentTime = new Date().getTime();
           const id = nanoid();
-          const elasticContent: IElasticFile = {
+          const elasticContent: ElasticFile = {
             _id: id,
             project: args.project,
             content: contents,
@@ -55,7 +57,7 @@ const mutations = (): IResolverObject => {
         });
       });
     },
-    async deleteFile(_: any, _args: IDeleteFileInput): Promise<string> {
+    async deleteFile(_: any, _args: DeleteFileInput): Promise<string> {
       return new Promise((resolve, _reject) => {
         resolve('not implemented');
       });

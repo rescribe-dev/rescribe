@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+*.pem
+!mock-cert.pem
+.env
+package-lock.json
+coverage
+lib
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.nyc_output
+lib_test
+# ignore swap files
+*.swp

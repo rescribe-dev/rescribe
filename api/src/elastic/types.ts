@@ -1,4 +1,4 @@
-export interface IElasticFile {
+export interface ElasticFile {
   _id: string;
   project: string;
   repository: string;

@@ -1,4 +1,4 @@
-import { Client } from '@elastic/elasticsearch';
+/* eslint-disable @typescript-eslint/camelcase */
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
 import { elasticClient } from './init';
@@ -45,7 +45,7 @@ const fileIndexSettings = {
   number_of_replicas: 0
 };
 
-const initializeMapping = async (indexName: string, indexSettings: object, indexMappings: object, indexType: string) => {
+const initializeMapping = async (indexName: string, indexSettings: object, indexMappings: object, indexType: string): Promise<void> => {
   const deleteRes = await elasticClient.indices.delete({
     index: indexName,
     ignore_unavailable: true
@@ -67,6 +67,6 @@ const initializeMapping = async (indexName: string, indexSettings: object, index
   logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`);
 };
 
-export const initializeMappings = async () => {
+export const initializeMappings = async (): Promise<void> => {
   await initializeMapping(fileIndexName, fileIndexSettings, fileMappings, fileType);
 };

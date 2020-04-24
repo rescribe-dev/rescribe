@@ -1,13 +1,13 @@
 import { IResolverObject } from 'apollo-server-express';
-import IFile from './type';
+import File from './type';
 
-interface IFileInput {
+interface FileInput {
   id: string;
 }
 
 const queries = (): IResolverObject => {
   return {
-    async file(_: any, _args: IFileInput): Promise<IFile> {
+    async file(_: any, _args: FileInput): Promise<File> {
       return new Promise((resolve, _reject) => {
         resolve();
       });

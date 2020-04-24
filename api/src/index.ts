@@ -5,7 +5,7 @@ import { initializeServer } from './server';
 import { initializeAntlr } from './utils/antlrBridge';
 import { initializeLogger } from './utils/logger';
 
-const runAPI = async () => {
+const runAPI = async (): Promise<void> => {
   config();
   const logger = initializeLogger();
   let useAntlr = true;

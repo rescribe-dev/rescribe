@@ -1,17 +1,17 @@
 import { Collection, Db, MongoClient } from 'mongodb';
-import IUser from '../auth/type';
+import User from '../auth/type';
 
 export const userCollectionName = 'users';
 
 export let db: Db;
 
-export let userCollection: Collection<IUser>;
+export let userCollection: Collection<User>;
 
 export const getUserCollection = (): Collection => {
   return userCollection;
 };
 
-export const initializeDB = async () => {
+export const initializeDB = async (): Promise<string> => {
   if (!process.env.DB_CONNECTION_URI) {
     throw new Error('cannot find database uri');
   }

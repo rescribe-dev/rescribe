@@ -1,20 +1,20 @@
 import { IResolverObject } from 'apollo-server-express';
 import bcrypt from 'bcrypt';
 import { userCollection } from '../db/connect';
-import { IGraphQLContext } from '../utils/context';
+import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from './checkAuth';
 import { generateJWT } from './jwt';
-import IUser from './type';
+import User from './type';
 
 
-interface ILoginInput {
+interface LoginInput {
   email: string;
   password: string;
 }
 
 const queries = (): IResolverObject => {
   return {
-    async user(_: any, _args: any, ctx: IGraphQLContext): Promise<IUser> {
+    async user(_: any, _args: any, ctx: GraphQLContext): Promise<User> {
       return new Promise(async (resolve, reject) => {
         try {
           if (!verifyLoggedIn(ctx)) {
@@ -33,7 +33,7 @@ const queries = (): IResolverObject => {
         }
       });
     },
-    async login(_: any, args: ILoginInput): Promise<string> {
+    async login(_: any, args: LoginInput): Promise<string> {
       return new Promise(async (resolve, reject) => {
         try {
           const user = await userCollection.findOne({

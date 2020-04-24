@@ -1,12 +1,12 @@
 import { ExpressContext } from "apollo-server-express/dist/ApolloServer";
-import { decodeAuth, IAuthData } from "../auth/jwt";
+import { decodeAuth, AuthData } from "../auth/jwt";
 
-export interface IGraphQLContext {
-  auth?: IAuthData;
+export interface GraphQLContext {
+  auth?: AuthData;
 }
 
-export const getContext = async ({ req }: ExpressContext) => {
-  const contextData: IGraphQLContext = {};
+export const getContext = async ({ req }: ExpressContext): Promise<GraphQLContext> => {
+  const contextData: GraphQLContext = {};
   if (!(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')) {
     return contextData;
   }

@@ -9,7 +9,7 @@ export const userTypes = {
   admin: 'admin'
 };
 
-export default interface IUser {
+export default interface User {
   _id?: ObjectId;
   name: string;
   email: string;
