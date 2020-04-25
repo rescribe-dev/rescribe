@@ -39,6 +39,8 @@ const mutations = (): IResolverObject => {
     async indexGithub(_: any, args: GithubIndexInput): Promise<string> {
       return new Promise(async (resolve, reject) => {
         // https://github.com/octokit/graphql.js/
+        // https://developer.github.com/v4/explorer/
+        // https://github.community/t5/GitHub-API-Development-and/GraphQL-getting-filename-file-content-and-commit-date/td-p/17861
         const githubClient = createClient(args.installationID);
         try {
           for (const filePath of args.files) {
@@ -69,6 +71,7 @@ const mutations = (): IResolverObject => {
             } else {
               logger.info(`file contents: "${fileData.text}"`)
             }
+            // TODO - elasticsearch ingestion here
           }
           resolve(`successfully processed repo ${args.repositoryName}`);
         } catch(err) {
