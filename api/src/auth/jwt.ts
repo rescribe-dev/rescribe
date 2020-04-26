@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import { ObjectID } from 'mongodb';
 import User from './type';
 
+export const enum jwtType { LOCAL, GITHUB }
+
 export interface AuthData {
   id: ObjectID;
   plan: string;
@@ -11,8 +13,19 @@ export interface AuthData {
 
 const jwtExpiration = '2h';
 
-const getSecret = (): string => {
-  const secret = process.env.JWT_SECRET;
+const getSecret = (type: jwtType): string => {
+  let secret: string | undefined;
+  switch (type) {
+    case jwtType.LOCAL:
+      secret = process.env.JWT_SECRET;
+      break;
+    case jwtType.GITHUB:
+      secret = process.env.GITHUB_PRIVATE_KEY;
+      break;
+    default:
+      secret = undefined;
+      break;
+  }
   if (!secret) {
     throw new Error('no jwt secret found');
   }
@@ -32,7 +45,7 @@ export const generateJWT = (user: User): Promise<string> => {
     let secret: string;
     let jwtIssuer: string;
     try {
-      secret = getSecret();
+      secret = getSecret(jwtType.LOCAL);
       jwtIssuer = getJWTIssuer();
     } catch(err) {
       reject(err as Error);
@@ -61,25 +74,30 @@ export const generateJWT = (user: User): Promise<string> => {
   });
 };
 
-export const decodeAuth = (token: string): Promise<AuthData> => {
+export const decodeAuth = (type: jwtType, token: string): Promise<AuthData | undefined> => {
   return new Promise((resolve, reject) => {
     let secret: string;
     try {
-      secret = getSecret();
+      secret = getSecret(type);
     } catch(err) {
       reject(err as Error);
       return;
     }
-    jwt.verify(token, secret, {}, (err, res: any) => {
+    jwt.verify(token, secret, {
+      algorithms: jwtType.LOCAL ? ['HS256'] : jwtType.GITHUB ? ['RS256'] : [],
+    }, (err, res: any) => {
       if (err) {
         reject(err as Error);
       } else {
-        const data: AuthData = {
-          id: new ObjectID(res.id),
-          plan: res.plan,
-          type: res.type,
-          emailVerified: res.emailVerified
-        };
+        let data: AuthData | undefined;
+        if (type === jwtType.LOCAL) {
+          data = {
+            id: new ObjectID(res.id),
+            plan: res.plan,
+            type: res.type,
+            emailVerified: res.emailVerified
+          };
+        }
         resolve(data);
       }
     });

@@ -9,6 +9,7 @@ import { createClient } from "../utils/github";
 import { processFile } from "../utils/antlrBridge";
 import { print } from 'graphql/language/printer';
 import { isBinaryFile } from "isbinaryfile";
+import { GraphQLContext } from "../utils/context";
 
 interface FileIndexInput {
   files: Promise<FileUpload>[];
@@ -66,8 +67,12 @@ const indexFile = async (content: string, fileName: string,
 
 const mutations = (): IResolverObject => {
   return {
-    async indexGithub(_: any, args: GithubIndexInput): Promise<string> {
+    async indexGithub(_: any, args: GithubIndexInput, ctx: GraphQLContext): Promise<string> {
       return new Promise(async (resolve, reject) => {
+        if (!ctx.authenticated) {
+          reject(new Error('invalid token provided'));
+          return;
+        }
         // https://github.com/octokit/graphql.js/
         // https://developer.github.com/v4/explorer/
         // https://github.community/t5/GitHub-API-Development-and/GraphQL-getting-filename-file-content-and-commit-date/td-p/17861
