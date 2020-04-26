@@ -27,6 +27,7 @@ module.exports = {
     }
   },
   rules: {
+    '@typescript-eslint/ban-ts-ignore': 'off',
     'semi': 'off',
     '@typescript-eslint/semi': ['error', 'always'],
     'no-control-regex': 'off',

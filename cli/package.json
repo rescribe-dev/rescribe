@@ -33,7 +33,6 @@
     "package": "pkg . --out-path=dist"
   },
   "dependencies": {
-    "@types/mime-types": "^2.1.0",
     "apollo-boost": "^0.4.7",
     "axios": "^0.19.2",
     "chalk": "^4.0.0",
@@ -46,12 +45,15 @@
     "isbinaryfile": "^4.0.6",
     "log4js": "^6.2.1",
     "mime-types": "^2.1.27",
+    "nodegit": "^0.26.5",
     "progress": "^2.0.3",
     "prompts": "^2.3.2"
   },
   "devDependencies": {
+    "@types/mime-types": "^2.1.0",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.11.4",
+    "@types/nodegit": "^0.26.2",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/eslint-plugin-tslint": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
