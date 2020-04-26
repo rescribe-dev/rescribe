@@ -9,7 +9,7 @@ type Mutation {
   updateAccount(name: String, email: String, password: String): String!
   "delete account (with email for admins)"
   deleteAccount(email: String): String!
-  indexGithub(files: [String!]!, ref: String!, repositoryName: String!, repositoryOwner: String!, installationID: Int!): String!
-  indexFile(project: ID!, repository: ID!, path: String!, file: Upload!): String!
+  indexGithub(paths: [String!]!, ref: String!, repositoryName: String!, repositoryOwner: String!, installationID: Int!): String!
+  indexFiles(files: [Upload!]!, paths: [String!]!, repository: ID!, branch: ID!): String!
   deleteFile(id: ID!): String!
 }

@@ -27,6 +27,8 @@ module.exports = {
     }
   },
   rules: {
+    'semi': 'off',
+    '@typescript-eslint/semi': ['error', 'always'],
     'no-control-regex': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',

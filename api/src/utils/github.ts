@@ -17,7 +17,7 @@ export const createClient = (installationID: number): client => {
       hook: auth.hook
     },
   });
-}
+};
 
 export const initializeGithub = async (): Promise<void> => {
   if (!process.env.GITHUB_PRIVATE_KEY) {
@@ -31,4 +31,4 @@ export const initializeGithub = async (): Promise<void> => {
   if (!appID) {
     throw new Error('invalid github app id supplied');
   }
-}
+};
