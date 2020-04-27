@@ -131,7 +131,7 @@ const mutations = (): IResolverObject => {
           readStream.on('error', reject);
           readStream.on('end', async () => {
             const buffer = Buffer.concat(data);
-            if (isBinaryFile(buffer)) {
+            if (await isBinaryFile(buffer)) {
               reject(new Error(`file ${file.filename} is binary`));
               return;
             }
