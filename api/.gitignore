@@ -8,7 +8,5 @@ yarn-error.log*
 lib
 lib_test
 .env
-src/grammar/*
-.antlr
 # ignore swap files
 *.swp
