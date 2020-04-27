@@ -28,6 +28,6 @@ public class Python3DeclarationListener extends Python3BaseListener implements C
     Integer endLine = ctx.stop.getLine();
     results.add(
         new FunctionDefinitionOutput(
-            methodName, methodReturnType, bodyContent, startLine, endLine));
+            methodName, bodyContent, methodReturnType, startLine, endLine));
   }
 }
