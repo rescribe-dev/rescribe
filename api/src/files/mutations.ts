@@ -105,9 +105,9 @@ const mutations = (): IResolverObject => {
               logger.info(`file ${expression} is binary`);
             } else {
               logger.info(`file contents: "${fileData.text}"`);
+              // TODO - elasticsearch ingestion here
+              // indexFile();
             }
-            // TODO - elasticsearch ingestion here
-            // indexFile();
           }
           resolve(`successfully processed repo ${args.repositoryName}`);
         } catch(err) {
@@ -136,7 +136,7 @@ const mutations = (): IResolverObject => {
               return;
             }
             const content = buffer.toString('utf8');
-            // indexFile();
+            // indexFile(content);
             numIndexed++;
             if (numIndexed === args.files.length) {
               resolve(content);
