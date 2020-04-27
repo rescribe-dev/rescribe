@@ -29,6 +29,6 @@ public class CPPDeclarationListener extends CPP14BaseListener implements CustomL
     // String allContent = ctx.getText();
     results.add(
         new FunctionDefinitionOutput(
-            methodName, bodyContent, methodReturnType,  startLine, endLine));
+            methodName, bodyContent, methodReturnType, startLine, endLine));
   }
 }
