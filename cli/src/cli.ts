@@ -31,7 +31,7 @@ export const startCLI = async (): Promise<void> => {
   program.name(appName);
   program.usage('-h');
   program.option('-d, --debug <bool>', 'output debug', (val) => args.debug = handleBool(val), args.debug);
-  program.command('index-files <files>')
+  program.command('index-files <files> <branch>')
     .description('index files in repository').action(actionRunner(indexFiles));
   program.command('get-branch [path]')
     .description('get current branch in repository').action(actionRunner(getBranch));

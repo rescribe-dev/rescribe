@@ -14,6 +14,7 @@ export default async (branch: string, path?: string): Promise<void> => {
     path = '.';
   }
   const repo = await Git.Repository.openExt(path, OPEN_FLAG.OPEN_FROM_ENV, '/');
+  const branchName = (await repo.getBranch(branch)).name();
   const commit = await repo.getBranchCommit(branch);
   const tree = await commit.getTree();
   const walker = tree.walk();
@@ -23,7 +24,7 @@ export default async (branch: string, path?: string): Promise<void> => {
     let finished = false;
     const callback = async (): Promise<void> => {
       try {
-        await indexFiles(paths, files);
+        await indexFiles(paths, files, branchName);
         resolve();
       } catch(err) {
         reject(err as Error);
@@ -33,6 +34,10 @@ export default async (branch: string, path?: string): Promise<void> => {
       const filePath = entry.path();
       paths.push(filePath);
       const file = await entry.getBlob();
+      if (!file.isBinary()) {
+        reject(new Error(`file ${filePath} is binary`));
+        return;
+      }
       files.push(file.content());
       if (finished && paths.length === files.length) {
         await callback();
