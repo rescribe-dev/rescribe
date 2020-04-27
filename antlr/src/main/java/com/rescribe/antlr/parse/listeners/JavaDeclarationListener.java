@@ -28,6 +28,6 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     Integer endLine = ctx.stop.getLine();
     results.add(
         new FunctionDefinitionOutput(
-            methodName, methodReturnType, bodyContent, startLine, endLine));
+            methodName, bodyContent, methodReturnType, startLine, endLine));
   }
 }
