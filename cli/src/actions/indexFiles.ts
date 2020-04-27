@@ -9,7 +9,7 @@ const logger = getLogger();
 
 const exists = promisify(fs.exists);
 
-export default async (pathsStr: string): Promise<void> => {
+export default async (pathsStr: string, branch: string): Promise<void> => {
   const paths = handleStringList(pathsStr);
   const files: Buffer[] = [];
   for (let i = 0; i < paths.length; i++) {
@@ -26,5 +26,5 @@ export default async (pathsStr: string): Promise<void> => {
     }
     files.push(buffer);
   }
-  await indexFiles(paths, files);
+  await indexFiles(paths, files, branch);
 };

@@ -4,7 +4,12 @@ import { initializeAPIClient } from './utils/api';
 
 const runCLI = async (): Promise<void> => {
   config();
-  initializeAPIClient();
+  try {
+    initializeAPIClient();
+  } catch(err) {
+    console.error((err as Error).message);
+    return;
+  }
   await startCLI();
 };
 

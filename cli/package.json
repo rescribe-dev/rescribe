@@ -30,7 +30,7 @@
     "coverage": "jest --coverage",
     "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
     "watch:test": "jest --watch",
-    "package": "pkg . --out-path=dist"
+    "package": "pkg . --out-path=dist && cp node_modules/nodegit/build/Release/nodegit.node dist/nodegit.node"
   },
   "dependencies": {
     "apollo-boost": "^0.4.7",
