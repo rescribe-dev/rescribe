@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
+import HttpStatus from 'http-status-codes';
 
 let antlrURI: string;
 
@@ -19,7 +20,7 @@ export interface ProcessFileInput {
 
 export const processFile = (inputData: ProcessFileInput): Promise<ProcessFileOutput[]> => {
   return antlrClient.post<ProcessFileOutput[]>('/processFile', inputData).then(res => {
-    if (res.status === 200) {
+    if (res.status === HttpStatus.OK) {
       return res.data;
     } else {
       throw new Error(`invalid response status ${res.status}`);
@@ -31,7 +32,7 @@ export const processFile = (inputData: ProcessFileInput): Promise<ProcessFileOut
 
 export const pingAntlr = (): Promise<boolean> => {
   return antlrClient.get('/ping').then(res => {
-    if (res.status === 200) {
+    if (res.status === HttpStatus.OK) {
       return true;
     }
     return false;
