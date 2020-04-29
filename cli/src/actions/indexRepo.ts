@@ -1,5 +1,6 @@
-import Git, { TreeEntry } from 'nodegit';
-import { Arguments, Defined } from 'yargs';
+// import Git, { TreeEntry } from 'nodegit';
+// import { Arguments, Defined } from 'yargs';
+/*
 import { getRemoteBranches } from '../utils/git';
 import indexBranch from './indexBranch';
 import indexFiles from '../utils/indexFiles';
@@ -75,8 +76,5 @@ export default async (args: Arguments<Args>): Promise<void> =>{
     }
     resolve();
     })
-
-    
-
-
 }
+*/
