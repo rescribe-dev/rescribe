@@ -1,5 +1,5 @@
-import { args } from '../cli';
+import { globalArgs } from './cli';
 
 export const isDebug = (): boolean => {
-  return args.debug as boolean || process.env.DEBUG === 'true';
+  return globalArgs.debug || process.env.DEBUG === 'true';
 };

@@ -1,41 +1,64 @@
-import { program } from 'commander';
 import chalk from 'chalk';
+import yargs from 'yargs';
 import indexFiles from './actions/indexFiles';
-import { handleBool, appName, beforeAction } from './utils/cli';
+import { appName, beforeAction, GlobalArgs } from './utils/cli';
 import { logger } from './utils/logger';
 import getBranch from './actions/getBranch';
 import indexBranch from './actions/indexBranch';
-
-export const cliVersion = '0.0.1';
-
-interface ArgData {
-  debug: boolean;
-}
-
-export const args: ArgData = {
-  debug: false
-};
 
 const errorHandler = (error: Error): void => {
   console.error(chalk.red(error.message));
   logger.fatal(error.message);
 };
 
-const actionRunner = (fn: (...args: any[]) => Promise<any>): (...args: any[]) => Promise<any> => {
-  beforeAction();
-  return (...args: any[]): Promise<any> => fn(...args).catch(errorHandler);
+const actionRunner = (fn: (args: yargs.Arguments<GlobalArgs & any>) => Promise<void>): (args: yargs.Arguments<GlobalArgs & any>) => Promise<void> => {
+  return (args: yargs.Arguments<GlobalArgs & any>): Promise<void> => {
+    return new Promise((resolve, _reject) => {
+      try {
+        beforeAction(args);
+      } catch(err) {
+        errorHandler(err as Error);
+        resolve();
+      }
+      fn(args)
+        .then(resolve)
+        .catch((err) => {
+          errorHandler(err);
+          resolve();
+        });
+    });
+  };
 };
 
 export const startCLI = async (): Promise<void> => {
-  program.version(cliVersion);
-  program.name(appName);
-  program.usage('-h');
-  program.option('-d, --debug <bool>', 'output debug', (val) => args.debug = handleBool(val), args.debug);
-  program.command('index-files <files> <branch>')
-    .description('index files in repository').action(actionRunner(indexFiles));
-  program.command('get-branch [path]')
-    .description('get current branch in repository').action(actionRunner(getBranch));
-  program.command('index-branch <branch> [path]')
-    .description('index branch in repository').action(actionRunner(indexBranch));
-  program.parseAsync(process.argv).catch(errorHandler);
+  yargs
+    .scriptName(appName)
+    .version()
+    .usage('Usage: $0 <command> [options]')
+    .help('h')
+    .alias('h', 'help')
+    .epilog('© 2020 🚀');
+  yargs
+    .option('d', {
+      type: 'boolean',
+      default: false,
+      nargs: 1,
+      alias: 'debug',
+      describe: 'output debug'
+    });
+  yargs
+    .command('index-files <files> <branch>', 'index files in repository', {}, actionRunner(indexFiles))
+    .example('$0 index-files test.js master', 'index test.js on master branch');
+  yargs
+    .command('get-branch [path]', 'get current branch in repository', {}, actionRunner(getBranch))
+    .example('$0 get-branch ..', 'get branch of parent folder');
+  yargs
+    .command('index-branch <branch> [path]', 'index branch in repository', {}, actionRunner(indexBranch))
+    .example('$0 index-branch master .', 'index master branch of current git repo');
+  yargs
+    .completion()
+    .demandCommand()
+    .recommendCommands()
+    .strict()
+    .argv;
 };

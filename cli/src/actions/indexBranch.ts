@@ -1,5 +1,6 @@
 import Git, { TreeEntry } from 'nodegit';
 import indexFiles from '../utils/indexFiles';
+import { Arguments } from 'yargs';
 
 enum OPEN_FLAG {
   OPEN_NO_SEARCH = 1,
@@ -9,13 +10,18 @@ enum OPEN_FLAG {
   OPEN_FROM_ENV = 16
 }
 
-export default async (branch: string, path?: string): Promise<void> => {
-  if (!path) {
-    path = '.';
+interface Args {
+  path?: string;
+  branch: string;
+}
+
+export default async (args: Arguments<Args>): Promise<void> => {
+  if (!args.path) {
+    args.path = '.';
   }
-  const repo = await Git.Repository.openExt(path, OPEN_FLAG.OPEN_FROM_ENV, '/');
-  const branchName = (await repo.getBranch(branch)).name();
-  const commit = await repo.getBranchCommit(branch);
+  const repo = await Git.Repository.openExt(args.path, OPEN_FLAG.OPEN_FROM_ENV, '/');
+  const branchName = (await repo.getBranch(args.branch)).name();
+  const commit = await repo.getBranchCommit(args.branch);
   const tree = await commit.getTree();
   const walker = tree.walk();
   return new Promise(async (resolve, reject) => {
@@ -34,7 +40,7 @@ export default async (branch: string, path?: string): Promise<void> => {
       const filePath = entry.path();
       paths.push(filePath);
       const file = await entry.getBlob();
-      if (!file.isBinary()) {
+      if (file.isBinary()) {
         reject(new Error(`file ${filePath} is binary`));
         return;
       }
