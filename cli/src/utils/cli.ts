@@ -1,8 +1,16 @@
 import { loggerInitialized, initializeLogger, logger } from "./logger";
+import { Arguments } from "yargs";
 
 export const appName = 'rescribe';
 
-export const beforeAction = (): void => {
+export interface GlobalArgs {
+  debug: boolean;
+}
+
+export let globalArgs: GlobalArgs;
+
+export const beforeAction = (args: Arguments<GlobalArgs>): void => {
+  globalArgs = args;
   if (!loggerInitialized) {
     initializeLogger();
     logger.info('initialized logger');

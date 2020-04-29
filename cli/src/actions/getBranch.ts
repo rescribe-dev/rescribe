@@ -1,11 +1,16 @@
 import { getBranch } from "../utils/git";
 import { logger } from "../utils/logger";
+import { Arguments } from "yargs";
 
-export default async (path?: string): Promise<void> => {
-  if (!path) {
-    path = '.';
+interface Args {
+  path?: string;
+}
+
+export default async (args: Arguments<Args>): Promise<void> => {
+  if (!args.path) {
+    args.path = '.';
   }
-  const branchName = await getBranch(path);
+  const branchName = await getBranch(args.path);
   logger.info(`got branch  "${branchName}"`);
   console.log(`branch ${branchName}`);
 };

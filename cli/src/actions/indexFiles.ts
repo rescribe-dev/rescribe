@@ -4,13 +4,19 @@ import { handleStringList } from "../utils/cli";
 import { isBinaryFile } from "isbinaryfile";
 import { promisify } from 'util';
 import indexFiles from '../utils/indexFiles';
+import { Arguments } from 'yargs';
 
 const logger = getLogger();
 
 const exists = promisify(fs.exists);
 
-export default async (pathsStr: string, branch: string): Promise<void> => {
-  const paths = handleStringList(pathsStr);
+interface Args {
+  files: string;
+  branch: string;
+}
+
+export default async (args: Arguments<Args>): Promise<void> => {
+  const paths = handleStringList(args.files);
   const files: Buffer[] = [];
   for (let i = 0; i < paths.length; i++) {
     const currentIndex = i;
@@ -26,5 +32,5 @@ export default async (pathsStr: string, branch: string): Promise<void> => {
     }
     files.push(buffer);
   }
-  await indexFiles(paths, files, branch);
+  await indexFiles(paths, files, args.branch);
 };
