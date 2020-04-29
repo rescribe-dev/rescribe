@@ -10,8 +10,9 @@ import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
 import { join } from 'path';
 import { initializeMappings } from './elastic/configure';
 import resolvers from './resolvers';
-import { getContext, GraphQLContext } from './utils/context';
+import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams } from './utils/context';
 import { isDebug } from './utils/mode';
+import { createServer } from 'http';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -37,7 +38,10 @@ export const initializeServer = async (): Promise<void> => {
     resolvers,
     typeDefs,
     validationRules: [depthLimit(maxDepth)],
-    context: (req): Promise<GraphQLContext> => getContext(req)
+    subscriptions: {
+      onConnect: (connectionParams: SubscriptionContextParams): Promise<GraphQLContext> => onSubscription(connectionParams),
+    },
+    context: async (req): Promise<GraphQLContext> => getContext(req)
   });
   app.use(server.graphqlPath, compression());
   server.applyMiddleware({
@@ -67,5 +71,7 @@ export const initializeServer = async (): Promise<void> => {
       });
     });
   }
-  app.listen(port, () => logger.info(`Api started: http://localhost:${port}/graphql 🚀`));
+  const httpServer = createServer(app);
+  server.installSubscriptionHandlers(httpServer);
+  httpServer.listen(port, () => logger.info(`Api started: http://localhost:${port}/graphql 🚀`));
 };

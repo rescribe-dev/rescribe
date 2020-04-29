@@ -1,0 +1,18 @@
+@import "../assets/styles/global.scss";
+
+html, body, #___gatsby {
+  height: 100%;
+}
+
+body {
+  margin: 0px;
+}
+
+#gatsby-focus-wrapper {
+  height: 100%;
+}
+
+/* remove recaptcha badge */
+.grecaptcha-badge {
+  visibility: hidden;
+}

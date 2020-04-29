@@ -10,6 +10,7 @@ import { processFile } from "../utils/antlrBridge";
 import { print } from 'graphql/language/printer';
 import { isBinaryFile } from "isbinaryfile";
 import { GraphQLContext } from "../utils/context";
+import { verifyGithub } from "../auth/checkAuth";
 
 interface FileIndexInput {
   files: Promise<FileUpload>[];
@@ -69,7 +70,7 @@ const mutations = (): IResolverObject => {
   return {
     async indexGithub(_: any, args: GithubIndexInput, ctx: GraphQLContext): Promise<string> {
       return new Promise(async (resolve, reject) => {
-        if (!ctx.authenticated) {
+        if (!verifyGithub(ctx)) {
           reject(new Error('invalid token provided'));
           return;
         }

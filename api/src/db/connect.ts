@@ -1,4 +1,5 @@
 import { Collection, Db, MongoClient } from 'mongodb';
+import exitHook from 'exit-hook';
 import User from '../auth/type';
 
 export const userCollectionName = 'users';
@@ -23,7 +24,7 @@ export const initializeDB = async (): Promise<string> => {
     useUnifiedTopology: true,
   });
   db = client.db(process.env.DB_NAME);
-  (process as NodeJS.EventEmitter).on('exit', () => {
+  exitHook(() => {
     client.close();
   });
   userCollection = db.collection(userCollectionName);

@@ -1,10 +1,12 @@
 import chalk from 'chalk';
 import yargs from 'yargs';
 import indexFiles from './actions/indexFiles';
+import exitHook from 'exit-hook';
 import { appName, beforeAction, GlobalArgs } from './utils/cli';
 import { logger } from './utils/logger';
 import getBranch from './actions/getBranch';
 import indexBranch from './actions/indexBranch';
+import login, { closeLoginSubscription } from './actions/login';
 
 const errorHandler = (error: Error): void => {
   console.error(chalk.red(error.message));
@@ -12,25 +14,24 @@ const errorHandler = (error: Error): void => {
 };
 
 const actionRunner = (fn: (args: yargs.Arguments<GlobalArgs & any>) => Promise<void>): (args: yargs.Arguments<GlobalArgs & any>) => Promise<void> => {
-  return (args: yargs.Arguments<GlobalArgs & any>): Promise<void> => {
-    return new Promise((resolve, _reject) => {
-      try {
-        beforeAction(args);
-      } catch(err) {
-        errorHandler(err as Error);
-        resolve();
-      }
-      fn(args)
-        .then(resolve)
-        .catch((err) => {
-          errorHandler(err);
-          resolve();
-        });
-    });
+  return async (args: yargs.Arguments<GlobalArgs & any>): Promise<void> => {
+    try {
+      beforeAction(args);
+      await fn(args);
+      process.exit(0);
+    } catch(err) {
+      errorHandler(err as Error);
+      process.exit(1);
+    }
   };
 };
 
+export const createCLIExitHooks = (): void => {
+  exitHook(closeLoginSubscription);
+};
+
 export const startCLI = async (): Promise<void> => {
+  createCLIExitHooks();
   yargs
     .scriptName(appName)
     .version()
@@ -55,6 +56,7 @@ export const startCLI = async (): Promise<void> => {
   yargs
     .command('index-branch <branch> [path]', 'index branch in repository', {}, actionRunner(indexBranch))
     .example('$0 index-branch master .', 'index master branch of current git repo');
+  yargs.command('login', 'login to service', {}, actionRunner(login));
   yargs
     .completion()
     .demandCommand()

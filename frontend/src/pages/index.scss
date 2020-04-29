@@ -1,0 +1,95 @@
+body,
+html {
+  background-color: #f4f4f9;
+}
+
+:root {
+  --accent-color: #a09fa4;
+  --text-color: #181818;
+  --background-color: #ffffffc9;
+}
+
+.middle-container {
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+  height: 100%;
+  align-items: flex-start;
+  padding-top: 10vh;
+}
+
+.box {
+  border: solid;
+  border-width: 0.25em;
+  border-color: var(--accent-color);
+  background-color: var(--background-color);
+  margin: 2em;
+  width: 20em;
+  padding-top: 1.5rem;
+  padding-bottom: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  justify-content: center;
+  text-align: center;
+}
+
+.logo {
+  width: 100%;
+}
+
+.box .wf-loading input[type="email"] {
+  font-family: "Courier New", Courier, monospace;
+}
+
+.box input[type="email"] {
+  font-family: "Montserrat";
+  color: var(--accent-color);
+  background-color: transparent;
+  font-size: 0.8rem;
+  border-width: 0;
+  padding-left: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  height: 1.25rem;
+}
+
+.box .feedback {
+  padding-top: 0.25rem;
+  margin-top: 0;
+}
+
+.box h2 .wf-loading {
+  font-family: "Courier New", Courier, monospace;
+}
+
+.box h2 {
+  color: var(--text-color);
+  font-family: "Montserrat";
+  font-size: 1.2rem;
+  margin-top: 1.5em;
+}
+
+.box hr {
+  color: var(--accent-color);
+  border-width: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.background-image {
+  height: 500px;
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0;
+}
+
+@media (max-device-width: 600px) {
+  .middle-container {
+    padding-top: 5vh;
+  }
+  .background-image {
+    height: 26rem;
+  }
+}
