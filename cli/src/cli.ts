@@ -58,6 +58,9 @@ export const startCLI = async (): Promise<void> => {
     .example('$0 index-branch master .', 'index master branch of current git repo');
   yargs.command('login', 'login to service', {}, actionRunner(login));
   yargs
+    .command('index-repo [path] [branches]', 'index selected remote branches in repository', {}, actionRunner(indexRepository))
+    .example('$0 index-repo .', 'index all remote branches in the current git repository');
+  yargs
     .completion()
     .demandCommand()
     .recommendCommands()
