@@ -1,0 +1,10 @@
+// global styles go here
+
+@import "~bootstrap/scss/bootstrap";
+
+a.link-no-style {
+  &:hover {
+    text-decoration: none;
+  }
+  color: #303030;
+}
