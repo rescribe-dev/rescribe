@@ -1,0 +1,8 @@
+type AuthNotification {
+  id: ID!
+  token: String!
+}
+
+type Subscription {
+  authNotifications: AuthNotification
+}

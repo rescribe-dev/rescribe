@@ -5,8 +5,10 @@ export const plans = {
 };
 
 export const userTypes = {
+  visitor: 'visitor',
   user: 'user',
-  admin: 'admin'
+  admin: 'admin',
+  github: 'github'
 };
 
 export default interface User {

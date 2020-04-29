@@ -5,8 +5,9 @@ import gql from 'graphql-tag';
 import { basename } from 'path';
 import { axiosClient } from './api';
 import { AxiosError } from 'axios';
-import { ApolloQueryResult } from 'apollo-boost';
+import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
+import { GraphQLError } from "graphql";
 
 const logger = getLogger();
 
@@ -57,7 +58,7 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
     });
     const apolloRes = res.data as ApolloQueryResult<ResIndex>;
     if (apolloRes.errors) {
-      throw new Error(apolloRes.errors.map(elem => elem.message).join(', '));
+      throw new Error(apolloRes.errors.map((elem: GraphQLError) => elem.message).join(', '));
     } else {
       logger.info('done indexing files');
       console.log(`file ${paths[paths.length - 1]} ${apolloRes.data.indexFiles.trim()}`);

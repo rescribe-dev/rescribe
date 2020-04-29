@@ -5,6 +5,7 @@ import { userCollection } from "../db/connect";
 import { GraphQLContext } from "../utils/context";
 import { verifyAdmin, verifyLoggedIn } from "./checkAuth";
 import User, { plans, userTypes } from "./type";
+import { ObjectID } from "mongodb";
 
 const saltRounds = 10;
 
@@ -88,7 +89,7 @@ const mutations = (): IResolverObject => {
           if (args.password) {
             userUpdateData.password = await bcrypt.hash(args.password, saltRounds);
           }
-          const userID = ctx.auth?.id;
+          const userID = new ObjectID(ctx.auth?.id);
           await userCollection.updateOne({
             _id: userID,
           }, userUpdateData);

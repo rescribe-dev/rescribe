@@ -21,6 +21,8 @@ type Query {
   user: User!
   "search for something (fuzzy search)"
   search(query: String!): SearchOutput!
+  "login as a guest - get client ID"
+  loginGuest: String!
   "login email password"
   login(email: String!, password: String!): String!
 }

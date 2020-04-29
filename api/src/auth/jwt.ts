@@ -1,11 +1,11 @@
-import jwt from 'jsonwebtoken';
-import { ObjectID } from 'mongodb';
-import User from './type';
+import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
+import User, { plans, userTypes } from './type';
+import { nanoid } from 'nanoid';
 
 export const enum jwtType { LOCAL, GITHUB }
 
 export interface AuthData {
-  id: ObjectID;
+  id: string;
   plan: string;
   type: string;
   emailVerified: boolean;
@@ -40,31 +40,42 @@ const getJWTIssuer = (): string => {
   return jwtIssuer;
 };
 
-export const generateJWT = (user: User): Promise<string> => {
+export const generateJWT = (user?: User): Promise<string> => {
   return new Promise((resolve, reject) => {
     let secret: string;
     let jwtIssuer: string;
     try {
       secret = getSecret(jwtType.LOCAL);
       jwtIssuer = getJWTIssuer();
-    } catch(err) {
+    } catch (err) {
       reject(err as Error);
       return;
     }
-    if (!user._id) {
-      reject('id required');
-      return;
-    }
-    const authData: AuthData = {
-      id: user._id,
-      plan: user.plan,
-      type: user.type,
-      emailVerified: user.emailVerified,
-    };
-    jwt.sign(authData, secret, {
-      expiresIn: jwtExpiration,
+    let authData: AuthData;
+    const signOptions: SignOptions = {
       issuer: jwtIssuer
-    }, (err, token) => {
+    };
+    if (!user) {
+      authData = {
+        id: nanoid(),
+        plan: plans.free,
+        type: userTypes.visitor,
+        emailVerified: false,
+      };
+    } else {
+      if (!user._id) {
+        reject('id required');
+        return;
+      }
+      authData = {
+        id: user._id.toHexString(),
+        plan: user.plan,
+        type: user.type,
+        emailVerified: user.emailVerified,
+      };
+      signOptions.expiresIn = jwtExpiration;
+    }
+    jwt.sign(authData, secret, signOptions, (err, token) => {
       if (err) {
         reject(err as Error);
       } else {
@@ -74,28 +85,45 @@ export const generateJWT = (user: User): Promise<string> => {
   });
 };
 
-export const decodeAuth = (type: jwtType, token: string): Promise<AuthData | undefined> => {
+export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
   return new Promise((resolve, reject) => {
     let secret: string;
     try {
       secret = getSecret(type);
-    } catch(err) {
+    } catch (err) {
       reject(err as Error);
       return;
     }
-    jwt.verify(token, secret, {
-      algorithms: jwtType.LOCAL ? ['HS256'] : jwtType.GITHUB ? ['RS256'] : [],
-    }, (err, res: any) => {
+    let jwtConfig: VerifyOptions;
+    if (type === jwtType.LOCAL) {
+      jwtConfig = {
+        algorithms: ['HS256']
+      };
+    } else if (type === jwtType.GITHUB) {
+      jwtConfig = {
+        algorithms: ['RS256']
+      };
+    } else {
+      jwtConfig = {};
+    }
+    jwt.verify(token, secret, jwtConfig, (err, res: any) => {
       if (err) {
         reject(err as Error);
       } else {
-        let data: AuthData | undefined;
+        let data: AuthData;
         if (type === jwtType.LOCAL) {
           data = {
-            id: new ObjectID(res.id),
+            id: res.id,
             plan: res.plan,
             type: res.type,
             emailVerified: res.emailVerified
+          };
+        } else {
+          data = {
+            id: nanoid(),
+            plan: plans.free,
+            type: userTypes.admin,
+            emailVerified: true
           };
         }
         resolve(data);
