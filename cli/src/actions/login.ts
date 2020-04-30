@@ -1,9 +1,10 @@
 import { getLogger } from "log4js";
 import { Arguments } from 'yargs';
-import { websiteURL, createApolloClient, defaultApolloClient } from "../utils/api";
+import { websiteURL, apolloClient, initializeApolloClient } from "../utils/api";
 import gql from "graphql-tag";
 import { writeError } from "../utils/logger";
 import { setAuthToken } from "../utils/authToken";
+import { configData } from "../utils/config";
 
 const logger = getLogger();
 
@@ -26,24 +27,24 @@ const waitTime = 20 * 60 * 1000;
 
 export default async (_args: Arguments): Promise<void> => {
   return new Promise(async (resolve, reject) => {
-    let loginTimeout: NodeJS.Timeout|undefined;
+    let loginTimeout: NodeJS.Timeout | undefined;
     try {
       logger.info('start login');
-      const loginGuestRes = await defaultApolloClient.query({
+      const loginGuestRes = await apolloClient.query({
         query: gql`
           query loginGuest {
             loginGuest
           }
         `
       });
-      const authToken = loginGuestRes.data.loginGuest;
-      const authenticatedApolloClient = await createApolloClient(authToken);
+      await setAuthToken(loginGuestRes.data.loginGuest);
+      initializeApolloClient();
       closeLoginSubscription();
       loginTimeout = setTimeout(() => {
         closeLoginSubscription();
         reject(new Error('login timed out'));
       }, waitTime);
-      loginSubscription = authenticatedApolloClient.subscribe<AuthNotifications>({
+      loginSubscription = apolloClient.subscribe<AuthNotifications>({
         query: gql`
             subscription authNotifications {
               authNotifications {
@@ -51,7 +52,7 @@ export default async (_args: Arguments): Promise<void> => {
               }
             }
           `,
-          variables: {}
+        variables: {}
       }).subscribe({
         next: res => {
           if (!res.data) {
@@ -62,16 +63,17 @@ export default async (_args: Arguments): Promise<void> => {
             }
             closeLoginSubscription();
             console.log('successfully logged in!');
-            setAuthToken(res.data.authNotifications.token);
-            resolve();
+            setAuthToken(res.data.authNotifications.token)
+              .then(resolve)
+              .catch(reject);
           }
         },
         error: (err: Error) => {
           writeError(err.message);
         }
       });
-      console.log(`login at ${websiteURL}?token=${authToken}&redirect=cli`);
-    } catch(err) {
+      console.log(`login at ${websiteURL}/login?token=${configData.authToken}&cli`);
+    } catch (err) {
       if (loginTimeout) {
         clearTimeout(loginTimeout);
       }

@@ -2,11 +2,12 @@ import chalk from 'chalk';
 import yargs from 'yargs';
 import indexFiles from './actions/indexFiles';
 import exitHook from 'exit-hook';
-import { appName, beforeAction, GlobalArgs } from './utils/cli';
+import { beforeAction, GlobalArgs } from './utils/cli';
 import { logger } from './utils/logger';
 import getBranch from './actions/getBranch';
 import indexBranch from './actions/indexBranch';
 import login, { closeLoginSubscription } from './actions/login';
+import { appName } from './utils/config';
 
 const errorHandler = (error: Error): void => {
   console.error(chalk.red(error.message));

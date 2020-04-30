@@ -1,8 +1,6 @@
 import { loggerInitialized, initializeLogger, logger } from "./logger";
 import { Arguments } from "yargs";
 
-export const appName = 'rescribe';
-
 export interface GlobalArgs {
   debug: boolean;
 }

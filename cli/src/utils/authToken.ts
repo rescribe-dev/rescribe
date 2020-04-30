@@ -1,5 +1,7 @@
-export let authToken: string;
+import { configData, cacheData, writeCache } from "./config";
 
-export const setAuthToken = (token: string): void => {
-  authToken = token;
+export const setAuthToken = async (token: string): Promise<void> => {
+  configData.authToken = token;
+  cacheData.authToken = token;
+  await writeCache();
 };

@@ -1,31 +1,44 @@
 import { Link } from "gatsby";
 import PropTypes from "prop-types";
-import React from "react";
-import { Navbar, Nav } from "react-bootstrap";
+import React, { useState } from "react";
+import {
+  Navbar,
+  NavbarToggler,
+  Collapse,
+  NavLink,
+  NavbarBrand,
+  Nav,
+} from "reactstrap";
 
 interface HeaderArgs {
   siteTitle: string;
 }
 
-const Header = (args: HeaderArgs) => (
-  <>
-    <Navbar bg="light" expand="lg">
-      <Navbar.Brand>
-        <Link className="link-no-style" to="/">
+const Header = (args: HeaderArgs) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const toggle = () => setIsOpen(!isOpen);
+
+  return (
+    <>
+      <Navbar color="light" light expand="md">
+        <NavbarBrand tag={Link} to="/">
           {args.siteTitle}
-        </Link>
-      </Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="mr-auto">
-          <Link className="link-no-style" to="/">
-            Home
-          </Link>
-        </Nav>
-      </Navbar.Collapse>
-    </Navbar>
-  </>
-);
+        </NavbarBrand>
+        <NavbarToggler onClick={toggle} />
+        <Collapse isOpen={isOpen} navbar>
+          <Nav className="mr-auto" navbar>
+            <NavLink tag={Link} to="/">
+              Home
+            </NavLink>
+            <NavLink tag={Link} to="/login">
+              Login
+            </NavLink>
+          </Nav>
+        </Collapse>
+      </Navbar>
+    </>
+  );
+};
 
 Header.propTypes = {
   siteTitle: PropTypes.string,

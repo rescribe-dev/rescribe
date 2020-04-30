@@ -4,4 +4,5 @@
  * See: https://www.gatsbyjs.org/docs/browser-apis/
  */
 
-module.exports = require("./gatsby/.gatsby/gatsby-browser");
+export * from "./gatsby/.gatsby/gatsby-browser";
+export * from "./src/utils/apollo.tsx";
