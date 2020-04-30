@@ -8,7 +8,7 @@ import { useStaticQuery, graphql } from "gatsby";
 
 import Header from "../components/header";
 import "./index.scss";
-import { Container } from "react-bootstrap";
+import { Container } from "reactstrap";
 
 toast.configure({
   autoClose: 4000,

@@ -1,5 +1,6 @@
 import { globalArgs } from './cli';
+import { configData } from './config';
 
 export const isDebug = (): boolean => {
-  return globalArgs.debug || process.env.DEBUG === 'true';
+  return globalArgs.debug || configData.debug;
 };

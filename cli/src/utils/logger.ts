@@ -1,7 +1,7 @@
 import { configure, getLogger, Logger } from 'log4js';
 import { isDebug } from './mode';
-import { appName } from './cli';
 import chalk from 'chalk';
+import { appName } from './config';
 
 export let loggerInitialized = false;
 

@@ -26,6 +26,8 @@ module.exports = {
     sourceType: 'module' // Allows for the use of imports
   },
   rules: {
+    'semi': 'off',
+    '@typescript-eslint/semi': ['error', 'always'],
     '@typescript-eslint/ban-ts-ignore': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',

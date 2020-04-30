@@ -1,10 +1,11 @@
-import { config } from 'dotenv';
 import { startCLI } from './cli';
 import { initializeAPIClient } from './utils/api';
 
+import { initializeConfig } from "./utils/config";
+
 const runCLI = async (): Promise<void> => {
-  config();
   try {
+    await initializeConfig();
     await initializeAPIClient();
   } catch(err) {
     console.error((err as Error).message);
