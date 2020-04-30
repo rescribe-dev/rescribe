@@ -8,6 +8,7 @@ import getBranch from './actions/getBranch';
 import indexBranch from './actions/indexBranch';
 import login, { closeLoginSubscription } from './actions/login';
 import { appName } from './utils/config';
+import getUser from './actions/getUser';
 
 const errorHandler = (error: Error): void => {
   console.error(chalk.red(error.message));
@@ -58,6 +59,7 @@ export const startCLI = async (): Promise<void> => {
     .command('index-branch <branch> [path]', 'index branch in repository', {}, actionRunner(indexBranch))
     .example('$0 index-branch master .', 'index master branch of current git repo');
   yargs.command('login', 'login to service', {}, actionRunner(login));
+  yargs.command('get-user', 'get user data', {}, actionRunner(getUser));
   // yargs
   //   .command('index-repo [path] [branches]', 'index selected remote branches in repository', {}, actionRunner(indexRepository))
   //   .example('$0 index-repo .', 'index all remote branches in the current git repository');
