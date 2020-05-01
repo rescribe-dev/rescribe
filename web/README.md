@@ -1,3 +1,0 @@
-# rescribe frontend
-
-rescribe website
