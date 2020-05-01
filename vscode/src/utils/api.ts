@@ -10,6 +10,8 @@ import { ApolloLink, from } from 'apollo-link';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { configData } from './config';
 
+export const axiosRequestTimeout = 10000;
+
 export let axiosClient: AxiosInstance;
 
 export let apolloClient: ApolloClient<any>;
@@ -70,11 +72,12 @@ export const initializeApolloClient = (): void => {
 };
 
 export const initializeAPIClient = async (): Promise<void> => {
-  apiURL = `${configData.useSecure ? 'https' : 'http'}://${configData.apiURL}/graphql`;
+  const baseAPIURL = `${configData.useSecure ? 'https' : 'http'}://${configData.apiURL}`;
+  apiURL = `${baseAPIURL}/graphql`;
   websiteURL = `${configData.useSecure ? 'https' : 'http'}://${configData.websiteURL}`;
   initializeApolloHttpClient();
   initializeApolloClient();
   axiosClient = axios.create({
-    baseURL: configData.apiURL
+    baseURL: baseAPIURL
   });
 };
