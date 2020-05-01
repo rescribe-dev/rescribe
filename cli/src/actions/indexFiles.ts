@@ -32,5 +32,6 @@ export default async (args: Arguments<Args>): Promise<void> => {
     }
     files.push(buffer);
   }
-  await indexFiles(paths, files, args.branch);
+  const res = await indexFiles(paths, files, args.branch);
+  console.log(`done indexing files: ${res}`);
 };

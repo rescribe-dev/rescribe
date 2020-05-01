@@ -30,7 +30,8 @@ export default async (args: Arguments<Args>): Promise<void> => {
     let finished = false;
     const callback = async (): Promise<void> => {
       try {
-        await indexFiles(paths, files, branchName);
+        const res = await indexFiles(paths, files, branchName);
+        console.log(`done indexing files: ${res}`);
         resolve();
       } catch(err) {
         reject(err as Error);

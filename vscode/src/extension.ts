@@ -3,6 +3,7 @@ import { initializeConfig } from './utils/config';
 import { initializeAPIClient } from './utils/api';
 import login from './commands/login';
 import getUser from './commands/getUser';
+import indexFiles from './commands/indexFiles';
 
 const appName = 'rescribe';
 
@@ -23,6 +24,12 @@ export const activate = async (context: vscode.ExtensionContext): Promise<void> 
 
 	context.subscriptions.push(vscode.commands.registerCommand(`${appName}.getUser`, () => {
 		getUser(context).catch((err: Error) => {
+			vscode.window.showErrorMessage(err.message);
+		});
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand(`${appName}.indexFiles`, () => {
+		indexFiles(context).catch((err: Error) => {
 			vscode.window.showErrorMessage(err.message);
 		});
 	}));

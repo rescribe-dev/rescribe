@@ -1,4 +1,3 @@
-import { getLogger } from "log4js";
 import FormData from 'form-data';
 import mime from 'mime-types';
 import gql from 'graphql-tag';
@@ -8,9 +7,7 @@ import { AxiosError } from 'axios';
 import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
 import { GraphQLError } from "graphql";
-import axios from "axios";
-
-const logger = getLogger();
+import axios from 'axios';
 
 interface ResIndex {
   indexFiles: string;
@@ -39,7 +36,6 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
   for (let i = 0; i < paths.length; i++) {
     const currentIndex = i;
     const path = paths[currentIndex];
-    logger.info(`index file "${path}"`);
     const buffer = files[i];
     const name = basename(path);
     const lookupType = mime.lookup(path);
@@ -66,16 +62,14 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
     const apolloRes = res.data as ApolloQueryResult<ResIndex>;
     if (apolloRes.errors) {
       throw new Error(apolloRes.errors.map((elem: GraphQLError) => elem.message).join(', '));
-    } else {
-      logger.info('done indexing files');
-      return apolloRes.data.indexFiles.trim();
     }
-  } catch(err) {
+    return apolloRes.data.indexFiles;
+  } catch (err) {
     const errObj = err as AxiosError;
     if (errObj.response) {
       throw new Error(errObj.response.data);
     } else {
-      throw new Error(errObj.message);
+      throw new Error(err.message);
     }
   }
 };
