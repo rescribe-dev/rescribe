@@ -1,5 +1,0 @@
-# ignore binaries
-.vscode-test/
-*.vsix
-node_modules/
-out/

@@ -1,22 +1,15 @@
-import { config } from 'dotenv';
+import * as vscode from 'vscode';
 import { cosmiconfig } from 'cosmiconfig';
-import yaml from 'js-yaml';
-import fs from 'fs';
-import { promisify } from 'util';
-
-const exists = promisify(fs.exists);
-const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
+import { authTokenKey } from './authToken';
 
 export const appName = 'rescribe';
 
 interface ConfigType {
+  authToken: string;
   apiURL: string;
   debug: boolean;
   websiteURL: string;
   useSecure: boolean;
-  authToken: string;
-  cacheFilePath: string;
 }
 
 export const configData: ConfigType = {
@@ -25,35 +18,6 @@ export const configData: ConfigType = {
   websiteURL: 'localhost:8000',
   useSecure: false,
   authToken: '',
-  cacheFilePath: `.${appName}.cache.yml`
-};
-
-interface CacheType {
-  authToken: string;
-}
-
-export const cacheData: CacheType = {
-  authToken: ''
-};
-
-export const writeCache = async (): Promise<void> => {
-  await writeFile(configData.cacheFilePath, yaml.safeDump(cacheData));
-};
-
-const readCache = async (): Promise<void> => {
-  if (await exists(configData.cacheFilePath)) {
-    const file = await readFile(configData.cacheFilePath, 'utf8');
-    const cache: CacheType | undefined = yaml.safeLoad(file);
-    if (cache) {
-      if (configData.authToken.length === 0) {
-        configData.authToken = cache.authToken;
-      }
-    } else {
-      await writeCache();
-    }
-  } else {
-    await writeCache();
-  }
 };
 
 const addToConfig = (conf: any, allString: boolean): void => {
@@ -82,7 +46,16 @@ const addToConfig = (conf: any, allString: boolean): void => {
   }
 };
 
-export const initializeConfig = async (): Promise<void> => {
+const readFromStorage = (context: vscode.ExtensionContext): void => {
+  if (configData.authToken.length === 0) {
+    const potentialAuth = context.globalState.get<string>(authTokenKey);
+    if (potentialAuth !== undefined) {
+      configData.authToken = potentialAuth;
+    }
+  }
+};
+
+export const initializeConfig = async (context: vscode.ExtensionContext): Promise<void> => {
   const configRes = await cosmiconfig(appName, {
     cache: true
   }).search();
@@ -93,7 +66,5 @@ export const initializeConfig = async (): Promise<void> => {
     const conf = configRes?.config;
     addToConfig(conf, false);
   }
-  config();
-  addToConfig(process.env, true);
-  await readCache();
+  readFromStorage(context);
 };
