@@ -1,10 +1,7 @@
-import { getLogger } from "log4js";
-import { Arguments } from 'yargs';
+import * as vscode from 'vscode';
 import { apolloClient } from "../utils/api";
 import gql from "graphql-tag";
-import chalk from "chalk";
-
-const logger = getLogger();
+import { checkAuth } from '../utils/authToken';
 
 interface User {
   name: string;
@@ -17,8 +14,8 @@ interface UserRes {
   user: User;
 }
 
-export default async (_args: Arguments): Promise<void> => {
-  logger.info('get User');
+export default async (_context: vscode.ExtensionContext): Promise<void> => {
+  checkAuth();
   const userRes = await apolloClient.query<UserRes>({
     query: gql`
       query user {
@@ -31,5 +28,5 @@ export default async (_args: Arguments): Promise<void> => {
     `
   });
   const user = userRes.data.user;
-  console.log(chalk.green(`user: ${user.name}, email: ${user.email}, plan: ${user.plan}`));
+  vscode.window.showInformationMessage(`user: ${user.name}, email: ${user.email}, plan: ${user.plan}`);
 };
