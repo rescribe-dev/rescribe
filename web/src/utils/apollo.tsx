@@ -10,6 +10,7 @@ import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getMainDefinition } from "apollo-utilities";
 import ws from "ws";
 import { getAuthToken, isLoggedIn } from "../state/auth/getters";
+import { isSSR } from "./checkSSR";
 
 const useSecure = process.env.GATSBY_USE_SECURE === "true";
 
@@ -35,7 +36,7 @@ const httpLink = from([httpMiddleware, link]);
 
 export let client: ApolloClient<any>;
 
-const wsForNode = typeof window === "undefined" ? ws : null;
+const wsForNode = isSSR ? ws : null;
 
 export const initializeApolloClient = (): void => {
   let link = httpLink;

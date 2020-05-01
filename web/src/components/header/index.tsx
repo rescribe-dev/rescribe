@@ -18,6 +18,8 @@ import { store } from "../../state/reduxWrapper";
 import { useDispatch } from "react-redux";
 import { logout } from "../../state/auth/actions";
 import { navigate } from "@reach/router";
+import { isSSR } from "../../utils/checkSSR";
+import { Dispatch } from "redux";
 
 interface HeaderArgs {
   siteTitle: string;
@@ -33,7 +35,10 @@ const Header = (args: HeaderArgs) => {
     });
     return unsubscribe;
   });
-  const dispatch = useDispatch();
+  let dispatch: Dispatch<any>;
+  if (!isSSR) {
+    dispatch = useDispatch();
+  }
   return (
     <>
       <Navbar color="light" light expand="md">
