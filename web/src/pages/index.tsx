@@ -5,6 +5,7 @@ import Layout from "../layouts/index";
 import SEO from "../components/seo";
 import "./index.scss";
 import gql from "graphql-tag";
+import { isSSR } from "../utils/checkSSR";
 import { useQuery } from "@apollo/react-hooks";
 
 const hello = gql`
@@ -18,7 +19,9 @@ interface IndexPageProps {
 }
 
 const IndexPage = (_args: IndexPageProps) => {
-  console.log(useQuery(hello).data);
+  if (!isSSR) {
+    console.log(useQuery(hello).data);
+  }
   return (
     <Layout>
       <SEO title="Rescribe" />

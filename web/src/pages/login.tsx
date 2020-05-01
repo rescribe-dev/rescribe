@@ -26,6 +26,8 @@ import { useDispatch } from "react-redux";
 import { AuthActionTypes } from "../state/auth/types";
 import { AppThunkDispatch } from "../state/thunk";
 import { setToken } from "../state/auth/actions";
+import { isSSR } from "../utils/checkSSR";
+import { Dispatch } from "redux";
 
 const loaderCSS = css`
   display: block;
@@ -65,8 +67,12 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
       navigate("/app/account");
     }
   }
-  const dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
-  const dispatch = useDispatch();
+  let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
+  let dispatch: Dispatch<any>;
+  if (!isSSR) {
+    dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
+    dispatch = useDispatch();
+  }
   return (
     <Layout>
       <SEO title="Login" />
