@@ -1,6 +1,6 @@
 import { Link } from "gatsby";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Navbar,
   NavbarToggler,
@@ -8,7 +8,16 @@ import {
   NavLink,
   NavbarBrand,
   Nav,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
+import { isLoggedIn } from "../../state/auth/getters";
+import { store } from "../../state/reduxWrapper";
+import { useDispatch } from "react-redux";
+import { logout } from "../../state/auth/actions";
+import { navigate } from "@reach/router";
 
 interface HeaderArgs {
   siteTitle: string;
@@ -17,7 +26,14 @@ interface HeaderArgs {
 const Header = (args: HeaderArgs) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-
+  const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
+  useEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      setLoggedIn(isLoggedIn());
+    });
+    return unsubscribe;
+  });
+  const dispatch = useDispatch();
   return (
     <>
       <Navbar color="light" light expand="md">
@@ -27,12 +43,37 @@ const Header = (args: HeaderArgs) => {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
-            <NavLink tag={Link} to="/">
+            <NavLink key="home" tag={Link} to="/">
               Home
             </NavLink>
-            <NavLink tag={Link} to="/login">
-              Login
-            </NavLink>
+            {!loggedIn ? (
+              <NavLink key="login" tag={Link} to="/login">
+                Login
+              </NavLink>
+            ) : (
+              [
+                <NavLink key="account" tag={Link} to="/app/account">
+                  Account
+                </NavLink>,
+                <UncontrolledDropdown key="dropdown" nav inNavbar>
+                  <DropdownToggle key="toggle-options" nav caret>
+                    Options
+                  </DropdownToggle>
+                  <DropdownMenu key="menu" right>
+                    <DropdownItem
+                      key="logout"
+                      onClick={(evt: React.MouseEvent) => {
+                        evt.preventDefault();
+                        dispatch(logout());
+                        navigate("/login");
+                      }}
+                    >
+                      Logout
+                    </DropdownItem>
+                  </DropdownMenu>
+                </UncontrolledDropdown>,
+              ]
+            )}
           </Nav>
         </Collapse>
       </Navbar>

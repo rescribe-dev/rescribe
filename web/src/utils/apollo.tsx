@@ -8,8 +8,8 @@ import { WebSocketLink } from "apollo-link-ws";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getMainDefinition } from "apollo-utilities";
-import { authToken } from "./auth";
 import ws from "ws";
+import { getAuthToken, isLoggedIn } from "../state/auth/getters";
 
 const useSecure = process.env.GATSBY_USE_SECURE === "true";
 
@@ -20,7 +20,8 @@ const link = new HttpLink({
   fetch,
 });
 const httpMiddleware = new ApolloLink((operation, forward) => {
-  if (authToken.length > 0) {
+  const authToken = getAuthToken();
+  if (isLoggedIn()) {
     operation.setContext({
       headers: {
         authorization: `Bearer ${authToken}`,
@@ -38,7 +39,8 @@ const wsForNode = typeof window === "undefined" ? ws : null;
 
 export const initializeApolloClient = (): void => {
   let link = httpLink;
-  if (authToken.length > 0) {
+  const authToken = getAuthToken();
+  if (isLoggedIn()) {
     const wsClient = new SubscriptionClient(
       `${useSecure ? "wss" : "ws"}://${process.env.GATSBY_API_URL}/graphql`,
       {
@@ -68,6 +70,6 @@ export const initializeApolloClient = (): void => {
 
 initializeApolloClient();
 
-export const wrapRootElement = ({ element }: any) => {
+export const WrapApollo = (element: any) => {
   return <ApolloProvider client={client}>{element}</ApolloProvider>;
 };
