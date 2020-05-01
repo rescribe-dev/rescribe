@@ -67,6 +67,10 @@ export default {
     `gatsby-plugin-offline`,
     `gatsby-plugin-remove-trailing-slashes`,
     `gatsby-plugin-styled-components`,
+    {
+      resolve: `gatsby-plugin-create-client-paths`,
+      options: { prefixes: [`/app/*`] },
+    },
     // see https://github.com/jlengstorf/gatsby-hasura-realtime-app
     // `gatsby-source-graphql`,
   ],

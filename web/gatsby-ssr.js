@@ -5,4 +5,4 @@
  */
 
 export * from "./gatsby/.gatsby/gatsby-ssr";
-export * from "./src/utils/apollo.tsx";
+export * from "./src/utils/rootWrapper.tsx";
