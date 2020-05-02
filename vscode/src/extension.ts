@@ -10,7 +10,7 @@ const appName = 'rescribe';
 export const activate = async (context: vscode.ExtensionContext): Promise<void> => {
 	console.log(`activating ${appName} extension`);
 	await initializeConfig(context);
-	await initializeAPIClient();
+	await initializeAPIClient(context);
 
 	context.subscriptions.push(vscode.commands.registerCommand(`${appName}.helloWorld`, () => {
 		vscode.window.showInformationMessage('Hello World!');

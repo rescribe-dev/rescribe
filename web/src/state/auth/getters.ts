@@ -12,7 +12,7 @@ export const getUser = () => {
 
 export const isLoggedIn = () => {
   const state = store.getState().authReducer;
-  if (!state.loggedIn || state.authToken.length === 0) {
+  if (state.authToken.length === 0) {
     return false;
   }
   let res = true;

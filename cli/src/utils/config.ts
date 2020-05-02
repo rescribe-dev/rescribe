@@ -3,6 +3,7 @@ import { cosmiconfig } from 'cosmiconfig';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import { promisify } from 'util';
+import { isLoggedIn, setAuthToken } from './authToken';
 
 const exists = promisify(fs.exists);
 const writeFile = promisify(fs.writeFile);
@@ -45,8 +46,10 @@ const readCache = async (): Promise<void> => {
     const file = await readFile(configData.cacheFilePath, 'utf8');
     const cache: CacheType | undefined = yaml.safeLoad(file);
     if (cache) {
-      if (configData.authToken.length === 0) {
+      if (configData.authToken.length === 0 && isLoggedIn(cache.authToken)) {
         configData.authToken = cache.authToken;
+      } else {
+        setAuthToken('');
       }
     } else {
       await writeCache();

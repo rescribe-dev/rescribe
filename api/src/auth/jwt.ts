@@ -62,6 +62,7 @@ export const generateJWT = (user?: User): Promise<string> => {
         type: userTypes.visitor,
         emailVerified: false,
       };
+      signOptions.expiresIn = jwtExpiration;
     } else {
       if (!user._id) {
         reject('id required');

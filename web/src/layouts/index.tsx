@@ -15,6 +15,8 @@ toast.configure({
   draggable: false,
   newestOnTop: true,
   position: toast.POSITION.TOP_RIGHT,
+  pauseOnFocusLoss: false,
+  pauseOnHover: true,
 });
 
 const Fonts = Loadable(() => import("../components/fontloader"));

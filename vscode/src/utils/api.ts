@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -9,6 +10,7 @@ import fetch from "isomorphic-fetch";
 import { ApolloLink, from } from 'apollo-link';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { configData } from './config';
+import { isLoggedIn } from './authToken';
 
 export const axiosRequestTimeout = 10000;
 
@@ -22,13 +24,13 @@ export let apiURL: string;
 
 let httpLink: ApolloLink;
 
-const initializeApolloHttpClient = (): void => {
+const initializeApolloHttpClient = (context: vscode.ExtensionContext): void => {
   const link = new HttpLink({
     uri: apiURL,
     fetch,
   });
   const httpMiddleware = new ApolloLink((operation, forward) => {
-    if (configData.authToken.length > 0) {
+    if (isLoggedIn(context)) {
       operation.setContext({
         headers: {
           authorization: `Bearer ${configData.authToken}`,
@@ -40,9 +42,9 @@ const initializeApolloHttpClient = (): void => {
   httpLink = from([httpMiddleware, link]);
 };
 
-export const initializeApolloClient = (): void => {
+export const initializeApolloClient = (context: vscode.ExtensionContext): void => {
   let link = httpLink;
-  if (configData.authToken.length > 0) {
+  if (isLoggedIn(context)) {
     const wsClient = new SubscriptionClient(
       `${configData.useSecure ? 'wss' : 'ws'}://${configData.apiURL}/graphql`,
       {
@@ -71,12 +73,12 @@ export const initializeApolloClient = (): void => {
   });
 };
 
-export const initializeAPIClient = async (): Promise<void> => {
+export const initializeAPIClient = async (context: vscode.ExtensionContext): Promise<void> => {
   const baseAPIURL = `${configData.useSecure ? 'https' : 'http'}://${configData.apiURL}`;
   apiURL = `${baseAPIURL}/graphql`;
   websiteURL = `${configData.useSecure ? 'https' : 'http'}://${configData.websiteURL}`;
-  initializeApolloHttpClient();
-  initializeApolloClient();
+  initializeApolloHttpClient(context);
+  initializeApolloClient(context);
   axiosClient = axios.create({
     baseURL: baseAPIURL
   });
