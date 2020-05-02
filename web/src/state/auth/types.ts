@@ -20,7 +20,6 @@ export interface Login extends LoginInput {
 }
 
 export interface AuthState {
-  loggedIn: boolean;
   authToken: string;
   email: string;
   user: User | undefined;

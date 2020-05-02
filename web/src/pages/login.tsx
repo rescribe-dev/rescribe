@@ -45,9 +45,10 @@ declare global {
 }
 
 const LoginPage = (args: PageProps<LoginPageDataType>) => {
-  let token: string;
+  let token: string | undefined;
   let redirect: string | undefined;
   let cliLogin = false;
+  let vscodeLogin = false;
   if (args.location.search.length > 0) {
     const searchParams = new URLSearchParams(args.location.search);
     if (searchParams.has("token")) {
@@ -58,9 +59,11 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
     }
     if (searchParams.has("cli")) {
       cliLogin = true;
+    } else if (searchParams.has("vscode")) {
+      vscodeLogin = true;
     }
   }
-  if (isLoggedIn()) {
+  if (token === undefined && isLoggedIn()) {
     if (redirect !== undefined) {
       navigate(redirect);
     } else {
@@ -124,6 +127,10 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                       } else {
                         if (cliLogin) {
                           toast("view cli", {
+                            type: "success",
+                          });
+                        } else if (vscodeLogin) {
+                          toast("view vscode", {
                             type: "success",
                           });
                         }

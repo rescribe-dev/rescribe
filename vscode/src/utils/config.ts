@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { cosmiconfig } from 'cosmiconfig';
-import { authTokenKey } from './authToken';
+import { isLoggedIn } from './authToken';
 
 export const appName = 'rescribe';
 
@@ -46,15 +46,6 @@ const addToConfig = (conf: any, allString: boolean): void => {
   }
 };
 
-const readFromStorage = (context: vscode.ExtensionContext): void => {
-  if (configData.authToken.length === 0) {
-    const potentialAuth = context.globalState.get<string>(authTokenKey);
-    if (potentialAuth !== undefined) {
-      configData.authToken = potentialAuth;
-    }
-  }
-};
-
 export const initializeConfig = async (context: vscode.ExtensionContext): Promise<void> => {
   const configRes = await cosmiconfig(appName, {
     cache: true
@@ -66,5 +57,5 @@ export const initializeConfig = async (context: vscode.ExtensionContext): Promis
     const conf = configRes?.config;
     addToConfig(conf, false);
   }
-  readFromStorage(context);
+  isLoggedIn(context);
 };

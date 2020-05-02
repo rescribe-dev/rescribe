@@ -14,8 +14,8 @@ interface UserRes {
   user: User;
 }
 
-export default async (_context: vscode.ExtensionContext): Promise<void> => {
-  checkAuth();
+export default async (context: vscode.ExtensionContext): Promise<void> => {
+  checkAuth(context);
   const userRes = await apolloClient.query<UserRes>({
     query: gql`
       query user {

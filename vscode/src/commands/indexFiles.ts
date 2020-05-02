@@ -4,8 +4,8 @@ import indexFiles from '../utils/indexFiles';
 
 const defaultBranch = 'master';
 
-export default async (_context: vscode.ExtensionContext): Promise<void> => {
-  checkAuth();
+export default async (context: vscode.ExtensionContext): Promise<void> => {
+  checkAuth(context);
   const foundFiles = await vscode.workspace.findFiles("*");
   if (foundFiles.length === 0) {
     throw new Error('no files found');

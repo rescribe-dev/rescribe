@@ -33,7 +33,7 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
         `
       });
       setAuthToken(loginGuestRes.data.loginGuest, context);
-      initializeApolloClient();
+      initializeApolloClient(context);
       closeLoginSubscription();
       loginTimeout = setTimeout(() => {
         closeLoginSubscription();
@@ -61,7 +61,7 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
             const message = 'successfully logged in!';
             vscode.window.showInformationMessage(message);
             setAuthToken(res.data.authNotifications.token, context);
-            initializeApolloClient();
+            initializeApolloClient(context);
             resolve();
           }
         },
@@ -70,7 +70,7 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
           vscode.window.showErrorMessage(message);
         }
       });
-      const loginURL = `${websiteURL}/login?token=${configData.authToken}&cli`;
+      const loginURL = `${websiteURL}/login?token=${configData.authToken}&vscode`;
       console.log(`login at ${loginURL}`);
       vscode.env.openExternal(vscode.Uri.parse(loginURL));
     } catch (err) {
