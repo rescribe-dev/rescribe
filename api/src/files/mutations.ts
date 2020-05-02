@@ -1,10 +1,10 @@
 import { IResolverObject, gql } from "apollo-server-express";
 import { FileUpload } from 'graphql-upload';
 import { getLogger } from 'log4js';
-import { nanoid } from 'nanoid';
-import { fileIndexName } from '../elastic/configure';
-import { elasticClient } from '../elastic/init';
-import { ElasticFile } from '../elastic/types';
+// import { nanoid } from 'nanoid';
+// import { fileIndexName } from '../elastic/configure';
+// import { elasticClient } from '../elastic/init';
+// import { ElasticFile } from '../elastic/types';
 import { createClient } from "../utils/github";
 import { processFile } from "../utils/antlrBridge";
 import { print } from 'graphql/language/printer';
@@ -40,12 +40,17 @@ const logger = getLogger();
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-const indexFile = async (content: string, fileName: string, 
-  project: string, path: string, repositoryName: string): Promise<string> => {
+const indexFile = async (content: string, fileName: string): Promise<string> => {
+  logger.info({
+    name: fileName,
+    contents: content,
+  });
   const fileData = await processFile({
     name: fileName,
     contents: content,
   });
+  logger.info(fileData);
+  /*
   const currentTime = new Date().getTime();
   const id = nanoid();
   const elasticContent: ElasticFile = {
@@ -64,6 +69,8 @@ const indexFile = async (content: string, fileName: string,
   });
   logger.info(`got update result of ${JSON.stringify(indexResult.body)}`);
   return `indexed file with id ${id}`;
+  */
+  return '';
 };
 
 const mutations = (): IResolverObject => {
@@ -137,7 +144,7 @@ const mutations = (): IResolverObject => {
               return;
             }
             const content = buffer.toString('utf8');
-            // indexFile(content);
+            await indexFile(content, file.filename);
             numIndexed++;
             if (numIndexed === args.files.length) {
               resolve(content);

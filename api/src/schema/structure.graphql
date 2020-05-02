@@ -7,8 +7,14 @@ type Project {
 type Repository {
   _id: ID!
   name: String!
-  files: [File!]!
   project: ID!
+  branches: [Branch!]!
+}
+
+type Branch {
+  _id: ID!
+  name: String!
+  files: [File!]!
 }
 
 type File {
