@@ -16,6 +16,8 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from './scalars/ObjectId';
 import Redis from 'ioredis';
+import { join } from "path";
+import exitHook from "exit-hook";
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -55,20 +57,25 @@ export const initializeServer = async (): Promise<void> => {
     db: 0,
     password: process.env.REDIS_PASSWORD
   };
+  const pubSub = new RedisPubSub({
+    publisher: new Redis(redisOptions),
+    subscriber: new Redis(redisOptions)
+  });
+  exitHook(() => {
+    logger.info("close pub sub");
+    pubSub.close();
+  });
   const schema = await buildSchema({
-    resolvers: [__dirname + "/**/**/*.resolver.{ts,js}"],
+    resolvers: [join(__dirname, "/**/**/*.resolver.{ts,js}")],
     scalarsMap: [{
       type: ObjectId,
       scalar: ObjectIdScalar
     }],
     emitSchemaFile: {
-      path: __dirname + "../schema.graphql",
+      path: join(__dirname,  "../schema.graphql"),
       commentDescriptions: true
     },
-    pubSub: new RedisPubSub({
-      publisher: new Redis(redisOptions),
-      subscriber: new Redis(redisOptions)
-    })
+    pubSub
   });
   const server = new ApolloServer({
     schema,
