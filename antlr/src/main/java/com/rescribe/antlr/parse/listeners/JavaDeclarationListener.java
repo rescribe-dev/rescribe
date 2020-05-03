@@ -10,10 +10,18 @@ import lombok.Getter;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
   @Getter List<FunctionDefinitionOutput> results;
-
+  @Getter List<ClassDefinitionOutput> cdo;
   public JavaDeclarationListener() {
     super();
     results = new ArrayList<>();
+  }
+
+  @Override
+  public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
+    if (ctx.children == null) {
+      return;
+    }
+
   }
 
   @Override

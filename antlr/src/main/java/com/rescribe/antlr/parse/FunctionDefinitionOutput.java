@@ -12,4 +12,8 @@ public class FunctionDefinitionOutput {
   @NonNull private String name, content;
   private String returnType;
   @NonNull private Integer startIndex, endIndex;
+
+  public String toString() {
+    return "Name: "+name+"\nContent: "+content+"\nReturnType: "+returnType+"\nStartIndex: "+startIndex+"\nEndIndex: "+endIndex+"\n";
+  }
 }
