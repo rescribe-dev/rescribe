@@ -1,6 +1,9 @@
 import { Collection, Db, MongoClient } from 'mongodb';
 import exitHook from 'exit-hook';
-import User from '../auth/type';
+import User from '../schema/auth';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 export const userCollectionName = 'users';
 
@@ -25,6 +28,7 @@ export const initializeDB = async (): Promise<string> => {
   });
   db = client.db(process.env.DB_NAME);
   exitHook(() => {
+    logger.info("close database");
     client.close();
   });
   userCollection = db.collection(userCollectionName);

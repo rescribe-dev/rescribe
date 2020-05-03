@@ -1,5 +1,7 @@
 # rescribe README
 
+- highlight text: https://github.com/cliffordfajardo/highlight-line-vscode
+
 This is the README for your extension "rescribe". After writing up a brief description, we recommend including the following sections.
 
 ## Features
