@@ -1,6 +1,6 @@
 import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
-import User, { plans, userTypes } from './type';
 import { nanoid } from 'nanoid';
+import User, { Plan, UserType } from '../schema/auth';
 
 export const enum jwtType { LOCAL, GITHUB }
 
@@ -58,18 +58,18 @@ export const generateJWT = (user?: User): Promise<string> => {
     if (!user) {
       authData = {
         id: nanoid(),
-        plan: plans.free,
-        type: userTypes.visitor,
+        plan: Plan.free,
+        type: UserType.visitor,
         emailVerified: false,
       };
       signOptions.expiresIn = jwtExpiration;
     } else {
-      if (!user._id) {
+      if (!user.id) {
         reject('id required');
         return;
       }
       authData = {
-        id: user._id.toHexString(),
+        id: user.id.toHexString(),
         plan: user.plan,
         type: user.type,
         emailVerified: user.emailVerified,
@@ -122,8 +122,8 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
         } else {
           data = {
             id: nanoid(),
-            plan: plans.free,
-            type: userTypes.admin,
+            plan: Plan.free,
+            type: UserType.admin,
             emailVerified: true
           };
         }

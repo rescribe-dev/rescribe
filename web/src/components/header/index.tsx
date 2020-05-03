@@ -29,12 +29,11 @@ const Header = (args: HeaderArgs) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
+  // useEffect needs to be top-level (not in if statement)
   useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
-      setLoggedIn(isLoggedIn());
-    });
-    return unsubscribe;
-  });
+    // run unsubscribe on unmount
+    return store.subscribe(() => setLoggedIn(isLoggedIn()));
+  }, []);
   let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatch = useDispatch();

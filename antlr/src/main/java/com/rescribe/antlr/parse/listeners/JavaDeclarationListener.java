@@ -30,4 +30,9 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
         new FunctionDefinitionOutput(
             methodName, bodyContent, methodReturnType, startLine, endLine));
   }
+
+  @Override
+  public void enterMethodCall(JavaParser.MethodCallContext ctx) {
+    super.enterMethodCall(ctx);
+  }
 }

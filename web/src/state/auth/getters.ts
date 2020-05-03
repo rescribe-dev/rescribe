@@ -6,10 +6,6 @@ export const getAuthToken = () => {
   return store.getState().authReducer.authToken;
 };
 
-export const getUser = () => {
-  return store.getState().authReducer.user;
-};
-
 export const isLoggedIn = () => {
   const state = store.getState().authReducer;
   if (state.authToken.length === 0) {

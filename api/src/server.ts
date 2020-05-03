@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
@@ -6,13 +7,15 @@ import express from 'express';
 import depthLimit from 'graphql-depth-limit';
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
-import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
-import { join } from 'path';
 import { initializeMappings } from './elastic/configure';
-import resolvers from './resolvers';
 import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams } from './utils/context';
 import { isDebug } from './utils/mode';
 import { createServer } from 'http';
+import { buildSchema } from 'type-graphql';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { ObjectId } from 'mongodb';
+import { ObjectIdScalar } from './scalars/ObjectId';
+import Redis from 'ioredis';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -27,16 +30,48 @@ export const initializeServer = async (): Promise<void> => {
     const message = 'port is not numeric';
     throw new Error(message);
   }
+  if (!process.env.REDIS_HOST) {
+    const message = 'no redis host provided';
+    throw new Error(message);
+  }
+  if (!process.env.REDIS_PORT) {
+    const message = 'no redis port provided';
+    throw new Error(message);
+  }
+  const redisPort = Number(process.env.REDIS_PORT);
+  if (!port) {
+    const message = 'redis port is not numeric';
+    throw new Error(message);
+  }
+  if (!process.env.REDIS_PASSWORD) {
+    const message = 'no redis password provided';
+    throw new Error(message);
+  }
   const app = express();
   app.use('*', cors());
-  const typeDefs = mergeTypes(fileLoader(join(__dirname, './schema/*.graphql'), {
-    recursive: true
-  }), {
-    all: true
+  const redisOptions: Redis.RedisOptions = {
+    host: process.env.REDIS_HOST,
+    port: redisPort,
+    db: 0,
+    password: process.env.REDIS_PASSWORD
+  };
+  const schema = await buildSchema({
+    resolvers: [__dirname + "/**/**/*.resolver.{ts,js}"],
+    scalarsMap: [{
+      type: ObjectId,
+      scalar: ObjectIdScalar
+    }],
+    emitSchemaFile: {
+      path: __dirname + "../schema.graphql",
+      commentDescriptions: true
+    },
+    pubSub: new RedisPubSub({
+      publisher: new Redis(redisOptions),
+      subscriber: new Redis(redisOptions)
+    })
   });
   const server = new ApolloServer({
-    resolvers,
-    typeDefs,
+    schema,
     validationRules: [depthLimit(maxDepth)],
     subscriptions: {
       onConnect: (connectionParams: SubscriptionContextParams): Promise<GraphQLContext> => onSubscription(connectionParams),

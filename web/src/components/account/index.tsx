@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { Container } from "reactstrap";
 import { PageProps } from "gatsby";
 
 import "./index.scss";
 
 import SEO from "../../components/seo";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { User, AuthActionTypes } from "../../state/auth/types";
-import { store } from "../../state/reduxWrapper";
-import { getUser } from "../../state/auth/getters";
 import { AppThunkDispatch } from "../../state/thunk";
 import { thunkGetUser } from "../../state/auth/thunks";
+import { RootState } from "../../state";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AccountPageDataType {}
@@ -22,11 +21,10 @@ declare global {
 }
 
 const AccountPage = (_args: PageProps<AccountPageDataType>) => {
-  const [user, setUser] = useState<User | undefined>(getUser());
+  const user = useSelector<RootState, User | undefined>(
+    (state) => state.authReducer.user
+  );
   if (!user) {
-    store.subscribe(() => {
-      setUser(getUser());
-    });
     const dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
     dispatchAuthThunk(thunkGetUser());
   }

@@ -14,13 +14,17 @@ const hello = gql`
   }
 `;
 
+interface HelloRes {
+  hello: string;
+}
+
 interface IndexPageProps {
   data: {};
 }
 
 const IndexPage = (_args: IndexPageProps) => {
   if (!isSSR) {
-    console.log(useQuery(hello).data);
+    console.log(useQuery<HelloRes | undefined>(hello).data?.hello);
   }
   return (
     <Layout>
