@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 class APIController {
 
+  List<FunctionDefinitionOutput> recentOutput;
+
   @Data
   @Entity
   private class HelloResponse {
@@ -38,10 +40,21 @@ class APIController {
     return new HelloResponse("hello world!");
   }
 
+  @GetMapping("/recentOutput")
+  @ResponseBody
+  List<FunctionDefinitionOutput> recentOutput() {return recentOutput;}
+
   @PostMapping("/processFile")
   @ResponseBody
   List<FunctionDefinitionOutput> processFile(@Valid @RequestBody FileInput input) {
     System.out.println(input);
-    return FileHandler.getFileData(input);
+    this.recentOutput = FileHandler.getFileData(input);
+    return recentOutput;
   }
+
+//  public void outputResults(@Valid FileInput input){
+//    System.out.println("++++++++++++++++++++++++++++++++++++++++");
+//    System.out.println(FileHandler.getFileData(input));
+//    System.out.println("++++++++++++++++++++++++++++++++++++++++");
+//  }
 }
