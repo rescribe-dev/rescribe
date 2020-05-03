@@ -1,5 +1,6 @@
 package com.rescribe.antlr.parse.listeners;
 
+import com.rescribe.antlr.parse.*;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.java.JavaParserBaseListener;
 import com.rescribe.antlr.parse.CustomListener;
@@ -9,11 +10,17 @@ import java.util.List;
 import lombok.Getter;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
-  @Getter List<FunctionDefinitionOutput> results;
-  @Getter List<ClassDefinitionOutput> cdo;
+  @Getter List<FunctionDefinitionOutput> functionResults;
+  @Getter List<ClassDefinitionOutput> classResults;
+
+  public List<ClassDefinitionOutput> getResults() {
+    return this.classResults;
+  }
+
   public JavaDeclarationListener() {
     super();
-    results = new ArrayList<>();
+    functionResults = new ArrayList<>();
+    classResults = new ArrayList<>();
   }
 
   @Override
@@ -21,7 +28,19 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     if (ctx.children == null) {
       return;
     }
+    String a = ctx.children.get(0).getText(); //this is the class keyword - type
+    String s = ctx.children.get(1).getText(); //this is the name
+//    String d = ctx.children.get(2).getText(); //This is the same as getClassBody which returns
+    //a blob of the class content
+    //there are only three children
+    String d = ctx.classBody().children.get(1).getText();
+    String f = ctx.classBody().children.get(2).getText();
 
+    String g = ctx.classBody().getText();
+    Integer h = ctx.start.getLine();
+    Integer j = ctx.stop.getLine();
+
+    classResults.add(new ClassDefinitionOutput(a, s, d, f, g, h, j));
   }
 
   @Override
@@ -30,13 +49,14 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
       return;
     }
     String methodName = ctx.children.get(1).getText();
+    String methodArguments = ctx.children.get(2).getText();
     String methodReturnType = ctx.children.get(0).getText();
     String bodyContent = ctx.methodBody().getText();
     Integer startLine = ctx.start.getLine();
     Integer endLine = ctx.stop.getLine();
-    results.add(
+    functionResults.add(
         new FunctionDefinitionOutput(
-            methodName, bodyContent, methodReturnType, startLine, endLine));
+            methodName, methodArguments, bodyContent, methodReturnType, startLine, endLine));
   }
 
   @Override
