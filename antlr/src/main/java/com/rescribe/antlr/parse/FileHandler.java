@@ -52,7 +52,7 @@ public class FileHandler {
     return extension.replaceAll("\\s", "");
   }
 
-  public static List<FunctionDefinitionOutput> getFileData(FileInput input)
+  public static List<ClassDefinitionOutput> getFileData(FileInput input)
       throws UnsupportedFileException {
     String file_extension = getFileExtension(input.getName());
     ParseTreeWalker walker = new ParseTreeWalker();

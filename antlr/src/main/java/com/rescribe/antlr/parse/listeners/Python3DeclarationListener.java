@@ -2,6 +2,7 @@ package com.rescribe.antlr.parse.listeners;
 
 import com.rescribe.antlr.gen.python3.Python3BaseListener;
 import com.rescribe.antlr.gen.python3.Python3Parser;
+import com.rescribe.antlr.parse.ClassDefinitionOutput;
 import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.FunctionDefinitionOutput;
 import java.util.ArrayList;
@@ -9,11 +10,15 @@ import java.util.List;
 import lombok.Getter;
 
 public class Python3DeclarationListener extends Python3BaseListener implements CustomListener {
-  @Getter List<FunctionDefinitionOutput> results;
-
+  @Getter List<FunctionDefinitionOutput> functionResults;
+  @Getter List<ClassDefinitionOutput> classResults;
+  public List<ClassDefinitionOutput> getResults(){
+    return classResults;
+  }
   public Python3DeclarationListener() {
     super();
-    results = new ArrayList<>();
+    functionResults = new ArrayList<>();
+    classResults = new ArrayList<>();
   }
 
   @Override
@@ -22,12 +27,13 @@ public class Python3DeclarationListener extends Python3BaseListener implements C
       return;
     }
     String methodName = ctx.children.get(1).getText();
+    String methodArguments = ctx.children.get(2).getText();
     String methodReturnType = "";
     String bodyContent = ctx.children.get(4).getText();
     Integer startLine = ctx.start.getLine();
     Integer endLine = ctx.stop.getLine();
-    results.add(
+    functionResults.add(
         new FunctionDefinitionOutput(
-            methodName, bodyContent, methodReturnType, startLine, endLine));
+            methodName, methodArguments, bodyContent, methodReturnType, startLine, endLine));
   }
 }

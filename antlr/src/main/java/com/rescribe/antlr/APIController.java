@@ -1,5 +1,6 @@
 package com.rescribe.antlr;
 
+import com.rescribe.antlr.parse.ClassDefinitionOutput;
 import com.rescribe.antlr.parse.FileHandler;
 import com.rescribe.antlr.parse.FileInput;
 import com.rescribe.antlr.parse.FunctionDefinitionOutput;
@@ -15,8 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 class APIController {
-
-  List<FunctionDefinitionOutput> recentOutput;
+  List<ClassDefinitionOutput> recentClassDefOutput;
+  List<ClassDefinitionOutput> recentOutput;
 
   @Data
   @Entity
@@ -42,11 +43,11 @@ class APIController {
 
   @GetMapping("/recentOutput")
   @ResponseBody
-  List<FunctionDefinitionOutput> recentOutput() {return recentOutput;}
+  List<ClassDefinitionOutput> recentOutput() {return recentOutput;}
 
   @PostMapping("/processFile")
   @ResponseBody
-  List<FunctionDefinitionOutput> processFile(@Valid @RequestBody FileInput input) {
+  List<ClassDefinitionOutput> processFile(@Valid @RequestBody FileInput input) {
     System.out.println(input);
     this.recentOutput = FileHandler.getFileData(input);
     return recentOutput;

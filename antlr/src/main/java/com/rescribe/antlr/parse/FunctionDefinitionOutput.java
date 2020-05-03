@@ -7,13 +7,22 @@ import lombok.NonNull;
 
 @Entity
 @Data
-@AllArgsConstructor
-public class FunctionDefinitionOutput {
-  @NonNull private String name, content;
-  private String returnType;
-  @NonNull private Integer startIndex, endIndex;
 
-  public String toString() {
-    return "Name: "+name+"\nContent: "+content+"\nReturnType: "+returnType+"\nStartIndex: "+startIndex+"\nEndIndex: "+endIndex+"\n";
+public class FunctionDefinitionOutput extends BaselineFunctionDefinitionOutput{
+  //TODO parent type
+  //TODO parent ID
+//  @NonNull private String name, content;
+//  private String returnType;
+//  @NonNull private Integer startIndex, endIndex;
+
+  public FunctionDefinitionOutput(String name, String arguments, String returnType, String content, Integer startIndex, Integer endIndex){
+    super(name, arguments, returnType, content, startIndex, endIndex);
   }
+  public FunctionDefinitionOutput(){
+    super();
+  }
+//  public String toString() {
+//    return "Name: "+super.name+"\nContent: "+content+"\nReturnType: "+returnType+"\nStartIndex: "+startIndex+"\nEndIndex: "+endIndex+"\n";
+//
+//  }
 }
