@@ -18,6 +18,7 @@ import { ObjectIdScalar } from './scalars/ObjectId';
 import Redis from 'ioredis';
 import { join } from "path";
 import exitHook from "exit-hook";
+import { graphqlUploadExpress } from "graphql-upload";
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -77,13 +78,19 @@ export const initializeServer = async (): Promise<void> => {
     },
     pubSub
   });
+  // https://github.com/MichalLytek/type-graphql/issues/37#issuecomment-592467594
+  app.use(graphqlUploadExpress({
+    maxFileSize: 10000000,
+    maxFiles: 10 
+  }));
   const server = new ApolloServer({
     schema,
     validationRules: [depthLimit(maxDepth)],
     subscriptions: {
       onConnect: (connectionParams: SubscriptionContextParams): Promise<GraphQLContext> => onSubscription(connectionParams),
     },
-    context: async (req): Promise<GraphQLContext> => getContext(req)
+    context: async (req): Promise<GraphQLContext> => getContext(req),
+    uploads: false
   });
   app.use(server.graphqlPath, compression());
   server.applyMiddleware({

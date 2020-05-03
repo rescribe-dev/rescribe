@@ -3,13 +3,13 @@ import { getLogger } from 'log4js';
 // import { fileIndexName } from '../elastic/configure';
 // import { elasticClient } from '../elastic/init';
 // import { ElasticFile } from '../elastic/types';
-import { processFile } from "../utils/antlrBridge";
+import { processFile, ProcessFileOutput } from "../utils/antlrBridge";
 
 const logger = getLogger();
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-export const indexFile = async (content: string, fileName: string): Promise<string> => {
+export const indexFile = async (content: string, fileName: string): Promise<ProcessFileOutput[]> => {
   logger.info({
     name: fileName,
     contents: content,
@@ -39,5 +39,5 @@ export const indexFile = async (content: string, fileName: string): Promise<stri
   logger.info(`got update result of ${JSON.stringify(indexResult.body)}`);
   return `indexed file with id ${id}`;
   */
-  return '';
+  return fileData;
 };
