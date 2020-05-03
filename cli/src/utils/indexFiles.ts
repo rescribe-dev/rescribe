@@ -20,7 +20,7 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
   const form = new FormData();
   form.append('operations', JSON.stringify({
     query: print(gql`
-      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $repository: ID!, $branch: ID!) {
+      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $repository: String!, $branch: String!) {
         indexFiles(files: $files, paths: $paths, repository: $repository, branch: $branch)
       }
     `),
@@ -67,13 +67,12 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
     if (apolloRes.errors) {
       throw new Error(apolloRes.errors.map((elem: GraphQLError) => elem.message).join(', '));
     } else {
-      logger.info('done indexing files');
       return apolloRes.data.indexFiles.trim();
     }
   } catch(err) {
     const errObj = err as AxiosError;
     if (errObj.response) {
-      throw new Error(errObj.response.data);
+      throw new Error(errObj.response.data.errors.map((elem: GraphQLError) => elem.message).join(', '));
     } else {
       throw new Error(errObj.message);
     }

@@ -2,14 +2,14 @@ import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from "isbinaryfile";
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { indexFile } from "./shared";
-import { GraphQLUpload } from 'apollo-server-express';
+import { GraphQLUpload } from 'graphql-upload';
 
 @ArgsType()
 class IndexFilesArgs {
   @Field(_type => [String], { description: 'paths' })
   paths: string[];
 
-  @Field(_type => [GraphQLUpload], { description: 'branch' })
+  @Field(() => [GraphQLUpload], { description: 'branch' })
   files: Promise<FileUpload>[];
 
   @Field(_type => String, { description: 'repo name' })
@@ -42,10 +42,14 @@ class IndexFilesResolver {
             return;
           }
           const content = buffer.toString('utf8');
-          await indexFile(content, file.filename);
-          numIndexed++;
-          if (numIndexed === args.files.length) {
-            resolve(content);
+          try {
+            const res = await indexFile(content, file.filename);
+            numIndexed++;
+            if (numIndexed === args.files.length) {
+              resolve(JSON.stringify(res));
+            }
+          } catch(err) {
+            reject(err);
           }
         });
       }
