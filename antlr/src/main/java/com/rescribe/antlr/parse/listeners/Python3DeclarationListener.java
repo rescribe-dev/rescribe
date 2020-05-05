@@ -2,22 +2,22 @@ package com.rescribe.antlr.parse.listeners;
 
 import com.rescribe.antlr.gen.python3.Python3BaseListener;
 import com.rescribe.antlr.gen.python3.Python3Parser;
-import com.rescribe.antlr.parse.ClassDefinitionOutput;
 import com.rescribe.antlr.parse.CustomListener;
-import com.rescribe.antlr.parse.FunctionDefinitionOutput;
+
+import com.rescribe.antlr.parse.CustomContext;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.rescribe.antlr.parse.results.Results;
 import lombok.Getter;
 
 public class Python3DeclarationListener extends Python3BaseListener implements CustomListener {
-  @Getter List<FunctionDefinitionOutput> functionResults;
-  @Getter List<ClassDefinitionOutput> classResults;
-  public List<ClassDefinitionOutput> getResults(){
+  @Getter List<Results> classResults;
+  public List<Results> getResults(){
     return classResults;
   }
   public Python3DeclarationListener() {
     super();
-    functionResults = new ArrayList<>();
     classResults = new ArrayList<>();
   }
 
@@ -32,8 +32,5 @@ public class Python3DeclarationListener extends Python3BaseListener implements C
     String bodyContent = ctx.children.get(4).getText();
     Integer startLine = ctx.start.getLine();
     Integer endLine = ctx.stop.getLine();
-    functionResults.add(
-        new FunctionDefinitionOutput(
-            methodName, methodArguments, bodyContent, methodReturnType, startLine, endLine));
   }
 }
