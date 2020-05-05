@@ -5,6 +5,8 @@ import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.python3.Python3Parser;
 import javassist.compiler.ast.Variable;
 import org.antlr.v4.runtime.ParserRuleContext;
+import lombok.Getter;
+import lombok.Setter;
 
 public class CustomContext {
    public  enum CONTEXT_TYPE {
@@ -13,8 +15,12 @@ public class CustomContext {
         CPP
     }
 
+    @Getter
+    @Setter
     public CONTEXT_TYPE context_type;
 
+    @Getter
+    @Setter
     private ParserRuleContext class_ctx, method_ctx, variable_ctx;
 
     public CustomContext(ParserRuleContext class_ctx, ParserRuleContext method_ctx, ParserRuleContext variable_ctx, String type) {
@@ -37,9 +43,6 @@ public class CustomContext {
         this.variable_ctx = variable_ctx;
     }
 
-    public ParserRuleContext getClassContext() {
-
-    }
 }
 
 

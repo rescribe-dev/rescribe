@@ -1,8 +1,9 @@
 package com.rescribe.antlr.parse;
 
+import com.rescribe.antlr.parse.results.Results;
+
 import java.util.List;
 
 public interface CustomListener {
-//  public List<FunctionDefinitionOutput> getResults();
-  public List<ClassDefinitionOutput> getResults();
+  List<Results> getResults();
 }
