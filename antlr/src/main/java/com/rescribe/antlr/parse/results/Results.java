@@ -5,87 +5,49 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class Results {
-    enum Results_Type {
+    public enum ResultsType {
         CLASS,
         CLASS_METHOD,
         FUNCTION,
         VARIABLE,
         CUSTOM
     }
-    @Getter
-    ArrayList<String> results;
-    Results_Type results_type;
-    String label;
-    @Getter
-    @Setter
-    String parent;
+
+
+
+    @Getter @Setter String parent;
+    @Getter @Setter String label;
+    @Getter @Setter ResultsType results_type;
+    @Getter @Setter ArrayList<String> results;
+
+    public Results() {
+        this("", "");
+    }
+
     public Results(String input, String type) {
         label = "custom";
         switch(type) {
             case "class":
-                results_type = Results_Type.CLASS;
+                results_type = ResultsType.CLASS;
                 break;
             case "class method":
-                results_type = Results_Type.CLASS_METHOD;
+                results_type = ResultsType.CLASS_METHOD;
                 break;
             case "function":
-                results_type = Results_Type.FUNCTION;
+                results_type = ResultsType.FUNCTION;
                 break;
             case "variable":
-                results_type = Results_Type.VARIABLE;
+                results_type = ResultsType.VARIABLE;
                 break;
             default:
-                results_type = Results_Type.CUSTOM;
+                results_type = ResultsType.CUSTOM;
                 label = type;
                 break;
         }
         results = new ArrayList<>();
         results.add(input);
-
-    }
-    public void setResultsType(String input) {
-        switch(input) {
-            case "class":
-                results_type = Results_Type.CLASS;
-                break;
-            case "class method":
-                results_type = Results_Type.CLASS_METHOD;
-                break;
-            case "function":
-                results_type = Results_Type.FUNCTION;
-                break;
-            case "variable":
-                results_type = Results_Type.VARIABLE;
-                break;
-            default:
-                results_type = Results_Type.CUSTOM;
-                break;
-        }
-    }
-    public void setLabel(String input) {
-        this.label = input;
-    }
-    public String getLabel() {
-        return this.label;
-    }
-    public String get(int i) {
-        return this.results.get(i);
-        
-    }
-    public int size() {
-        return this.results.size();
     }
 
-    public void addResults(String input) {
-        results.add(input);
-        return;
-    }
-    public void addResults(ArrayList<String> input) {
-        for (String s : input) {
-            results.add(s);
-        }
-        return;
-    }
     public String getResultsType() {
         switch (this.results_type) {
             case CLASS:
@@ -101,13 +63,56 @@ public class Results {
             default:
                 throw new InvalidParameterException();
         }
-
     }
-    public Results() { this("", ""); }
+
+    public void setResultsType(String input) {
+        switch(input) {
+            case "class":
+                results_type = ResultsType.CLASS;
+                break;
+            case "class method":
+                results_type = ResultsType.CLASS_METHOD;
+                break;
+            case "function":
+                results_type = ResultsType.FUNCTION;
+                break;
+            case "variable":
+                results_type = ResultsType.VARIABLE;
+                break;
+            default:
+                results_type = ResultsType.CUSTOM;
+                break;
+        }
+    }
+
+    public String getLabel() {
+        return this.label;
+    }
+    public void setLabel(String input) {
+        this.label = input;
+    }
+    public int size() {
+        return this.results.size();
+    }
+
+    public String get(int i) {
+        return this.results.get(i);
+    }
+
+    public void addResults(String input) {
+        results.add(input);
+        return;
+    }
+
+    public void addResults(ArrayList<String> input) {
+        for (String s : input) {
+            results.add(s);
+        }
+        return;
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
 
         if (this.results != null){
             for (String s : this.results) {
@@ -118,6 +123,14 @@ public class Results {
         throw new InvalidParameterException();
     }
 }
+
+
+
+
+
+
+
+
 
 //BASE FOR DIFFERENT FUNCTION IMPLEMENTATIONS BASED OFF OF THE RESULTS_TYPE
 //THIS ONE IS FOR toString()

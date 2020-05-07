@@ -26,7 +26,6 @@ public class JavaDeclarationVisitor extends JavaParserBaseVisitor {
         int n = ctx.getChildCount();
         if (n > 0) {
             for (int i = 0; i < n; i ++) {
-
                 this.results.addResults(ctx.children.get(i).getText());
             }
         }

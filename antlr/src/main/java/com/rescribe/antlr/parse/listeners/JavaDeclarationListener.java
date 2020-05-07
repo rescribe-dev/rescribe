@@ -8,64 +8,107 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.rescribe.antlr.parse.results.ClassResults;
 import com.rescribe.antlr.parse.visitors.JavaDeclarationVisitor;
 
 import com.rescribe.antlr.parse.results.Results;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
 
+  List<Results> results;
 
-  public List<Results> results;
-  public JavaDeclarationVisitor visitor;
-  private boolean inClass;
-  private String current_classname;
+  Results constructor;
+  List<Results> methods;
+  List<Results> variables;
+  List<ClassResults> class_results;
 
-  HashMap<String, Results> resultsHashMap;
+  boolean in_class;
+  String current_classname;
+
+  JavaDeclarationVisitor visitor;
 
   public JavaDeclarationListener() {
     super();
+
     this.results = new ArrayList<>();
+
+    this.constructor = new Results();
+    this.methods = new ArrayList<>();
+    this.variables = new ArrayList<>();
+    this.class_results =new ArrayList<>();
+
+    this.in_class = false;
+    this.current_classname = "";
+
     this.visitor = new JavaDeclarationVisitor();
-    this.inClass = false;
-    this.resultsHashMap = new HashMap<>();
   }
 
   public List<Results> getResults() {
+    if (class_results != null) {
+      for (Results r : this.class_results) {
+        results.add(r);
+      }
+    }
+
+    //DO THE SAME FOR METHODS AND VARIABLES WHEN THOSE ARE IMPLEMENTED
     return this.results;
   }
+  private void resetContext() {
+    this.constructor = new Results();
+    this.methods = new ArrayList<>();
+    this.variables = new ArrayList<>();
+    this.in_class = false;
+    this.current_classname = "";
+  }
 
-    @Override
-    public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-      this.inClass = true;
-      this.current_classname = ctx.children.get(1).getText();
+  @Override
+  public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
+    this.resetContext();
+    this.in_class = true;
+    this.current_classname = ctx.children.get(1).getText();
+  }
 
+  @Override
+  public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
+    Results output = this.visitor.visitMethodDeclaration(ctx);
+
+    if (in_class == true) {
+      output.setParent(this.current_classname);
+      output.setResultsType("class method");
     }
 
-    @Override
-    public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-      Results output = visitor.visitMethodDeclaration(ctx);
-      if (inClass == true) {
-        output.setParent(this.current_classname);
-        output.setResultsType("class method");
-      }
-      resultsHashMap.put(output.getLabel(), output);
-      results.add(
-              output
-      );
-    }
+    this.methods.add(
+            output
+    );
+  }
 
-    @Override
-    public void exitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-      this.inClass = false;
-      this.current_classname = null;
-    }
+  @Override
+  public void exitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
+    this.class_results.add(
+            new ClassResults(ctx.classBody().getText(), new Results(), this.methods, new ArrayList<>(), this.current_classname)
+    );
 
-    @Override
-    public void enterGenericMethodDeclaration(JavaParser.GenericMethodDeclarationContext ctx) {
-      results.add(
-        new Results(ctx.getText(), "generic method declaration")
-      );
-    }
+    this.resetContext();
+  }
+
+  @Override
+  public void enterGenericMethodDeclaration(JavaParser.GenericMethodDeclarationContext ctx) {
+    results.add(
+      new Results(ctx.getText(), "generic method declaration")
+    );
+  }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
