@@ -64,12 +64,12 @@ export const generateJWT = (user?: User): Promise<string> => {
       };
       signOptions.expiresIn = jwtExpiration;
     } else {
-      if (!user.id) {
+      if (!user._id) {
         reject('id required');
         return;
       }
       authData = {
-        id: user.id.toHexString(),
+        id: user._id.toHexString(),
         plan: user.plan,
         type: user.type,
         emailVerified: user.emailVerified,

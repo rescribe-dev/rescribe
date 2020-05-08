@@ -1,4 +1,4 @@
-import { userCollection } from "../db/connect";
+import { UserModel } from "../schema/auth";
 
 export const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
 export const passwordMinLen = 6;
@@ -8,7 +8,7 @@ export const saltRounds = 10;
 export const authNotificationsTrigger = 'AUTH_NOTIFICATION';
 
 export const accountExists = async (email: string): Promise<boolean> => {
-  return await userCollection.countDocuments({
+  return await UserModel.count({
     email,
   }) !== 0;
 };

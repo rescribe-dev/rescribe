@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import { userCollection } from '../db/connect';
 import { GraphQLContext } from '../utils/context';
 import { verifyGuest } from './checkAuth';
 import { generateJWT } from './jwt';
@@ -7,6 +6,7 @@ import { Resolver, ArgsType, Field, Query, Args, Ctx, PubSub, PubSubEngine } fro
 import { IsEmail, MinLength, Matches } from "class-validator";
 import { authNotificationsTrigger, passwordMinLen, specialCharacterRegex } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
+import { UserModel } from '../schema/auth';
 
 @ArgsType()
 class LoginArgs {
@@ -30,7 +30,7 @@ class LoginArgs {
 class LoginResolvers {
   @Query(_returns => String)
   async login(@PubSub() pubSub: PubSubEngine, @Args() { email, password }: LoginArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
-    const user = await userCollection.findOne({
+    const user = await UserModel.findOne({
       email
     });
     if (!user) {

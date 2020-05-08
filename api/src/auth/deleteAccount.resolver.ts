@@ -1,10 +1,10 @@
 
 import { verifyAdmin, verifyLoggedIn } from "./checkAuth";
-import { userCollection } from '../db/connect';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, IsOptional } from "class-validator";
-import { ObjectId } from "mongodb";
+import User, { UserModel } from "../schema/auth";
+import { DocumentType } from "@typegoose/typegoose";
 
 @ArgsType()
 class DeleteArgs {
@@ -30,13 +30,14 @@ class RegisterResolver {
         throw new Error('user not logged in');
       }
     }
-    const filter: any = {};
+    let userFindRes: DocumentType<User> | null;
     if (!isAdmin) {
-      filter.id = new ObjectId(ctx.auth?.id);
+      userFindRes = await UserModel.findById(ctx.auth?.id);
     } else {
-      filter.email = email;
+      userFindRes = await UserModel.findOne({
+        email
+      });
     }
-    const userFindRes = await userCollection.findOne(filter);
     if (!userFindRes) {
       throw new Error('no user found');
     }
@@ -44,9 +45,12 @@ class RegisterResolver {
     if (!userData.id) {
       throw new Error('no user id found');
     }
-    await userCollection.deleteOne({
+    const deleteRes = await UserModel.deleteOne({
       id: userData.id
     });
+    if (!deleteRes.ok) {
+      throw new Error('could not delete user');
+    }
     return `deleted user ${userData.id.toHexString()}`;
   }
 }

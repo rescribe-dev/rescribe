@@ -1,9 +1,8 @@
-import { userCollection } from '../db/connect';
 import { verifyLoggedIn } from './checkAuth';
 import { ObjectID } from 'mongodb';
 import { Resolver, Ctx, Query } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
-import User from '../schema/auth';
+import User, { UserModel } from '../schema/auth';
 
 @Resolver()
 class UserResolvers {
@@ -13,9 +12,7 @@ class UserResolvers {
       throw new Error('user not logged in');
     }
     const userID = new ObjectID(ctx.auth?.id);
-    const user = await userCollection.findOne({
-      id: userID,
-    });
+    const user = await UserModel.findById(userID);
     if (!user) {
       throw new Error(`cannot find user with id ${userID.toHexString()}`);
     }
