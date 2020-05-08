@@ -19,6 +19,7 @@ import Redis from 'ioredis';
 import { join } from "path";
 import exitHook from "exit-hook";
 import { graphqlUploadExpress } from "graphql-upload";
+import { TypegooseMiddleware } from "./db/typegoose";
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -72,6 +73,7 @@ export const initializeServer = async (): Promise<void> => {
       type: ObjectId,
       scalar: ObjectIdScalar
     }],
+    globalMiddlewares: [TypegooseMiddleware],
     emitSchemaFile: {
       path: join(__dirname,  "../schema.graphql"),
       commentDescriptions: true

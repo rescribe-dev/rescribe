@@ -1,12 +1,12 @@
 
 import { ObjectID } from "mongodb";
 import bcrypt from 'bcrypt';
-import { userCollection } from '../db/connect';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches, IsOptional } from "class-validator";
 import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from "./shared";
 import { verifyLoggedIn } from "./checkAuth";
+import { UserModel } from "../schema/auth";
 
 @ArgsType()
 class UpdateArgs {
@@ -59,7 +59,7 @@ class RegisterResolver {
       userUpdateData.password = await bcrypt.hash(password, saltRounds);
     }
     const userID = new ObjectID(ctx.auth?.id);
-    await userCollection.updateOne({
+    await UserModel.updateOne({
       id: userID,
     }, userUpdateData);
     return `updated user ${userID.toHexString()}`;

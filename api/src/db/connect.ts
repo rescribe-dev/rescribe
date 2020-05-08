@@ -1,19 +1,10 @@
-import { Collection, Db, MongoClient } from 'mongodb';
+import { connect, Mongoose } from "mongoose";
 import exitHook from 'exit-hook';
-import User from '../schema/auth';
 import { getLogger } from 'log4js';
 
 const logger = getLogger();
 
-export const userCollectionName = 'users';
-
-export let db: Db;
-
-export let userCollection: Collection<User>;
-
-export const getUserCollection = (): Collection => {
-  return userCollection;
-};
+export let client: Mongoose;
 
 export const initializeDB = async (): Promise<string> => {
   if (!process.env.DB_CONNECTION_URI) {
@@ -22,15 +13,14 @@ export const initializeDB = async (): Promise<string> => {
   if (!process.env.DB_NAME) {
     throw new Error('cannot find database name');
   }
-  const client = await MongoClient.connect(process.env.DB_CONNECTION_URI, {
+  client = await connect(process.env.DB_CONNECTION_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    dbName: process.env.DB_NAME
   });
-  db = client.db(process.env.DB_NAME);
   exitHook(() => {
     logger.info("close database");
-    client.close();
+    client.connection.close();
   });
-  userCollection = db.collection(userCollectionName);
-  return `database client connected to ${db.databaseName}`;
+  return `database client connected to ${client.connection.name}`;
 };
