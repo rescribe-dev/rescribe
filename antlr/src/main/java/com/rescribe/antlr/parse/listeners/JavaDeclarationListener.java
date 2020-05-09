@@ -72,7 +72,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
     Results output = this.visitor.visitMethodDeclaration(ctx);
 
-    if (in_class == true) {
+    if (in_class) {
       output.setParent(this.current_classname);
       output.setResultsType("class method");
     }
@@ -87,7 +87,6 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     this.class_results.add(
             new ClassResults(ctx.classBody().getText(), new Results(), this.methods, new ArrayList<>(), this.current_classname)
     );
-
     this.resetContext();
   }
 

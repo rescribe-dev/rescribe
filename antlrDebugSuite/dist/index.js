@@ -10,16 +10,6 @@ axios.post('/processFile', {
     contents: output.toString()
 })
     .then(console.log("posted"))
-    // .then(
-    //     axios.get('/recentOutput').then((response:any) => {
-    //         console.log(response.data);
-    //         }
-    //     ))
     .catch((err) => {
     console.log(err.response.data);
 });
-// axios.get('/recentOutput').then((response:any) => {
-//     console.log(response.data);
-//     }).catch((err:any) => {
-//         console.log(err.response.data);
-//     } )
