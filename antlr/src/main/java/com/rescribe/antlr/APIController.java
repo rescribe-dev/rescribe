@@ -2,12 +2,10 @@ package com.rescribe.antlr;
 
 import com.rescribe.antlr.parse.FileHandler;
 import com.rescribe.antlr.parse.FileInput;
-
+import com.rescribe.antlr.parse.results.Results;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.validation.Valid;
-
-import com.rescribe.antlr.parse.results.Results;
 import lombok.Data;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +42,9 @@ class APIController {
 
   @GetMapping("/recentOutput")
   @ResponseBody
-  List<Results> recentOutput() {return recentOutput;}
+  List<Results> recentOutput() {
+    return recentOutput;
+  }
 
   @PostMapping("/processFile")
   @ResponseBody

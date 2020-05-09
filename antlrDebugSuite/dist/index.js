@@ -1,22 +1,19 @@
-const axios = require('axios').default;
-const fs = require('fs');
+import axios from 'axios';
+import fs from 'fs';
 axios.defaults.baseURL = "http://localhost:8081";
-const output = fs.readFileSync('/home/mycicle/git/rescribe/antlrDebugSuite/demoCode/java/SpellCheck.java');
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+const output = fs.readFileSync(__dirname + '/../demoCode/java/SpellCheck.java');
 axios.post('/processFile', {
     name: "SpellCheck.java",
     contents: output.toString()
-})
-    .then(console.log("posted"))
-    // .then(
-    //     axios.get('/recentOutput').then((response:any) => {
-    //         console.log(response.data);
-    //         }
-    //     ))
-    .catch((err) => {
-    console.log(err.response.data);
+}).then(() => {
+    console.log("posted");
+}).catch((err) => {
+    if (err.response) {
+        console.log(err.response.data);
+    }
+    else {
+        console.log(err);
+    }
 });
 // axios.get('/recentOutput').then((response:any) => {
 //     console.log(response.data);

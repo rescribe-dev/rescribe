@@ -3,17 +3,18 @@ package com.rescribe.antlr.parse.listeners;
 import com.rescribe.antlr.gen.cpp.CPP14BaseListener;
 import com.rescribe.antlr.gen.cpp.CPP14Parser;
 import com.rescribe.antlr.parse.CustomListener;
+import com.rescribe.antlr.parse.results.Results;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.rescribe.antlr.parse.results.Results;
 import lombok.Getter;
 
 public class CPPDeclarationListener extends CPP14BaseListener implements CustomListener {
   @Getter List<Results> classResults;
-  public List<Results> getResults(){
+
+  public List<Results> getResults() {
     return classResults;
   }
+
   public CPPDeclarationListener() {
     super();
     classResults = new ArrayList<>();
