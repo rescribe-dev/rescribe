@@ -9,12 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JavaDeclarationVisitor extends JavaParserBaseVisitor {
-    public Results tempResults;
     public Results results;
     public int depth, max_depth;
     public JavaDeclarationVisitor() {
         super();
-        this.tempResults = new Results();
         this.results = new Results();
         this.max_depth = 7;
         this.depth = 0;
@@ -32,6 +30,11 @@ public class JavaDeclarationVisitor extends JavaParserBaseVisitor {
         this.results.setLabel(ctx.children.get(1).getText());
         return this.results;
     }
+
+
+
+
+
 
 //    @Override
 //    public Results visitClassBody(JavaParser.ClassBodyContext ctx) {
