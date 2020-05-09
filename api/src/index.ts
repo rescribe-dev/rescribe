@@ -27,8 +27,6 @@ const runAPI = async (): Promise<void> => {
     await initializeServer();
     logger.info('server started');
   } catch(err) {
-    // eslint-disable-next-line no-console
-    console.log(err);
     logger.fatal(err.message);
   }
 };

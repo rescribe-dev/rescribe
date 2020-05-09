@@ -7,8 +7,9 @@ import express from 'express';
 import depthLimit from 'graphql-depth-limit';
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
+import cookieParser from "cookie-parser";
 import { initializeMappings } from './elastic/configure';
-import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams } from './utils/context';
+import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext } from './utils/context';
 import { isDebug } from './utils/mode';
 import { createServer } from 'http';
 import { buildSchema } from 'type-graphql';
@@ -20,6 +21,7 @@ import { join } from "path";
 import exitHook from "exit-hook";
 import { graphqlUploadExpress } from "graphql-upload";
 import { TypegooseMiddleware } from "./db/typegoose";
+import { handleRefreshToken } from "./utils/jwt";
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -51,8 +53,16 @@ export const initializeServer = async (): Promise<void> => {
     const message = 'no redis password provided';
     throw new Error(message);
   }
+  if (!process.env.WEBSITE_URL) {
+    const message = 'no website url provided';
+    throw new Error(message);
+  }
   const app = express();
-  app.use('*', cors());
+  app.use(cors({
+    origin: process.env.WEBSITE_URL,
+    credentials: true
+  }));
+  app.use(cookieParser());
   const redisOptions: Redis.RedisOptions = {
     host: process.env.REDIS_HOST,
     port: redisPort,
@@ -75,7 +85,7 @@ export const initializeServer = async (): Promise<void> => {
     }],
     globalMiddlewares: [TypegooseMiddleware],
     emitSchemaFile: {
-      path: join(__dirname,  "../schema.graphql"),
+      path: join(__dirname, "../schema.graphql"),
       commentDescriptions: true
     },
     pubSub
@@ -83,13 +93,13 @@ export const initializeServer = async (): Promise<void> => {
   // https://github.com/MichalLytek/type-graphql/issues/37#issuecomment-592467594
   app.use(graphqlUploadExpress({
     maxFileSize: 10000000,
-    maxFiles: 10 
+    maxFiles: 10
   }));
   const server = new ApolloServer({
     schema,
     validationRules: [depthLimit(maxDepth)],
     subscriptions: {
-      onConnect: (connectionParams: SubscriptionContextParams): Promise<GraphQLContext> => onSubscription(connectionParams),
+      onConnect: (connectionParams: SubscriptionContextParams): Promise<SubscriptionContext> => onSubscription(connectionParams),
     },
     context: async (req): Promise<GraphQLContext> => getContext(req),
     uploads: false
@@ -98,6 +108,7 @@ export const initializeServer = async (): Promise<void> => {
   server.applyMiddleware({
     app,
     path: server.graphqlPath,
+    cors: false
   });
   app.use(bodyParser.urlencoded({
     extended: true
@@ -108,18 +119,35 @@ export const initializeServer = async (): Promise<void> => {
       message: 'hello world!'
     }).status(HttpStatus.OK);
   });
+  app.post('/refreshToken', async (req, res) => {
+    try {
+      const accessToken = await handleRefreshToken(req);
+      res.json({
+        accessToken,
+        message: 'got access token'
+      }).status(HttpStatus.OK);
+    } catch (err) {
+      const errObj = err as Error;
+      logger.error(errObj.message);
+      res.json({
+        message: errObj.message
+      }).status(HttpStatus.BAD_REQUEST);
+    }
+  });
   if (isDebug()) {
-    app.post('/initializeElastic', (_, res) => {
-      initializeMappings().then(() => {
+    app.post('/initializeElastic', async (_, res) => {
+      try {
+        await initializeMappings();
         res.json({
           message: 'initialized mappings'
         }).status(HttpStatus.OK);
-      }).catch((err: Error) => {
-        logger.error(err.message);
+      } catch (err) {
+        const errObj = err as Error;
+        logger.error(errObj.message);
         res.json({
-          message: err.message
+          message: errObj.message
         }).status(HttpStatus.BAD_REQUEST);
-      });
+      }
     });
   }
   const httpServer = createServer(app);
