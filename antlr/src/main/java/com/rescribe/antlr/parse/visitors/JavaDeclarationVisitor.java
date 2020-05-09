@@ -5,13 +5,11 @@ import com.rescribe.antlr.gen.java.JavaParserBaseVisitor;
 import com.rescribe.antlr.parse.results.Results;
 
 public class JavaDeclarationVisitor extends JavaParserBaseVisitor {
-  public Results tempResults;
   public Results results;
   public int depth, max_depth;
 
   public JavaDeclarationVisitor() {
     super();
-    this.tempResults = new Results();
     this.results = new Results();
     this.max_depth = 7;
     this.depth = 0;

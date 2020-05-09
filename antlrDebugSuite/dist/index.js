@@ -15,8 +15,3 @@ axios.post('/processFile', {
         console.log(err);
     }
 });
-// axios.get('/recentOutput').then((response:any) => {
-//     console.log(response.data);
-//     }).catch((err:any) => {
-//         console.log(err.response.data);
-//     } )
