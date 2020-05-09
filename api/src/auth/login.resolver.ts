@@ -1,12 +1,13 @@
 import bcrypt from 'bcrypt';
 import { GraphQLContext } from '../utils/context';
 import { verifyGuest } from './checkAuth';
-import { generateJWT } from './jwt';
-import { Resolver, ArgsType, Field, Query, Args, Ctx, PubSub, PubSubEngine } from 'type-graphql';
+import { generateJWTAccess, generateJWTGuest, generateJWTRefresh } from '../utils/jwt';
+import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from "class-validator";
 import { authNotificationsTrigger, passwordMinLen, specialCharacterRegex } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
-import { UserModel } from '../schema/auth';
+import User, { UserModel } from '../schema/auth';
+import { setRefreshToken } from '../utils/refreshToken';
 
 @ArgsType()
 class LoginArgs {
@@ -28,18 +29,19 @@ class LoginArgs {
 
 @Resolver()
 class LoginResolvers {
-  @Query(_returns => String)
+  @Mutation(_returns => String)
   async login(@PubSub() pubSub: PubSubEngine, @Args() { email, password }: LoginArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
-    const user = await UserModel.findOne({
+    const userRes = await UserModel.findOne({
       email
     });
-    if (!user) {
+    if (!userRes) {
       throw new Error(`cannot find user with email ${email}`);
     }
+    const user = userRes as User;
     if (!await bcrypt.compare(password, user.password)) {
       throw new Error('password is invalid');
     }
-    const token = await generateJWT(user);
+    const token = await generateJWTAccess(user);
     if (verifyGuest(ctx)) {
       const notification: AuthNotificationPayload = {
         id: ctx.auth?.id as string,
@@ -47,12 +49,13 @@ class LoginResolvers {
       };
       await pubSub.publish(authNotificationsTrigger, notification);
     }
+    setRefreshToken(ctx.res, await generateJWTRefresh(user));
     return token;
   }
 
-  @Query(_returns => String)
+  @Mutation(_returns => String)
   async loginGuest(): Promise<string> {
-    return await generateJWT();
+    return await generateJWTGuest();
   }
 }
 

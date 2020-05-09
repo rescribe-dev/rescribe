@@ -2,14 +2,17 @@ import { Model, Document } from "mongoose";
 import { getClassForDocument } from "@typegoose/typegoose";
 import { MiddlewareFn } from "type-graphql";
 
-const convertDocument = (doc: Document) => {
+const convertDocument = (doc: Document): any => {
   const convertedDocument = doc.toObject();
-  const DocumentClass = getClassForDocument(doc)!;
-  Object.setPrototypeOf(convertedDocument, DocumentClass.prototype);
+  const documentClass = getClassForDocument(doc);
+  if (!documentClass) {
+    throw new Error('no document class found');
+  }
+  Object.setPrototypeOf(convertedDocument, documentClass.prototype);
   return convertedDocument;
 };
 
-export const TypegooseMiddleware: MiddlewareFn = async (_, next) => {
+export const TypegooseMiddleware: MiddlewareFn = async (_, next): Promise<any> => {
   const result = await next();
   if (Array.isArray(result)) {
     return result.map(item => (item instanceof Model ? convertDocument(item) : item));

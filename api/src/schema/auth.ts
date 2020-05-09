@@ -51,6 +51,10 @@ export default class User {
   @Field({ description: "email verified" })
   @Property({ required: true })
   emailVerified: boolean;
+
+  @Field({ description: "current token version" })
+  @Property({ required: true })
+  tokenVersion: number;
 }
 
 export const UserModel = getModelForClass(User);

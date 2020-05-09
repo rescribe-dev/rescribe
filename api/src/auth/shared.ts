@@ -8,7 +8,7 @@ export const saltRounds = 10;
 export const authNotificationsTrigger = 'AUTH_NOTIFICATION';
 
 export const accountExists = async (email: string): Promise<boolean> => {
-  return await UserModel.count({
+  return await UserModel.countDocuments({
     email,
   }) !== 0;
 };
