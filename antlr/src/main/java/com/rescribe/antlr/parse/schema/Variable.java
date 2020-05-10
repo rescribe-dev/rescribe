@@ -6,6 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class Variable {
-  @Getter @Setter String name;
-  @Getter @Setter String type;
+  String name;
+  String type;
+  Location location;
 }

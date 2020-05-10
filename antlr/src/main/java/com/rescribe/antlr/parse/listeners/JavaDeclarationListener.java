@@ -36,6 +36,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterImportDeclaration(JavaParser.ImportDeclarationContext ctx) {
     if (ctx.getChildCount() >= 2) {
       Import newImport = new Import();
+      newImport.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
       if (ctx.getChildCount() > 3) {
         // import everything
         newImport.setPath(ctx.getChild(1).getText());
@@ -54,6 +55,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
     Class newClass = new Class();
     newClass.setName(ctx.children.get(1).getText());
+    newClass.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
     this.currentClass = newClass;
     this.file.getClasses().add(this.currentClass);
   }
@@ -93,6 +95,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
     if (this.currentClass != null) {
       Function newConstructor = processFunction(ctx, true);
+      newConstructor.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
       this.currentClass.setConstructor(newConstructor);
       this.currentFunction = newConstructor;
     }
@@ -106,6 +109,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   @Override
   public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
     Function newFunction = processFunction(ctx, false);
+    newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
     if (this.currentClass != null) {
       this.file.getClasses().get(this.file.getClasses().size() - 1).getFunctions().add(newFunction);
     } else {
@@ -136,6 +140,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     Variable newVariable = new Variable();
     newVariable.setName(ctx.getChild(0).getText());
     newVariable.setType(ctx.getParent().getParent().getChild(0).getText());
+    newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
     if (this.currentFunction != null) {
       this.currentFunction.getVariables().add(newVariable);
     } else if (this.currentClass != null) {
