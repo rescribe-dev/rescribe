@@ -18,7 +18,7 @@ class APIController {
 
   @Data
   @Entity
-  private class HelloResponse {
+  private static class HelloResponse {
     private final String message;
 
     public HelloResponse(String message) {
@@ -28,9 +28,7 @@ class APIController {
 
   @GetMapping("/ping")
   @ResponseBody
-  void ping() {
-    return;
-  }
+  public void ping() {}
 
   @GetMapping("/hello")
   @ResponseBody

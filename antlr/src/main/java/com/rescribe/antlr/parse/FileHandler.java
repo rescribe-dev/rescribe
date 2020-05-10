@@ -21,24 +21,21 @@ public class FileHandler {
     JavaLexer lexer = new JavaLexer(CharStreams.fromString(file_contents));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     JavaParser parser = new JavaParser(tokens);
-    ParseTree tree = parser.compilationUnit();
-    return tree;
+    return parser.compilationUnit();
   }
 
   public static ParseTree getCppParseTree(String file_contents) {
     CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(file_contents));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     CPP14Parser parser = new CPP14Parser(tokens);
-    ParseTree tree = parser.translationunit();
-    return tree;
+    return parser.translationunit();
   }
 
   public static ParseTree getPython3ParseTree(String file_contents) {
     Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(file_contents));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     Python3Parser parser = new Python3Parser(tokens);
-    ParseTree tree = parser.file_input();
-    return tree;
+    return parser.file_input();
   }
 
   private static String getFileExtension(String name) {

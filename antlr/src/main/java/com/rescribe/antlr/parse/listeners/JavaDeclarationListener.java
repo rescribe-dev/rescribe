@@ -5,21 +5,20 @@ import com.rescribe.antlr.gen.java.JavaParserBaseListener;
 import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.schema.*;
 import com.rescribe.antlr.parse.schema.Class;
-import com.rescribe.antlr.parse.visitors.JavaDeclarationVisitor;
 import lombok.Getter;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
   File file;
   @Getter String filename;
 
-  boolean in_class;
-
-  JavaDeclarationVisitor visitor;
+  Function currentFunction = null;
+  Class currentClass = null;
+  Variable currentVariable = null;
 
   public JavaDeclarationListener(String filename) {
     super();
     this.file = new File(filename);
-    this.visitor = new JavaDeclarationVisitor();
   }
 
   public File getFileData() {
@@ -53,33 +52,103 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
 
   @Override
   public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-    this.in_class = true;
     Class newClass = new Class();
     newClass.setName(ctx.children.get(1).getText());
-    this.file.getClasses().add(newClass);
-  }
-
-  @Override
-  public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-    Function currentFunction = this.visitor.visitMethodDeclaration(ctx);
-
-    if (in_class) {
-      this.file
-          .getClasses()
-          .get(this.file.getClasses().size() - 1)
-          .getFunctions()
-          .add(currentFunction);
-    }
+    this.currentClass = newClass;
+    this.file.getClasses().add(this.currentClass);
   }
 
   @Override
   public void exitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
     // process class output
+    this.currentClass = null;
+  }
+
+  private Function processFunction(ParseTree ctx, boolean isConstructor) {
+    Function currentFunction = new Function();
+    if (ctx.getChildCount() >= 4) {
+      final int offset = isConstructor ? 0 : 1;
+      if (!isConstructor) {
+        currentFunction.setReturnType(ctx.getChild(0).getText());
+      }
+      currentFunction.setName(ctx.getChild(offset).getText());
+      if (ctx.getChild(1 + offset).getChildCount() == 3) {
+        ParseTree arguments = ctx.getChild(1 + offset).getChild(1);
+        for (int i = 0; i < arguments.getChildCount(); i++) {
+          ParseTree currentVariableData = arguments.getChild(i);
+          if (currentVariableData.getChildCount() >= 2) {
+            Variable currentVariable = new Variable();
+            currentVariable.setType(currentVariableData.getChild(0).getText());
+            currentVariable.setName(currentVariableData.getChild(1).getText());
+            currentFunction.getArguments().add(currentVariable);
+          }
+        }
+      }
+      currentFunction.setContents(ctx.getChild(ctx.getChildCount() - 1).getText());
+    }
+    return currentFunction;
+  }
+
+  @Override
+  public void enterConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
+    if (this.currentClass != null) {
+      Function newConstructor = processFunction(ctx, true);
+      this.currentClass.setConstructor(newConstructor);
+      this.currentFunction = newConstructor;
+    }
+  }
+
+  @Override
+  public void exitConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
+    this.currentFunction = null;
+  }
+
+  @Override
+  public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
+    Function newFunction = processFunction(ctx, false);
+    if (this.currentClass != null) {
+      this.file.getClasses().get(this.file.getClasses().size() - 1).getFunctions().add(newFunction);
+    } else {
+      this.file.getFunctions().add(newFunction);
+    }
+    this.currentFunction = newFunction;
+  }
+
+  @Override
+  public void exitMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
+    this.currentFunction = null;
   }
 
   @Override
   public void enterGenericMethodDeclaration(JavaParser.GenericMethodDeclarationContext ctx) {
     // process generic function
+    this.currentFunction = new Function();
+  }
+
+  @Override
+  public void exitGenericConstructorDeclaration(
+      JavaParser.GenericConstructorDeclarationContext ctx) {
+    this.currentFunction = null;
+  }
+
+  @Override
+  public void enterVariableDeclarator(JavaParser.VariableDeclaratorContext ctx) {
+    Variable newVariable = new Variable();
+    newVariable.setName(ctx.getChild(0).getText());
+    newVariable.setType(ctx.getParent().getParent().getChild(0).getText());
+    if (this.currentFunction != null) {
+      this.currentFunction.getVariables().add(newVariable);
+    } else if (this.currentClass != null) {
+      this.currentClass.getVariables().add(newVariable);
+    } else {
+      this.file.getVariables().add(newVariable);
+    }
+    this.currentVariable = newVariable;
+  }
+
+  @Override
+  public void exitVariableDeclarator(JavaParser.VariableDeclaratorContext ctx) {
+    this.currentVariable = null;
   }
 
   //          results.add(
