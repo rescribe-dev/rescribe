@@ -13,4 +13,5 @@ public class Class {
   Function constructor;
   List<Function> functions = new ArrayList<>();
   Location location;
+  List<Comment> comments = new ArrayList<>();
 }

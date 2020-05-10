@@ -1,45 +1,13 @@
 package com.rescribe.antlr.parse;
 
-import com.rescribe.antlr.gen.cpp.CPP14Lexer;
-import com.rescribe.antlr.gen.cpp.CPP14Parser;
-import com.rescribe.antlr.gen.java.JavaLexer;
-import com.rescribe.antlr.gen.java.JavaParser;
-import com.rescribe.antlr.gen.python3.Python3Lexer;
-import com.rescribe.antlr.gen.python3.Python3Parser;
-import com.rescribe.antlr.parse.listeners.CPPDeclarationListener;
-import com.rescribe.antlr.parse.listeners.JavaDeclarationListener;
-import com.rescribe.antlr.parse.listeners.Python3DeclarationListener;
+import static com.rescribe.antlr.parse.FileHandler.getFileData;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class RawFileLanguageHandler {
 
   public static IllegalArgumentException illegal_argument_exception;
-
-  public static ParseTree getJavaParseTree(String file_contents) {
-    JavaLexer lexer = new JavaLexer(CharStreams.fromString(file_contents));
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    JavaParser parser = new JavaParser(tokens);
-    return parser.compilationUnit();
-  }
-
-  public static ParseTree getCppParseTree(String file_contents) {
-    CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(file_contents));
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    CPP14Parser parser = new CPP14Parser(tokens);
-    return parser.translationunit();
-  }
-
-  public static ParseTree getPython3ParseTree(String file_contents) {
-    Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(file_contents));
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    Python3Parser parser = new Python3Parser(tokens);
-    return parser.file_input();
-  }
 
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
@@ -51,33 +19,7 @@ public class RawFileLanguageHandler {
       Reader reader = new Reader(path);
       String file_contents = reader.readFile();
       String file_extension = reader.getFileExtension();
-      ParseTreeWalker walker = new ParseTreeWalker();
-      switch (file_extension) {
-        case "java":
-          {
-            ParseTree tree = getJavaParseTree(file_contents);
-            JavaDeclarationListener jdl = new JavaDeclarationListener(path);
-            walker.walk(jdl, tree);
-            break;
-          }
-        case "cpp":
-          {
-            ParseTree tree = getCppParseTree(file_contents);
-            CPPDeclarationListener cdl = new CPPDeclarationListener(path);
-            walker.walk(cdl, tree);
-            break;
-          }
-        case "py":
-          {
-            ParseTree tree = getPython3ParseTree(file_contents);
-            Python3DeclarationListener p3dl = new Python3DeclarationListener(path);
-            walker.walk(p3dl, tree);
-            break;
-          }
-        default:
-          System.out.println("unsupported file extension");
-          break;
-      }
+      getFileData(new FileInput(file_extension, file_contents));
     }
   }
 

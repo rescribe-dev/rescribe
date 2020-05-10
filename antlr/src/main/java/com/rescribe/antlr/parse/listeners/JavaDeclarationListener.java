@@ -1,25 +1,32 @@
 package com.rescribe.antlr.parse.listeners;
 
+import static java.lang.Math.abs;
+
+import com.rescribe.antlr.gen.java.JavaLexer;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.java.JavaParserBaseListener;
 import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.schema.*;
 import com.rescribe.antlr.parse.schema.Class;
-import lombok.Getter;
+import java.util.ArrayList;
+import java.util.List;
+import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
   File file;
-  @Getter String filename;
 
+  BufferedTokenStream tokens;
   Function currentFunction = null;
   Class currentClass = null;
   Variable currentVariable = null;
 
-  public JavaDeclarationListener(String filename) {
+  public JavaDeclarationListener(BufferedTokenStream tokens, String filename, String path) {
     super();
-    this.file = new File(filename);
+    this.tokens = tokens;
+    this.file = new File(filename, path);
   }
 
   // get comments - reference book 209 - hidden channels
@@ -69,6 +76,44 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     this.currentClass = null;
   }
 
+  private List<Comment> getComments(
+      ParserRuleContext ctx, int levelNumber, boolean isBefore, boolean isMultiLine) {
+    ParserRuleContext currentCtx = ctx;
+    List<Comment> comments = new ArrayList<>();
+    for (int i = 0; i < abs(levelNumber); i++) {
+      currentCtx =
+          levelNumber < 0 ? (ParserRuleContext) currentCtx.getChild(0) : currentCtx.getParent();
+      if (currentCtx == null) {
+        return comments;
+      }
+    }
+    Token token = isBefore ? currentCtx.getStart() : currentCtx.getStop();
+    // System.out.println(token.getText());
+    int channel = isMultiLine ? JavaLexer.COMMENT : JavaLexer.LINE_COMMENT;
+    int tokenIndex = token.getTokenIndex();
+    List<Token> commentData =
+        isBefore
+            ? tokens.getHiddenTokensToLeft(tokenIndex, channel)
+            : tokens.getHiddenTokensToRight(tokenIndex, channel);
+    if (commentData != null) {
+      for (Token commentToken : commentData) {
+        if (commentToken != null) {
+          String currentComment = commentToken.getText().trim().substring(2).trim();
+          if (isMultiLine) {
+            currentComment = currentComment.substring(0, currentComment.length() - 2).trim();
+          }
+          comments.add(
+              new Comment(
+                  currentComment,
+                  isMultiLine ? CommentType.multilineComment : CommentType.singleLineComment));
+        }
+      }
+    }
+    return comments;
+  }
+
+  static final int functionLevelNumber = 2;
+
   private Function processFunction(ParserRuleContext ctx, boolean isConstructor) {
     Function newFunction = null;
     if (ctx.getChildCount() >= 4) {
@@ -93,6 +138,8 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
         }
       }
       newFunction.setContents(ctx.getChild(ctx.getChildCount() - 1).getText());
+      newFunction.getComments().addAll(getComments(ctx, functionLevelNumber, true, false));
+      newFunction.getComments().addAll(getComments(ctx, functionLevelNumber, true, true));
     }
     return newFunction;
   }
@@ -155,107 +202,14 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     this.currentVariable = newVariable;
   }
 
+  static final int variableLevelNumber = 3;
+
   @Override
   public void exitVariableDeclarator(JavaParser.VariableDeclaratorContext ctx) {
+    if (currentVariable != null) {
+      currentVariable.getComments().addAll(getComments(ctx, variableLevelNumber, true, false));
+      currentVariable.getComments().addAll(getComments(ctx, variableLevelNumber, true, true));
+    }
     this.currentVariable = null;
   }
-
-  //          results.add(
-  //                  visitor.visitClassBodyDeclaration(ctx.classBody().classBodyDeclaration())
-  //          );
-
-  //      for (JavaParser.ClassBodyDeclarationContext i : ctx.classBody().classBodyDeclaration()) {
-  //        JavaResults.add(visitor.visitClassBodyDeclaration(i));
-  //      }
-  //      this.current_classname =
-  // ctx.classBody().classBodyDeclaration(2).memberDeclaration().children.get(0).getChild(1).getText();
-  //      results.add(
-  //              new Results(current_classname, "class")
-  //      );
-  //      String full = ctx.classBody().classBodyDeclaration(2).memberDeclaration().getText();
-  //      results.add(
-  //              new Results(full, "this is the output of full")
-  //      );
-  //      full = ctx.classBody().classBodyDeclaration(10).memberDeclaration().getText();
-  //      results.add(
-  //              new Results(full, "this is the output of full")
-  //      );
-
-  //  @Override
-  //  public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-  //    if (ctx.children == null) {
-  //      return;
-  //    }
-  //    results.add(
-  //            new Results(ctx.classBody().children.get(5).getClass().getSimpleName(), "class")
-  //    );
-  //    if (ctx.classBody() != null) {
-  //      results.add(
-  //              visitor.visitClassBody(ctx.classBody())
-  //      );
-  //    }
-  //
-  ////    for (int i = 0; i < ctx.classBody().children.size(); i++) {
-  ////      results.add(
-  ////              new Results(ctx.classBody().children.get(i).getText(), "class")
-  ////      );
-  ////    }
-  //
-  //  }
-  //
-  //  @Override
-  //  public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-  //    if (ctx.children == null) {
-  //      return;
-  //    }
-  //
-  //    results.add(
-  //            new Results(ctx.getText(), "function")
-  //    );
-  //
-  //  }
-  //
-  //  //this will return the name of the variable: its parent will be the type and the name with no
-  // spaces ex: intx;
-  //  @Override
-  //  public void enterVariableDeclarators(JavaParser.VariableDeclaratorsContext ctx) {
-  //    if (ctx.children == null) {
-  //      return;
-  //    }
-  //
-  ////    results.add(
-  ////            new Results(ctx.getText(), "variable")
-  ////    );
-  //  }
-  //
-  //  //this will also return the name of the variable
-  //  @Override
-  //  public void enterVariableDeclarator(JavaParser.VariableDeclaratorContext ctx) {
-  //    if (ctx.children == null) {
-  //      return;
-  //    }
-  //
-  ////    results.add(
-  ////            new Results(ctx.parent.getText(), "variable")
-  ////    );
-  //  }
-  //
-  //  //this will capture what every variable is initialized to. Ex; if int x = 0; this outputs 0,
-  // if ArrayList ar = new ArrayList<>(); this outputs newArrayList<>()
-  //  //the parent is the variable name. so in the above case, parent.getText() returns x=0
-  //  @Override
-  //  public void enterVariableInitializer(JavaParser.VariableInitializerContext ctx) {
-  //    if (ctx.children == null) {
-  //      return;
-  //    }
-  //
-  //    results.add(
-  //            new Results(ctx.parent.getText(), "variable")
-  //    );
-  //  }
-  //
-  //  @Override
-  //  public void enterMethodCall(JavaParser.MethodCallContext ctx) {
-  //    super.enterMethodCall(ctx);
-  //  }
 }

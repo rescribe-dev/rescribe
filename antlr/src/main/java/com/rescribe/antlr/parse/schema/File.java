@@ -13,10 +13,12 @@ public class File {
   List<Function> functions = new ArrayList<>();
   List<Variable> variables = new ArrayList<>();
   List<Import> imports = new ArrayList<>();
+  List<Comment> comments = new ArrayList<>();
   String importPath;
-  Location location;
+  String path;
 
-  public File(String name) {
+  public File(String name, String path) {
     this.name = name;
+    this.path = path;
   }
 }

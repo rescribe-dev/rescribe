@@ -5,17 +5,20 @@ import com.rescribe.antlr.gen.python3.Python3Parser;
 import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.schema.File;
 import lombok.Getter;
+import org.antlr.v4.runtime.BufferedTokenStream;
 
 public class Python3DeclarationListener extends Python3BaseListener implements CustomListener {
   @Getter File file;
+  BufferedTokenStream tokens;
 
   public File getFileData() {
     return file;
   }
 
-  public Python3DeclarationListener(String filename) {
+  public Python3DeclarationListener(BufferedTokenStream tokens, String filename, String path) {
     super();
-    file = new File(filename);
+    this.tokens = tokens;
+    this.file = new File(filename, path);
   }
 
   @Override

@@ -13,5 +13,6 @@ public class Function {
   String returnType;
   String contents;
   List<Variable> variables = new ArrayList<>();
+  List<Comment> comments = new ArrayList<>();
   Location location;
 }
