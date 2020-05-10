@@ -14,7 +14,7 @@ registerEnumType(VariableParentType, {
 });
 
 @ObjectType({ description: "variable" })
-export class File {
+export class Variable {
   @Field()
   readonly id: ObjectId;
   @Field({ description: "name" })
