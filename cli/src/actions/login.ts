@@ -30,9 +30,9 @@ export default async (_args: Arguments): Promise<void> => {
     let loginTimeout: NodeJS.Timeout | undefined;
     try {
       logger.info('start login');
-      const loginGuestRes = await apolloClient.query({
-        query: gql`
-          query loginGuest {
+      const loginGuestRes = await apolloClient.mutate({
+        mutation: gql`
+          mutation loginGuest {
             loginGuest
           }
         `

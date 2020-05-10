@@ -4,6 +4,7 @@ export const SET_TOKEN = "SET_TOKEN";
 export const SET_USER = "SET_USER";
 
 export interface User {
+  _id: string;
   name: string;
   email: string;
   plan: string;
@@ -15,14 +16,17 @@ export interface LoginInput {
   password: string;
 }
 
-export interface Login extends LoginInput {
+export interface Login {
+  email: string;
   authToken: string;
+  loggedIn: boolean;
 }
 
 export interface AuthState {
   authToken: string;
   email: string;
   user: User | undefined;
+  loggedIn: boolean;
 }
 
 interface LoginAction {

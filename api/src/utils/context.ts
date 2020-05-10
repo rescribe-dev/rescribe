@@ -1,15 +1,21 @@
 import { ExpressContext } from "apollo-server-express/dist/ApolloServer";
-import { decodeAuth, AuthData, jwtType } from "../auth/jwt";
+import { decodeAuth, AuthData, jwtType } from "./jwt";
+import { Request, Response } from "express";
 
-export interface GraphQLContext {
+export interface SubscriptionContext {
   auth?: AuthData;
+}
+
+export interface GraphQLContext extends SubscriptionContext {
+  req: Request;
+  res: Response;
 }
 
 export interface SubscriptionContextParams {
   authToken?: string;
 }
 
-export const onSubscription = async (params: SubscriptionContextParams): Promise<GraphQLContext> => {
+export const onSubscription = async (params: SubscriptionContextParams): Promise<SubscriptionContext> => {
   if (!params.authToken) {
     // require at least guest login
     throw new Error('auth token must be provided');
@@ -26,13 +32,20 @@ export const onSubscription = async (params: SubscriptionContextParams): Promise
   };
 };
 
-export const getContext = async ({ req, connection }: ExpressContext): Promise<GraphQLContext> => {
+export const getContext = async ({ req, res, connection }: ExpressContext): Promise<GraphQLContext> => {
   if (connection) {
-    return connection.context as GraphQLContext;
+    return {
+      ...(connection.context as SubscriptionContext),
+      req,
+      res
+    };
   }
   if (!(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')) {
     // don't require any authorization
-    return {};
+    return {
+      req,
+      res
+    };
   }
   const token = req.headers.authorization.split(' ')[1];
   let authData: AuthData | undefined;
@@ -46,6 +59,8 @@ export const getContext = async ({ req, connection }: ExpressContext): Promise<G
     }
   }
   return {
-    auth: authData
+    auth: authData,
+    req,
+    res
   };
 };

@@ -16,10 +16,11 @@ import {
 import { isLoggedIn } from "../../state/auth/getters";
 import { store } from "../../state/reduxWrapper";
 import { useDispatch } from "react-redux";
-import { logout } from "../../state/auth/actions";
 import { navigate } from "@reach/router";
 import { isSSR } from "../../utils/checkSSR";
-import { Dispatch } from "redux";
+import { AppThunkDispatch } from "../../state/thunk";
+import { AuthActionTypes } from "../../state/auth/types";
+import { thunkLogout } from "../../state/auth/thunks";
 
 interface HeaderArgs {
   siteTitle: string;
@@ -28,15 +29,22 @@ interface HeaderArgs {
 const Header = (args: HeaderArgs) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-  const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
+  const [loggedIn, setLoggedIn] = useState(false);
+  isLoggedIn()
+    .then((loggedIn) => {
+      setLoggedIn(loggedIn);
+    })
+    .catch((_err) => {
+      // handle error
+    });
   // useEffect needs to be top-level (not in if statement)
   useEffect(() => {
     // run unsubscribe on unmount
-    return store.subscribe(() => setLoggedIn(isLoggedIn()));
+    return store.subscribe(() => loggedIn);
   }, []);
-  let dispatch: Dispatch<any>;
+  let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   if (!isSSR) {
-    dispatch = useDispatch();
+    dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
   }
   return (
     <>
@@ -68,7 +76,7 @@ const Header = (args: HeaderArgs) => {
                       key="logout"
                       onClick={(evt: React.MouseEvent) => {
                         evt.preventDefault();
-                        dispatch(logout());
+                        dispatchAuthThunk(thunkLogout());
                         navigate("/login");
                       }}
                     >
