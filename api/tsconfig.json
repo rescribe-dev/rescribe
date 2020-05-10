@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": [
+      "es7",
+      "dom"
+    ],
+    "target": "es2015",
+    "outDir": "./lib",
+    "removeComments": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "preserveConstEnums": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": true,
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "pretty": false
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "compileOnSave": false,
+  "exclude": [
+    "node_modules",
+    "**/*-spec.ts",
+    "src/grammar/grammars/**/*"
+  ]
+}

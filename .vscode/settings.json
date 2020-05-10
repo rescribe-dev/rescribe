@@ -1,0 +1,9 @@
+{
+  "files.watcherExclude": {
+    "antlr/api/src/grammar/**": true,
+    "antlr/api/samples/*": true,
+    "antlr/antlr/grammars/**": true,
+    "antlr/antlr/samples/*": true
+  },
+  "java.configuration.updateBuildConfiguration": "disabled"
+}

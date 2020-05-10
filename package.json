@@ -1,0 +1,31 @@
+{
+  "name": "rescribe",
+  "version": "0.0.1",
+  "description": "search through code easily",
+  "dependencies": {},
+  "devDependencies": {
+    "husky": "^4.2.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "./precommit.sh"
+    }
+  },
+  "scripts": {
+    "watch": "cd vscode && npm run watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdigreg2/rescribe.git"
+  },
+  "keywords": [
+    "search"
+  ],
+  "author": "Rescribe",
+  "license": "CC-BY-NC-SA-4.0",
+  "bugs": {
+    "url": "https://github.com/mdigreg2/rescribe/issues"
+  },
+  "homepage": "https://github.com/mdigreg2/rescribe#readme"
+}
