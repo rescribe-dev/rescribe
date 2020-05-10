@@ -5,17 +5,20 @@ import com.rescribe.antlr.gen.cpp.CPP14Parser;
 import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.schema.File;
 import lombok.Getter;
+import org.antlr.v4.runtime.BufferedTokenStream;
 
 public class CPPDeclarationListener extends CPP14BaseListener implements CustomListener {
   @Getter File file;
+  BufferedTokenStream tokens;
 
   public File getFileData() {
     return file;
   }
 
-  public CPPDeclarationListener(String filename) {
+  public CPPDeclarationListener(BufferedTokenStream tokens, String filename, String path) {
     super();
-    file = new File(filename);
+    this.tokens = tokens;
+    this.file = new File(filename, path);
   }
 
   @Override

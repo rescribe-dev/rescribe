@@ -39,11 +39,12 @@ public class SpellCheck {
          br_dict.close();
          
      }
+     // test comment123
      public ArrayList<String> spellCheck(String text_path, String asdf) throws Exception{
-         int counter = 0;
-         String line;
-         Pattern p = Pattern.compile("[^\\s0-9\\.\\?\\#\\@\\^\\,\\/\\+\\=\\&\\`\\~\\%][A-Z]?[a-z]+");
-         Matcher m;
+         int counter = 0;/* test123 */
+         String line;// asdf123
+         Pattern p = Pattern.compile("[^\\s0-9\\.\\?\\#\\@\\^\\,\\/\\+\\=\\&\\`\\~\\%][A-Z]?[a-z]+");// asdf123123
+         Matcher m;// test123
          this.fr_text =  new FileReader(text_path);
          this.br_text = new BufferedReader(fr_text);
          
@@ -52,7 +53,7 @@ public class SpellCheck {
              while (m.find()){
                  all_words.add(m.group());
                  if(!unique_words.contains(m.group())){
-                     unique_words.add(m.group());
+                     unique_words.add(m.group()); // asdf123123
                  }
                  if (dict.get(m.group()) == null){
                      if (dict.get(m.group().toLowerCase()) == null){
@@ -66,7 +67,8 @@ public class SpellCheck {
          br_text.close();
          return flagged_words;
      }
-    
+    // test123
+    // asdf123123
     public void writeToFile(String path) throws Exception{
         FileWriter writer = new FileWriter(path);
         for (String contents : flagged_words.subList(0,100)){
@@ -87,9 +89,9 @@ public class SpellCheck {
         sc.writeToFile("flagged_words.txt");
         int _funnyname;
         int $iswfun;
-        double d = 5.6f;
+        double d = 5.6f; // test123
         //int i = 6.0;
-        long x = (int) 3.0;
+        long x = (int) 3.0; // asdf123
         double a = 1.5;
         int i = (int)4.6 + 5;
         //float z = a;

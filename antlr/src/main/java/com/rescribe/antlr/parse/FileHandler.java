@@ -17,26 +17,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class FileHandler {
-  public static ParseTree getJavaParseTree(String file_contents) {
-    JavaLexer lexer = new JavaLexer(CharStreams.fromString(file_contents));
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    JavaParser parser = new JavaParser(tokens);
-    return parser.compilationUnit();
-  }
-
-  public static ParseTree getCppParseTree(String file_contents) {
-    CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(file_contents));
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    CPP14Parser parser = new CPP14Parser(tokens);
-    return parser.translationunit();
-  }
-
-  public static ParseTree getPython3ParseTree(String file_contents) {
-    Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(file_contents));
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    Python3Parser parser = new Python3Parser(tokens);
-    return parser.file_input();
-  }
 
   private static String getFileExtension(String name) {
     String extension = "";
@@ -55,23 +35,41 @@ public class FileHandler {
     CustomListener listener;
     switch (file_extension) {
       case "java":
-        tree = getJavaParseTree(input.getContents());
-        JavaDeclarationListener jdl = new JavaDeclarationListener(input.getName());
-        walker.walk(jdl, tree);
-        listener = jdl;
-        break;
+        {
+          JavaLexer lexer = new JavaLexer(CharStreams.fromString(input.getContents()));
+          CommonTokenStream tokens = new CommonTokenStream(lexer);
+          JavaParser parser = new JavaParser(tokens);
+          tree = parser.compilationUnit();
+          JavaDeclarationListener jdl =
+              new JavaDeclarationListener(tokens, input.getName(), input.getName());
+          walker.walk(jdl, tree);
+          listener = jdl;
+          break;
+        }
       case "cpp":
-        tree = getCppParseTree(input.getContents());
-        CPPDeclarationListener cdl = new CPPDeclarationListener(input.getName());
-        walker.walk(cdl, tree);
-        listener = cdl;
-        break;
+        {
+          CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(input.getContents()));
+          CommonTokenStream tokens = new CommonTokenStream(lexer);
+          CPP14Parser parser = new CPP14Parser(tokens);
+          tree = parser.translationunit();
+          CPPDeclarationListener cdl =
+              new CPPDeclarationListener(tokens, input.getName(), input.getName());
+          walker.walk(cdl, tree);
+          listener = cdl;
+          break;
+        }
       case "py":
-        tree = getPython3ParseTree(input.getContents());
-        Python3DeclarationListener p3dl = new Python3DeclarationListener(input.getName());
-        walker.walk(p3dl, tree);
-        listener = p3dl;
-        break;
+        {
+          Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(input.getContents()));
+          CommonTokenStream tokens = new CommonTokenStream(lexer);
+          Python3Parser parser = new Python3Parser(tokens);
+          tree = parser.file_input();
+          Python3DeclarationListener p3dl =
+              new Python3DeclarationListener(tokens, input.getName(), input.getName());
+          walker.walk(p3dl, tree);
+          listener = p3dl;
+          break;
+        }
       default:
         throw new UnsupportedFileException(file_extension);
     }
