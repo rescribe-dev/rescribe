@@ -11,7 +11,7 @@ public class Function {
   String name;
   List<Variable> arguments = new ArrayList<>();
   String returnType;
-  String contents;
+  // String content;
   List<Variable> variables = new ArrayList<>();
   List<Comment> comments = new ArrayList<>();
   Location location;
