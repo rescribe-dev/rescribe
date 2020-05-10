@@ -8,12 +8,13 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class File {
-  @Getter @Setter String name;
-  @Getter @Setter List<Class> classes = new ArrayList<>();
-  @Getter @Setter List<Function> functions = new ArrayList<>();
-  @Getter @Setter List<Variable> variables = new ArrayList<>();
-  @Getter @Setter List<Import> imports = new ArrayList<>();
-  @Getter @Setter String importPath;
+  String name;
+  List<Class> classes = new ArrayList<>();
+  List<Function> functions = new ArrayList<>();
+  List<Variable> variables = new ArrayList<>();
+  List<Import> imports = new ArrayList<>();
+  String importPath;
+  Location location;
 
   public File(String name) {
     this.name = name;

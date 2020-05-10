@@ -8,8 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class Class {
-  @Getter @Setter String name;
-  @Getter @Setter List<Variable> variables = new ArrayList<>();
-  @Getter @Setter Function constructor;
-  @Getter @Setter List<Function> functions = new ArrayList<>();
+  String name;
+  List<Variable> variables = new ArrayList<>();
+  Function constructor;
+  List<Function> functions = new ArrayList<>();
+  Location location;
 }
