@@ -61,22 +61,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     }
   }
 
-  @Override
-  public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-    Class newClass = new Class();
-    newClass.setName(ctx.children.get(1).getText());
-    newClass.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
-    this.currentClass = newClass;
-    this.file.getClasses().add(this.currentClass);
-  }
-
-  @Override
-  public void exitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-    // process class output
-    this.currentClass = null;
-  }
-
-  private List<Comment> getComments(
+  public List<Comment> getComments(
       ParserRuleContext ctx, int levelNumber, boolean isBefore, boolean isMultiLine) {
     ParserRuleContext currentCtx = ctx;
     List<Comment> comments = new ArrayList<>();
@@ -112,6 +97,25 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     return comments;
   }
 
+  static final int classLevelNumber = 1;
+
+  @Override
+  public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
+    Class newClass = new Class();
+    newClass.setName(ctx.children.get(1).getText());
+    newClass.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+    newClass.getComments().addAll(getComments(ctx, classLevelNumber, true, false));
+    newClass.getComments().addAll(getComments(ctx, classLevelNumber, true, true));
+    this.currentClass = newClass;
+    this.file.getClasses().add(this.currentClass);
+  }
+
+  @Override
+  public void exitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
+    // process class output
+    this.currentClass = null;
+  }
+
   static final int functionLevelNumber = 2;
 
   private Function processFunction(ParserRuleContext ctx, boolean isConstructor) {
@@ -137,7 +141,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
           }
         }
       }
-      newFunction.setContents(ctx.getChild(ctx.getChildCount() - 1).getText());
+      // newFunction.setContent(ctx.getChild(ctx.getChildCount() - 1).getText());
       newFunction.getComments().addAll(getComments(ctx, functionLevelNumber, true, false));
       newFunction.getComments().addAll(getComments(ctx, functionLevelNumber, true, true));
     }
