@@ -10,7 +10,7 @@ import lombok.*;
 public class File {
   @Getter @Setter String name;
   @Getter @Setter List<Class> classes = new ArrayList<>();
-  @Getter @Setter List<Function> methods = new ArrayList<>();
+  @Getter @Setter List<Function> functions = new ArrayList<>();
   @Getter @Setter List<Variable> variables = new ArrayList<>();
   @Getter @Setter List<Import> imports = new ArrayList<>();
   @Getter @Setter String importPath;

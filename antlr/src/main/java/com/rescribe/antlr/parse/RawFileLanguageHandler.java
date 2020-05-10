@@ -24,24 +24,21 @@ public class RawFileLanguageHandler {
     JavaLexer lexer = new JavaLexer(CharStreams.fromString(file_contents));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     JavaParser parser = new JavaParser(tokens);
-    ParseTree tree = parser.compilationUnit();
-    return tree;
+    return parser.compilationUnit();
   }
 
   public static ParseTree getCppParseTree(String file_contents) {
     CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(file_contents));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     CPP14Parser parser = new CPP14Parser(tokens);
-    ParseTree tree = parser.translationunit();
-    return tree;
+    return parser.translationunit();
   }
 
   public static ParseTree getPython3ParseTree(String file_contents) {
     Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(file_contents));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     Python3Parser parser = new Python3Parser(tokens);
-    ParseTree tree = parser.file_input();
-    return tree;
+    return parser.file_input();
   }
 
   public static void main(String[] args) throws Exception {
@@ -55,40 +52,50 @@ public class RawFileLanguageHandler {
       String file_contents = reader.readFile();
       String file_extension = reader.getFileExtension();
       ParseTreeWalker walker = new ParseTreeWalker();
-      if (file_extension.equals("java")) {
-        ParseTree tree = getJavaParseTree(file_contents);
-        JavaDeclarationListener jdl = new JavaDeclarationListener(path);
-        walker.walk(jdl, tree);
-      } else if (file_extension.equals("cpp")) {
-        ParseTree tree = getCppParseTree(file_contents);
-        CPPDeclarationListener cdl = new CPPDeclarationListener(path);
-        walker.walk(cdl, tree);
-      } else if (file_extension.equals("py")) {
-        ParseTree tree = getPython3ParseTree(file_contents);
-        Python3DeclarationListener p3dl = new Python3DeclarationListener(path);
-        walker.walk(p3dl, tree);
-      } else {
-        System.out.println("unsupported file extension");
+      switch (file_extension) {
+        case "java":
+          {
+            ParseTree tree = getJavaParseTree(file_contents);
+            JavaDeclarationListener jdl = new JavaDeclarationListener(path);
+            walker.walk(jdl, tree);
+            break;
+          }
+        case "cpp":
+          {
+            ParseTree tree = getCppParseTree(file_contents);
+            CPPDeclarationListener cdl = new CPPDeclarationListener(path);
+            walker.walk(cdl, tree);
+            break;
+          }
+        case "py":
+          {
+            ParseTree tree = getPython3ParseTree(file_contents);
+            Python3DeclarationListener p3dl = new Python3DeclarationListener(path);
+            walker.walk(p3dl, tree);
+            break;
+          }
+        default:
+          System.out.println("unsupported file extension");
+          break;
       }
     }
   }
 
-  static class Reader {
+  private static class Reader {
     private final String path;
-    private final FileReader fr;
     private final BufferedReader br;
-    private String contents;
 
     public Reader(String p) throws Exception {
       this.path = p;
-      fr = new FileReader(path);
+      FileReader fr = new FileReader(path);
       br = new BufferedReader(fr);
     }
 
     public String readFile() throws Exception {
       StringBuilder sb = new StringBuilder();
+      String contents;
       while ((contents = this.br.readLine()) != null) {
-        sb.append(contents + '\n');
+        sb.append(contents).append('\n');
       }
       return sb.toString();
     }
