@@ -11,6 +11,7 @@ const initialState: AuthState = {
   authToken: "",
   email: "",
   user: undefined,
+  loggedIn: false,
 };
 
 export const authReducer = (

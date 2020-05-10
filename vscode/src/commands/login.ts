@@ -25,9 +25,9 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
   return new Promise(async (resolve, reject) => {
     let loginTimeout: NodeJS.Timeout | undefined;
     try {
-      const loginGuestRes = await apolloClient.query({
-        query: gql`
-          query loginGuest {
+      const loginGuestRes = await apolloClient.mutate({
+        mutation: gql`
+          mutation loginGuest {
             loginGuest
           }
         `

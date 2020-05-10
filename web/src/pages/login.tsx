@@ -21,7 +21,7 @@ import Layout from "../layouts/index";
 import SEO from "../components/seo";
 import { initializeApolloClient } from "../utils/apollo";
 import { isLoggedIn } from "../state/auth/getters";
-import { thunkLogin } from "../state/auth/thunks";
+import { thunkLogin, thunkLogout } from "../state/auth/thunks";
 import { useDispatch } from "react-redux";
 import { AuthActionTypes } from "../state/auth/types";
 import { AppThunkDispatch } from "../state/thunk";
@@ -63,19 +63,25 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
       vscodeLogin = true;
     }
   }
-  if (token === undefined && isLoggedIn()) {
-    if (redirect !== undefined) {
-      navigate(redirect);
-    } else {
-      navigate("/app/account");
-    }
-  }
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
     dispatch = useDispatch();
   }
+  isLoggedIn()
+    .then((loggedIn) => {
+      if (token === undefined && loggedIn) {
+        if (redirect !== undefined) {
+          navigate(redirect);
+        } else {
+          navigate("/app/account");
+        }
+      }
+    })
+    .catch((_err) => {
+      dispatchAuthThunk(thunkLogout());
+    });
   return (
     <Layout>
       <SEO title="Login" />
@@ -117,11 +123,11 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                   .then(async (_recaptchaToken: string) => {
                     if (token !== undefined) {
                       dispatch(setToken(token));
-                      initializeApolloClient();
+                      await initializeApolloClient();
                     }
                     try {
                       await dispatchAuthThunk(thunkLogin(formData));
-                      initializeApolloClient();
+                      await initializeApolloClient();
                       if (redirect !== undefined) {
                         navigate(redirect);
                       } else {

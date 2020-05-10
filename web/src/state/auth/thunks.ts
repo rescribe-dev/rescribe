@@ -2,16 +2,16 @@ import { AppThunkAction } from "../thunk";
 import gql from "graphql-tag";
 import { client } from "../../utils/apollo";
 import { LoginInput, User } from "./types";
-import { login, setUser } from "./actions";
+import { login, setUser, logout } from "./actions";
 
 interface LoginRes {
   login: string;
 }
 
 const checkAuth = async (args: LoginInput): Promise<string> => {
-  const apolloRes = await client.query<LoginRes>({
-    query: gql`
-      query login($email: String!, $password: String!) {
+  const apolloRes = await client.mutate<LoginRes>({
+    mutation: gql`
+      mutation login($email: String!, $password: String!) {
         login(email: $email, password: $password)
       }
     `,
@@ -32,8 +32,36 @@ export const thunkLogin = (
     login({
       authToken,
       ...args,
+      loggedIn: true,
     })
   );
+};
+
+interface LogoutRes {
+  logout: string;
+}
+
+export const runLogout = async (): Promise<string> => {
+  const apolloRes = await client.mutate<LogoutRes>({
+    mutation: gql`
+      mutation logout {
+        logout
+      }
+    `,
+    variables: {},
+  });
+  if (apolloRes.data) {
+    return apolloRes.data.logout;
+  } else {
+    throw new Error("cannot find apollo data");
+  }
+};
+
+export const thunkLogout = (): AppThunkAction<Promise<void>> => async (
+  dispatch
+) => {
+  await runLogout();
+  dispatch(logout());
 };
 
 interface UserDataType {
