@@ -1,0 +1,110 @@
+{
+  "name": "cli",
+  "version": "0.0.1",
+  "description": "cli",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": "",
+  "author": {
+    "name": "rescribe"
+  },
+  "keywords": [
+    "cli"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index",
+  "types": "lib/index",
+  "scripts": {
+    "start": "node lib/index -h",
+    "dev": "tsc-watch --onSuccess \"npm run postbuildWatch\"",
+    "clean": "rimraf lib && rimraf coverage && rimraf *.logs*",
+    "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "precommit": "npm run clean && npm run lint && npm run format",
+    "prepublishOnly": "npm run build",
+    "printTypescriptVersion": "echo Using TypeScript && tsc --version",
+    "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
+    "build": "tsc",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
+    "watch:test": "jest --watch",
+    "package": "pkg . --out-path=dist && cp node_modules/nodegit/build/Release/nodegit.node dist/nodegit.node",
+    "build:package": "npm run build && npm run package"
+  },
+  "dependencies": {
+    "apollo-cache-inmemory": "^1.6.5",
+    "apollo-client": "^2.6.8",
+    "apollo-link-error": "^1.1.13",
+    "apollo-link-http": "^1.5.17",
+    "apollo-link-ws": "^1.0.20",
+    "apollo-utilities": "^1.3.3",
+    "axios": "^0.19.2",
+    "chalk": "^4.0.0",
+    "cors": "^2.8.5",
+    "cosmiconfig": "^6.0.0",
+    "cross-fetch": "^3.0.4",
+    "dotenv": "^8.2.0",
+    "exit-hook": "^2.2.0",
+    "form-data": "^3.0.0",
+    "graphql": "14.6.0",
+    "graphql-tag": "^2.10.3",
+    "isbinaryfile": "^4.0.6",
+    "isomorphic-fetch": "^2.2.1",
+    "js-yaml": "^3.13.1",
+    "jsonwebtoken": "^8.5.1",
+    "log4js": "^6.2.1",
+    "mime-types": "^2.1.27",
+    "nodegit": "^0.26.5",
+    "progress": "^2.0.3",
+    "prompts": "^2.3.2",
+    "subscriptions-transport-ws": "^0.9.16",
+    "yargs": "^15.3.1"
+  },
+  "devDependencies": {
+    "@types/isomorphic-fetch": "0.0.35",
+    "@types/jest": "^23.3.3",
+    "@types/js-yaml": "^3.12.3",
+    "@types/jsonwebtoken": "^8.3.9",
+    "@types/mime-types": "^2.1.0",
+    "@types/node": "^10.11.4",
+    "@types/nodegit": "^0.26.2",
+    "@types/ws": "^7.2.4",
+    "@types/yargs": "^15.0.4",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsdoc": "^24.0.0",
+    "eslint-plugin-prefer-arrow": "^1.2.0",
+    "eslint-plugin-typescript": "^0.14.0",
+    "jest": "^23.6.0",
+    "pkg": "^4.4.7",
+    "prettier": "^1.14.3",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.3",
+    "ts-node": "^7.0.1",
+    "tsc-watch": "^4.2.3",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest"
+  },
+  "bin": "lib/index.js",
+  "pkg": {
+    "assets": [
+      "./node_modules/@types",
+      "./node_modules/typescript/lib/*.d.ts",
+      "src/**/*.ts",
+      "./tsconfig.json"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es6",
+		"outDir": "out",
+		"lib": [
+			"es6",
+			"dom"
+		],
+		"esModuleInterop": true,
+		"sourceMap": true,
+		"rootDir": "src",
+		"strict": true ,
+		"declaration": true,
+    "inlineSources": true,
+    "removeComments": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "pretty": false
+	},
+	"exclude": [
+		"node_modules",
+		".vscode-test",
+		"out"
+	]
+}

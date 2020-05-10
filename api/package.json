@@ -1,0 +1,101 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "description": "api",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": "",
+  "author": {
+    "name": "rescribe"
+  },
+  "keywords": [
+    "backend",
+    "api"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index",
+  "types": "lib/index",
+  "scripts": {
+    "start": "node lib/index",
+    "dev": "tsc-watch --onSuccess \"npm run postbuildWatch\"",
+    "clean": "rimraf lib && rimraf coverage",
+    "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "precommit": "npm run clean && npm run lint && npm run format",
+    "prepublishOnly": "npm run build",
+    "printTypescriptVersion": "echo Using TypeScript && tsc --version",
+    "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
+    "build": "tsc",
+    "copy-graphql": "rm -rf lib/schema && cp -r src/schema lib/schema",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
+    "watch:test": "jest --watch"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.6.1",
+    "@octokit/auth-app": "^2.4.5",
+    "@octokit/graphql": "^4.3.1",
+    "apollo-server-express": "^2.12.0",
+    "axios": "^0.19.2",
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "exit-hook": "^2.2.0",
+    "express": "^4.17.1",
+    "graphql-depth-limit": "^1.1.0",
+    "graphql-redis-subscriptions": "^2.2.1",
+    "graphql-tools": "^5.0.0",
+    "graphql-upload": "^10.0.0",
+    "http-status-codes": "^1.4.0",
+    "isbinaryfile": "^4.0.6",
+    "jsonwebtoken": "^8.5.1",
+    "log4js": "^6.2.1",
+    "mongodb": "^3.5.6",
+    "nanoid": "^3.1.3",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^0.17.6"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/compression": "^1.7.0",
+    "@types/express": "^4.17.6",
+    "@types/graphql": "^14.5.0",
+    "@types/graphql-depth-limit": "^1.1.2",
+    "@types/ioredis": "^4.16.0",
+    "@types/jest": "^23.3.3",
+    "@types/jsonwebtoken": "^8.3.9",
+    "@types/mongodb": "^3.5.10",
+    "@types/node": "^10.11.4",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsdoc": "^24.0.0",
+    "eslint-plugin-prefer-arrow": "^1.2.0",
+    "eslint-plugin-typescript": "^0.14.0",
+    "jest": "^23.6.0",
+    "prettier": "^1.14.3",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.3",
+    "ts-node": "^7.0.1",
+    "tsc-watch": "^4.2.3",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.1"
+  },
+  "resolutions": {
+    "fs-capacitor": "5.0.1"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest"
+  }
+}
