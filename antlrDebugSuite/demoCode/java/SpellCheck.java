@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package spellcheck;
-import java.util.*;
+package spellcheck.asdf.asdf123;
+import java.util.Base64;
+import java.util.regex.Matcher;
 import java.util.regex.*;
-import java.io.*;
 /**
  *
  * @author mycicle
@@ -39,7 +39,7 @@ public class SpellCheck {
          br_dict.close();
          
      }
-     public ArrayList spellCheck(String text_path) throws Exception{
+     public ArrayList<String> spellCheck(String text_path, String asdf) throws Exception{
          int counter = 0;
          String line;
          Pattern p = Pattern.compile("[^\\s0-9\\.\\?\\#\\@\\^\\,\\/\\+\\=\\&\\`\\~\\%][A-Z]?[a-z]+");

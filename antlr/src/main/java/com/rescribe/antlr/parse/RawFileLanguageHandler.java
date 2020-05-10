@@ -57,15 +57,15 @@ public class RawFileLanguageHandler {
       ParseTreeWalker walker = new ParseTreeWalker();
       if (file_extension.equals("java")) {
         ParseTree tree = getJavaParseTree(file_contents);
-        JavaDeclarationListener jdl = new JavaDeclarationListener();
+        JavaDeclarationListener jdl = new JavaDeclarationListener(path);
         walker.walk(jdl, tree);
       } else if (file_extension.equals("cpp")) {
         ParseTree tree = getCppParseTree(file_contents);
-        CPPDeclarationListener cdl = new CPPDeclarationListener();
+        CPPDeclarationListener cdl = new CPPDeclarationListener(path);
         walker.walk(cdl, tree);
       } else if (file_extension.equals("py")) {
         ParseTree tree = getPython3ParseTree(file_contents);
-        Python3DeclarationListener p3dl = new Python3DeclarationListener();
+        Python3DeclarationListener p3dl = new Python3DeclarationListener(path);
         walker.walk(p3dl, tree);
       } else {
         System.out.println("unsupported file extension");

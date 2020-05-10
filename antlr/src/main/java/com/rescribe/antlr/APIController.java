@@ -2,8 +2,7 @@ package com.rescribe.antlr;
 
 import com.rescribe.antlr.parse.FileHandler;
 import com.rescribe.antlr.parse.FileInput;
-import com.rescribe.antlr.parse.results.Results;
-import java.util.List;
+import com.rescribe.antlr.parse.schema.File;
 import javax.persistence.Entity;
 import javax.validation.Valid;
 import lombok.Data;
@@ -15,8 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 class APIController {
-  List<Results> recentClassDefOutput;
-  List<Results> recentOutput;
+  File lastOutput;
 
   @Data
   @Entity
@@ -40,17 +38,17 @@ class APIController {
     return new HelloResponse("hello world!");
   }
 
-  @GetMapping("/recentOutput")
+  @GetMapping("/lastOutput")
   @ResponseBody
-  List<Results> recentOutput() {
-    return recentOutput;
+  File lastOutput() {
+    return lastOutput;
   }
 
   @PostMapping("/processFile")
   @ResponseBody
-  List<Results> processFile(@Valid @RequestBody FileInput input) {
-    System.out.println(input);
-    this.recentOutput = FileHandler.getFileData(input);
-    return recentOutput;
+  File processFile(@Valid @RequestBody FileInput input) {
+    // System.out.println(input);
+    this.lastOutput = FileHandler.getFileData(input);
+    return lastOutput;
   }
 }

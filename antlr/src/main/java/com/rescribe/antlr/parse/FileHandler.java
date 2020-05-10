@@ -10,8 +10,7 @@ import com.rescribe.antlr.parse.exceptions.UnsupportedFileException;
 import com.rescribe.antlr.parse.listeners.CPPDeclarationListener;
 import com.rescribe.antlr.parse.listeners.JavaDeclarationListener;
 import com.rescribe.antlr.parse.listeners.Python3DeclarationListener;
-import com.rescribe.antlr.parse.results.Results;
-import java.util.List;
+import com.rescribe.antlr.parse.schema.File;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -52,7 +51,7 @@ public class FileHandler {
     return extension.replaceAll("\\s", "");
   }
 
-  public static List<Results> getFileData(FileInput input) throws UnsupportedFileException {
+  public static File getFileData(FileInput input) throws UnsupportedFileException {
     String file_extension = getFileExtension(input.getName());
     ParseTreeWalker walker = new ParseTreeWalker();
     ParseTree tree;
@@ -60,25 +59,25 @@ public class FileHandler {
     switch (file_extension) {
       case "java":
         tree = getJavaParseTree(input.getContents());
-        JavaDeclarationListener jdl = new JavaDeclarationListener();
+        JavaDeclarationListener jdl = new JavaDeclarationListener(input.getName());
         walker.walk(jdl, tree);
         listener = jdl;
         break;
       case "cpp":
         tree = getCppParseTree(input.getContents());
-        CPPDeclarationListener cdl = new CPPDeclarationListener();
+        CPPDeclarationListener cdl = new CPPDeclarationListener(input.getName());
         walker.walk(cdl, tree);
         listener = cdl;
         break;
       case "py":
         tree = getPython3ParseTree(input.getContents());
-        Python3DeclarationListener p3dl = new Python3DeclarationListener();
+        Python3DeclarationListener p3dl = new Python3DeclarationListener(input.getName());
         walker.walk(p3dl, tree);
         listener = p3dl;
         break;
       default:
         throw new UnsupportedFileException(file_extension);
     }
-    return listener.getResults();
+    return listener.getFileData();
   }
 }

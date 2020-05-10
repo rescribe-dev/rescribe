@@ -1,8 +1,7 @@
 package com.rescribe.antlr.parse;
 
-import com.rescribe.antlr.parse.results.Results;
-import java.util.List;
+import com.rescribe.antlr.parse.schema.File;
 
 public interface CustomListener {
-  List<Results> getResults();
+  File getFileData();
 }
