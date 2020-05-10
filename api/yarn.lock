@@ -2583,10 +2583,15 @@ from@~0:
   resolved "https://registry.yarnpkg.com/from/-/from-0.1.7.tgz#83c60afc58b9c56997007ed1a768b3ab303a44fe"
   integrity sha1-g8YK/Fi5xWmXAH7Rp2izqzA6RP4=
 
-fs-capacitor@5.0.1, fs-capacitor@^2.0.4, fs-capacitor@^6.1.0:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/fs-capacitor/-/fs-capacitor-5.0.1.tgz#41fee9b77c697ea921c61988b112687964d8421b"
-  integrity sha512-F0a5Y+w4zQoB7qXUV+K3ZorBgLuvvBKryVd2px+aEk7o+uNFPb3oDgt2mO74I+2BItL+lYhiN9XfiY+4fATHkw==
+fs-capacitor@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/fs-capacitor/-/fs-capacitor-2.0.4.tgz#5a22e72d40ae5078b4fe64fe4d08c0d3fc88ad3c"
+  integrity sha512-8S4f4WsCryNw2mJJchi46YgB6CR5Ze+4L1h8ewl9tEpL4SJ3ZO+c/bS4BWhB8bK+O3TMqhuZarTitd0S0eh2pA==
+
+fs-capacitor@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/fs-capacitor/-/fs-capacitor-6.1.0.tgz#457f5868a743fe662caa9bd825be966c3d4641a4"
+  integrity sha512-YsKGCLAB40P3OKeciIa7cKzt7WkY8QT9ETa2wVIG3fQDHW2h3xtRo0770lUIbPrjCr5Sa+zFhixNJ+2xNxaraQ==
 
 fs-extra@^8.1.0:
   version "8.1.0"

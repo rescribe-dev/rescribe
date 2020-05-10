@@ -102,7 +102,8 @@ export const initializeServer = async (): Promise<void> => {
       onConnect: (connectionParams: SubscriptionContextParams): Promise<SubscriptionContext> => onSubscription(connectionParams),
     },
     context: async (req): Promise<GraphQLContext> => getContext(req),
-    uploads: false
+    uploads: false,
+    introspection: true
   });
   app.use(server.graphqlPath, compression());
   server.applyMiddleware({
@@ -128,7 +129,6 @@ export const initializeServer = async (): Promise<void> => {
       }).status(HttpStatus.OK);
     } catch (err) {
       const errObj = err as Error;
-      logger.error(errObj.message);
       res.json({
         message: errObj.message
       }).status(HttpStatus.BAD_REQUEST);
