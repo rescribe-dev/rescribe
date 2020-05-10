@@ -3,21 +3,19 @@ package com.rescribe.antlr.parse.listeners;
 import com.rescribe.antlr.gen.python3.Python3BaseListener;
 import com.rescribe.antlr.gen.python3.Python3Parser;
 import com.rescribe.antlr.parse.CustomListener;
-import com.rescribe.antlr.parse.results.Results;
-import java.util.ArrayList;
-import java.util.List;
+import com.rescribe.antlr.parse.schema.File;
 import lombok.Getter;
 
 public class Python3DeclarationListener extends Python3BaseListener implements CustomListener {
-  @Getter List<Results> classResults;
+  @Getter File file;
 
-  public List<Results> getResults() {
-    return classResults;
+  public File getFileData() {
+    return file;
   }
 
-  public Python3DeclarationListener() {
+  public Python3DeclarationListener(String filename) {
     super();
-    classResults = new ArrayList<>();
+    file = new File(filename);
   }
 
   @Override

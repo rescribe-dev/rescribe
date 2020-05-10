@@ -3,100 +3,83 @@ package com.rescribe.antlr.parse.listeners;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.java.JavaParserBaseListener;
 import com.rescribe.antlr.parse.CustomListener;
-import com.rescribe.antlr.parse.results.ClassResults;
-import com.rescribe.antlr.parse.results.Results;
+import com.rescribe.antlr.parse.schema.*;
+import com.rescribe.antlr.parse.schema.Class;
 import com.rescribe.antlr.parse.visitors.JavaDeclarationVisitor;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Getter;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
-
-  List<Results> results;
-
-  Results constructor;
-  List<Results> methods;
-  List<Results> variables;
-  List<ClassResults> class_results;
+  File file;
+  @Getter String filename;
 
   boolean in_class;
-  String current_classname;
 
   JavaDeclarationVisitor visitor;
 
-  public JavaDeclarationListener() {
+  public JavaDeclarationListener(String filename) {
     super();
-
-    this.results = new ArrayList<>();
-
-    this.constructor = new Results();
-    this.methods = new ArrayList<>();
-    this.variables = new ArrayList<>();
-    this.class_results = new ArrayList<>();
-
-    this.in_class = false;
-    this.current_classname = "";
-
+    this.file = new File(filename);
     this.visitor = new JavaDeclarationVisitor();
+  }
+
+  public File getFileData() {
+    return this.file;
+  }
+
+  @Override
+  public void enterPackageDeclaration(JavaParser.PackageDeclarationContext ctx) {
+    if (ctx.getChildCount() >= 3) {
+      file.setImportPath(ctx.getChild(1).getText());
+    }
   }
 
   @Override
   public void enterImportDeclaration(JavaParser.ImportDeclarationContext ctx) {
-    super.enterImportDeclaration(ctx);
-  }
-
-  public List<Results> getResults() {
-    if (class_results != null) {
-      for (Results r : this.class_results) {
-        results.add(r);
+    if (ctx.getChildCount() >= 2) {
+      Import newImport = new Import();
+      if (ctx.getChildCount() > 3) {
+        // import everything
+        newImport.setPath(ctx.getChild(1).getText());
+        newImport.setSelection(ctx.getChild(3).getText());
+      } else {
+        String path = ctx.getChild(1).getText();
+        int lastDot = path.lastIndexOf('.');
+        newImport.setPath(path.substring(0, lastDot));
+        newImport.setSelection(path.substring(lastDot + 1));
       }
+      file.getImports().add(newImport);
     }
-
-    // DO THE SAME FOR METHODS AND VARIABLES WHEN THOSE ARE IMPLEMENTED
-    return this.results;
-  }
-
-  private void resetContext() {
-    this.constructor = new Results();
-    this.methods = new ArrayList<>();
-    this.variables = new ArrayList<>();
-    this.in_class = false;
-    this.current_classname = "";
   }
 
   @Override
   public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-    this.resetContext();
     this.in_class = true;
-    this.current_classname = ctx.children.get(1).getText();
+    Class newClass = new Class();
+    newClass.setName(ctx.children.get(1).getText());
+    this.file.getClasses().add(newClass);
   }
 
   @Override
   public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-    Results output = this.visitor.visitMethodDeclaration(ctx);
+    Function currentFunction = this.visitor.visitMethodDeclaration(ctx);
 
     if (in_class) {
-      output.setParent(this.current_classname);
-      output.setResultsType("class method");
+      this.file
+          .getClasses()
+          .get(this.file.getClasses().size() - 1)
+          .getFunctions()
+          .add(currentFunction);
     }
-
-    this.methods.add(output);
   }
 
   @Override
   public void exitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-    this.class_results.add(
-        new ClassResults(
-            ctx.classBody().getText(),
-            new Results(),
-            this.methods,
-            new ArrayList<>(),
-            this.current_classname));
-    this.resetContext();
+    // process class output
   }
 
   @Override
   public void enterGenericMethodDeclaration(JavaParser.GenericMethodDeclarationContext ctx) {
-    results.add(new Results(ctx.getText(), "generic method declaration"));
+    // process generic function
   }
 
   //          results.add(
