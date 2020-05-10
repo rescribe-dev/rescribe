@@ -6,6 +6,7 @@ import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.schema.*;
 import com.rescribe.antlr.parse.schema.Class;
 import lombok.Getter;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
@@ -20,6 +21,8 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     super();
     this.file = new File(filename);
   }
+
+  // get comments - reference book 209 - hidden channels
 
   public File getFileData() {
     return this.file;
@@ -66,14 +69,16 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     this.currentClass = null;
   }
 
-  private Function processFunction(ParseTree ctx, boolean isConstructor) {
-    Function currentFunction = new Function();
+  private Function processFunction(ParserRuleContext ctx, boolean isConstructor) {
+    Function newFunction = null;
     if (ctx.getChildCount() >= 4) {
+      newFunction = new Function();
+      newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
       final int offset = isConstructor ? 0 : 1;
       if (!isConstructor) {
-        currentFunction.setReturnType(ctx.getChild(0).getText());
+        newFunction.setReturnType(ctx.getChild(0).getText());
       }
-      currentFunction.setName(ctx.getChild(offset).getText());
+      newFunction.setName(ctx.getChild(offset).getText());
       if (ctx.getChild(1 + offset).getChildCount() == 3) {
         ParseTree arguments = ctx.getChild(1 + offset).getChild(1);
         for (int i = 0; i < arguments.getChildCount(); i++) {
@@ -82,20 +87,20 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
             Variable currentVariable = new Variable();
             currentVariable.setType(currentVariableData.getChild(0).getText());
             currentVariable.setName(currentVariableData.getChild(1).getText());
-            currentFunction.getArguments().add(currentVariable);
+            currentVariable.setLocation(new Location(ctx.start.getLine(), ctx.start.getLine()));
+            newFunction.getArguments().add(currentVariable);
           }
         }
       }
-      currentFunction.setContents(ctx.getChild(ctx.getChildCount() - 1).getText());
+      newFunction.setContents(ctx.getChild(ctx.getChildCount() - 1).getText());
     }
-    return currentFunction;
+    return newFunction;
   }
 
   @Override
   public void enterConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
     if (this.currentClass != null) {
       Function newConstructor = processFunction(ctx, true);
-      newConstructor.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
       this.currentClass.setConstructor(newConstructor);
       this.currentFunction = newConstructor;
     }
@@ -109,7 +114,6 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   @Override
   public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
     Function newFunction = processFunction(ctx, false);
-    newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
     if (this.currentClass != null) {
       this.file.getClasses().get(this.file.getClasses().size() - 1).getFunctions().add(newFunction);
     } else {

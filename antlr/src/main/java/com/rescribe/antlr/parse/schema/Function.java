@@ -14,5 +14,4 @@ public class Function {
   String contents;
   List<Variable> variables = new ArrayList<>();
   Location location;
-
 }
