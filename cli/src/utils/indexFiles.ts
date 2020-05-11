@@ -1,4 +1,4 @@
-import { getLogger } from "log4js";
+import { getLogger } from 'log4js';
 import FormData from 'form-data';
 import mime from 'mime-types';
 import gql from 'graphql-tag';
@@ -7,9 +7,9 @@ import { axiosClient, axiosRequestTimeout } from './api';
 import { AxiosError } from 'axios';
 import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
-import { GraphQLError } from "graphql";
-import axios from "axios";
-import { cacheData } from "./config";
+import { GraphQLError } from 'graphql';
+import axios from 'axios';
+import { cacheData } from './config';
 
 const logger = getLogger();
 

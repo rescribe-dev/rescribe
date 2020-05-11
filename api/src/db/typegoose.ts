@@ -1,6 +1,6 @@
-import { Model, Document } from "mongoose";
-import { getClassForDocument } from "@typegoose/typegoose";
-import { MiddlewareFn } from "type-graphql";
+import { Model, Document } from 'mongoose';
+import { getClassForDocument } from '@typegoose/typegoose';
+import { MiddlewareFn } from 'type-graphql';
 
 const convertDocument = (doc: Document): any => {
   const convertedDocument = doc.toObject();

@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
-import { isBinaryFile } from "isbinaryfile";
+import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { indexFile } from "./shared";
+import { indexFile } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 
 @ArgsType()

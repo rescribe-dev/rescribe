@@ -6,7 +6,7 @@ import {
   SET_TOKEN,
   SET_USER,
   User,
-} from "./types";
+} from './types';
 
 export const login = (auth: Login): AuthActionTypes => {
   return {

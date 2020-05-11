@@ -46,9 +46,11 @@ const addToConfig = (conf: any, allString: boolean): void => {
   }
 };
 
-export const initializeConfig = async (context: vscode.ExtensionContext): Promise<void> => {
+export const initializeConfig = async (
+  context: vscode.ExtensionContext
+): Promise<void> => {
   const configRes = await cosmiconfig(appName, {
-    cache: true
+    cache: true,
   }).search();
   if (configRes?.isEmpty) {
     throw new Error('no configuration found in config');

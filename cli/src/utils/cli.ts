@@ -1,5 +1,5 @@
-import { loggerInitialized, initializeLogger, logger } from "./logger";
-import { Arguments } from "yargs";
+import { loggerInitialized, initializeLogger, logger } from './logger';
+import { Arguments } from 'yargs';
 
 export interface GlobalArgs {
   debug: boolean;

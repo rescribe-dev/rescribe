@@ -1,4 +1,4 @@
-import createPages from "./createPages";
+import createPages from './createPages';
 
 export default {
   createPages,

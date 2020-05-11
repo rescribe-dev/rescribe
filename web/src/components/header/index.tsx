@@ -1,6 +1,6 @@
-import { Link } from "gatsby";
-import PropTypes from "prop-types";
-import React, { useState, useEffect } from "react";
+import { Link } from 'gatsby';
+import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
 import {
   Navbar,
   NavbarToggler,
@@ -12,15 +12,15 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-} from "reactstrap";
-import { isLoggedIn } from "../../state/auth/getters";
-import { store } from "../../state/reduxWrapper";
-import { useDispatch } from "react-redux";
-import { navigate } from "@reach/router";
-import { isSSR } from "../../utils/checkSSR";
-import { AppThunkDispatch } from "../../state/thunk";
-import { AuthActionTypes } from "../../state/auth/types";
-import { thunkLogout } from "../../state/auth/thunks";
+} from 'reactstrap';
+import { isLoggedIn } from '../../state/auth/getters';
+import { store } from '../../state/reduxWrapper';
+import { useDispatch } from 'react-redux';
+import { navigate } from '@reach/router';
+import { isSSR } from '../../utils/checkSSR';
+import { AppThunkDispatch } from '../../state/thunk';
+import { AuthActionTypes } from '../../state/auth/types';
+import { thunkLogout } from '../../state/auth/thunks';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -77,7 +77,7 @@ const Header = (args: HeaderArgs) => {
                       onClick={(evt: React.MouseEvent) => {
                         evt.preventDefault();
                         dispatchAuthThunk(thunkLogout());
-                        navigate("/login");
+                        navigate('/login');
                       }}
                     >
                       Logout
@@ -98,7 +98,7 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  siteTitle: `Rescribe`,
+  siteTitle: 'Rescribe',
 };
 
 export default Header;

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { apolloClient } from "../utils/api";
-import gql from "graphql-tag";
+import { apolloClient } from '../utils/api';
+import gql from 'graphql-tag';
 import { checkAuth } from '../utils/authToken';
 
 interface User {
@@ -25,8 +25,10 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
           plan
         }
       }
-    `
+    `,
   });
   const user = userRes.data.user;
-  vscode.window.showInformationMessage(`user: ${user.name}, email: ${user.email}, plan: ${user.plan}`);
+  vscode.window.showInformationMessage(
+    `user: ${user.name}, email: ${user.email}, plan: ${user.plan}`
+  );
 };

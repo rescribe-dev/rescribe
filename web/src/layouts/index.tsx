@@ -1,14 +1,14 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Loadable from "@loadable/component";
-import Helmet from "react-helmet";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useStaticQuery, graphql } from "gatsby";
+import React from 'react';
+import PropTypes from 'prop-types';
+import Loadable from '@loadable/component';
+import Helmet from 'react-helmet';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useStaticQuery, graphql } from 'gatsby';
 
-import Header from "../components/header";
-import "./index.scss";
-import { Container } from "reactstrap";
+import Header from '../components/header';
+import './index.scss';
+import { Container } from 'reactstrap';
 
 toast.configure({
   autoClose: 4000,
@@ -19,7 +19,7 @@ toast.configure({
   pauseOnHover: true,
 });
 
-const Fonts = Loadable(() => import("../components/fontloader"));
+const Fonts = Loadable(() => import('../components/fontloader'));
 
 interface LayoutArgs {
   children: any;

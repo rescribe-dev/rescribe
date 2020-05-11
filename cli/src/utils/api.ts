@@ -5,7 +5,7 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import axios, { AxiosInstance } from 'axios';
 import ws from 'ws';
-import fetch from "isomorphic-fetch";
+import fetch from 'isomorphic-fetch';
 import { ApolloLink, from } from 'apollo-link';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { configData } from './config';

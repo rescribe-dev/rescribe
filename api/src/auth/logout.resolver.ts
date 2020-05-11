@@ -1,10 +1,10 @@
-import User, { UserModel } from "../schema/auth";
-import { Ctx, Mutation, Resolver, ArgsType, Field, Args } from "type-graphql";
-import { GraphQLContext } from "../utils/context";
-import { verifyLoggedIn, verifyAdmin } from "./checkAuth";
-import { IsEmail, IsOptional } from "class-validator";
-import { DocumentType } from "@typegoose/typegoose";
-import { clearRefreshToken } from "../utils/refreshToken";
+import User, { UserModel } from '../schema/auth';
+import { Ctx, Mutation, Resolver, ArgsType, Field, Args } from 'type-graphql';
+import { GraphQLContext } from '../utils/context';
+import { verifyLoggedIn, verifyAdmin } from './checkAuth';
+import { IsEmail, IsOptional } from 'class-validator';
+import { DocumentType } from '@typegoose/typegoose';
+import { clearRefreshToken } from '../utils/refreshToken';
 
 @ArgsType()
 class RevokeArgs {
