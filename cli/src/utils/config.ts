@@ -31,10 +31,14 @@ export const configData: ConfigType = {
 
 interface CacheType {
   authToken: string;
+  project: string;
+  repository: string;
 }
 
 export const cacheData: CacheType = {
-  authToken: ''
+  authToken: '',
+  project: '',
+  repository: '',
 };
 
 export const writeCache = async (): Promise<void> => {
@@ -46,6 +50,8 @@ const readCache = async (): Promise<void> => {
     const file = await readFile(configData.cacheFilePath, 'utf8');
     const cache: CacheType | undefined = yaml.safeLoad(file);
     if (cache) {
+      cacheData.project = cache.project;
+      cacheData.repository = cache.repository;
       if (configData.authToken.length === 0 && isLoggedIn(cache.authToken)) {
         configData.authToken = cache.authToken;
       } else {

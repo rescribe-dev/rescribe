@@ -3,20 +3,21 @@ import { getLogger } from 'log4js';
 // import { fileIndexName } from '../elastic/configure';
 // import { elasticClient } from '../elastic/init';
 // import { ElasticFile } from '../elastic/types';
-import { processFile, ProcessFileOutput } from "../utils/antlrBridge";
+import { processFile } from "../utils/antlrBridge";
+import { FileOutput } from '../utils/antlrTypes';
 
 const logger = getLogger();
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-export const indexFile = async (content: string, fileName: string): Promise<ProcessFileOutput[]> => {
-  logger.info({
-    name: fileName,
-    contents: content,
-  });
+export const indexFile = async (project: string, repository: string, branch: string, path: string, fileName: string, content: string): Promise<FileOutput> => {
   const fileData = await processFile({
-    name: fileName,
-    contents: content,
+    fileName,
+    content,
+    project,
+    repository,
+    branch,
+    path
   });
   logger.info(fileData);
   /*

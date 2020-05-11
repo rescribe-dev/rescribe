@@ -5,6 +5,7 @@ import { isBinaryFile } from "isbinaryfile";
 import { promisify } from 'util';
 import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
+import { cacheData } from '../utils/config';
 
 const logger = getLogger();
 
@@ -16,6 +17,9 @@ interface Args {
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
+  if (cacheData.project.length === 0 || cacheData.repository.length === 0) {
+    throw new Error('project and repository need to be set with <set-project>');
+  }
   const paths = handleStringList(args.files);
   const files: Buffer[] = [];
   for (let i = 0; i < paths.length; i++) {
