@@ -1,9 +1,9 @@
 import { getLogger } from 'log4js';
 import { nanoid } from 'nanoid';
 import { elasticClient } from '../elastic/init';
-import { ElasticFile } from '../elastic/types';
 import { processFile } from '../utils/antlrBridge';
 import { fileIndexName } from '../elastic/settings';
+import File from '../schema/file';
 
 const logger = getLogger();
 
@@ -18,7 +18,7 @@ export const indexFile = async (project: string, repository: string, branch: str
   });
   const currentTime = new Date().getTime();
   const id = nanoid();
-  const elasticContent: ElasticFile = {
+  const elasticContent: File = {
     ...fileData,
     projectID: project,
     repositoryID: repository,

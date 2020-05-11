@@ -1,9 +1,9 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { ElasticProject } from '../elastic/types';
-import { nanoid } from 'nanoid';
 import { logger } from '@typegoose/typegoose/lib/logSettings';
 import { projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
+import { ObjectId } from 'mongodb';
+import { Project } from '../schema/structure';
 
 @ArgsType()
 class AddProjectArgs {
@@ -15,16 +15,16 @@ class AddProjectArgs {
 class AddProjectResolver {
   @Mutation(_returns => String)
   async addProject(@Args() args: AddProjectArgs): Promise<string> {
-    const id = nanoid();
+    const id = new ObjectId();
     const currentTime = new Date().getTime();
-    const project: ElasticProject = {
+    const project: Project = {
       created: currentTime,
       updated: currentTime,
       name: args.name,
       repositories: []
     };
     const indexResult = await elasticClient.index({
-      id,
+      id: id.toHexString(),
       index: projectIndexName,
       body: project
     });
