@@ -4,5 +4,5 @@
  * See: https://www.gatsbyjs.org/docs/browser-apis/
  */
 
-export * from "./gatsby/.gatsby/gatsby-browser";
-export * from "./src/utils/rootWrapper.tsx";
+export * from './gatsby/.gatsby/gatsby-browser';
+export * from './src/utils/rootWrapper.tsx';

@@ -1,6 +1,6 @@
-import { ExpressContext } from "apollo-server-express/dist/ApolloServer";
-import { decodeAuth, AuthData, jwtType } from "./jwt";
-import { Request, Response } from "express";
+import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
+import { decodeAuth, AuthData, jwtType } from './jwt';
+import { Request, Response } from 'express';
 
 export interface SubscriptionContext {
   auth?: AuthData;

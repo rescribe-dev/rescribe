@@ -1,8 +1,8 @@
-import React from "react";
-import * as yup from "yup";
-import { Formik } from "formik";
-import { toast } from "react-toastify";
-import { css } from "@emotion/core";
+import React from 'react';
+import * as yup from 'yup';
+import { Formik } from 'formik';
+import { toast } from 'react-toastify';
+import { css } from '@emotion/core';
 import {
   Form,
   Label,
@@ -11,23 +11,23 @@ import {
   FormGroup,
   Container,
   Button,
-} from "reactstrap";
-import BeatLoader from "react-spinners/BeatLoader";
-import { PageProps, navigate } from "gatsby";
+} from 'reactstrap';
+import BeatLoader from 'react-spinners/BeatLoader';
+import { PageProps, navigate } from 'gatsby';
 
-import "./login.scss";
+import './login.scss';
 
-import Layout from "../layouts/index";
-import SEO from "../components/seo";
-import { initializeApolloClient } from "../utils/apollo";
-import { isLoggedIn } from "../state/auth/getters";
-import { thunkLogin, thunkLogout } from "../state/auth/thunks";
-import { useDispatch } from "react-redux";
-import { AuthActionTypes } from "../state/auth/types";
-import { AppThunkDispatch } from "../state/thunk";
-import { setToken } from "../state/auth/actions";
-import { isSSR } from "../utils/checkSSR";
-import { Dispatch } from "redux";
+import Layout from '../layouts/index';
+import SEO from '../components/seo';
+import { initializeApolloClient } from '../utils/apollo';
+import { isLoggedIn } from '../state/auth/getters';
+import { thunkLogin, thunkLogout } from '../state/auth/thunks';
+import { useDispatch } from 'react-redux';
+import { AuthActionTypes } from '../state/auth/types';
+import { AppThunkDispatch } from '../state/thunk';
+import { setToken } from '../state/auth/actions';
+import { isSSR } from '../utils/checkSSR';
+import { Dispatch } from 'redux';
 
 const loaderCSS = css`
   display: block;
@@ -51,15 +51,15 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
   let vscodeLogin = false;
   if (args.location.search.length > 0) {
     const searchParams = new URLSearchParams(args.location.search);
-    if (searchParams.has("token")) {
-      token = searchParams.get("token") as string;
+    if (searchParams.has('token')) {
+      token = searchParams.get('token') as string;
     }
-    if (searchParams.has("redirect")) {
-      redirect = searchParams.get("redirect") as string;
+    if (searchParams.has('redirect')) {
+      redirect = searchParams.get('redirect') as string;
     }
-    if (searchParams.has("cli")) {
+    if (searchParams.has('cli')) {
       cliLogin = true;
-    } else if (searchParams.has("vscode")) {
+    } else if (searchParams.has('vscode')) {
       vscodeLogin = true;
     }
   }
@@ -75,7 +75,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
         if (redirect !== undefined) {
           navigate(redirect);
         } else {
-          navigate("/app/account");
+          navigate('/app/account');
         }
       }
     })
@@ -87,26 +87,26 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
       <SEO title="Login" />
       <Container
         style={{
-          marginTop: "3rem",
-          marginBottom: "5rem",
+          marginTop: '3rem',
+          marginBottom: '5rem',
         }}
       >
         <Formik
           initialValues={{
-            email: "",
-            password: "",
+            email: '',
+            password: '',
           }}
           validationSchema={yup.object({
             email: yup
               .string()
-              .email("invalid email address")
-              .required("required"),
-            password: yup.string().required("required"),
+              .email('invalid email address')
+              .required('required'),
+            password: yup.string().required('required'),
           })}
           onSubmit={(formData, { setSubmitting, setStatus }) => {
             if (!window.grecaptcha) {
-              toast("cannot find recaptcha", {
-                type: "error",
+              toast('cannot find recaptcha', {
+                type: 'error',
               });
               return;
             }
@@ -118,7 +118,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
               try {
                 window.grecaptcha
                   .execute(process.env.GATSBY_RECAPTCHA_SITE_KEY, {
-                    action: "login",
+                    action: 'login',
                   })
                   .then(async (_recaptchaToken: string) => {
                     if (token !== undefined) {
@@ -132,26 +132,26 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                         navigate(redirect);
                       } else {
                         if (cliLogin) {
-                          toast("view cli", {
-                            type: "success",
+                          toast('view cli', {
+                            type: 'success',
                           });
                         } else if (vscodeLogin) {
-                          toast("view vscode", {
-                            type: "success",
+                          toast('view vscode', {
+                            type: 'success',
                           });
                         }
-                        navigate("/app/account");
+                        navigate('/app/account');
                       }
                     } catch (err) {
                       toast(err.message, {
-                        type: "error",
+                        type: 'error',
                       });
                       onError();
                     }
                   })
                   .catch((err: Error) => {
                     toast(err.message, {
-                      type: "error",
+                      type: 'error',
                     });
                     onError();
                   });
@@ -179,7 +179,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                   type="email"
                   placeholder="Email"
                   style={{
-                    marginBottom: "0.5rem",
+                    marginBottom: '0.5rem',
                   }}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -189,12 +189,12 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                 />
                 <FormFeedback
                   style={{
-                    marginBottom: "1rem",
+                    marginBottom: '1rem',
                   }}
                   className="feedback"
                   type="invalid"
                 >
-                  {touched.email && errors.email ? errors.email : ""}
+                  {touched.email && errors.email ? errors.email : ''}
                 </FormFeedback>
               </FormGroup>
               <FormGroup>
@@ -205,13 +205,13 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                   type="password"
                   placeholder="Password"
                   onKeyDown={(evt: React.KeyboardEvent) => {
-                    if (evt.key === "Enter") {
+                    if (evt.key === 'Enter') {
                       evt.preventDefault();
                       handleSubmit();
                     }
                   }}
                   style={{
-                    marginBottom: "0.5rem",
+                    marginBottom: '0.5rem',
                   }}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -221,12 +221,12 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                 />
                 <FormFeedback
                   style={{
-                    marginBottom: "1rem",
+                    marginBottom: '1rem',
                   }}
                   className="feedback"
                   type="invalid"
                 >
-                  {touched.password && errors.password ? errors.password : ""}
+                  {touched.password && errors.password ? errors.password : ''}
                 </FormFeedback>
               </FormGroup>
               <Button
@@ -241,7 +241,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
               <BeatLoader
                 css={loaderCSS}
                 size={10}
-                color={"red"}
+                color={'red'}
                 loading={isSubmitting}
               />
             </Form>

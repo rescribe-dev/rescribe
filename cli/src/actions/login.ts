@@ -1,10 +1,10 @@
-import { getLogger } from "log4js";
+import { getLogger } from 'log4js';
 import { Arguments } from 'yargs';
-import { websiteURL, apolloClient, initializeApolloClient } from "../utils/api";
-import gql from "graphql-tag";
-import { writeError } from "../utils/logger";
-import { setAuthToken } from "../utils/authToken";
-import { configData } from "../utils/config";
+import { websiteURL, apolloClient, initializeApolloClient } from '../utils/api';
+import gql from 'graphql-tag';
+import { writeError } from '../utils/logger';
+import { setAuthToken } from '../utils/authToken';
+import { configData } from '../utils/config';
 
 const logger = getLogger();
 

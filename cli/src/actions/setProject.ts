@@ -1,6 +1,6 @@
-import { getLogger } from "log4js";
+import { getLogger } from 'log4js';
 import { Arguments } from 'yargs';
-import { writeCache, cacheData } from "../utils/config";
+import { writeCache, cacheData } from '../utils/config';
 
 const logger = getLogger();
 
@@ -13,5 +13,5 @@ export default async (args: Arguments<Args>): Promise<void> => {
   cacheData.project = args.project;
   cacheData.repository = args.repository;
   await writeCache();
-  logger.info("saved configuration");
+  logger.info('saved configuration');
 };

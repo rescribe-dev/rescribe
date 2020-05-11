@@ -1,28 +1,28 @@
-import { ObjectType, Field } from "type-graphql";
-import { ObjectId } from "mongodb";
-import { registerEnumType } from "type-graphql";
+import { ObjectType, Field } from 'type-graphql';
+import { ObjectId } from 'mongodb';
+import { registerEnumType } from 'type-graphql';
 
 export enum VariableParentType {
-  FILE = "file",
-  CLASS = "class",
-  FUNCTION = "function"
+  FILE = 'file',
+  CLASS = 'class',
+  FUNCTION = 'function'
 }
 
 registerEnumType(VariableParentType, {
-  name: "VariableParentType",
-  description: "variable parent type",
+  name: 'VariableParentType',
+  description: 'variable parent type',
 });
 
-@ObjectType({ description: "variable" })
+@ObjectType({ description: 'variable' })
 export class Variable {
   @Field()
   readonly id: ObjectId;
-  @Field({ description: "name" })
+  @Field({ description: 'name' })
   name: string;
-  @Field({ description: "type" })
+  @Field({ description: 'type' })
   type: string;
-  @Field({ description: "parent type" })
+  @Field({ description: 'parent type' })
   parentType: VariableParentType;
-  @Field({ description: "parent" })
+  @Field({ description: 'parent' })
   parent: ObjectId;
 }

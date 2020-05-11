@@ -1,8 +1,8 @@
-import { AppThunkAction } from "../thunk";
-import gql from "graphql-tag";
-import { client } from "../../utils/apollo";
-import { LoginInput, User } from "./types";
-import { login, setUser, logout } from "./actions";
+import { AppThunkAction } from '../thunk';
+import gql from 'graphql-tag';
+import { client } from '../../utils/apollo';
+import { LoginInput, User } from './types';
+import { login, setUser, logout } from './actions';
 
 interface LoginRes {
   login: string;
@@ -20,7 +20,7 @@ const checkAuth = async (args: LoginInput): Promise<string> => {
   if (apolloRes.data) {
     return apolloRes.data.login;
   } else {
-    throw new Error("cannot find apollo data");
+    throw new Error('cannot find apollo data');
   }
 };
 
@@ -53,7 +53,7 @@ export const runLogout = async (): Promise<string> => {
   if (apolloRes.data) {
     return apolloRes.data.logout;
   } else {
-    throw new Error("cannot find apollo data");
+    throw new Error('cannot find apollo data');
   }
 };
 
@@ -84,7 +84,7 @@ const getUser = async (): Promise<User> => {
   if (apolloRes.data) {
     return apolloRes.data.user;
   } else {
-    throw new Error("cannot find apollo data");
+    throw new Error('cannot find apollo data');
   }
 };
 

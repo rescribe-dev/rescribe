@@ -6,28 +6,45 @@ import { axiosClient, axiosRequestTimeout } from './api';
 import { AxiosError } from 'axios';
 import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
-import { GraphQLError } from "graphql";
+import { GraphQLError } from 'graphql';
 import axios from 'axios';
 
 interface ResIndex {
   indexFiles: string;
 }
 
-export default async (paths: string[], files: Buffer[], branchName: string): Promise<string> => {
+export default async (
+  paths: string[],
+  files: Buffer[],
+  branchName: string
+): Promise<string> => {
   const form = new FormData();
-  form.append('operations', JSON.stringify({
-    query: print(gql`
-      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $repository: ID!, $branch: ID!) {
-        indexFiles(files: $files, paths: $paths, repository: $repository, branch: $branch)
-      }
-    `),
-    variables: {
-      files: paths.map(() => null),
-      paths: paths,
-      repository: 'test',
-      branch: branchName
-    }
-  }));
+  form.append(
+    'operations',
+    JSON.stringify({
+      query: print(gql`
+        mutation indexFiles(
+          $files: [Upload!]!
+          $paths: [String!]!
+          $repository: ID!
+          $branch: ID!
+        ) {
+          indexFiles(
+            files: $files
+            paths: $paths
+            repository: $repository
+            branch: $branch
+          )
+        }
+      `),
+      variables: {
+        files: paths.map(() => null),
+        paths: paths,
+        repository: 'test',
+        branch: branchName,
+      },
+    })
+  );
   const map: any = {};
   for (let i = 0; i < paths.length; i++) {
     map[i] = [`variables.files.${i}`];
@@ -42,7 +59,7 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
     const mimeType = lookupType ? lookupType : 'text/plain';
     form.append(currentIndex.toString(), buffer, {
       filename: name,
-      contentType: mimeType
+      contentType: mimeType,
     });
   }
   const formLength = form.getLengthSync();
@@ -54,14 +71,16 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
     const res = await axiosClient.post('/graphql', form, {
       headers: {
         ...form.getHeaders(),
-        'content-length': formLength
+        'content-length': formLength,
       },
-      cancelToken: source.token
+      cancelToken: source.token,
     });
     clearTimeout(timeout);
     const apolloRes = res.data as ApolloQueryResult<ResIndex>;
     if (apolloRes.errors) {
-      throw new Error(apolloRes.errors.map((elem: GraphQLError) => elem.message).join(', '));
+      throw new Error(
+        apolloRes.errors.map((elem: GraphQLError) => elem.message).join(', ')
+      );
     }
     return apolloRes.data.indexFiles;
   } catch (err) {

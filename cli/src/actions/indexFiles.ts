@@ -1,7 +1,7 @@
 import fs, { readFileSync, lstatSync } from 'fs';
-import { getLogger } from "log4js";
-import { handleStringList } from "../utils/cli";
-import { isBinaryFile } from "isbinaryfile";
+import { getLogger } from 'log4js';
+import { handleStringList } from '../utils/cli';
+import { isBinaryFile } from 'isbinaryfile';
 import { promisify } from 'util';
 import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
@@ -37,6 +37,6 @@ export default async (args: Arguments<Args>): Promise<void> => {
     files.push(buffer);
   }
   const res = await indexFiles(paths, files, args.branch);
-  console.log(`done indexing files:`);
+  console.log('done indexing files:');
   console.log(JSON.parse(res));
 };

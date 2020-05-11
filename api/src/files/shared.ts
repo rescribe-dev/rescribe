@@ -3,7 +3,7 @@ import { getLogger } from 'log4js';
 // import { fileIndexName } from '../elastic/configure';
 // import { elasticClient } from '../elastic/init';
 // import { ElasticFile } from '../elastic/types';
-import { processFile } from "../utils/antlrBridge";
+import { processFile } from '../utils/antlrBridge';
 import { FileOutput } from '../utils/antlrTypes';
 
 const logger = getLogger();

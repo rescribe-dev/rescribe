@@ -1,46 +1,46 @@
-import { ObjectType, Field } from "type-graphql";
-import { ObjectId } from "mongodb";
-import { registerEnumType } from "type-graphql";
+import { ObjectType, Field } from 'type-graphql';
+import { ObjectId } from 'mongodb';
+import { registerEnumType } from 'type-graphql';
 
 export enum FunctionParentType {
-  FILE = "file",
-  CLASS = "class",
-  FUNCTION = "function"
+  FILE = 'file',
+  CLASS = 'class',
+  FUNCTION = 'function'
 }
 
 registerEnumType(FunctionParentType, {
-  name: "FunctionParentType",
-  description: "function parent type",
+  name: 'FunctionParentType',
+  description: 'function parent type',
 });
 
-@ObjectType({description: "baseline function"})
+@ObjectType({description: 'baseline function'})
 export class BaselineFunction {
   @Field()
   readonly id: ObjectId;
-  @Field({ description: "function name" })
+  @Field({ description: 'function name' })
   name: string;
-  @Field({ description: "function arguments" })
+  @Field({ description: 'function arguments' })
   arguments: string[];
-  @Field({ description: "return type" })
+  @Field({ description: 'return type' })
   returnType: string;
-  @Field({ description: "contents" })
+  @Field({ description: 'contents' })
   contents: string;
 }
 
-@ObjectType({description: "function"})
+@ObjectType({description: 'function'})
 export default class Function extends BaselineFunction {
   @Field()
   readonly id: ObjectId;
-  @Field({ description: "parent" })
+  @Field({ description: 'parent' })
   parent: ObjectId;
-  @Field({ description: "parent type" })
+  @Field({ description: 'parent type' })
   parentType: FunctionParentType;
 }
 
-@ObjectType({description: "function"})
+@ObjectType({description: 'function'})
 export class StandaloneFunction extends BaselineFunction {
-  @Field({ description: "location" })
+  @Field({ description: 'location' })
   location: string;
-  @Field({ description: "description" })
+  @Field({ description: 'description' })
   description: string;
 }

@@ -1,8 +1,8 @@
-import { gql } from "apollo-server-express";
+import { gql } from 'apollo-server-express';
 import { getLogger } from 'log4js';
-import { createClient } from "../utils/github";
+import { createClient } from '../utils/github';
 import { print } from 'graphql/language/printer';
-import { verifyGithub } from "../auth/checkAuth";
+import { verifyGithub } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 

@@ -1,12 +1,12 @@
-import React from "react";
-import { Container } from "reactstrap";
+import React from 'react';
+import { Container } from 'reactstrap';
 
-import Layout from "../layouts/index";
-import SEO from "../components/seo";
-import "./index.scss";
-import gql from "graphql-tag";
-import { isSSR } from "../utils/checkSSR";
-import { useQuery } from "@apollo/react-hooks";
+import Layout from '../layouts/index';
+import SEO from '../components/seo';
+import './index.scss';
+import gql from 'graphql-tag';
+import { isSSR } from '../utils/checkSSR';
+import { useQuery } from '@apollo/react-hooks';
 
 const hello = gql`
   query hello {
@@ -31,8 +31,8 @@ const IndexPage = (_args: IndexPageProps) => {
       <SEO title="Rescribe" />
       <Container
         style={{
-          marginTop: "3rem",
-          marginBottom: "5rem",
+          marginTop: '3rem',
+          marginBottom: '5rem',
         }}
       ></Container>
     </Layout>

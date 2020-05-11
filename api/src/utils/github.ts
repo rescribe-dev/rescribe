@@ -1,6 +1,6 @@
 import { graphql as clientUnauthenticated } from '@octokit/graphql';
 import { createAppAuth } from '@octokit/auth-app';
-import { graphql as client } from "@octokit/graphql/dist-types/types";
+import { graphql as client } from '@octokit/graphql/dist-types/types';
 
 let appID: number;
 let privateKey: string;

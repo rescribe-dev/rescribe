@@ -1,4 +1,4 @@
-import "reflect-metadata";
+import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
@@ -7,7 +7,7 @@ import express from 'express';
 import depthLimit from 'graphql-depth-limit';
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
-import cookieParser from "cookie-parser";
+import cookieParser from 'cookie-parser';
 import { initializeMappings } from './elastic/configure';
 import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext } from './utils/context';
 import { isDebug } from './utils/mode';
@@ -17,11 +17,11 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from './scalars/ObjectId';
 import Redis from 'ioredis';
-import { join } from "path";
-import exitHook from "exit-hook";
-import { graphqlUploadExpress } from "graphql-upload";
-import { TypegooseMiddleware } from "./db/typegoose";
-import { handleRefreshToken } from "./utils/jwt";
+import { join } from 'path';
+import exitHook from 'exit-hook';
+import { graphqlUploadExpress } from 'graphql-upload';
+import { TypegooseMiddleware } from './db/typegoose';
+import { handleRefreshToken } from './utils/jwt';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -74,18 +74,18 @@ export const initializeServer = async (): Promise<void> => {
     subscriber: new Redis(redisOptions)
   });
   exitHook(() => {
-    logger.info("close pub sub");
+    logger.info('close pub sub');
     pubSub.close();
   });
   const schema = await buildSchema({
-    resolvers: [join(__dirname, "/**/**/*.resolver.{ts,js}")],
+    resolvers: [join(__dirname, '/**/**/*.resolver.{ts,js}')],
     scalarsMap: [{
       type: ObjectId,
       scalar: ObjectIdScalar
     }],
     globalMiddlewares: [TypegooseMiddleware],
     emitSchemaFile: {
-      path: join(__dirname, "../schema.graphql"),
+      path: join(__dirname, '../schema.graphql'),
       commentDescriptions: true
     },
     pubSub

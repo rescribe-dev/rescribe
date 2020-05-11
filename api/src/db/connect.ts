@@ -1,4 +1,4 @@
-import { connect, Mongoose } from "mongoose";
+import { connect, Mongoose } from 'mongoose';
 import exitHook from 'exit-hook';
 import { getLogger } from 'log4js';
 
@@ -19,7 +19,7 @@ export const initializeDB = async (): Promise<string> => {
     dbName: process.env.DB_NAME
   });
   exitHook(() => {
-    logger.info("close database");
+    logger.info('close database');
     client.connection.close();
   });
   return `database client connected to ${client.connection.name}`;
