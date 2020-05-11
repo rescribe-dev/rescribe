@@ -1,16 +1,13 @@
 import { getLogger } from 'log4js';
-// import { nanoid } from 'nanoid';
-// import { fileIndexName } from '../elastic/configure';
-// import { elasticClient } from '../elastic/init';
-// import { ElasticFile } from '../elastic/types';
+import { nanoid } from 'nanoid';
+import { elasticClient } from '../elastic/init';
+import { ElasticFile } from '../elastic/types';
 import { processFile } from '../utils/antlrBridge';
-import { FileOutput } from '../utils/antlrTypes';
+import { fileIndexName } from '../elastic/settings';
 
 const logger = getLogger();
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-export const indexFile = async (project: string, repository: string, branch: string, path: string, fileName: string, content: string): Promise<FileOutput> => {
+export const indexFile = async (project: string, repository: string, branch: string, path: string, fileName: string, content: string): Promise<string> => {
   const fileData = await processFile({
     fileName,
     content,
@@ -19,26 +16,21 @@ export const indexFile = async (project: string, repository: string, branch: str
     branch,
     path
   });
-  logger.info(fileData);
-  /*
   const currentTime = new Date().getTime();
   const id = nanoid();
   const elasticContent: ElasticFile = {
-    _id: id,
-    project,
-    content,
-    path: path,
-    repository: repositoryName,
-    name: fileName,
+    ...fileData,
+    projectID: project,
+    repositoryID: repository,
+    branchID: branch,
     created: currentTime,
     updated: currentTime,
   };
   const indexResult = await elasticClient.index({
+    id,
     index: fileIndexName,
     body: elasticContent
   });
-  logger.info(`got update result of ${JSON.stringify(indexResult.body)}`);
+  logger.info(`got index file result of ${JSON.stringify(indexResult.body)}`);
   return `indexed file with id ${id}`;
-  */
-  return fileData;
 };

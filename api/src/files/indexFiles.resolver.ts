@@ -47,10 +47,10 @@ class IndexFilesResolver {
           }
           const content = buffer.toString('utf8');
           try {
-            const res = await indexFile(args.project, args.repository, args.branch, path, file.filename, content);
+            await indexFile(args.project, args.repository, args.branch, path, file.filename, content);
             numIndexed++;
             if (numIndexed === args.files.length) {
-              resolve(JSON.stringify(res));
+              resolve('done indexing files');
             }
           } catch(err) {
             reject(err);

@@ -34,9 +34,8 @@ export default async (args: Arguments<Args>): Promise<void> => {
     let finished = false;
     const callback = async (): Promise<void> => {
       try {
-        const res = await indexFiles(paths, files, branchName);
-        console.log('done indexing files:');
-        console.log(JSON.parse(res));
+        await indexFiles(paths, files, branchName);
+        console.log('done indexing files');
         resolve();
       } catch(err) {
         reject(err as Error);
