@@ -1,24 +1,11 @@
 import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
-
-@ObjectType({ description: 'file' })
-export class File {
-  @Field()
-  readonly id: ObjectId;
-  @Field({ description: 'file name' })
-  name: string;
-  @Field({ description: 'mime type' })
-  mime: string;
-  @Field({ description: 'file encoding' })
-  encoding: string;
-  @Field({ description: 'file path' })
-  path: string;
-}
+import File from './file';
 
 @ObjectType({ description: 'branch' })
 export class Branch {
   @Field()
-  readonly id: ObjectId;
+  readonly _id?: ObjectId;
   @Field({ description: 'name' })
   name: string;
   @Field(_type => [File], { description: 'files' })
@@ -28,7 +15,7 @@ export class Branch {
 @ObjectType({ description: 'repository' })
 export class Repository {
   @Field()
-  readonly id: ObjectId;
+  readonly _id?: ObjectId;
   @Field({ description: 'name' })
   name: string;
   @Field({ description: 'project' })
@@ -37,12 +24,20 @@ export class Repository {
   branches: Branch[];
 }
 
-@ObjectType({ description: 'project' })
-export class Project {
+@ObjectType({ description: 'base project' })
+export class BaseProject {
   @Field()
-  readonly id: ObjectId;
+  readonly _id?: ObjectId;
   @Field({ description: 'name' })
   name: string;
   @Field(_type => [Repository], { description: 'repositories' })
   repositories: Repository[];
+}
+
+@ObjectType({ description: 'project' })
+export class Project extends BaseProject {
+  @Field({ description: 'date created' })
+  created: number;
+  @Field({ description: 'date updated' })
+  updated: number;
 }

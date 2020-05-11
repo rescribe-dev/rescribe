@@ -1,5 +1,5 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { File } from '../schema/structure';
+import File from '../schema/file';
 
 @ArgsType()
 class FileArgs {

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
 import { Resolver, ArgsType, Args, Query } from 'type-graphql';
-import { File } from '../schema/structure';
 import { elasticClient } from '../elastic/init';
 import { getLogger } from 'log4js';
+import File from '../schema/file';
 
 const logger = getLogger();
 
