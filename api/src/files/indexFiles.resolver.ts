@@ -12,6 +12,9 @@ class IndexFilesArgs {
   @Field(() => [GraphQLUpload], { description: 'branch' })
   files: Promise<FileUpload>[];
 
+  @Field(_type => String, { description: 'project id' })
+  project: string;
+
   @Field(_type => String, { description: 'repo name' })
   repository: string;
 
@@ -26,6 +29,7 @@ class IndexFilesResolver {
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
+        const path = args.paths[i];
         const file = await args.files[i];
         // see this: https://github.com/apollographql/apollo-server/issues/3508
         // currently added a resolution as per this:
@@ -43,7 +47,7 @@ class IndexFilesResolver {
           }
           const content = buffer.toString('utf8');
           try {
-            const res = await indexFile(content, file.filename);
+            const res = await indexFile(args.project, args.repository, args.branch, path, file.filename, content);
             numIndexed++;
             if (numIndexed === args.files.length) {
               resolve(JSON.stringify(res));

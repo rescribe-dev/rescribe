@@ -29,43 +29,43 @@ public class FileHandler {
   }
 
   public static File getFileData(FileInput input) throws UnsupportedFileException {
-    String file_extension = getFileExtension(input.getName());
+    String file_extension = getFileExtension(input.getFileName());
     ParseTreeWalker walker = new ParseTreeWalker();
     ParseTree tree;
     CustomListener listener;
     switch (file_extension) {
       case "java":
         {
-          JavaLexer lexer = new JavaLexer(CharStreams.fromString(input.getContents()));
+          JavaLexer lexer = new JavaLexer(CharStreams.fromString(input.getContent()));
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           JavaParser parser = new JavaParser(tokens);
           tree = parser.compilationUnit();
           JavaDeclarationListener jdl =
-              new JavaDeclarationListener(tokens, input.getName(), input.getName());
+              new JavaDeclarationListener(tokens, input.getFileName(), input.getPath());
           walker.walk(jdl, tree);
           listener = jdl;
           break;
         }
       case "cpp":
         {
-          CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(input.getContents()));
+          CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(input.getContent()));
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           CPP14Parser parser = new CPP14Parser(tokens);
           tree = parser.translationunit();
           CPPDeclarationListener cdl =
-              new CPPDeclarationListener(tokens, input.getName(), input.getName());
+              new CPPDeclarationListener(tokens, input.getFileName(), input.getPath());
           walker.walk(cdl, tree);
           listener = cdl;
           break;
         }
       case "py":
         {
-          Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(input.getContents()));
+          Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(input.getContent()));
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           Python3Parser parser = new Python3Parser(tokens);
           tree = parser.file_input();
           Python3DeclarationListener p3dl =
-              new Python3DeclarationListener(tokens, input.getName(), input.getName());
+              new Python3DeclarationListener(tokens, input.getFileName(), input.getPath());
           walker.walk(p3dl, tree);
           listener = p3dl;
           break;

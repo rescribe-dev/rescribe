@@ -9,6 +9,7 @@ import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
 import { GraphQLError } from "graphql";
 import axios from "axios";
+import { cacheData } from "./config";
 
 const logger = getLogger();
 
@@ -20,14 +21,15 @@ export default async (paths: string[], files: Buffer[], branchName: string): Pro
   const form = new FormData();
   form.append('operations', JSON.stringify({
     query: print(gql`
-      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $repository: String!, $branch: String!) {
-        indexFiles(files: $files, paths: $paths, repository: $repository, branch: $branch)
+      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $project: String!, $repository: String!, $branch: String!) {
+        indexFiles(files: $files, paths: $paths, project: $project, repository: $repository, branch: $branch)
       }
     `),
     variables: {
       files: paths.map(() => null),
       paths: paths,
-      repository: 'test',
+      project: cacheData.project,
+      repository: cacheData.repository,
       branch: branchName
     }
   }));

@@ -1,6 +1,7 @@
 import Git, { TreeEntry } from 'nodegit';
 import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
+import { cacheData } from '../utils/config';
 
 enum OPEN_FLAG {
   OPEN_NO_SEARCH = 1,
@@ -18,6 +19,9 @@ interface Args {
 export default async (args: Arguments<Args>): Promise<void> => {
   if (!args.path) {
     args.path = '.';
+  }
+  if (cacheData.project.length === 0 || cacheData.repository.length === 0) {
+    throw new Error('project and repository need to be set with <set-project>');
   }
   const repo = await Git.Repository.openExt(args.path, OPEN_FLAG.OPEN_FROM_ENV, '/');
   const branchName = (await repo.getBranch(args.branch)).name();

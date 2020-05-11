@@ -1,25 +1,13 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import HttpStatus from 'http-status-codes';
+import { ProcessFileInput, FileOutput } from './antlrTypes';
 
 let antlrURI: string;
 
 let antlrClient: AxiosInstance;
 
-export interface ProcessFileOutput {
-  name: string;
-  content: string;
-  returnType: string | undefined;
-  startIndex: number;
-  endIndex: number;
-}
-
-export interface ProcessFileInput {
-  name: string;
-  contents: string;
-}
-
-export const processFile = (inputData: ProcessFileInput): Promise<ProcessFileOutput[]> => {
-  return antlrClient.post<ProcessFileOutput[]>('/processFile', inputData).then(res => {
+export const processFile = (inputData: ProcessFileInput): Promise<FileOutput> => {
+  return antlrClient.post<FileOutput>('/processFile', inputData).then(res => {
     if (res.status === HttpStatus.OK) {
       return res.data;
     } else {
