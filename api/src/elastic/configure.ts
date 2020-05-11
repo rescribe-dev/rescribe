@@ -24,7 +24,9 @@ const initializeMapping = async (indexName: string, indexSettings: object, index
   const setIndexMappingsRes = await elasticClient.indices.putMapping({
     index: indexName,
     type: indexType,
-    body: indexMappings,
+    body: {
+      properties: indexMappings
+    },
     include_type_name: true
   });
   logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`);

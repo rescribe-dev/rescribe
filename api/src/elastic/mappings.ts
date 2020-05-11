@@ -75,14 +75,14 @@ export const variableMappings = {
     type: 'text'
   },
   type: {
-    type: 'string'
+    type: 'keyword'
   },
   location: {
-    type: 'nested',
+    type: 'object',
     properties: locationMappings
   },
   comments: {
-    type: 'nested',
+    type: 'object',
     properties: commentMappings
   }
 };
@@ -92,22 +92,22 @@ export const functionMappings = {
     type: 'text'
   },
   arguments: {
-    type: 'nested',
+    type: 'object',
     properties: variableMappings
   },
   returnType: {
     type: 'text'
   },
   variables: {
-    type: 'nested',
+    type: 'object',
     properties: variableMappings
   },
   comments: {
-    type: 'nested',
+    type: 'object',
     properties: commentMappings
   },
   location: {
-    type: 'nested',
+    type: 'object',
     properties: locationMappings
   }
 };
@@ -117,23 +117,23 @@ export const classMappings = {
     type: 'text'
   },
   variables: {
-    type: 'nested',
+    type: 'object',
     properties: variableMappings
   },
-  constructor: {
-    type: 'nested',
+  constructorFunction: {
+    type: 'object',
     properties: functionMappings
   },
   functions: {
-    type: 'nested',
+    type: 'object',
     properties: functionMappings
   },
   location: {
-    type: 'nested',
+    type: 'object',
     properties: locationMappings
   },
   comments: {
-    type: 'nested',
+    type: 'object',
     properties: commentMappings
   }
 };
@@ -146,7 +146,7 @@ export const importMappings = {
     type: 'text'
   },
   location: {
-    type: 'nested',
+    type: 'object',
     properties: locationMappings
   }
 };
@@ -161,27 +161,19 @@ export const fileMappings = {
   branchID: {
     type: 'keyword'
   },
+  created: {
+    type: 'date',
+    format: 'epoch_millis'
+  },
+  updated: {
+    type: 'date',
+    format: 'epoch_millis'
+  },
   name: {
     type: 'text'
   },
-  classes: {
-    type: 'nested',
-    properties: classMappings
-  },
-  functions: {
-    type: 'nested',
-    properties: functionMappings
-  },
-  variables: {
-    type: 'nested',
-    properties: variableMappings
-  },
-  imports: {
-    type: 'nested',
-    properties: importMappings
-  },
   comments: {
-    type: 'nested',
+    type: 'object',
     properties: commentMappings
   },
   importPath: {
@@ -190,81 +182,20 @@ export const fileMappings = {
   path: {
     type: 'text'
   },
-  created: {
-    type: 'date',
-    format: 'epoch_millis'
+  variables: {
+    type: 'object',
+    properties: variableMappings
   },
-  updated: {
-    type: 'date',
-    format: 'epoch_millis'
+  imports: {
+    type: 'object',
+    properties: importMappings
+  },
+  functions: {
+    type: 'object',
+    properties: functionMappings
+  },
+  classes: {
+    type: 'object',
+    properties: classMappings
   }
 };
-
-/**
- *
- * mappings
- *
- * search(fuzzysearch: "test")
- * projects -> repositories, files, functions, comment in function "test"
- *
- * advanced search -> filtering repos, files, functions, etc.
- * exclude / include all of above
- * maybe you only want to search in functions for comments - not in
- * class level or variable level
- *
- * authentication -> based off of id
- *
- * list of projects you have access to
- * query -> mustHaveIn([project ids])
- * function needs to have project id so that we can filter for authentication
- * alternative is overfetching
- *
- * user id
- *
- * https://stackoverflow.com/questions/9605292/make-elasticsearch-only-return-certain-fields
- * https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-source-filtering.html
- * https://discuss.elastic.co/t/how-many-indexes-is-too-many-indexes/20139
- *
- *
- *        project
- *        repos[]
- *        files[]
- *
- *
- *    User access:
- *    project must be in [project access]
- *    repo can be in [repo access]*
- *    saved in database!
- *
- *    project _id
- *    repos[] _id project_id
- *    files[]  _id repo_id, project_id
- *    classes[] _id repo_id, project_id, file_id
- *    functions[] _id, parent_id, repo_id, project_id
- *    variables[] _id, parent_id, repo_id, project_id
- *
- *    project _id
- *    repos[] _id, project_id
- *    branches[] _id, repo_id, project_id
- *    files[]  _id, branch_id, repo_id, project_id, classes[{
- *      variables: {
- *        variableInterface
- *      },
- *      functions: [{
- *        name
- *        variables: [{
- *          name
- *        }]
- *      }]
- *    }]
- * https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
- *
- * https://mothereff.in/byte-counter
- *
- * https://www.elastic.co/guide/en/elasticsearch/reference/current/general-recommendations.html
- *
- *    IAM - organization system
- *    groups of users with special privileges
- *      for project, repo, etc.
- *
- */

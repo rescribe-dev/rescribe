@@ -126,6 +126,8 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
       final int offset = isConstructor ? 0 : 1;
       if (!isConstructor) {
         newFunction.setReturnType(ctx.getChild(0).getText());
+      } else {
+        newFunction.setReturnType("void");
       }
       newFunction.setName(ctx.getChild(offset).getText());
       if (ctx.getChild(1 + offset).getChildCount() == 3) {
@@ -152,7 +154,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
     if (this.currentClass != null) {
       Function newConstructor = processFunction(ctx, true);
-      this.currentClass.setConstructor(newConstructor);
+      this.currentClass.setConstructorFunction(newConstructor);
       this.currentFunction = newConstructor;
     }
   }

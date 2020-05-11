@@ -1,9 +1,9 @@
 export interface ClassOutput {
-     name: string;
+  name: string;
   variables: VariableOutput[];
-  constructor: FunctionOutput;
+  constructorFunction: FunctionOutput;
   functions: FunctionOutput[];
-  location: LocationOutput[];
+  location: LocationOutput;
   comments: CommentOutput[];
 }
 
@@ -13,7 +13,7 @@ export interface FunctionOutput {
   returnType: string;
   variables: VariableOutput[];
   comments: CommentOutput[];
-  location: LocationOutput[];
+  location: LocationOutput;
 }
 
 export interface VariableOutput {

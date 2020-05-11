@@ -10,7 +10,7 @@ import lombok.*;
 public class Class {
   String name;
   List<Variable> variables = new ArrayList<>();
-  Function constructor;
+  Function constructorFunction;
   List<Function> functions = new ArrayList<>();
   Location location;
   List<Comment> comments = new ArrayList<>();
