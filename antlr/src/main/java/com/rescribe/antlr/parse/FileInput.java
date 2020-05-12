@@ -9,15 +9,6 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class FileInput {
-  @NotEmpty(message = "project must be provided")
-  private final String project;
-
-  @NotEmpty(message = "repository must be provided")
-  private final String repository;
-
-  @NotEmpty(message = "branch must be provided")
-  private final String branch;
-
   @NotEmpty(message = "path must be provided")
   private final String path;
 

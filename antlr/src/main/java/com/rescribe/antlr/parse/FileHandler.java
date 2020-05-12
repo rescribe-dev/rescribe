@@ -40,8 +40,7 @@ public class FileHandler {
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           JavaParser parser = new JavaParser(tokens);
           tree = parser.compilationUnit();
-          JavaDeclarationListener jdl =
-              new JavaDeclarationListener(tokens, input.getFileName(), input.getPath());
+          JavaDeclarationListener jdl = new JavaDeclarationListener(tokens, input);
           walker.walk(jdl, tree);
           listener = jdl;
           break;
@@ -52,8 +51,7 @@ public class FileHandler {
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           CPP14Parser parser = new CPP14Parser(tokens);
           tree = parser.translationunit();
-          CPPDeclarationListener cdl =
-              new CPPDeclarationListener(tokens, input.getFileName(), input.getPath());
+          CPPDeclarationListener cdl = new CPPDeclarationListener(tokens, input);
           walker.walk(cdl, tree);
           listener = cdl;
           break;
@@ -64,8 +62,7 @@ public class FileHandler {
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           Python3Parser parser = new Python3Parser(tokens);
           tree = parser.file_input();
-          Python3DeclarationListener p3dl =
-              new Python3DeclarationListener(tokens, input.getFileName(), input.getPath());
+          Python3DeclarationListener p3dl = new Python3DeclarationListener(tokens, input);
           walker.walk(p3dl, tree);
           listener = p3dl;
           break;

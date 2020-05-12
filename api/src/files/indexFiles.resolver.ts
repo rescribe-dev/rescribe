@@ -3,6 +3,7 @@ import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { indexFile } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
+import { ObjectId } from 'mongodb';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -12,14 +13,14 @@ class IndexFilesArgs {
   @Field(() => [GraphQLUpload], { description: 'branch' })
   files: Promise<FileUpload>[];
 
-  @Field(_type => String, { description: 'project id' })
-  project: string;
+  @Field(_type => ObjectId, { description: 'project id' })
+  project: ObjectId;
 
-  @Field(_type => String, { description: 'repo name' })
-  repository: string;
+  @Field(_type => ObjectId, { description: 'repo name' })
+  repository: ObjectId;
 
-  @Field(_type => String, { description: 'branch' })
-  branch: string;
+  @Field(_type => ObjectId, { description: 'branch' })
+  branch: ObjectId;
 }
 
 @Resolver()

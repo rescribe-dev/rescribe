@@ -1,5 +1,6 @@
 package com.rescribe.antlr.parse.schema;
 
+import com.rescribe.antlr.parse.FileInput;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
@@ -17,8 +18,8 @@ public class File {
   String importPath;
   String path;
 
-  public File(String name, String path) {
-    this.name = name;
-    this.path = path;
+  public File(FileInput input) {
+    this.name = input.getFileName();
+    this.path = input.getPath();
   }
 }

@@ -3,7 +3,7 @@ import { logger } from '@typegoose/typegoose/lib/logSettings';
 import { projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { Project } from '../schema/structure';
+import { Project, BaseProject, ProjectDB, ProjectModel } from '../schema/project';
 
 @ArgsType()
 class AddProjectArgs {
@@ -17,19 +17,27 @@ class AddProjectResolver {
   async addProject(@Args() args: AddProjectArgs): Promise<string> {
     const id = new ObjectId();
     const currentTime = new Date().getTime();
-    const project: Project = {
-      created: currentTime,
-      updated: currentTime,
+    const baseProject: BaseProject = {
       name: args.name,
       repositories: []
+    };
+    const elasticProject: Project = {
+      created: currentTime,
+      updated: currentTime,
+      ...baseProject
     };
     const indexResult = await elasticClient.index({
       id: id.toHexString(),
       index: projectIndexName,
-      body: project
+      body: elasticProject
     });
     logger.info(`got add project result of ${JSON.stringify(indexResult.body)}`);
-    return `indexed project with id ${id}`;
+    const dbProject: ProjectDB = {
+      ...baseProject,
+      _id: id
+    };
+    await new ProjectModel(dbProject).save();
+    return `indexed project with id ${id.toHexString()}`;
   }
 }
 

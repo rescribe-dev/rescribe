@@ -3,6 +3,7 @@ package com.rescribe.antlr.parse.listeners;
 import com.rescribe.antlr.gen.python3.Python3BaseListener;
 import com.rescribe.antlr.gen.python3.Python3Parser;
 import com.rescribe.antlr.parse.CustomListener;
+import com.rescribe.antlr.parse.FileInput;
 import com.rescribe.antlr.parse.schema.File;
 import lombok.Getter;
 import org.antlr.v4.runtime.BufferedTokenStream;
@@ -15,10 +16,10 @@ public class Python3DeclarationListener extends Python3BaseListener implements C
     return file;
   }
 
-  public Python3DeclarationListener(BufferedTokenStream tokens, String filename, String path) {
+  public Python3DeclarationListener(BufferedTokenStream tokens, FileInput input) {
     super();
     this.tokens = tokens;
-    this.file = new File(filename, path);
+    this.file = new File(input);
   }
 
   @Override
