@@ -4,6 +4,7 @@ import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { indexFile } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
+import { StorageType } from '../schema/file';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -48,7 +49,7 @@ class IndexFilesResolver {
           }
           const content = buffer.toString('utf8');
           try {
-            await indexFile(args.project, args.repository, args.branch, path, file.filename, content);
+            await indexFile(StorageType.local, args.project, args.repository, args.branch, path, file.filename, content);
             numIndexed++;
             if (numIndexed === args.files.length) {
               resolve('done indexing files');
