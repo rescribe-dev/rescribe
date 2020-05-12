@@ -23,7 +23,7 @@ export class Repository extends BaseRepository {
   @Field({ description: 'date updated' })
   updated: number;
 }
-
+@ObjectType({ description: 'repository db' })
 @modelOptions({schemaOptions: {collection: 'repositories'}})
 export class RepositoryDB extends BaseRepository {
   @Field()

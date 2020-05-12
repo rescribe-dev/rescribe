@@ -23,6 +23,7 @@ export class Project extends BaseProject {
 }
 
 // database
+@ObjectType({description: 'project database'})
 @modelOptions({ schemaOptions: { collection: 'projects' } })
 export class ProjectDB extends BaseProject {
   @Field()

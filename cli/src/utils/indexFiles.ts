@@ -18,7 +18,7 @@ interface ResIndex {
   indexFiles: string;
 }
 
-export default async (paths: string[], files: Buffer[], _branchName: string): Promise<string> => {
+export default async (paths: string[], files: Buffer[], branch: ObjectId): Promise<string> => {
   const form = new FormData();
   form.append('operations', JSON.stringify({
     query: print(gql`
@@ -31,7 +31,7 @@ export default async (paths: string[], files: Buffer[], _branchName: string): Pr
       paths: paths,
       project: new ObjectId(),
       repository: new ObjectId(),
-      branch: new ObjectId()
+      branch
     }
   }));
   const map: any = {};
