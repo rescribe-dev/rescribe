@@ -1,5 +1,4 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { logger } from '@typegoose/typegoose/lib/logSettings';
 import { projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
@@ -26,12 +25,11 @@ class AddProjectResolver {
       updated: currentTime,
       ...baseProject
     };
-    const indexResult = await elasticClient.index({
+    await elasticClient.index({
       id: id.toHexString(),
       index: projectIndexName,
       body: elasticProject
     });
-    logger.info(`got add project result of ${JSON.stringify(indexResult.body)}`);
     const dbProject: ProjectDB = {
       ...baseProject,
       _id: id

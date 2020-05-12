@@ -8,6 +8,9 @@ export class BaseBranch {
   @Field({ description: 'name' })
   @Property({ required: true })
   name: string;
+  @Field({ description: 'repository id' })
+  @Property({ required: true })
+  repository: ObjectId;
   @Field(_type => [ObjectId], { description: 'files' })
   @Property({ required: true })
   files: ObjectId[];
@@ -22,6 +25,7 @@ export class Branch {
 }
 
 // database
+@ObjectType({description: 'branch database'})
 @modelOptions({ schemaOptions: { collection: 'projects' } })
 export class BranchDB extends BaseBranch {
   @Field()

@@ -1,35 +1,28 @@
 /* eslint-disable @typescript-eslint/camelcase */
-
-import { Resolver, ArgsType, Args, Query } from 'type-graphql';
-import { elasticClient } from '../elastic/init';
-import { repositoryIndexName } from '../elastic/settings';
+import { Resolver, ArgsType, Args, Query, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
-import { Repository } from '../schema/repository';
+import { RepositoryModel, RepositoryDB } from '../schema/repository';
 
 @ArgsType()
-class RepositoryArgs {}
+class RepositoryArgs {
+  @Field({ description: 'repository name' })
+  repository: string;
+  @Field(_type => ObjectId, { description: 'repository name' })
+  project: ObjectId;
+}
 
 @Resolver()
 class RepositoryResolver {
-  @Query(_returns => [Repository])
-  async repository(@Args() _args: RepositoryArgs): Promise<Repository[]> {
-    const elasticRepositoryData = await elasticClient.search({
-      index: repositoryIndexName,
-      body: {
-        query: {
-          match_all: {}
-        }
-      }
+  @Query(_returns => RepositoryDB)
+  async repository(@Args() args: RepositoryArgs): Promise<RepositoryDB> {
+    const repositoryResult = await RepositoryModel.findOne({
+      name: args.repository,
+      project: args.project
     });
-    const result: Repository[] = [];
-    for (const hit of elasticRepositoryData.body.hits.hits) {
-      const currentRepository: Repository = {
-        _id: new ObjectId(hit._id),
-        ...hit._source
-      };
-      result.push(currentRepository);
+    if (!repositoryResult) {
+      throw new Error('cannot find repository');
     }
-    return result;
+    return repositoryResult;
   }
 }
 

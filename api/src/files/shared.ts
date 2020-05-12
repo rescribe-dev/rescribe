@@ -4,6 +4,7 @@ import { processFile } from '../utils/antlrBridge';
 import { fileIndexName } from '../elastic/settings';
 import File, { FileModel, FileDB, StorageType } from '../schema/file';
 import { ObjectId } from 'mongodb';
+import { BranchModel } from '../schema/branch';
 
 const logger = getLogger();
 
@@ -14,6 +15,27 @@ export const indexFile = async (projectID: ObjectId, repositoryID: ObjectId, bra
     fileName,
     content,
     path
+  });
+  const currentTime = new Date().getTime();
+  const elasticContent: File = {
+    ...fileData,
+    projectID: projectID.toHexString(),
+    repositoryID: repositoryID.toHexString(),
+    branchID: branchID.toHexString(),
+    created: currentTime,
+    updated: currentTime,
+  };
+  await elasticClient.index({
+    id: id.toHexString(),
+    index: fileIndexName,
+    body: elasticContent
+  });
+  await BranchModel.updateOne({
+    _id: id
+  }, {
+    $addToSet: {
+      files: id
+    }
   });
   const newFileDB: FileDB = {
     _id: id,
@@ -26,20 +48,5 @@ export const indexFile = async (projectID: ObjectId, repositoryID: ObjectId, bra
   };
   const fileCreateRes = await new FileModel(newFileDB).save();
   logger.info(`added file ${fileCreateRes.id}`);
-  const currentTime = new Date().getTime();
-  const elasticContent: File = {
-    ...fileData,
-    projectID: projectID.toHexString(),
-    repositoryID: repositoryID.toHexString(),
-    branchID: branchID.toHexString(),
-    created: currentTime,
-    updated: currentTime,
-  };
-  const indexResult = await elasticClient.index({
-    id: id.toHexString(),
-    index: fileIndexName,
-    body: elasticContent
-  });
-  logger.info(`got index file result of ${JSON.stringify(indexResult.body)}`);
   return `indexed file with id ${id}`;
 };

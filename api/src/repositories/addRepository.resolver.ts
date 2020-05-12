@@ -1,14 +1,16 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { logger } from '@typegoose/typegoose/lib/logSettings';
 import { repositoryIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { Repository, BaseRepository, RepositoryDB, RepositoryModel } from '../schema/repository';
+import { ProjectModel } from '../schema/project';
 
 @ArgsType()
 class AddRepositoryArgs {
   @Field(_type => String, { description: 'repository name' })
   name: string;
+  @Field(_type => ObjectId, { description: 'repository name' })
+  project: ObjectId;
 }
 
 @Resolver()
@@ -20,19 +22,25 @@ class AddRepositoryResolver {
     const baseRepository: BaseRepository = {
       name: args.name,
       branches: [],
-      project: new ObjectId()
+      project: args.project
     };
     const elasticRepository: Repository = {
       created: currentTime,
       updated: currentTime,
       ...baseRepository
     };
-    const indexResult = await elasticClient.index({
+    await elasticClient.index({
       id: id.toHexString(),
       index: repositoryIndexName,
       body: elasticRepository
     });
-    logger.info(`got add repository result of ${JSON.stringify(indexResult.body)}`);
+    await ProjectModel.updateOne({
+      _id: args.project
+    }, {
+      $addToSet: {
+        repositories: id
+      }
+    });    
     const dbRepository: RepositoryDB = {
       ...baseRepository,
       _id: id
