@@ -45,6 +45,14 @@ export default class User {
   @Property({ required: true })
   type: UserType;
 
+  @Field({ description: 'github installation id' })
+  @Property({ required: true })
+  githubInstallationID: number;
+
+  @Field({ description: 'github username' })
+  @Property({ required: true })
+  githubUsername: string;
+
   @Property({ required: true })
   password: string;
 
