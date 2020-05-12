@@ -9,7 +9,8 @@ import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
 import { GraphQLError } from 'graphql';
 import axios from 'axios';
-import { cacheData } from './config';
+import { ObjectId } from 'mongodb';
+// import { cacheData } from './config';
 
 const logger = getLogger();
 
@@ -17,20 +18,20 @@ interface ResIndex {
   indexFiles: string;
 }
 
-export default async (paths: string[], files: Buffer[], branchName: string): Promise<string> => {
+export default async (paths: string[], files: Buffer[], _branchName: string): Promise<string> => {
   const form = new FormData();
   form.append('operations', JSON.stringify({
     query: print(gql`
-      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $project: String!, $repository: String!, $branch: String!) {
+      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $project: ObjectId!, $repository: ObjectId!, $branch: ObjectId!) {
         indexFiles(files: $files, paths: $paths, project: $project, repository: $repository, branch: $branch)
       }
     `),
     variables: {
       files: paths.map(() => null),
       paths: paths,
-      project: cacheData.project,
-      repository: cacheData.repository,
-      branch: branchName
+      project: new ObjectId(),
+      repository: new ObjectId(),
+      branch: new ObjectId()
     }
   }));
   const map: any = {};

@@ -6,6 +6,7 @@ import com.rescribe.antlr.gen.java.JavaLexer;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.java.JavaParserBaseListener;
 import com.rescribe.antlr.parse.CustomListener;
+import com.rescribe.antlr.parse.FileInput;
 import com.rescribe.antlr.parse.schema.*;
 import com.rescribe.antlr.parse.schema.Class;
 import java.util.ArrayList;
@@ -23,10 +24,10 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   Class currentClass = null;
   Variable currentVariable = null;
 
-  public JavaDeclarationListener(BufferedTokenStream tokens, String filename, String path) {
+  public JavaDeclarationListener(BufferedTokenStream tokens, FileInput input) {
     super();
     this.tokens = tokens;
-    this.file = new File(filename, path);
+    this.file = new File(input);
   }
 
   // get comments - reference book 209 - hidden channels

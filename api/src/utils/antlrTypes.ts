@@ -1,7 +1,7 @@
+import { ObjectId } from 'mongodb';
+
 export interface ProcessFileInput {
-  project: string;
-  repository: string;
-  branch: string;
+  id: ObjectId,
   path: string;
   fileName: string;
   content: string;

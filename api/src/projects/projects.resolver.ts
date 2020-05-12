@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
 import { Resolver, ArgsType, Args, Query } from 'type-graphql';
-import { Project } from '../schema/structure';
 import { elasticClient } from '../elastic/init';
 import { projectIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
+import { Project } from '../schema/project';
 
 @ArgsType()
 class ProjectsArgs {}
