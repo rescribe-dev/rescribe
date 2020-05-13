@@ -2,7 +2,6 @@ import { Application } from 'probot';
 import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
 import jwt from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
 import 'cross-fetch/polyfill';
 
 interface Commit {
@@ -49,6 +48,7 @@ export = (app: Application): void => {
     }
     const octokit = await app.auth();
     const repositoryName = context.payload.repository.name;
+    const repositoryID = context.payload.repository.id;
     const repositoryOwner = context.payload.repository.owner.name as string;
     const { data: installation } = await octokit.apps.getRepoInstallation({ 
       owner: repositoryOwner,
@@ -69,12 +69,12 @@ export = (app: Application): void => {
           try {
             const res = await api.mutate({
               mutation: gql`
-                mutation indexGithub($userID: ObjectId, $paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
-                  indexGithub(userID: $userID, paths: $paths, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
+                mutation indexGithub($githubRepositoryID: String!, $paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
+                  indexGithub(githubRepositoryID: $githubRepositoryID, paths: $paths, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
                 }
               `,
               variables: {
-                userID: new ObjectId(), // TODO - get user id somehow
+                githubRepositoryID: repositoryID,
                 paths: files,
                 ref,
                 repositoryName,
