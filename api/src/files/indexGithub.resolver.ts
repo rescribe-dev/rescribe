@@ -111,7 +111,7 @@ class IndexGithubResolver {
       branchID = await addBranchUtil({
         name: args.ref,
         repository: repositoryID
-      });
+      }, projectID);
     } else {
       branchID = branch._id;
     }

@@ -24,8 +24,8 @@ class ProjectsResolver {
     const result: Project[] = [];
     for (const hit of elasticProjectData.body.hits.hits) {
       const currentProject: Project = {
-        _id: new ObjectId(hit._id),
-        ...hit._source
+        ...hit._source as Project,
+        _id: new ObjectId(hit._id as string)
       };
       result.push(currentProject);
     }

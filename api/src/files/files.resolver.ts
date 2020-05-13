@@ -8,11 +8,16 @@ import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/user';
+import { RequestParams, ApiResponse } from '@elastic/elasticsearch';
 
 @ArgsType()
 class FilesArgs {
   @Field(_type => String, { description: 'query' })
   query: string;
+}
+
+interface TermQuery {
+  term: object
 }
 
 @Resolver()
@@ -26,15 +31,40 @@ class FilesResolver {
     if (!user) {
       throw new Error('cannot find user');
     }
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
     // for potentially higher search performance:
     // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
-    const elasticFileData = await elasticClient.search({
+    const shouldParams: TermQuery[] = [];
+    for (const projectID of user.projects) {
+      shouldParams.push({
+        term: {
+          projectID: projectID._id.toHexString()
+        }
+      });
+    }
+    for (const repositoryID of user.repositories) {
+      shouldParams.push({
+        term: {
+          repositoryID: repositoryID._id.toHexString()
+        }
+      });
+    }
+    const searchParams: RequestParams.Search = {
       index: fileIndexName,
       body: {
         query: {
-          multi_match: {
-            query: args.query,
-            fuzziness: 'AUTO'
+          bool: {
+            must: {
+              multi_match: {
+                query: args.query,
+                fuzziness: 'AUTO'
+              }
+            },
+            filter: {
+              bool: {
+                should: shouldParams
+              }
+            }
           }
         },
         //https://stackoverflow.com/questions/39150946/highlight-in-elasticsearch
@@ -46,7 +76,8 @@ class FilesResolver {
           post_tags: ['']
         }
       }
-    });
+    };
+    const elasticFileData: ApiResponse = await elasticClient.search(searchParams);
     const result: FileSearchResult[] = [];
     for (const hit of elasticFileData.body.hits.hits) {
       const matchFields: string[] = [];

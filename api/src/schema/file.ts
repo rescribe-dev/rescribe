@@ -71,6 +71,8 @@ export default class File extends AntlrFile {
 // result from api
 @ObjectType({ description: 'file search result' })
 export class FileSearchResult extends File {
+  @Field()
+  readonly _id: ObjectId;
   @Field(_type => [String], { description: 'matching field' })
   fields: string[];
 }
