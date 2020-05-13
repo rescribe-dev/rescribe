@@ -1,9 +1,13 @@
-import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
+import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { repositoryIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { Repository, BaseRepository, RepositoryDB, RepositoryModel } from '../schema/repository';
 import { ProjectModel } from '../schema/project';
+import { checkProjectAccess } from '../projects/auth';
+import { AccessLevel } from '../schema/access';
+import { GraphQLContext } from '../utils/context';
+import { verifyLoggedIn } from '../auth/checkAuth';
 
 @ArgsType()
 class AddRepositoryArgs {
@@ -16,13 +20,25 @@ class AddRepositoryArgs {
 @Resolver()
 class AddRepositoryResolver {
   @Mutation(_returns => String)
-  async addRepository(@Args() args: AddRepositoryArgs): Promise<string> {
+  async addRepository(@Args() args: AddRepositoryArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+    if (!verifyLoggedIn(ctx) || !ctx.auth) {
+      throw new Error('user not logged in');
+    }
+    const userID = new ObjectId(ctx.auth.id);
+    const project = await ProjectModel.findById(args.project);
+    if (!project) {
+      throw new Error('cannot find parent project');
+    }
+    if (!checkProjectAccess(userID, project, AccessLevel.edit)) {
+      throw new Error('user does not have edit permissions for project');
+    }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
     const baseRepository: BaseRepository = {
       name: args.name,
       branches: [],
-      project: args.project
+      project: args.project,
+      access: []
     };
     const elasticRepository: Repository = {
       created: currentTime,

@@ -26,6 +26,8 @@ export class FileDB {
   path: string;
   @Property({ required: true })
   location: StorageType;
+  @Property({ required: true })
+  content: string;
 }
 
 export const FileModel = getModelForClass(FileDB);

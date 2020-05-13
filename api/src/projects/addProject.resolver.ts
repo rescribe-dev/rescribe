@@ -1,9 +1,11 @@
-import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
+import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { Project, BaseProject, ProjectDB, ProjectModel } from '../schema/project';
-
+import { verifyLoggedIn } from '../auth/checkAuth';
+import { GraphQLContext } from '../utils/context';
+import Access, { AccessLevel, AccessType } from '../schema/access';
 @ArgsType()
 class AddProjectArgs {
   @Field(_type => String, { description: 'project name' })
@@ -13,12 +15,21 @@ class AddProjectArgs {
 @Resolver()
 class AddProjectResolver {
   @Mutation(_returns => String)
-  async addProject(@Args() args: AddProjectArgs): Promise<string> {
+  async addProject(@Args() args: AddProjectArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+    if (!verifyLoggedIn(ctx) || !ctx.auth) {
+      throw new Error('user not logged in');
+    }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
+    const newAccess: Access = {
+      _id: id,
+      level: AccessLevel.admin,
+      type: AccessType.user
+    };
     const baseProject: BaseProject = {
       name: args.name,
-      repositories: []
+      repositories: [],
+      access: [newAccess]
     };
     const elasticProject: Project = {
       created: currentTime,

@@ -3,7 +3,7 @@ import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
 import { nameMinLen, passwordMinLen, specialCharacterRegex, accountExists, saltRounds } from './shared';
 import { ObjectID } from 'mongodb';
-import User, { Plan, UserType, UserModel } from '../schema/auth';
+import User, { Plan, UserType, UserModel } from '../schema/user';
 
 @ArgsType()
 class RegisterArgs {

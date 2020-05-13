@@ -2,7 +2,7 @@ import { verifyLoggedIn } from './checkAuth';
 import { ObjectID } from 'mongodb';
 import { Resolver, Ctx, Query } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
-import User, { UserModel } from '../schema/auth';
+import User, { UserModel } from '../schema/user';
 
 @Resolver()
 class UserResolvers {

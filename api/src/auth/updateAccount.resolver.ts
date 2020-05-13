@@ -6,7 +6,7 @@ import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches, IsOptional } from 'class-validator';
 import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from './shared';
 import { verifyLoggedIn } from './checkAuth';
-import { UserModel } from '../schema/auth';
+import { UserModel } from '../schema/user';
 
 @ArgsType()
 class UpdateArgs {

@@ -243,8 +243,6 @@ void ImageProjection::groundRemoval() {
 
       float vertical_angle = std::atan2(dZ , sqrt(dX * dX + dY * dY + dZ * dZ));
 
-      // TODO: review this change
-
       if ( (vertical_angle - _sensor_mount_angle) <= 10 * DEG_TO_RAD) {
         _ground_mat(i, j) = 1;
         _ground_mat(i + 1, j) = 1;

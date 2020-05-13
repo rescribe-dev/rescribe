@@ -1,15 +1,17 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { logger } from '@typegoose/typegoose/lib/logSettings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { branchIndexName } from '../elastic/settings';
 import { BranchModel } from '../schema/branch';
+import { getLogger } from 'log4js';
 
 @ArgsType()
 class DeleteBranchArgs {
   @Field(_type => ObjectId, { description: 'branch id' })
   id: ObjectId;
 }
+
+const logger = getLogger();
 
 @Resolver()
 class DeleteBranchResolver {
