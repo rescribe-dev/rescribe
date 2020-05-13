@@ -21,6 +21,8 @@ export class BaseBranch {
 
 @ObjectType({ description: 'branch' })
 export class Branch {
+  @Field()
+  readonly _id?: ObjectId;
   @Field({ description: 'date created' })
   created: number;
   @Field({ description: 'date updated' })

@@ -24,6 +24,8 @@ export class BaseRepository {
 
 @ObjectType({ description: 'repository' })
 export class Repository extends BaseRepository {
+  @Field()
+  readonly _id?: ObjectId;
   @Field({ description: 'date created' })
   created: number;
   @Field({ description: 'date updated' })

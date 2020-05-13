@@ -11,7 +11,7 @@ class FileArgs {
 class FileResolver {
   @Mutation(_returns => File)
   async file(@Args() _args: FileArgs): Promise<File> {
-    throw new Error('not implemented');
+    throw new Error('not yet created');
   }
 }
 

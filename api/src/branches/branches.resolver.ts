@@ -24,8 +24,8 @@ class BranchesResolver {
     const result: Branch[] = [];
     for (const hit of elasticBranchData.body.hits.hits) {
       const currentBranch: Branch = {
-        _id: new ObjectId(hit._id),
-        ...hit._source
+        ...hit._source as Branch,
+        _id: new ObjectId(hit._id as string)
       };
       result.push(currentBranch);
     }

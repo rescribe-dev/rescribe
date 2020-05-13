@@ -24,8 +24,8 @@ class RepositoriesResolver {
     const result: Repository[] = [];
     for (const hit of elasticRepositoryData.body.hits.hits) {
       const currentRepository: Repository = {
-        _id: new ObjectId(hit._id),
-        ...hit._source
+        ...hit._source as Repository,
+        _id: new ObjectId(hit._id as string)
       };
       result.push(currentRepository);
     }
