@@ -4,3 +4,7 @@ export interface ElasticProject {
   created: number;
   updated: number;
 }
+
+export interface TermQuery {
+  term: object
+}
