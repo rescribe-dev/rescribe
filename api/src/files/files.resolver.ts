@@ -10,11 +10,20 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/user';
 import { RequestParams } from '@elastic/elasticsearch';
 import { TermQuery } from '../elastic/types';
+import { checkProjectAccess } from '../projects/auth';
+import { AccessLevel } from '../schema/access';
+import { checkRepositoryAccess } from '../repositories/auth';
 
 @ArgsType()
 class FilesArgs {
   @Field(_type => String, { description: 'query' })
   query: string;
+
+  @Field(_type => ObjectId, { description: 'project', nullable: true })
+  project?: ObjectId;
+
+  @Field(_type => ObjectId, { description: 'repository', nullable: true })
+  repository?: ObjectId;
 }
 
 @Resolver()
@@ -31,19 +40,43 @@ class FilesResolver {
     // for potentially higher search performance:
     // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
     const shouldParams: TermQuery[] = [];
-    for (const projectID of user.projects) {
-      shouldParams.push({
+    const mustParams: TermQuery[] = [];
+    if (args.repository) {
+      if (!args.project) {
+        throw new Error('project id is required');
+      }
+      if (!checkRepositoryAccess(user, args.project, args.repository, AccessLevel.view)) {
+        throw new Error('user does not have access to repository');
+      }
+      mustParams.push({
         term: {
-          projectID: projectID._id.toHexString()
+          repositoryID: args.repository
         }
       });
-    }
-    for (const repositoryID of user.repositories) {
-      shouldParams.push({
+    } else if (args.project) {
+      if (!checkProjectAccess(user, args.project, AccessLevel.view)) {
+        throw new Error('user does not have access to project');
+      }
+      mustParams.push({
         term: {
-          repositoryID: repositoryID._id.toHexString()
+          projectID: args.project
         }
       });
+    } else {
+      for (const projectID of user.projects) {
+        shouldParams.push({
+          term: {
+            projectID: projectID._id.toHexString()
+          }
+        });
+      }
+      for (const repositoryID of user.repositories) {
+        shouldParams.push({
+          term: {
+            repositoryID: repositoryID._id.toHexString()
+          }
+        });
+      }
     }
     const searchParams: RequestParams.Search = {
       index: fileIndexName,
