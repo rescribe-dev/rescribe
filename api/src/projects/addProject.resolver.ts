@@ -6,6 +6,7 @@ import { Project, BaseProject, ProjectDB, ProjectModel } from '../schema/project
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import Access, { AccessLevel, AccessType } from '../schema/access';
+import { UserModel } from '../schema/user';
 @ArgsType()
 class AddProjectArgs {
   @Field(_type => String, { description: 'project name' })
@@ -21,8 +22,9 @@ class AddProjectResolver {
     }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
+    const userID = new ObjectId(ctx.auth.id);
     const newAccess: Access = {
-      _id: id,
+      _id: userID,
       level: AccessLevel.admin,
       type: AccessType.user
     };
@@ -40,6 +42,18 @@ class AddProjectResolver {
       id: id.toHexString(),
       index: projectIndexName,
       body: elasticProject
+    });
+    const projectAccess : Access = {
+      _id: id,  
+      level: AccessLevel.admin,
+      type: AccessType.user
+    };
+    await UserModel.updateOne({
+      _id: userID,
+    }, {
+      $addToSet: {
+        projects : projectAccess
+      }
     });
     const dbProject: ProjectDB = {
       ...baseProject,

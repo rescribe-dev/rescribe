@@ -5,15 +5,16 @@ import { ObjectId } from 'mongodb';
 import { Repository, BaseRepository, RepositoryDB, RepositoryModel } from '../schema/repository';
 import { ProjectModel } from '../schema/project';
 import { checkProjectAccess } from '../projects/auth';
-import { AccessLevel } from '../schema/access';
+import Access, { AccessLevel, AccessType } from '../schema/access';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
+import { UserModel } from '../schema/user';
 
 @ArgsType()
 class AddRepositoryArgs {
   @Field(_type => String, { description: 'repository name' })
   name: string;
-  @Field(_type => ObjectId, { description: 'repository name' })
+  @Field(_type => ObjectId, { description: 'project' })
   project: ObjectId;
 }
 
@@ -25,11 +26,11 @@ class AddRepositoryResolver {
       throw new Error('user not logged in');
     }
     const userID = new ObjectId(ctx.auth.id);
-    const project = await ProjectModel.findById(args.project);
-    if (!project) {
-      throw new Error('cannot find parent project');
+    const user = await UserModel.findById(userID);
+    if (!user) {
+      throw new Error('cannot find user data');
     }
-    if (!checkProjectAccess(userID, project, AccessLevel.edit)) {
+    if (!checkProjectAccess(user, args.project, AccessLevel.edit)) {
       throw new Error('user does not have edit permissions for project');
     }
     const id = new ObjectId();
@@ -56,7 +57,19 @@ class AddRepositoryResolver {
       $addToSet: {
         repositories: id
       }
-    });    
+    });
+    const newAccess :Access = {
+      _id: id,
+      level: AccessLevel.admin,
+      type: AccessType.user
+    };
+    await UserModel.updateOne({
+      _id: userID
+    }, {
+      $addToSet: {
+        repositories: newAccess
+      }
+    });
     const dbRepository: RepositoryDB = {
       ...baseRepository,
       _id: id

@@ -47,7 +47,9 @@ class RegisterResolver {
       emailVerified: false,
       tokenVersion: 0,
       githubInstallationID: -1,
-      githubUsername: ''
+      githubUsername: '',
+      projects: [],
+     repositories: []
     };
     const userCreateRes = await new UserModel(newUser).save();
     return (`created user ${userCreateRes.id}`);

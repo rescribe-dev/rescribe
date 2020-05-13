@@ -8,9 +8,9 @@ import { StorageType } from '../schema/file';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { RepositoryModel } from '../schema/repository';
-import { ProjectModel } from '../schema/project';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/access';
+import { UserModel } from '../schema/user';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -45,12 +45,12 @@ class IndexFilesResolver {
       if (!repository) {
         throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
       }
-      const project = await ProjectModel.findById(repository.project);
-      if (!project) {
-        throw new Error('cannot find parent project');
-      }
       const userID = new ObjectId(ctx.auth.id);
-      if (!checkRepositoryAccess(userID, repository, project, AccessLevel.edit)) {
+      const user = await UserModel.findById(userID);
+      if (!user) {
+        throw new Error('cannot find user data');
+      }
+      if (!checkRepositoryAccess(user, repository.project, repository._id, AccessLevel.edit)) {
         throw new Error('user does not have edit permissions for project or repository');
       }
       let numIndexed = 0;

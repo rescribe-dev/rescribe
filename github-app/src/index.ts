@@ -69,7 +69,7 @@ export = (app: Application): void => {
           try {
             const res = await api.mutate({
               mutation: gql`
-                mutation indexGithub($githubRepositoryID: String!, $paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
+                mutation indexGithub($githubRepositoryID: Int!, $paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
                   indexGithub(githubRepositoryID: $githubRepositoryID, paths: $paths, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
                 }
               `,

@@ -1,6 +1,8 @@
 import { ObjectType, Field, registerEnumType } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import Access from './access';
+
 
 export enum Plan {
   free = 'free',
@@ -50,7 +52,7 @@ export default class User {
   githubInstallationID: number;
 
   @Field({ description: 'github username' })
-  @Property({ required: true })
+  @Property({ required: false })
   githubUsername: string;
 
   @Property({ required: true })
@@ -63,6 +65,14 @@ export default class User {
   @Field({ description: 'current token version' })
   @Property({ required: true })
   tokenVersion: number;
+
+  @Field(_type => [Access], { description: 'repository access' })
+  @Property({ required: true })
+  repositories: Access[];
+
+  @Field(_type => [Access], { description: 'project access' })
+  @Property({ required: true })
+  projects: Access[];
 }
 
 export const UserModel = getModelForClass(User);

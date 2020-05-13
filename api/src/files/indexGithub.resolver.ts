@@ -2,7 +2,7 @@ import { createClient } from '../utils/github';
 import { verifyGithub } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import yaml from 'js-yaml';
-import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
+import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/user';
 import { indexFile } from './shared';
@@ -12,13 +12,14 @@ import { BranchModel } from '../schema/branch';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
+import checkFileExtension from '../utils/checkFileExtension';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
 @ArgsType()
 class GithubIndexArgs {//https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-an-installation
   //https://developer.github.com/v3/apps/#create-a-new-installation-token
-  @Field({ description: 'github repository id' })
+  @Field(_type => Int, { description: 'github repository id' })
   githubRepositoryID: number;  
 
   @Field(_type => [String], { description: 'paths' })
@@ -33,7 +34,7 @@ class GithubIndexArgs {//https://developer.github.com/apps/building-github-apps/
   @Field(_type => String, { description: 'repo owner' })
   repositoryOwner: string;
 
-  @Field(_type => Number, { description: 'github installation id' })
+  @Field(_type => Int, { description: 'github installation id' })
   installationID: number;
 }
 
@@ -72,13 +73,12 @@ class IndexGithubResolver {
     if (!user) {
       throw new Error('Cannot find the associated account');
     }
-    if (user.githubUsername.length === 0) {
+    if (user.githubInstallationID < 0) {
       UserModel.updateOne({
         _id: user._id
       }, {
         $set: {
-          githubInstallationID: args.installationID,
-          githubUsername: args.repositoryOwner
+          githubInstallationID: args.installationID
         }
       });
     }
@@ -91,7 +91,7 @@ class IndexGithubResolver {
     // if repository or project does not exist create using client
     if (!repository) {
       try {
-        getConfigurationData(githubClient, args);
+        await getConfigurationData(githubClient, args);
         repositoryID = new ObjectId(githubConfig?.repositoryID);
         projectID = new ObjectId(githubConfig?.projectID);
       } catch(err) {
@@ -117,6 +117,9 @@ class IndexGithubResolver {
     }
     // as a stopgap use the configuration file to check for this stuff
     for (const filePath of args.paths) {
+      if (!checkFileExtension(filePath)) {
+        continue;
+      }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       await indexFile(false, StorageType.github, projectID, repositoryID, branchID, filePath, getFileName(filePath), content);
     }

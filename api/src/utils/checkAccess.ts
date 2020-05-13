@@ -1,8 +1,8 @@
 import Access, { AccessLevel } from '../schema/access';
 import { ObjectId } from 'mongodb';
 
-export const checkAccess = (userID: ObjectId, accessArray: Access[], requiredLevel: AccessLevel): boolean => {
-  const accessIndex = accessArray.findIndex(access => access._id === userID);
+export const checkAccess = (targetID: ObjectId, accessArray: Access[], requiredLevel: AccessLevel): boolean => {
+  const accessIndex = accessArray.findIndex(access => access._id.equals(targetID));
   if (accessIndex < 0) {
     return false;
   }
