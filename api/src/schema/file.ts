@@ -26,7 +26,7 @@ export class FileDB {
   path: string;
   @Property({ required: true })
   location: StorageType;
-  @Property({ required: true })
+  @Property({ required: false })
   content: string;
 }
 
@@ -54,6 +54,8 @@ export class AntlrFile {
 // input / result from elastic
 @ObjectType({ description: 'file' })
 export default class File extends AntlrFile {
+  @Field()
+  readonly _id?: ObjectId;
   @Field({ description: 'project id' })
   projectID: string;
   @Field({ description: 'repository id' })

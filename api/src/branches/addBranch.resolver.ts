@@ -6,9 +6,9 @@ import { Branch, BaseBranch, BranchDB, BranchModel } from '../schema/branch';
 import { RepositoryModel } from '../schema/repository';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { ProjectModel } from '../schema/project';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/access';
+import { UserModel } from '../schema/user';
 
 @ArgsType()
 class AddBranchArgs {
@@ -18,12 +18,13 @@ class AddBranchArgs {
   repository: ObjectId;
 }
 
-export const addBranchUtil = async (args: AddBranchArgs): Promise<ObjectId> => {
+export const addBranchUtil = async (args: AddBranchArgs, projectID: ObjectId): Promise<ObjectId> => {
   const currentTime = new Date().getTime();
     const baseBranch: BaseBranch = {
       name: args.name,
       files: [],
-      repository: args.repository
+      repository: args.repository,
+      project: projectID
     };
     const elasticBranch: Branch = {
       created: currentTime,
@@ -62,17 +63,17 @@ class AddBranchResolver {
     if (!repository) {
       throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
     }
-    const project = await ProjectModel.findById(repository.project);
-    if (!project) {
-      throw new Error('cannot find parent project');
-    }
     const userID = new ObjectId(ctx.auth.id);
-    if (!checkRepositoryAccess(userID, repository, project, AccessLevel.admin)) {
+    const user = await UserModel.findById(userID);
+    if (!user) {
+      throw new Error('cannot find user data');
+    }
+    if (!checkRepositoryAccess(user, repository.project, repository._id, AccessLevel.admin)) {
       throw new Error('user does not have admin permissions for project or repository');
     }
-    const id = await addBranchUtil(args);
+    const id = await addBranchUtil(args, repository.project);
     return `indexed branch with id ${id.toHexString()}`;
   }
-}
+} 
 
 export default AddBranchResolver;

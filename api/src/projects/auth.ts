@@ -1,8 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { checkAccess } from '../utils/checkAccess';
 import { AccessLevel } from '../schema/access';
-import { ProjectDB } from '../schema/project';
+import User from '../schema/user';
 
-export const checkProjectAccess = (userID: ObjectId, project: ProjectDB, accessLevel: AccessLevel): boolean => {
-  return checkAccess(userID, project.access, accessLevel);
+export const checkProjectAccess = (user: User, projectID: ObjectId, accessLevel: AccessLevel): boolean => {
+  return checkAccess(projectID, user.projects, accessLevel);
 };
