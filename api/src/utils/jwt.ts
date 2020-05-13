@@ -1,7 +1,7 @@
 import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
 import { Request } from 'express';
 import { nanoid } from 'nanoid';
-import User, { Plan, UserType, UserModel } from '../schema/auth';
+import User, { Plan, UserType, UserModel } from '../schema/user';
 
 export const enum jwtType { LOCAL, GITHUB }
 
@@ -217,13 +217,15 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
             type: res.type,
             emailVerified: res.emailVerified
           };
-        } else {
+        } else if (type === jwtType.GITHUB) {
           data = {
             id: nanoid(),
             plan: Plan.free,
-            type: UserType.admin,
+            type: UserType.github,
             emailVerified: true
           };
+        } else {
+          throw new Error('invalid type for jwt');
         }
         resolve(data);
       }

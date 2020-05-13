@@ -62,7 +62,6 @@ public class SwarmGraphics extends PApplet{
     }
     
     public static void main(String[] args) {
-        // TODO code application logic here
         PApplet.main("swarmgraphics.SwarmGraphics");
     }
     

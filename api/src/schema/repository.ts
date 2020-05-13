@@ -1,18 +1,22 @@
 import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import Access from './access';
 
 @ObjectType({ description : 'base repository' })
 export class BaseRepository {
-    @Field({description : 'name'})
-    @Property({required: true})
-    name:string;
-    @Field(_type => [ObjectId], { description: 'branches' })
-    @Property({required: true})
-    branches: ObjectId[];
-    @Field({ description: 'project' })
-    @Property({required: true})
-    project: ObjectId;
+  @Field({description : 'name'})
+  @Property({required: true})
+  name:string;
+  @Field(_type => [ObjectId], { description: 'branches' })
+  @Property({required: true})
+  branches: ObjectId[];
+  @Field({ description: 'project' })
+  @Property({required: true})
+  project: ObjectId;
+  @Field(_type => [Access], { description: 'repository access' })
+  @Property({ required: true })
+  access: Access[];
 }
 
 

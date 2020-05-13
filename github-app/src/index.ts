@@ -2,6 +2,7 @@ import { Application } from 'probot';
 import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
 import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
 import 'cross-fetch/polyfill';
 
 interface Commit {
@@ -68,11 +69,12 @@ export = (app: Application): void => {
           try {
             const res = await api.mutate({
               mutation: gql`
-                mutation indexGithub($paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
-                  indexGithub(paths: $paths, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
+                mutation indexGithub($userID: ObjectId, $paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
+                  indexGithub(userID: $userID, paths: $paths, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
                 }
               `,
               variables: {
+                userID: new ObjectId(), // TODO - get user id somehow
                 paths: files,
                 ref,
                 repositoryName,

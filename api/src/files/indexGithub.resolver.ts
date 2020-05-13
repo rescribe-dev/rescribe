@@ -3,11 +3,14 @@ import { verifyGithub } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
-import { UserModel } from '../schema/auth';
+import { UserModel } from '../schema/user';
 import { ObjectId } from 'mongodb';
 
 @ArgsType()
 class GithubIndexArgs {
+  @Field(_type => ObjectId, { description: 'user id' })
+  userID: ObjectId;
+
   @Field(_type => [String], { description: 'paths' })
   paths: string[];
 
@@ -34,13 +37,14 @@ class IndexGithubResolver {
     // https://github.com/octokit/graphql.js/
     // https://developer.github.com/v4/explorer/
     // https://github.community/t5/GitHub-API-Development-and/GraphQL-getting-filename-file-content-and-commit-date/td-p/17861
-    const user = await UserModel.findById(ctx.auth.id);
+    // how do I link the github app to the user?
+    const user = await UserModel.findById(args.userID);
     if (!user) {
-      throw new Error(`cannot find user ${ctx.auth.id}`);
+      throw new Error(`cannot find user ${args.userID.toHexString()}`);
     }
     if (user.githubUsername.length === 0) {
       UserModel.updateOne({
-        _id: new ObjectId(ctx.auth.id)
+        _id: args.userID
       }, {
         $set: {
           githubInstallationID: args.installationID,
@@ -51,7 +55,7 @@ class IndexGithubResolver {
     const githubClient = createClient(args.installationID);
     for (const filePath of args.paths) {
       await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
-      // TODO - elasticsearch ingestion here
+      // TODO - index the given file
       // indexFile();
     }
     return `successfully processed repo ${args.repositoryName}`;

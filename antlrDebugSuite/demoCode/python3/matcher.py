@@ -44,7 +44,6 @@ class MQTTMatcher(object):
             for k in key.split('/'):
                  parent, node = node, node._children[k]
                  lst.append((parent, k, node))
-            # TODO
             node._content = None
         except KeyError:
             raise KeyError(key)

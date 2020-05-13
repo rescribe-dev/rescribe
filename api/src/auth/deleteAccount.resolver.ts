@@ -3,7 +3,7 @@ import { verifyAdmin, verifyLoggedIn } from './checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, IsOptional } from 'class-validator';
-import User, { UserModel } from '../schema/auth';
+import User, { UserModel } from '../schema/user';
 import { DocumentType } from '@typegoose/typegoose';
 
 @ArgsType()

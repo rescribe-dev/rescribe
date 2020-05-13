@@ -3,7 +3,7 @@
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { FileModel, StorageType } from '../schema/file';
 import { ObjectId } from 'mongodb';
-import { UserModel } from '../schema/auth';
+import { UserModel } from '../schema/user';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { getGithubFile } from '../utils/getGithubFile';
@@ -50,18 +50,20 @@ const getLines = (content: string, start: number, end: number): string => {
 class FileText {
   @Query(_returns => String)
   async fileText(@Args() args: FileTextArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+    if (!verifyLoggedIn(ctx) || !ctx.auth) {
+      throw new Error('user not logged in');
+    }
     const file = await FileModel.findById(args.id);
     if (!file) {
       throw new Error(`cannot find file ${args.id.toHexString()}`);
     }
-    if (!verifyLoggedIn(ctx)) {
-      throw new Error('user not logged in');
-    }
-    const user = await UserModel.findById(ctx.auth?.id);
+    const user = await UserModel.findById(ctx.auth.id);
     if (!user) {
       throw new Error(`user ${args.id.toHexString()} cannot be found`);
     }
-    if (file.location === StorageType.github) {
+    if (file.content.length > 0) {
+      return getLines(file.content, args.start, args.end);
+    } else if (file.location === StorageType.github) {
       if (user.githubUsername.length === 0) {
         throw new Error('did not install github app');
       }
@@ -81,8 +83,10 @@ class FileText {
       const githubClient = createClient(user.githubInstallationID);
       const content = await getGithubFile(githubClient, branch.name, file.path, repository.name, user.githubUsername);
       return getLines(content, args.start, args.end);
+    } else if (file.location === StorageType.local) {
+      throw new Error('content not stored in cloud');
     } else {
-      return '';
+      throw new Error('invalid storage location');
     }
   }
 }
