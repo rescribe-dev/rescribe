@@ -10,6 +10,8 @@ import { getGithubFile } from '../utils/getGithubFile';
 import { createClient } from '../utils/github';
 import { RepositoryModel } from '../schema/repository';
 import { BranchModel } from '../schema/branch';
+import { checkRepositoryAccess } from '../repositories/auth';
+import { AccessLevel } from '../schema/access';
 
 @ArgsType()
 class FileTextArgs {
@@ -60,6 +62,9 @@ class FileText {
     const user = await UserModel.findById(ctx.auth.id);
     if (!user) {
       throw new Error(`user ${args.id.toHexString()} cannot be found`);
+    }
+    if (!checkRepositoryAccess(user, file.projectID, file.repositoryID, AccessLevel.view)) {
+      throw new Error('user not authorized to view file');
     }
     if (file.content.length > 0) {
       return getLines(file.content, args.start, args.end);

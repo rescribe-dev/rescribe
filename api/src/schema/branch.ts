@@ -20,7 +20,7 @@ export class BaseBranch {
 }
 
 @ObjectType({ description: 'branch' })
-export class Branch {
+export class Branch extends BaseBranch {
   @Field()
   readonly _id?: ObjectId;
   @Field({ description: 'date created' })
