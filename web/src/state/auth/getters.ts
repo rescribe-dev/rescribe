@@ -2,11 +2,11 @@ import jwt from 'jsonwebtoken';
 import { store } from '../reduxWrapper';
 import { logout, setToken } from './actions';
 import { axiosClient } from '../../utils/axios';
-import { AuthState } from './types';
 import { runLogout } from './thunks';
+import { RootState } from '..';
 
 export const getAuthToken = () => {
-  return store.getState().authReducer.authToken;
+  return (store.getState() as RootState).authReducer.authToken;
 };
 
 interface RefreshRes {
@@ -25,14 +25,14 @@ export const refreshAuth = async (): Promise<void> => {
 };
 
 export const isLoggedIn = async () => {
-  const state = store.getState().authReducer as AuthState;
+  const state = (store.getState() as RootState).authReducer;
   if (!state.loggedIn) {
     return false;
   }
   const checkAuthCallback = async (): Promise<boolean> => {
     try {
       await refreshAuth();
-      const state = store.getState().authReducer as AuthState;
+      const state = (store.getState() as RootState).authReducer;
       return state.authToken !== undefined && state.authToken.length > 0;
     } catch (err) {
       await runLogout();

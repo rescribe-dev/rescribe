@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { client } from '../../utils/apollo';
 import { LoginInput, User } from './types';
 import { login, setUser, logout } from './actions';
+import { setProject } from '../project/actions';
 
 interface LoginRes {
   login: string;
@@ -61,6 +62,12 @@ export const thunkLogout = (): AppThunkAction<Promise<void>> => async (
   dispatch
 ) => {
   await runLogout();
+  dispatch(
+    setProject({
+      name: '',
+      id: null,
+    })
+  );
   dispatch(logout());
 };
 
