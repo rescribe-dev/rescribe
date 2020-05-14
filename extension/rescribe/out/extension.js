@@ -4,6 +4,12 @@ exports.deactivate = exports.activate = void 0;
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/source-control-sample
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/completions-sample
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/tree-view-sample
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/statusbar-sample
+//https://github.com/Microsoft/vscode-extension-samples
+//https://code.visualstudio.com/api/extension-guides/overview
 function activate(context) {
     let provider1 = vscode.languages.registerCompletionItemProvider('plaintext', {
         provideCompletionItems(document, position, token, context) {
