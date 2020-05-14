@@ -2,7 +2,12 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/source-control-sample
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/completions-sample
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/tree-view-sample
+//https://github.com/Microsoft/vscode-extension-samples/tree/master/statusbar-sample
+//https://github.com/Microsoft/vscode-extension-samples
+//https://code.visualstudio.com/api/extension-guides/overview
 
 export function activate(context: vscode.ExtensionContext) {
 	let provider1 = vscode.languages.registerCompletionItemProvider('plaintext', {
