@@ -24,6 +24,9 @@ class FilesArgs {
 
   @Field(_type => ObjectId, { description: 'repository', nullable: true })
   repository?: ObjectId;
+
+  @Field(_type => ObjectId, { description: 'branch', nullable: true })
+  branch?: ObjectId;
 }
 
 @Resolver()
@@ -48,11 +51,19 @@ class FilesResolver {
       if (!checkRepositoryAccess(user, args.project, args.repository, AccessLevel.view)) {
         throw new Error('user does not have access to repository');
       }
-      mustParams.push({
-        term: {
-          repositoryID: args.repository
-        }
-      });
+      if (args.branch) {
+        mustParams.push({
+          term: {
+            branchID: args.branch
+          }
+        });
+      } else {
+        mustParams.push({
+          term: {
+            repositoryID: args.repository
+          }
+        });
+      }
     } else if (args.project) {
       if (!checkProjectAccess(user, args.project, AccessLevel.view)) {
         throw new Error('user does not have access to project');
@@ -95,7 +106,7 @@ class FilesResolver {
               }
             }
           }
-        },
+        }, // https://discuss.elastic.co/t/providing-weight-to-individual-fields/63081/3
         //https://stackoverflow.com/questions/39150946/highlight-in-elasticsearch
         highlight: {
           fields: {

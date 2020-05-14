@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const snippetCompletion = new vscode.CompletionItem('Good part of the day');
 			snippetCompletion.insertText = new vscode.SnippetString('Good ${1|morning,afternoon,evening|}. It is ${1}, right?');
 			snippetCompletion.documentation = new vscode.MarkdownString('inserts a snippet that lets you select the appropriate time of the day');
-
+      // location to do search request and get data to insert
 			//comp item that can be accpted by a commit character, the commit characters property is set which means that the completion will be 
 			//inserted and then the character will be typed
 			const commitCharacterCompletion = new vscode.CompletionItem('//..');

@@ -17,7 +17,7 @@ class IndexFilesArgs {
   @Field(_type => [String], { description: 'paths' })
   paths: string[];
 
-  @Field(() => [GraphQLUpload], { description: 'branch' })
+  @Field(() => [GraphQLUpload], { description: 'files' })
   files: Promise<FileUpload>[];
 
   @Field(_type => ObjectId, { description: 'project id' })
