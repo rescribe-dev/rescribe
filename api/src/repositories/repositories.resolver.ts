@@ -33,6 +33,9 @@ class RepositoriesResolver {
     const mustParams: TermQuery[] = [];
     const shouldParams: TermQuery[] = [];
     if (!args.project) {
+      if (user.repositories.length === 0 && user.projects.length === 0) {
+        return [];
+      }
       for (const projectID of user.projects) {
         shouldParams.push({
           term: {

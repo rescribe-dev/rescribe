@@ -8,6 +8,3 @@ generates:
       - typescript-operations
       - typescript-document-nodes
       - fragment-matcher
-# src/lib/generated/react-components.tsx:
-#   plugins:
-#     - typescript-react-apollo

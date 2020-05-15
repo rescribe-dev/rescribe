@@ -74,6 +74,9 @@ class FilesResolver {
         }
       });
     } else {
+      if (user.repositories.length === 0 && user.projects.length === 0) {
+        return [];
+      }
       for (const projectID of user.projects) {
         shouldParams.push({
           term: {

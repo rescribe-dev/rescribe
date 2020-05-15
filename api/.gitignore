@@ -10,5 +10,3 @@ lib_test
 .env
 # ignore swap files
 *.swp
-# ignore generated graphql file
-schema.graphql

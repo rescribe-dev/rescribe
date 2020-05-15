@@ -1,0 +1,15 @@
+query files($query: String!) {
+  files(query: $query) {
+    _id
+    name
+    classes {
+      name
+    }
+    functions {
+      name
+    }
+    variables {
+      name
+    }          
+  }
+}

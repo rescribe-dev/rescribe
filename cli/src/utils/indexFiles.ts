@@ -1,7 +1,6 @@
 import { getLogger } from 'log4js';
 import FormData from 'form-data';
 import mime from 'mime-types';
-import gql from 'graphql-tag';
 import { basename } from 'path';
 import { axiosClient, axiosRequestTimeout } from './api';
 import { AxiosError } from 'axios';
@@ -10,6 +9,7 @@ import { print } from 'graphql/language/printer';
 import { GraphQLError } from 'graphql';
 import axios from 'axios';
 import { ObjectId } from 'mongodb';
+import { IndexFiles, IndexFilesMutationVariables } from '../lib/generated/datamodel';
 // import { cacheData } from './config';
 
 const logger = getLogger();
@@ -20,19 +20,16 @@ interface ResIndex {
 
 export default async (paths: string[], files: Buffer[], branch: ObjectId): Promise<string> => {
   const form = new FormData();
+  const variables: IndexFilesMutationVariables = {
+    files: paths.map(() => null),
+    paths: paths,
+    project: new ObjectId(),
+    repository: new ObjectId(),
+    branch
+  };
   form.append('operations', JSON.stringify({
-    query: print(gql`
-      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $project: ObjectId!, $repository: ObjectId!, $branch: ObjectId!) {
-        indexFiles(files: $files, paths: $paths, project: $project, repository: $repository, branch: $branch)
-      }
-    `),
-    variables: {
-      files: paths.map(() => null),
-      paths: paths,
-      project: new ObjectId(),
-      repository: new ObjectId(),
-      branch
-    }
+    query: print(IndexFiles),
+    variables
   }));
   const map: any = {};
   for (let i = 0; i < paths.length; i++) {

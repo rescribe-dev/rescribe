@@ -22,6 +22,9 @@ class ProjectsResolver {
     if (!user) {
       throw new Error('cannot find user');
     }
+    if (user.projects.length === 0) {
+      return [];
+    }
     const shouldParams: TermQuery[] = [];
     for (const projectID of user.projects) {
       shouldParams.push({
