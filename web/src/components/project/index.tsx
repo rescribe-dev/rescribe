@@ -9,20 +9,15 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../state';
 import ObjectId from 'bson-objectid';
 import { useQuery } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import { toast } from 'react-toastify';
+import {
+  Repositories,
+  RepositoriesQuery,
+  RepositoriesQueryVariables,
+} from '../../lib/generated/datamodel';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ProjectPageDataType {}
-
-interface Repository {
-  _id: string;
-  name: string;
-}
-
-interface RepositoryRes {
-  repositories: Repository[];
-}
 
 const ProjectPage = (_args: PageProps<ProjectPageDataType>) => {
   const project = useSelector<RootState, ObjectId | null>((state) => {
@@ -31,25 +26,18 @@ const ProjectPage = (_args: PageProps<ProjectPageDataType>) => {
       : null;
   });
   if (!project) {
-    return null;
+    return <div></div>;
   }
   // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
 
-  const { loading, error, data } = useQuery<RepositoryRes>(
-    gql`
-      query repositories($project: ObjectId!) {
-        repositories(project: $project) {
-          _id
-          name
-        }
-      }
-    `,
-    {
-      variables: {
-        project,
-      },
-    }
-  );
+  const { loading, error, data } = useQuery<
+    RepositoriesQuery,
+    RepositoriesQueryVariables
+  >(Repositories, {
+    variables: {
+      project,
+    },
+  });
   if (error) {
     toast(error.message, {
       type: 'error',

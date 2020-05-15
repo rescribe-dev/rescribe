@@ -1,0 +1,6 @@
+query branches($repository: ObjectId!, $project: ObjectId!) {
+  branches(repository: $repository, project: $project) {
+    _id
+    name
+  }
+}

@@ -75,9 +75,19 @@
     "clean": "gatsby clean && rm -rf dist && rm -rf gatsby/.gatsby",
     "precommit": "yarn lint",
     "storybook": "start-storybook -p 9000 -c .storybook",
-    "build-storybook": "build-storybook -c .storybook -o dist-storybook"
+    "build-storybook": "build-storybook -c .storybook -o dist-storybook",
+    "codegen": "graphql-codegen --config codegen.yml"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "1.13.5",
+    "@graphql-codegen/fragment-matcher": "^1.13.5",
+    "@graphql-codegen/introspection": "1.13.5",
+    "@graphql-codegen/typescript": "1.13.5",
+    "@graphql-codegen/typescript-document-nodes": "^1.13.5",
+    "@graphql-codegen/typescript-graphql-files-modules": "^1.13.5",
+    "@graphql-codegen/typescript-operations": "^1.13.5",
+    "@graphql-codegen/typescript-react-apollo": "^1.13.5",
+    "@graphql-codegen/typescript-type-graphql": "^1.13.5",
     "@storybook/addon-actions": "^5.3.18",
     "@storybook/addon-knobs": "^5.3.18",
     "@storybook/addon-links": "^5.3.18",

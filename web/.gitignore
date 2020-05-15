@@ -10,3 +10,6 @@ public/
 yarn-error.log
 .env.*
 dist-storybook
+
+# ignore generated
+# src/lib/generated/
