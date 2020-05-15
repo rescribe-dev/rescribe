@@ -1,0 +1,3 @@
+query fileText($id: ObjectId!, $start: Int!, $end: Int!) {
+  fileText(id: $id, start: $start, end: $end)
+}
