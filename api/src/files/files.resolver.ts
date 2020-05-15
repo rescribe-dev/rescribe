@@ -2,7 +2,7 @@
 
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
-import File, { FileSearchResult } from '../schema/file';
+import File, { SearchResult } from '../schema/file';
 import { fileIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -31,8 +31,8 @@ class FilesArgs {
 
 @Resolver()
 class FilesResolver {
-  @Query(_returns => [FileSearchResult])
-  async files(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<FileSearchResult[]> {
+  @Query(_returns => [SearchResult])
+  async files(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<SearchResult[]> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
@@ -121,20 +121,40 @@ class FilesResolver {
       }
     };
     const elasticFileData = await elasticClient.search(searchParams);
-    const result: FileSearchResult[] = [];
+    const results: SearchResult[] = [];
     for (const hit of elasticFileData.body.hits.hits) {
-      const matchFields: string[] = [];
-      for (const fieldKey in hit.highlight) {
-        matchFields.push(`${fieldKey}:${hit.highlight[fieldKey]}`);
+      const highlights = hit.highlight as { [key: string]: string };
+      for (const path in highlights) {
+        const pathSplit = path.split('.');
+        const lastKey = pathSplit.pop();
+        let currentElement = hit._source;
+        let inClass = false;
+        let inFunction = false;
+        for (const key of pathSplit) {
+          currentElement = currentElement[key];
+        }
+        // 
+        switch (fieldKey) {
+          
+          "highlight": {
+            "classes.functions.arguments.name": [
+              "asdf"
+            ]
+          }
+
+          case 'variables':
+            // you got a variable
+            results.push({
+              _id: new ObjectId(hit._id as string),
+              description: '',  
+              details: '',
+              location: null,
+              name: ''
+            })
+        }
       }
-      const currentFile: FileSearchResult = {
-        ...hit._source as File,
-        _id: new ObjectId(hit._id as string),
-        fields: matchFields
-      };
-      result.push(currentFile);
     }
-    return result;
+    return results;
   }
 }
 

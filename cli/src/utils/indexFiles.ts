@@ -10,6 +10,7 @@ import { GraphQLError } from 'graphql';
 import axios from 'axios';
 import { ObjectId } from 'mongodb';
 import { IndexFiles, IndexFilesMutationVariables } from '../lib/generated/datamodel';
+import { cacheData } from './config';
 // import { cacheData } from './config';
 
 const logger = getLogger();
@@ -23,8 +24,8 @@ export default async (paths: string[], files: Buffer[], branch: ObjectId): Promi
   const variables: IndexFilesMutationVariables = {
     files: paths.map(() => null),
     paths: paths,
-    project: new ObjectId(),
-    repository: new ObjectId(),
+    project: cacheData.project,
+    repository: cacheData.repository,
     branch
   };
   form.append('operations', JSON.stringify({

@@ -1,0 +1,5 @@
+query repository($name: String!, $project: ObjectId!) {
+  repository(name: $name, project: $project) {
+    _id
+  }
+}

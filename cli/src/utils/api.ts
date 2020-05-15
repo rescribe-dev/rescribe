@@ -78,6 +78,9 @@ export const initializeAPIClient = async (): Promise<void> => {
   initializeApolloHttpClient();
   initializeApolloClient();
   axiosClient = axios.create({
-    baseURL: baseAPIURL
+    baseURL: baseAPIURL,
+    headers: {
+      Authorization: configData.authToken ? `Bearer ${configData.authToken}` : ''
+    }
   });
 };

@@ -1,4 +1,4 @@
 # ignore output
 out/
 node_modules/
-src/lib/generated
+#src/lib/generated

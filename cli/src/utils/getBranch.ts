@@ -1,27 +1,16 @@
 import { ObjectId } from 'mongodb';
 import { apolloClient } from './api';
-import gql from 'graphql-tag';
 import { cacheData } from './config';
+import { Branch, BranchQuery, BranchQueryVariables } from '../lib/generated/datamodel';
 
-export interface ResBranch {
-  branch: {
-    _id: string;
-  }
-}
-
-export const getBranch = async (branchName: string): Promise<ResBranch> => {
-  const branchRes = await apolloClient.query<ResBranch>({
-    query: gql`
-      query branch($repository: ObjectId!, $branch: String!) {
-        branch(repository: $repository, branch: $branch) {
-          _id
-        }
-      }
-    `,
-    variables: {
-      repository: new ObjectId(cacheData.repository),
-      branch: branchName
-    }
+export const getBranch = async (branchName: string): Promise<BranchQuery> => {
+  const variables: BranchQueryVariables = {
+    repository: new ObjectId(cacheData.repository),
+    name: branchName
+  };
+  const branchRes = await apolloClient.query<BranchQuery, BranchQueryVariables>({
+    query: Branch,
+    variables
   });
   return branchRes.data;
 };

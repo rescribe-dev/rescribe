@@ -1,9 +1,6 @@
 import { gql } from 'apollo-server-express';
-import { getLogger } from 'log4js';
 import { print } from 'graphql/language/printer';
 import { graphql } from '@octokit/graphql/dist-types/types';
-
-const logger = getLogger();
 
 interface GithubFileRes {
   isBinary: boolean;
@@ -35,6 +32,5 @@ export const getGithubFile = async (githubClient: graphql, ref: string, path: st
   if (fileData.isBinary) {
     throw new Error(`file ${expression} is binary`);
   }
-  logger.info(`got text for ${expression}`);
   return fileData.text;
 };

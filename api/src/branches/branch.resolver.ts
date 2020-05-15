@@ -10,11 +10,18 @@ import { UserModel } from '../schema/user';
 import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/access';
+import { TermQuery } from '../elastic/types';
 
 @ArgsType()
 class BranchArgs {
-  @Field(_type => ObjectId, { description: 'branch id' })
-  id: ObjectId;
+  @Field(_type => ObjectId, { description: 'branch id', nullable: true })
+  id?: ObjectId;
+
+  @Field({ description: 'branch name', nullable: true })
+  name?: string;
+
+  @Field(_type => ObjectId, { description: 'repository id', nullable: true })
+  repository?: ObjectId;
 }
 
 @Resolver()
@@ -29,14 +36,62 @@ class BranchResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    const branchData = await elasticClient.get({
-      id: args.id.toHexString(),
-      index: branchIndexName
-    });
-    const branch: Branch = {
-      ...branchData.body._source as Branch,
-      _id: new ObjectId(branchData.body._id as string)
-    };
+    let branch: Branch;
+    if (args.id) {
+      const branchData = await elasticClient.get({
+        id: args.id.toHexString(),
+        index: branchIndexName
+      });
+      branch = {
+        ...branchData.body._source as Branch,
+        _id: new ObjectId(branchData.body._id as string)
+      };
+    } else if (args.name && args.repository) {
+      const shouldParams: TermQuery[] = [];
+      for (const projectID of user.projects) {
+        shouldParams.push({
+          term: {
+            project: projectID._id.toHexString()
+          }
+        });
+      }
+      for (const repositoryID of user.repositories) {
+        shouldParams.push({
+          term: {
+            repository: repositoryID._id.toHexString()
+          }
+        });
+      }
+      const mustParams: TermQuery[] = [{
+        term: {
+          name: args.name
+        }
+      }, {
+        term: {
+          repository: args.repository.toHexString()
+        }
+      }];
+      const branchData = await elasticClient.search({
+        index: branchIndexName,
+        body: {
+          query: {
+            bool: {
+              should: shouldParams,
+              must: mustParams
+            }
+          }
+        }
+      });
+      if (branchData.body.hits.hits.length === 0) {
+        throw new Error('could not find branch');
+      }
+      branch = {
+        ...branchData.body.hits.hits[0]._source as Branch,
+        _id: new ObjectId(branchData.body.hits.hits[0]._id as string)
+      };
+    } else {
+      throw new Error('user must supply name or id');
+    }
     if (!checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.view)) {
       throw new Error('user not authorized to view branch');
     }

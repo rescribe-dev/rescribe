@@ -9,11 +9,18 @@ import { UserModel } from '../schema/user';
 import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess } from './auth';
 import { AccessLevel } from '../schema/access';
+import { TermQuery } from '../elastic/types';
 
 @ArgsType()
 class RepositoryArgs {
-  @Field(_type => ObjectId, { description: 'repository id' })
-  id: ObjectId;
+  @Field(_type => ObjectId, { description: 'repository id', nullable: true })
+  id?: ObjectId;
+
+  @Field(_type => ObjectId, { description: 'project id', nullable: true })
+  project?: ObjectId;
+
+  @Field({ description: 'project id', nullable: true })
+  name?: string;
 }
 
 @Resolver()
@@ -28,15 +35,56 @@ class RepositoryResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    const repositoryData = await elasticClient.get({
-      id: args.id.toHexString(),
-      index: repositoryIndexName
-    });
-    const repository: Repository = {
-      ...repositoryData.body._source as Repository,
-      _id: new ObjectId(repositoryData.body._id as string)
-    };
-    if (!checkRepositoryAccess(user, repository.project, args.id, AccessLevel.view)) {
+    let repository: Repository;
+    if (args.id) {
+      const repositoryData = await elasticClient.get({
+        id: args.id.toHexString(),
+        index: repositoryIndexName
+      });
+      repository = {
+        ...repositoryData.body._source as Repository,
+        _id: new ObjectId(repositoryData.body._id as string)
+      };
+    } else if (args.name && args.project) {
+      const shouldParams: TermQuery[] = [];
+      for (const projectID of user.projects) {
+        shouldParams.push({
+          term: {
+            project: projectID._id.toHexString()
+          }
+        });
+      }
+      const mustParams: TermQuery[] = [{
+        term: {
+          name: args.name
+        }
+      }, {
+        term: {
+          project: args.project.toHexString()
+        }
+      }];
+      const repositoryData = await elasticClient.search({
+        index: repositoryIndexName,
+        body: {
+          query: {
+            bool: {
+              should: shouldParams,
+              must: mustParams
+            }
+          }
+        }
+      });
+      if (repositoryData.body.hits.hits.length === 0) {
+        throw new Error('could not find repository');
+      }
+      repository = {
+        ...repositoryData.body.hits.hits[0]._source as Repository,
+        _id: new ObjectId(repositoryData.body.hits.hits[0]._id as string)
+      };
+    } else {
+      throw new Error('user must supply name or id');
+    }
+    if (!checkRepositoryAccess(user, repository.project, repository._id as ObjectId, AccessLevel.view)) {
       throw new Error('user not authorized to view repository');
     }
     return repository;

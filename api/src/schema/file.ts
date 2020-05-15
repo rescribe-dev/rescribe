@@ -62,6 +62,10 @@ export default class File extends AntlrFile {
   repositoryID: string;
   @Field({ description: 'branch id' })
   branchID: string;
+  @Field({ description: 'path' })
+  path: string;
+  @Field({ description: 'storage location' })
+  location: StorageType;
   @Field({ description: 'date created' })
   created: number;
   @Field({ description: 'date updated' })
@@ -69,10 +73,16 @@ export default class File extends AntlrFile {
 }
 
 // result from api
-@ObjectType({ description: 'file search result' })
-export class FileSearchResult extends File {
-  @Field()
+@ObjectType({ description: 'search result' })
+export class SearchResult {
+  @Field({ description: 'file id' })
   readonly _id: ObjectId;
-  @Field(_type => [String], { description: 'matching field' })
-  fields: string[];
+  @Field({ description: "location - line numbers" })
+  location: Location;
+  @Field({ description: "name" })
+  name: string;
+  @Field({ description: "main description" })
+  description: string;
+  @Field({ description: "further details" })
+  details: string;
 }
