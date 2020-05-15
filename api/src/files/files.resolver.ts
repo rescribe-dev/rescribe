@@ -133,15 +133,15 @@ class FilesResolver {
         for (const key of pathSplit) {
           currentElement = currentElement[key];
         }
-        // 
-        switch (fieldKey) {
-          
-          "highlight": {
+        // classes.functions.arguments.name
+        /**
+         * "highlight": {
             "classes.functions.arguments.name": [
               "asdf"
             ]
           }
-
+         */
+        switch (fieldKey) {
           case 'variables':
             // you got a variable
             results.push({
