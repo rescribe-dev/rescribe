@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
+import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { FileModel, StorageType } from '../schema/file';
 import { ObjectId } from 'mongodb';
 import { UserModel } from '../schema/user';
@@ -17,9 +17,9 @@ import { AccessLevel } from '../schema/access';
 class FileTextArgs {
   @Field(_type => ObjectId, { description: 'file id' })
   id: ObjectId;
-  @Field(_type => Number, { description: 'start line' })
+  @Field(_type => Int, { description: 'start line' })
   start: number;
-  @Field(_type => Number, { description: 'end line' })
+  @Field(_type => Int, { description: 'end line' })
   end: number;
 }
 

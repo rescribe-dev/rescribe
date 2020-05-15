@@ -468,10 +468,10 @@ type Query {
     id: ObjectId!
 
     # start line
-    start: Float!
+    start: Int!
 
     # end line
-    end: Float!
+    end: Int!
   ): String!
   hello: String!
   project(
