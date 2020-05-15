@@ -1,21 +1,27 @@
 import { AppThunkAction } from '../thunk';
-import gql from 'graphql-tag';
 import { client } from '../../utils/apollo';
-import { LoginInput, User } from './types';
 import { login, setUser, logout } from './actions';
 import { setProject } from '../project/actions';
+import {
+  Logout,
+  LogoutMutation,
+  LoginMutationVariables,
+  LoginMutation,
+  Login,
+  LogoutMutationVariables,
+  User,
+  UserQuery,
+  UserQueryVariables,
+} from '../../lib/generated/datamodel';
+import { UserType } from './types';
 
 interface LoginRes {
   login: string;
 }
 
-const checkAuth = async (args: LoginInput): Promise<string> => {
-  const apolloRes = await client.mutate<LoginRes>({
-    mutation: gql`
-      mutation login($email: String!, $password: String!) {
-        login(email: $email, password: $password)
-      }
-    `,
+const checkAuth = async (args: LoginMutationVariables): Promise<string> => {
+  const apolloRes = await client.mutate<LoginMutation, LoginMutationVariables>({
+    mutation: Login,
     variables: args,
   });
   if (apolloRes.data) {
@@ -26,7 +32,7 @@ const checkAuth = async (args: LoginInput): Promise<string> => {
 };
 
 export const thunkLogin = (
-  args: LoginInput
+  args: LoginMutationVariables
 ): AppThunkAction<Promise<void>> => async (dispatch) => {
   const authToken = await checkAuth(args);
   dispatch(
@@ -38,17 +44,12 @@ export const thunkLogin = (
   );
 };
 
-interface LogoutRes {
-  logout: string;
-}
-
 export const runLogout = async (): Promise<string> => {
-  const apolloRes = await client.mutate<LogoutRes>({
-    mutation: gql`
-      mutation logout {
-        logout
-      }
-    `,
+  const apolloRes = await client.mutate<
+    LogoutMutation,
+    LogoutMutationVariables
+  >({
+    mutation: Logout,
     variables: {},
   });
   if (apolloRes.data) {
@@ -71,21 +72,9 @@ export const thunkLogout = (): AppThunkAction<Promise<void>> => async (
   dispatch(logout());
 };
 
-interface UserDataType {
-  user: User;
-}
-
-const getUser = async (): Promise<User> => {
-  const apolloRes = await client.query<UserDataType>({
-    query: gql`
-      query user {
-        user {
-          name
-          email
-          plan
-        }
-      }
-    `,
+const getUser = async (): Promise<UserType> => {
+  const apolloRes = await client.query<UserQuery, UserQueryVariables>({
+    query: User,
     variables: {},
   });
   if (apolloRes.data) {

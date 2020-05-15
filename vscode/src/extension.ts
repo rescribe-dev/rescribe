@@ -4,8 +4,8 @@ import { initializeAPIClient } from './utils/api';
 import login from './commands/login';
 import getUser from './commands/getUser';
 import indexFiles from './commands/indexFiles';
-import { callerProvider } from './commands/callerProvider'
-import { commandProvider } from './commands/commandProvider'
+import { callerProvider } from './commands/callerProvider';
+import { commandProvider } from './commands/commandProvider';
 
 const appName = 'rescribe';
 
@@ -16,23 +16,22 @@ export const activate = async (
   await initializeConfig(context);
   await initializeAPIClient(context);
 
-
-
   context.subscriptions.push(
     vscode.commands.registerCommand(`${appName}.callerProvider`, () => {
-      callerProvider
+      callerProvider;
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(`${appName}.commandProvider`, () => {
-      commandProvider
+      commandProvider;
     })
   );
 
-  context.subscriptions.push(vscode.commands.registerCommand(`${appName}.sayHello`, (name: string = 'world') => {
-    vscode.window.showInformationMessage(`Hello ${name}!!!`);
-  })
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`${appName}.sayHello`, (name = 'world') => {
+      vscode.window.showInformationMessage(`Hello ${name}!!!`);
+    })
   );
 
   context.subscriptions.push(

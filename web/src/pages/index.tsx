@@ -4,19 +4,9 @@ import { Container } from 'reactstrap';
 import Layout from '../layouts/index';
 import SEO from '../components/seo';
 import './index.scss';
-import gql from 'graphql-tag';
 import { isSSR } from '../utils/checkSSR';
 import { useQuery } from '@apollo/react-hooks';
-
-const hello = gql`
-  query hello {
-    hello
-  }
-`;
-
-interface HelloRes {
-  hello: string;
-}
+import { HelloQuery, Hello } from '../lib/generated/datamodel';
 
 interface IndexPageProps {
   data: {};
@@ -24,7 +14,7 @@ interface IndexPageProps {
 
 const IndexPage = (_args: IndexPageProps) => {
   if (!isSSR) {
-    console.log(useQuery<HelloRes | undefined>(hello).data?.hello);
+    console.log(useQuery<HelloQuery | undefined>(Hello).data?.hello);
   }
   return (
     <Layout>

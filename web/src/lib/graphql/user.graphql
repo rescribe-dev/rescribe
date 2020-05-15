@@ -1,0 +1,10 @@
+
+query user {
+  user {
+    name
+    email
+    plan
+    _id
+    type
+  }
+}
