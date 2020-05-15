@@ -25,13 +25,14 @@
     "prepublishOnly": "npm run build",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
     "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
-    "build": "tsc",
+    "build": "npm run codegen && tsc",
     "test": "jest",
     "coverage": "jest --coverage",
     "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
     "watch:test": "jest --watch",
     "package": "pkg . --out-path=dist && cp node_modules/nodegit/build/Release/nodegit.node dist/nodegit.node",
-    "build:package": "npm run build && npm run package"
+    "build:package": "npm run build && npm run package",
+    "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "apollo-cache-inmemory": "^1.6.5",
@@ -64,6 +65,14 @@
     "yargs": "^15.3.1"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.13.5",
+    "@graphql-codegen/fragment-matcher": "^1.13.5",
+    "@graphql-codegen/introspection": "1.13.5",
+    "@graphql-codegen/typescript": "1.13.5",
+    "@graphql-codegen/typescript-document-nodes": "^1.13.5",
+    "@graphql-codegen/typescript-graphql-files-modules": "^1.13.5",
+    "@graphql-codegen/typescript-operations": "^1.13.5",
+    "@graphql-codegen/typescript-type-graphql": "^1.13.5",
     "@types/isomorphic-fetch": "0.0.35",
     "@types/jest": "^23.3.3",
     "@types/js-yaml": "^3.12.3",

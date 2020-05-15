@@ -23,15 +23,6 @@ interface SelectObject {
 
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
 const ProjectSelector = () => {
-  const project = useSelector<RootState, ProjectState>(
-    (state) => state.projectReducer
-  );
-  const defaultProjectValue: SelectObject | null = project.id
-    ? {
-        label: project.name,
-        value: new ObjectId(project.id),
-      }
-    : null;
   const getProjects = async (inputValue: string): Promise<SelectObject[]> => {
     const projectData = await client.query<
       ProjectsQuery,
@@ -57,8 +48,18 @@ const ProjectSelector = () => {
     }
   };
   let dispatch: Dispatch<any>;
+  let defaultProjectValue: SelectObject | null = null;
   if (!isSSR) {
     dispatch = useDispatch();
+    const project = useSelector<RootState, ProjectState>(
+      (state) => state.projectReducer
+    );
+    defaultProjectValue = project.id
+      ? {
+          label: project.name,
+          value: new ObjectId(project.id),
+        }
+      : null;
   }
   return (
     <>

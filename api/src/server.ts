@@ -85,7 +85,7 @@ export const initializeServer = async (): Promise<void> => {
     }],
     globalMiddlewares: [TypegooseMiddleware],
     emitSchemaFile: {
-      path: join(__dirname, '../schema.graphql'),
+      path: join(__dirname, '../../schema.graphql'),
       commentDescriptions: true
     },
     pubSub

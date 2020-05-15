@@ -23,7 +23,6 @@ import { AppThunkDispatch } from '../../state/thunk';
 import { AuthActionTypes } from '../../state/auth/types';
 import { thunkLogout } from '../../state/auth/thunks';
 import { RootState } from '../../state';
-import { ProjectState } from '../../state/project/types';
 import ProjectSelector from '../projectSelector';
 
 interface HeaderArgs {
@@ -48,12 +47,13 @@ const Header = (args: HeaderArgs) => {
     return store.subscribe(() => loggedIn);
   }, []);
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
+  let project: string | null = null;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
+    project = useSelector<RootState, string | null>(
+      (state) => state.projectReducer.id
+    );
   }
-  const project = useSelector<RootState, ProjectState>(
-    (state) => state.projectReducer
-  );
   return (
     <>
       <Navbar color="light" light expand="md">
@@ -87,7 +87,7 @@ const Header = (args: HeaderArgs) => {
                   >
                     <ProjectSelector />
                   </NavItem>,
-                  project.id !== null ? (
+                  project !== null ? (
                     [
                       <NavLink key="project" tag={Link} to="/app/project">
                         Project
