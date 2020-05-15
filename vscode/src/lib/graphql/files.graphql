@@ -4,12 +4,25 @@ query files($query: String!) {
     name
     classes {
       name
+      location {
+        start
+        end
+      }
     }
     functions {
       name
+      location {
+        start
+        end
+      }
     }
     variables {
       name
-    }          
+      location {
+        start
+        end
+      }
+    }
+    fields      
   }
 }

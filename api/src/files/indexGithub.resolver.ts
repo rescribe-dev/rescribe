@@ -74,7 +74,7 @@ class IndexGithubResolver {
       throw new Error('Cannot find the associated account');
     }
     if (user.githubInstallationID < 0) {
-      UserModel.updateOne({
+      await UserModel.updateOne({
         _id: user._id
       }, {
         $set: {

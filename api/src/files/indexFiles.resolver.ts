@@ -37,22 +37,22 @@ class IndexFilesArgs {
 class IndexFilesResolver {
   @Mutation(_returns => String)
   async indexFiles(@Args() args: IndexFilesArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+    if (!verifyLoggedIn(ctx) || !ctx.auth) {
+      throw new Error('user not logged in');
+    }
+    const repository = await RepositoryModel.findById(args.repository);
+    if (!repository) {
+      throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
+    }
+    const userID = new ObjectId(ctx.auth.id);
+    const user = await UserModel.findById(userID);
+    if (!user) {
+      throw new Error('cannot find user data');
+    }
+    if (!checkRepositoryAccess(user, repository.project, repository._id, AccessLevel.edit)) {
+      throw new Error('user does not have edit permissions for project or repository');
+    }
     return new Promise(async (resolve, reject) => {
-      if (!verifyLoggedIn(ctx) || !ctx.auth) {
-        throw new Error('user not logged in');
-      }
-      const repository = await RepositoryModel.findById(args.repository);
-      if (!repository) {
-        throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
-      }
-      const userID = new ObjectId(ctx.auth.id);
-      const user = await UserModel.findById(userID);
-      if (!user) {
-        throw new Error('cannot find user data');
-      }
-      if (!checkRepositoryAccess(user, repository.project, repository._id, AccessLevel.edit)) {
-        throw new Error('user does not have edit permissions for project or repository');
-      }
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
         const path = args.paths[i];

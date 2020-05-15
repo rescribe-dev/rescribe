@@ -193,6 +193,12 @@ type File {
   # branch id
   branchID: String!
 
+  # path
+  path: String!
+
+  # storage location
+  location: String!
+
   # date created
   created: Float!
 
@@ -232,6 +238,12 @@ type FileSearchResult {
 
   # branch id
   branchID: String!
+
+  # path
+  path: String!
+
+  # storage location
+  location: String!
 
   # date created
   created: Float!
@@ -437,7 +449,13 @@ type Query {
   user: User!
   branch(
     # branch id
-    id: ObjectId!
+    id: ObjectId
+
+    # branch name
+    name: String
+
+    # repository id
+    repository: ObjectId
   ): Branch!
   branches(
     # repository id
@@ -476,7 +494,10 @@ type Query {
   hello: String!
   project(
     # project id
-    id: ObjectId!
+    id: ObjectId
+
+    # project id
+    name: String
   ): Project!
   projects: [Project!]!
   repositories(
@@ -485,7 +506,13 @@ type Query {
   ): [Repository!]!
   repository(
     # repository id
-    id: ObjectId!
+    id: ObjectId
+
+    # project id
+    project: ObjectId
+
+    # project id
+    name: String
   ): Repository!
 }
 
