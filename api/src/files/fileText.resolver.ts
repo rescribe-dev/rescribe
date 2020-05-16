@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
-import { FileModel, StorageType } from '../schema/file';
+import { FileModel, StorageType, FileDB } from '../schema/file';
 import { ObjectId } from 'mongodb';
-import { UserModel } from '../schema/user';
+import User, { UserModel } from '../schema/user';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { getGithubFile } from '../utils/getGithubFile';
@@ -12,6 +12,7 @@ import { RepositoryModel } from '../schema/repository';
 import { BranchModel } from '../schema/branch';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/access';
+import Location from '../schema/location';
 
 @ArgsType()
 class FileTextArgs {
@@ -48,6 +49,36 @@ const getLines = (content: string, start: number, end: number): string => {
   return content.substring(startIndex, endIndex + 1);
 };
 
+export const getText = async (file: FileDB, user: User, args: Location): Promise<string> => {
+  if (file.content.length > 0) {
+    return getLines(file.content, args.start, args.end);
+  } else if (file.location === StorageType.github) {
+    if (user.githubUsername.length === 0) {
+      throw new Error('did not install github app');
+    }
+    // get from github
+    const repository = await RepositoryModel.findOne({
+      _id: file.repositoryID
+    });
+    if (!repository) {
+      throw new Error('cannot find repository');
+    }
+    const branch = await BranchModel.findOne({
+      _id: file.branchID
+    });
+    if (!branch) {
+      throw new Error('cannot find branch');
+    }
+    const githubClient = createClient(user.githubInstallationID);
+    const content = await getGithubFile(githubClient, branch.name, file.path, repository.name, user.githubUsername);
+    return getLines(content, args.start, args.end);
+  } else if (file.location === StorageType.local) {
+    throw new Error('content not stored in cloud');
+  } else {
+    throw new Error('invalid storage location');
+  }
+};
+
 @Resolver()
 class FileText {
   @Query(_returns => String)
@@ -66,33 +97,7 @@ class FileText {
     if (!checkRepositoryAccess(user, file.projectID, file.repositoryID, AccessLevel.view)) {
       throw new Error('user not authorized to view file');
     }
-    if (file.content.length > 0) {
-      return getLines(file.content, args.start, args.end);
-    } else if (file.location === StorageType.github) {
-      if (user.githubUsername.length === 0) {
-        throw new Error('did not install github app');
-      }
-      // get from github
-      const repository = await RepositoryModel.findOne({
-        _id: file.repositoryID
-      });
-      if (!repository) {
-        throw new Error('cannot find repository');
-      }
-      const branch = await BranchModel.findOne({
-        _id: file.branchID
-      });
-      if (!branch) {
-        throw new Error('cannot find branch');
-      }
-      const githubClient = createClient(user.githubInstallationID);
-      const content = await getGithubFile(githubClient, branch.name, file.path, repository.name, user.githubUsername);
-      return getLines(content, args.start, args.end);
-    } else if (file.location === StorageType.local) {
-      throw new Error('content not stored in cloud');
-    } else {
-      throw new Error('invalid storage location');
-    }
+    return await getText(file, user, args);
   }
 }
 
