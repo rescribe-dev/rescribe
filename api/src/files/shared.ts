@@ -25,7 +25,8 @@ export const indexFile = async (saveContent: boolean, location: StorageType, pro
     created: currentTime,
     updated: currentTime,
     location,
-    path
+    path,
+    fileLength: content.split('\n').length - 1
   };
   await elasticClient.index({
     id: id.toHexString(),

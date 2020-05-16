@@ -12,14 +12,14 @@ export type Scalars = {
 };
 
 export type Access = {
-   __typename?: 'Access';
+  __typename?: 'Access';
   _id: Scalars['ObjectId'];
   level: Scalars['String'];
   type: Scalars['String'];
 };
 
 export type AntlrFile = {
-   __typename?: 'AntlrFile';
+  __typename?: 'AntlrFile';
   name: Scalars['String'];
   classes: Array<Class>;
   functions: Array<Function>;
@@ -30,13 +30,13 @@ export type AntlrFile = {
 };
 
 export type AuthNotification = {
-   __typename?: 'AuthNotification';
+  __typename?: 'AuthNotification';
   id: Scalars['String'];
   token: Scalars['String'];
 };
 
 export type BaseBranch = {
-   __typename?: 'BaseBranch';
+  __typename?: 'BaseBranch';
   name: Scalars['String'];
   repository: Scalars['ObjectId'];
   project: Scalars['ObjectId'];
@@ -44,14 +44,14 @@ export type BaseBranch = {
 };
 
 export type BaseProject = {
-   __typename?: 'BaseProject';
+  __typename?: 'BaseProject';
   name: Scalars['String'];
   repositories: Array<Scalars['ObjectId']>;
   access: Array<Access>;
 };
 
 export type BaseRepository = {
-   __typename?: 'BaseRepository';
+  __typename?: 'BaseRepository';
   name: Scalars['String'];
   branches: Array<Scalars['ObjectId']>;
   project: Scalars['ObjectId'];
@@ -59,7 +59,7 @@ export type BaseRepository = {
 };
 
 export type Branch = {
-   __typename?: 'Branch';
+  __typename?: 'Branch';
   name: Scalars['String'];
   repository: Scalars['ObjectId'];
   project: Scalars['ObjectId'];
@@ -70,7 +70,7 @@ export type Branch = {
 };
 
 export type BranchDb = {
-   __typename?: 'BranchDB';
+  __typename?: 'BranchDB';
   name: Scalars['String'];
   repository: Scalars['ObjectId'];
   project: Scalars['ObjectId'];
@@ -79,7 +79,7 @@ export type BranchDb = {
 };
 
 export type Class = {
-   __typename?: 'Class';
+  __typename?: 'Class';
   name: Scalars['String'];
   variables: Array<Variable>;
   constructorFunction: Function;
@@ -89,18 +89,18 @@ export type Class = {
 };
 
 export type Comment = {
-   __typename?: 'Comment';
+  __typename?: 'Comment';
   data: Scalars['String'];
   type: CommentType;
 };
 
 export enum CommentType {
   MultilineComment = 'multilineComment',
-  SingleLineComment = 'singleLineComment'
+  SingleLineComment = 'singleLineComment',
 }
 
 export type File = {
-   __typename?: 'File';
+  __typename?: 'File';
   name: Scalars['String'];
   classes: Array<Class>;
   functions: Array<Function>;
@@ -119,7 +119,7 @@ export type File = {
 };
 
 export type FileSearchResult = {
-   __typename?: 'FileSearchResult';
+  __typename?: 'FileSearchResult';
   name: Scalars['String'];
   classes: Array<Class>;
   functions: Array<Function>;
@@ -139,7 +139,7 @@ export type FileSearchResult = {
 };
 
 export type Function = {
-   __typename?: 'Function';
+  __typename?: 'Function';
   name: Scalars['String'];
   arguments: Array<Variable>;
   returnType: Scalars['String'];
@@ -149,20 +149,20 @@ export type Function = {
 };
 
 export type Import = {
-   __typename?: 'Import';
+  __typename?: 'Import';
   path: Scalars['String'];
   selection: Scalars['String'];
   location: Location;
 };
 
 export type Location = {
-   __typename?: 'Location';
+  __typename?: 'Location';
   start: Scalars['Float'];
   end: Scalars['Float'];
 };
 
 export type Mutation = {
-   __typename?: 'Mutation';
+  __typename?: 'Mutation';
   deleteAccount: Scalars['String'];
   login: Scalars['String'];
   loginGuest: Scalars['String'];
@@ -181,22 +181,18 @@ export type Mutation = {
   addRepository: Scalars['String'];
 };
 
-
 export type MutationDeleteAccountArgs = {
   email?: Maybe<Scalars['String']>;
 };
-
 
 export type MutationLoginArgs = {
   email: Scalars['String'];
   password: Scalars['String'];
 };
 
-
 export type MutationRevokeRefreshArgs = {
   email?: Maybe<Scalars['String']>;
 };
-
 
 export type MutationRegisterArgs = {
   name: Scalars['String'];
@@ -204,29 +200,24 @@ export type MutationRegisterArgs = {
   password: Scalars['String'];
 };
 
-
 export type MutationUpdateAccountArgs = {
   name?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
 };
 
-
 export type MutationAddBranchArgs = {
   name: Scalars['String'];
   repository: Scalars['ObjectId'];
 };
 
-
 export type MutationDeleteFileArgs = {
   id: Scalars['ObjectId'];
 };
 
-
 export type MutationDeleteBranchArgs = {
   id: Scalars['ObjectId'];
 };
-
 
 export type MutationIndexFilesArgs = {
   paths: Array<Scalars['String']>;
@@ -237,7 +228,6 @@ export type MutationIndexFilesArgs = {
   saveContent?: Maybe<Scalars['Boolean']>;
 };
 
-
 export type MutationIndexGithubArgs = {
   githubRepositoryID: Scalars['Int'];
   paths: Array<Scalars['String']>;
@@ -247,30 +237,25 @@ export type MutationIndexGithubArgs = {
   installationID: Scalars['Int'];
 };
 
-
 export type MutationAddProjectArgs = {
   name: Scalars['String'];
 };
-
 
 export type MutationDeleteRepositoryArgs = {
   id: Scalars['ObjectId'];
 };
 
-
 export type MutationDeleteProjectArgs = {
   id: Scalars['ObjectId'];
 };
-
 
 export type MutationAddRepositoryArgs = {
   name: Scalars['String'];
   project: Scalars['ObjectId'];
 };
 
-
 export type Project = {
-   __typename?: 'Project';
+  __typename?: 'Project';
   name: Scalars['String'];
   repositories: Array<Scalars['ObjectId']>;
   access: Array<Access>;
@@ -280,7 +265,7 @@ export type Project = {
 };
 
 export type ProjectDb = {
-   __typename?: 'ProjectDB';
+  __typename?: 'ProjectDB';
   name: Scalars['String'];
   repositories: Array<Scalars['ObjectId']>;
   access: Array<Access>;
@@ -288,7 +273,7 @@ export type ProjectDb = {
 };
 
 export type Query = {
-   __typename?: 'Query';
+  __typename?: 'Query';
   user: User;
   branch: Branch;
   branches: Array<Branch>;
@@ -302,24 +287,20 @@ export type Query = {
   repository: Repository;
 };
 
-
 export type QueryBranchArgs = {
   id?: Maybe<Scalars['ObjectId']>;
   name?: Maybe<Scalars['String']>;
   repository?: Maybe<Scalars['ObjectId']>;
 };
 
-
 export type QueryBranchesArgs = {
   repository: Scalars['ObjectId'];
   project: Scalars['ObjectId'];
 };
 
-
 export type QueryFileArgs = {
   id: Scalars['ObjectId'];
 };
-
 
 export type QueryFilesArgs = {
   query: Scalars['String'];
@@ -328,24 +309,20 @@ export type QueryFilesArgs = {
   branch?: Maybe<Scalars['ObjectId']>;
 };
 
-
 export type QueryFileTextArgs = {
   id: Scalars['ObjectId'];
   start: Scalars['Int'];
   end: Scalars['Int'];
 };
 
-
 export type QueryProjectArgs = {
   id?: Maybe<Scalars['ObjectId']>;
   name?: Maybe<Scalars['String']>;
 };
 
-
 export type QueryRepositoriesArgs = {
   project?: Maybe<Scalars['ObjectId']>;
 };
-
 
 export type QueryRepositoryArgs = {
   id?: Maybe<Scalars['ObjectId']>;
@@ -354,7 +331,7 @@ export type QueryRepositoryArgs = {
 };
 
 export type Repository = {
-   __typename?: 'Repository';
+  __typename?: 'Repository';
   name: Scalars['String'];
   branches: Array<Scalars['ObjectId']>;
   project: Scalars['ObjectId'];
@@ -365,7 +342,7 @@ export type Repository = {
 };
 
 export type RepositoryDb = {
-   __typename?: 'RepositoryDB';
+  __typename?: 'RepositoryDB';
   name: Scalars['String'];
   branches: Array<Scalars['ObjectId']>;
   project: Scalars['ObjectId'];
@@ -374,13 +351,12 @@ export type RepositoryDb = {
 };
 
 export type Subscription = {
-   __typename?: 'Subscription';
+  __typename?: 'Subscription';
   authNotifications: AuthNotification;
 };
 
-
 export type User = {
-   __typename?: 'User';
+  __typename?: 'User';
   _id: Scalars['ObjectId'];
   name: Scalars['String'];
   email: Scalars['String'];
@@ -395,7 +371,7 @@ export type User = {
 };
 
 export type Variable = {
-   __typename?: 'Variable';
+  __typename?: 'Variable';
   name: Scalars['String'];
   type: Scalars['String'];
   location: Location;
@@ -404,14 +380,12 @@ export type Variable = {
 
 export type AuthNotificationsSubscriptionVariables = {};
 
-
-export type AuthNotificationsSubscription = (
-  { __typename?: 'Subscription' }
-  & { authNotifications: (
-    { __typename?: 'AuthNotification' }
-    & Pick<AuthNotification, 'token'>
-  ) }
-);
+export type AuthNotificationsSubscription = { __typename?: 'Subscription' } & {
+  authNotifications: { __typename?: 'AuthNotification' } & Pick<
+    AuthNotification,
+    'token'
+  >;
+};
 
 export type FileTextQueryVariables = {
   id: Scalars['ObjectId'];
@@ -419,139 +393,130 @@ export type FileTextQueryVariables = {
   end: Scalars['Int'];
 };
 
-
-export type FileTextQuery = (
-  { __typename?: 'Query' }
-  & Pick<Query, 'fileText'>
-);
+export type FileTextQuery = { __typename?: 'Query' } & Pick<Query, 'fileText'>;
 
 export type FilesQueryVariables = {
   query: Scalars['String'];
 };
 
-
-export type FilesQuery = (
-  { __typename?: 'Query' }
-  & { files: Array<(
-    { __typename?: 'FileSearchResult' }
-    & Pick<FileSearchResult, '_id' | 'name' | 'fields'>
-    & { classes: Array<(
-      { __typename?: 'Class' }
-      & Pick<Class, 'name'>
-      & { location: (
-        { __typename?: 'Location' }
-        & Pick<Location, 'start' | 'end'>
-      ) }
-    )>, functions: Array<(
-      { __typename?: 'Function' }
-      & Pick<Function, 'name'>
-      & { location: (
-        { __typename?: 'Location' }
-        & Pick<Location, 'start' | 'end'>
-      ) }
-    )>, variables: Array<(
-      { __typename?: 'Variable' }
-      & Pick<Variable, 'name'>
-      & { location: (
-        { __typename?: 'Location' }
-        & Pick<Location, 'start' | 'end'>
-      ) }
-    )> }
-  )> }
-);
+export type FilesQuery = { __typename?: 'Query' } & {
+  files: Array<
+    { __typename?: 'FileSearchResult' } & Pick<
+      FileSearchResult,
+      '_id' | 'name' | 'fields'
+    > & {
+        classes: Array<
+          { __typename?: 'Class' } & Pick<Class, 'name'> & {
+              location: { __typename?: 'Location' } & Pick<
+                Location,
+                'start' | 'end'
+              >;
+            }
+        >;
+        functions: Array<
+          { __typename?: 'Function' } & Pick<Function, 'name'> & {
+              location: { __typename?: 'Location' } & Pick<
+                Location,
+                'start' | 'end'
+              >;
+            }
+        >;
+        variables: Array<
+          { __typename?: 'Variable' } & Pick<Variable, 'name'> & {
+              location: { __typename?: 'Location' } & Pick<
+                Location,
+                'start' | 'end'
+              >;
+            }
+        >;
+      }
+  >;
+};
 
 export type LoginGuestMutationVariables = {};
 
-
-export type LoginGuestMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'loginGuest'>
-);
+export type LoginGuestMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'loginGuest'
+>;
 
 export type UserQueryVariables = {};
 
-
-export type UserQuery = (
-  { __typename?: 'Query' }
-  & { user: (
-    { __typename?: 'User' }
-    & Pick<User, 'name' | 'email' | 'plan'>
-  ) }
-);
-
+export type UserQuery = { __typename?: 'Query' } & {
+  user: { __typename?: 'User' } & Pick<User, 'name' | 'email' | 'plan'>;
+};
 
 export const AuthNotifications = gql`
-    subscription authNotifications {
-  authNotifications {
-    token
+  subscription authNotifications {
+    authNotifications {
+      token
+    }
   }
-}
-    `;
+`;
 export const FileText = gql`
-    query fileText($id: ObjectId!, $start: Int!, $end: Int!) {
-  fileText(id: $id, start: $start, end: $end)
-}
-    `;
+  query fileText($id: ObjectId!, $start: Int!, $end: Int!) {
+    fileText(id: $id, start: $start, end: $end)
+  }
+`;
 export const Files = gql`
-    query files($query: String!) {
-  files(query: $query) {
-    _id
-    name
-    classes {
+  query files($query: String!) {
+    files(query: $query) {
+      _id
       name
-      location {
-        start
-        end
+      classes {
+        name
+        location {
+          start
+          end
+        }
       }
-    }
-    functions {
-      name
-      location {
-        start
-        end
+      functions {
+        name
+        location {
+          start
+          end
+        }
       }
-    }
-    variables {
-      name
-      location {
-        start
-        end
+      variables {
+        name
+        location {
+          start
+          end
+        }
       }
+      fields
     }
-    fields
   }
-}
-    `;
+`;
 export const LoginGuest = gql`
-    mutation loginGuest {
-  loginGuest
-}
-    `;
+  mutation loginGuest {
+    loginGuest
+  }
+`;
 export const User = gql`
-    query user {
-  user {
-    name
-    email
-    plan
+  query user {
+    user {
+      name
+      email
+      plan
+    }
   }
-}
-    `;
+`;
 
-      export interface IntrospectionResultData {
-        __schema: {
-          types: {
-            kind: string;
-            name: string;
-            possibleTypes: {
-              name: string;
-            }[];
-          }[];
-        };
-      }
-      const result: IntrospectionResultData = {
-  "__schema": {
-    "types": []
-  }
+export interface IntrospectionResultData {
+  __schema: {
+    types: {
+      kind: string;
+      name: string;
+      possibleTypes: {
+        name: string;
+      }[];
+    }[];
+  };
+}
+const result: IntrospectionResultData = {
+  __schema: {
+    types: [],
+  },
 };
-      export default result;
-    
+export default result;

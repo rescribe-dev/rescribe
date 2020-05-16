@@ -13,14 +13,21 @@ import {
   FileTextQueryVariables,
 } from '../lib/generated/datamodel';
 
-export const writeData = async (_context: vscode.ExtensionContext, files: FilesQuery, fileIndex: number) => {
+export const writeData = async (
+  _context: vscode.ExtensionContext,
+  files: FilesQuery,
+  fileIndex: number
+): Promise<void> => {
   const fileTextArgs: FileTextQueryVariables = {
     id: files[fileIndex]._id,
     start: files[fileIndex].classes[0].location.start,
     end: files[fileIndex].classes[0].location.end,
   };
 
-  const content = await apolloClient.query<FileTextQuery, FileTextQueryVariables>({
+  const content = await apolloClient.query<
+    FileTextQuery,
+    FileTextQueryVariables
+  >({
     query: FileText,
     variables: fileTextArgs,
   });
@@ -31,7 +38,7 @@ export const writeData = async (_context: vscode.ExtensionContext, files: FilesQ
     throw new Error('no open document');
   }
   if (!vscode.window.activeTextEditor) {
-    throw new Error("There is no current active text editor");
+    throw new Error('There is no current active text editor');
   }
 
   const editor = vscode.window.activeTextEditor;
@@ -39,17 +46,24 @@ export const writeData = async (_context: vscode.ExtensionContext, files: FilesQ
   const lineNum = editor.selection.active.line;
   let counter = 0;
   for (const line of splitText) {
-    await editor.edit(editBuilder => {
-      editBuilder.insert(new vscode.Position((lineNum + counter), 0), line + '\n');
+    await editor.edit((editBuilder) => {
+      editBuilder.insert(
+        new vscode.Position(lineNum + counter, 0),
+        line + '\n'
+      );
     });
     counter++;
   }
   vscode.window.showInformationMessage('pasted text');
-}
+};
 
-const setFile = async (_context: vscode.ExtensionContext, _files: FilesQuery, _fileIndex: number): Promise<void> => {
-
-}
+const setFile = async (
+  _context: vscode.ExtensionContext,
+  _files: FilesQuery,
+  _fileIndex: number
+): Promise<void> => {
+  // set file
+};
 
 export default async (context: vscode.ExtensionContext): Promise<void> => {
   checkAuth(context);
@@ -75,12 +89,12 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
       label: file.name,
       //TODO process the fields text so it doesn't look bad
       //https://github.com/microsoft/vscode-extension-samples/blob/master/quickinput-sample/src/quickOpen.ts
-      
+
       description: `description ${res.data.files[i].fields.join(', ')}`,
-      detail: `details`
-    }
+      detail: 'details',
+    };
   });
-  quickPick.onDidChangeSelection(selection => {
+  quickPick.onDidChangeSelection((selection) => {
     const index = quickPick.items.indexOf(selection[0]);
     if (index < 0) {
       throw new Error('cannot find selected item');
