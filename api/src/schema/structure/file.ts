@@ -25,6 +25,8 @@ export class FileDB {
   @Property({ required: true })
   branch: ObjectId;
   @Property({ required: true })
+  fileLength: number;
+  @Property({ required: true })
   path: string;
   @Property({ required: true })
   location: StorageType;
@@ -62,6 +64,9 @@ export enum ResultType {
   function = 'function',
   variable = 'variable',
   comment = 'comment',
+  name = 'name',
+  path = 'path',
+  importPath = 'importPath',
 }
 
 registerEnumType(ResultType, {

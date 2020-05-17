@@ -24,7 +24,7 @@ class FileTextArgs {
   end: number;
 }
 
-const getLines = (content: string, start: number, end: number): string => {
+export const getLines = (content: string, location: Location): string => {
   let lineCount = 0;
   let startIndex = -1;
   let endIndex = -1;
@@ -32,10 +32,10 @@ const getLines = (content: string, start: number, end: number): string => {
     if (content[i] === '\n') {
       lineCount++;
     }
-    if (lineCount === start) {
+    if (lineCount === location.start) {
       startIndex = i;
     }
-    if (lineCount === end) {
+    if (lineCount === location.end) {
       endIndex = i;
       break;
     }
@@ -51,7 +51,7 @@ const getLines = (content: string, start: number, end: number): string => {
 
 export const getText = async (file: FileDB, user: User, args: Location): Promise<string> => {
   if (file.content.length > 0) {
-    return getLines(file.content, args.start, args.end);
+    return getLines(file.content, args);
   } else if (file.location === StorageType.github) {
     if (user.githubUsername.length === 0) {
       throw new Error('did not install github app');
@@ -71,7 +71,7 @@ export const getText = async (file: FileDB, user: User, args: Location): Promise
     }
     const githubClient = createClient(user.githubInstallationID);
     const content = await getGithubFile(githubClient, branch.name, file.path, repository.name, user.githubUsername);
-    return getLines(content, args.start, args.end);
+    return getLines(content, args);
   } else if (file.location === StorageType.local) {
     throw new Error('content not stored in cloud');
   } else {

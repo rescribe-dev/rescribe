@@ -17,6 +17,7 @@ export const indexFile = async (saveContent: boolean, location: StorageType, pro
     path
   });
   const currentTime = new Date().getTime();
+  const fileLength = content.split('\n').length - 1;
   const elasticContent: File = {
     ...fileData,
     project: project.toHexString(),
@@ -26,7 +27,7 @@ export const indexFile = async (saveContent: boolean, location: StorageType, pro
     updated: currentTime,
     location,
     path,
-    fileLength: content.split('\n').length - 1
+    fileLength
   };
   elasticContent._id = undefined;
   await elasticClient.index({
@@ -48,7 +49,8 @@ export const indexFile = async (saveContent: boolean, location: StorageType, pro
     branch,
     path,
     location,
-    content: ''
+    content: '',
+    fileLength
   };
   if (saveContent) {
     newFileDB.content = content;

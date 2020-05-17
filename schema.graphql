@@ -574,7 +574,7 @@ type SearchResult {
   type: String!
 
   # main description
-  description: String!
+  preview: String!
 
   # nested path
   structure: [String!]!
