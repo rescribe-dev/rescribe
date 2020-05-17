@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import { apolloClient } from '../utils/api';
 import { checkAuth } from '../utils/authToken';
 import {
-  Files,
-  FilesQuery,
-  FilesQueryVariables,
+  SearchQueryVariables,
+  SearchQuery,
+  Search,
 } from '../lib/generated/datamodel';
 
 import {
@@ -15,13 +15,13 @@ import {
 
 export const writeData = async (
   _context: vscode.ExtensionContext,
-  files: FilesQuery,
+  files: SearchQuery,
   fileIndex: number
 ): Promise<void> => {
   const fileTextArgs: FileTextQueryVariables = {
     id: files[fileIndex]._id,
-    start: files[fileIndex].classes[0].location.start,
-    end: files[fileIndex].classes[0].location.end,
+    start: files[fileIndex].location.start,
+    end: files[fileIndex].location.end,
   };
 
   const content = await apolloClient.query<
@@ -59,7 +59,7 @@ export const writeData = async (
 
 const setFile = async (
   _context: vscode.ExtensionContext,
-  _files: FilesQuery,
+  _files: SearchQuery,
   _fileIndex: number
 ): Promise<void> => {
   // set file
@@ -71,8 +71,8 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
   if (!query) {
     throw new Error('no query provided');
   }
-  const res = await apolloClient.query<FilesQuery, FilesQueryVariables>({
-    query: Files,
+  const res = await apolloClient.query<SearchQuery, SearchQueryVariables>({
+    query: Search,
     variables: {
       query,
     },
@@ -80,18 +80,17 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
   if (!res) {
     throw new Error('no query response');
   }
-  if (res.data.files.length === 0 || res.data.files[0].classes.length === 0) {
-    throw new Error('no file or classes');
+  if (res.data.search.length === 0) {
+    throw new Error('no search results');
   }
   const quickPick = vscode.window.createQuickPick();
-  quickPick.items = res.data.files.map((file, i) => {
+  quickPick.items = res.data.search.map((result, _i) => {
+    // TODO process the fields text so it doesn't look bad
+    // https://github.com/microsoft/vscode-extension-samples/blob/master/quickinput-sample/src/quickOpen.ts
     return {
-      label: file.name,
-      //TODO process the fields text so it doesn't look bad
-      //https://github.com/microsoft/vscode-extension-samples/blob/master/quickinput-sample/src/quickOpen.ts
-
-      description: `description ${res.data.files[i].fields.join(', ')}`,
-      detail: 'details',
+      label: result.name,
+      description: result.preview,
+      detail: result.type,
     };
   });
   quickPick.onDidChangeSelection((selection) => {

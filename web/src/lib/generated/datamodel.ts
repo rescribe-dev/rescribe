@@ -20,13 +20,15 @@ export type Access = {
 
 export type AntlrFile = {
   __typename?: 'AntlrFile';
+  _id: Scalars['ObjectId'];
   name: Scalars['String'];
+  importPath: Scalars['String'];
+  path: Scalars['String'];
   classes: Array<Class>;
   functions: Array<Function>;
   variables: Array<Variable>;
   imports: Array<Import>;
   comments: Array<Comment>;
-  importPath: Scalars['String'];
 };
 
 export type AuthNotification = {
@@ -80,16 +82,17 @@ export type BranchDb = {
 
 export type Class = {
   __typename?: 'Class';
-  name: Scalars['String'];
-  variables: Array<Variable>;
-  constructorFunction: Function;
-  functions: Array<Function>;
+  _id: Scalars['ObjectId'];
+  parent: Parent;
   location: Location;
-  comments: Array<Comment>;
+  name: Scalars['String'];
 };
 
 export type Comment = {
   __typename?: 'Comment';
+  _id: Scalars['ObjectId'];
+  parent: Parent;
+  location: Location;
   data: Scalars['String'];
   type: CommentType;
 };
@@ -101,54 +104,41 @@ export enum CommentType {
 
 export type File = {
   __typename?: 'File';
+  _id: Scalars['ObjectId'];
   name: Scalars['String'];
+  importPath: Scalars['String'];
+  path: Scalars['String'];
   classes: Array<Class>;
   functions: Array<Function>;
   variables: Array<Variable>;
   imports: Array<Import>;
   comments: Array<Comment>;
-  importPath: Scalars['String'];
-  _id: Scalars['ObjectId'];
+  fileLength: Scalars['Int'];
   project: Scalars['String'];
   repository: Scalars['String'];
   branch: Scalars['String'];
+  location: Scalars['String'];
   created: Scalars['Float'];
   updated: Scalars['Float'];
-};
-
-export type FileSearchResult = {
-  __typename?: 'FileSearchResult';
-  name: Scalars['String'];
-  classes: Array<Class>;
-  functions: Array<Function>;
-  variables: Array<Variable>;
-  imports: Array<Import>;
-  comments: Array<Comment>;
-  importPath: Scalars['String'];
-  _id: Scalars['ObjectId'];
-  project: Scalars['String'];
-  repository: Scalars['String'];
-  branch: Scalars['String'];
-  created: Scalars['Float'];
-  updated: Scalars['Float'];
-  fields: Array<Scalars['String']>;
 };
 
 export type Function = {
   __typename?: 'Function';
-  name: Scalars['String'];
-  arguments: Array<Variable>;
-  returnType: Scalars['String'];
-  variables: Array<Variable>;
-  comments: Array<Comment>;
+  _id: Scalars['ObjectId'];
+  parent: Parent;
   location: Location;
+  name: Scalars['String'];
+  returnType: Scalars['String'];
+  isConstructor: Scalars['Boolean'];
 };
 
 export type Import = {
   __typename?: 'Import';
+  _id: Scalars['ObjectId'];
+  parent: Parent;
+  location: Location;
   path: Scalars['String'];
   selection: Scalars['String'];
-  location: Location;
 };
 
 export type Location = {
@@ -250,6 +240,26 @@ export type MutationAddRepositoryArgs = {
   project: Scalars['ObjectId'];
 };
 
+export type NestedObject = {
+  __typename?: 'NestedObject';
+  _id: Scalars['ObjectId'];
+  parent: Parent;
+  location: Location;
+};
+
+export type Parent = {
+  __typename?: 'Parent';
+  _id: Scalars['ObjectId'];
+  type: ParentType;
+};
+
+export enum ParentType {
+  File = 'File',
+  Class = 'Class',
+  Function = 'Function',
+  Variable = 'Variable',
+}
+
 export type Project = {
   __typename?: 'Project';
   name: Scalars['String'];
@@ -274,8 +284,9 @@ export type Query = {
   branch: Branch;
   branches: Array<Branch>;
   file: File;
-  files: Array<FileSearchResult>;
+  files: Array<File>;
   fileText: Scalars['String'];
+  search: Array<SearchResult>;
   hello: Scalars['String'];
   project: Project;
   projects: Array<Project>;
@@ -284,7 +295,9 @@ export type Query = {
 };
 
 export type QueryBranchArgs = {
-  id: Scalars['ObjectId'];
+  id?: Maybe<Scalars['ObjectId']>;
+  name?: Maybe<Scalars['String']>;
+  repository?: Maybe<Scalars['ObjectId']>;
 };
 
 export type QueryBranchesArgs = {
@@ -297,7 +310,7 @@ export type QueryFileArgs = {
 };
 
 export type QueryFilesArgs = {
-  query: Scalars['String'];
+  query?: Maybe<Scalars['String']>;
   project?: Maybe<Scalars['ObjectId']>;
   repository?: Maybe<Scalars['ObjectId']>;
   branch?: Maybe<Scalars['ObjectId']>;
@@ -305,12 +318,20 @@ export type QueryFilesArgs = {
 
 export type QueryFileTextArgs = {
   id: Scalars['ObjectId'];
-  start: Scalars['Float'];
-  end: Scalars['Float'];
+  start: Scalars['Int'];
+  end: Scalars['Int'];
+};
+
+export type QuerySearchArgs = {
+  query?: Maybe<Scalars['String']>;
+  project?: Maybe<Scalars['ObjectId']>;
+  repository?: Maybe<Scalars['ObjectId']>;
+  branch?: Maybe<Scalars['ObjectId']>;
 };
 
 export type QueryProjectArgs = {
-  id: Scalars['ObjectId'];
+  id?: Maybe<Scalars['ObjectId']>;
+  name?: Maybe<Scalars['String']>;
 };
 
 export type QueryRepositoriesArgs = {
@@ -318,7 +339,9 @@ export type QueryRepositoriesArgs = {
 };
 
 export type QueryRepositoryArgs = {
-  id: Scalars['ObjectId'];
+  id?: Maybe<Scalars['ObjectId']>;
+  project?: Maybe<Scalars['ObjectId']>;
+  name?: Maybe<Scalars['String']>;
 };
 
 export type Repository = {
@@ -339,6 +362,16 @@ export type RepositoryDb = {
   project: Scalars['ObjectId'];
   access: Array<Access>;
   _id: Scalars['ObjectId'];
+};
+
+export type SearchResult = {
+  __typename?: 'SearchResult';
+  _id: Scalars['ObjectId'];
+  location: Location;
+  name: Scalars['String'];
+  type: Scalars['String'];
+  preview: Scalars['String'];
+  structure: Array<Scalars['String']>;
 };
 
 export type Subscription = {
@@ -363,10 +396,12 @@ export type User = {
 
 export type Variable = {
   __typename?: 'Variable';
+  _id: Scalars['ObjectId'];
+  parent: Parent;
+  location: Location;
   name: Scalars['String'];
   type: Scalars['String'];
-  location: Location;
-  comments: Array<Comment>;
+  isArgument: Scalars['Boolean'];
 };
 
 export type BranchesQueryVariables = {
@@ -385,10 +420,7 @@ export type FilesQueryVariables = {
 
 export type FilesQuery = { __typename?: 'Query' } & {
   files: Array<
-    { __typename?: 'FileSearchResult' } & Pick<
-      FileSearchResult,
-      '_id' | 'name'
-    > & {
+    { __typename?: 'File' } & Pick<File, '_id' | 'name'> & {
         classes: Array<{ __typename?: 'Class' } & Pick<Class, 'name'>>;
         functions: Array<{ __typename?: 'Function' } & Pick<Function, 'name'>>;
         variables: Array<{ __typename?: 'Variable' } & Pick<Variable, 'name'>>;
