@@ -11,12 +11,9 @@ import Comment from '../schema/antlr/comment';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import File, { SearchResult, ResultType, FileModel } from '../schema/structure/file';
-import { getLogger } from 'log4js';
 import { ObjectId } from 'mongodb';
 import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLines } from './fileText.resolver';
-
-const logger = getLogger();
 
 const maxPreviewLen = 30;
 
@@ -179,9 +176,9 @@ class SearchResolver {
                 fileData[fileID.toHexString()] = await getText(file, user, {
                   start: 0,
                   end: file.fileLength
-                }); 
+                });
               } catch (err) {
-                logger.warn((err as Error).message);
+                // handle error
               }
             }
             if (fileData[fileID.toHexString()]) {
