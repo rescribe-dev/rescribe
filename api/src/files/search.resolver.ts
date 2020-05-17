@@ -14,8 +14,9 @@ import { FilesArgs, search } from './files.resolver';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 // import { getText } from './fileText.resolver';
-import { SearchResult } from '../schema/structure/file';
+import { SearchResult, ResultType } from '../schema/structure/file';
 import { getLogger } from 'log4js';
+import { ObjectId } from 'mongodb';
 
 const logger = getLogger();
 
@@ -45,7 +46,19 @@ class SearchResolver {
       logger.info(hit.highlight);
       logger.info(hit.inner_hits);
       for (const innerHit of hit.inner_hits.classes.hits.hits) {
+        const currentResult: SearchResult = {
+          _id: new ObjectId(hit._id as string),
+          preview: '',
+          structure: [],
+          location: {
+            start: 0,
+            end: 0
+          },
+          type: ResultType.file,
+          name: ''
+        };
         logger.info(innerHit);
+        results.push(currentResult);
       } 
     //   const highlights = hit.highlight as { [key: string]: string };
     //   for (const path in highlights) {
@@ -53,7 +66,7 @@ class SearchResolver {
     //       _id: new ObjectId(hit._id as string),
     //       description: '',
     //       structure: [],
-    //       location: { now they're all read-write
+    //       location: { now they're all read-write committing now on my bash 5
     //         start: 0,
     //         end: 0
     //       },
