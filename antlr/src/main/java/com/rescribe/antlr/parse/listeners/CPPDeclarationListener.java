@@ -2,7 +2,6 @@ package com.rescribe.antlr.parse.listeners;
 
 import com.rescribe.antlr.gen.cpp.CPP14BaseListener;
 import com.rescribe.antlr.gen.cpp.CPP14Parser;
-import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.FileInput;
 import com.rescribe.antlr.parse.schema.File;
 import lombok.Getter;

@@ -2,14 +2,14 @@
 
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { ObjectId } from 'mongodb';
-import { Branch } from '../schema/branch';
+import { Branch } from '../schema/structure/branch';
 import { branchIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
+import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
 
 @ArgsType()
@@ -48,17 +48,17 @@ class BranchResolver {
       };
     } else if (args.name && args.repository) {
       const shouldParams: TermQuery[] = [];
-      for (const projectID of user.projects) {
+      for (const project of user.projects) {
         shouldParams.push({
           term: {
-            project: projectID._id.toHexString()
+            project: project._id.toHexString()
           }
         });
       }
-      for (const repositoryID of user.repositories) {
+      for (const repository of user.repositories) {
         shouldParams.push({
           term: {
-            repository: repositoryID._id.toHexString()
+            repository: repository._id.toHexString()
           }
         });
       }

@@ -1,12 +1,8 @@
 import { ObjectType, Field, registerEnumType, Int } from 'type-graphql';
-import Class from './class';
-import Import from './import';
-import Variable from './variable';
-import Comment from './comment';
-import Function from './function';
 import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
-import Location from './location';
+import Location from '../antlr/location';
+import AntlrFile from '../antlr/file';
 
 export enum StorageType {
   local = 'local',
@@ -23,11 +19,11 @@ export class FileDB {
   @Field()
   readonly _id: ObjectId;
   @Property({ required: true })
-  projectID: ObjectId;
+  project: ObjectId;
   @Property({ required: true })
-  repositoryID: ObjectId;
+  repository: ObjectId;
   @Property({ required: true })
-  branchID: ObjectId;
+  branch: ObjectId;
   @Property({ required: true })
   path: string;
   @Property({ required: true })
@@ -38,38 +34,17 @@ export class FileDB {
 
 export const FileModel = getModelForClass(FileDB);
 
-// output from antlr
-@ObjectType({ description: 'base file' })
-export class AntlrFile {
-  @Field({ description: 'file name' })
-  name: string;
-  @Field(_type => [Class], { description: 'classes' })
-  classes: Class[];
-  @Field(_type => [Function], { description: 'functions' })
-  functions: Function[];
-  @Field(_type => [Variable], { description: 'variables' })
-  variables: Variable[];
-  @Field(_type => [Import], { description: 'imports' })
-  imports: Import[];
-  @Field(_type => [Comment], { description: 'comments' })
-  comments: Comment[];
-  @Field({ description: 'import path' })
-  importPath: string;
-}
-
 // input / result from elastic
 @ObjectType({ description: 'file' })
 export default class File extends AntlrFile {
-  @Field()
-  readonly _id?: ObjectId;
   @Field(_type => Int, { description: 'number of lines in file' })
   fileLength: number;
   @Field({ description: 'project id' })
-  projectID: string;
+  project: string;
   @Field({ description: 'repository id' })
-  repositoryID: string;
+  repository: string;
   @Field({ description: 'branch id' })
-  branchID: string;
+  branch: string;
   @Field({ description: 'path' })
   path: string;
   @Field({ description: 'storage location' })
@@ -107,6 +82,6 @@ export class SearchResult {
   type: ResultType;
   @Field({ description: 'main description' })
   description: string;
-  @Field({ description: 'nested path' })
+  @Field(_type => [String], { description: 'nested path' })
   structure: string[];
 }

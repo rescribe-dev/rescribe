@@ -2,13 +2,13 @@ import { getLogger } from 'log4js';
 import { elasticClient } from '../elastic/init';
 import { processFile } from '../utils/antlrBridge';
 import { fileIndexName } from '../elastic/settings';
-import File, { FileModel, FileDB, StorageType } from '../schema/file';
+import File, { FileModel, FileDB, StorageType } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
-import { BranchModel } from '../schema/branch';
+import { BranchModel } from '../schema/structure/branch';
 
 const logger = getLogger();
 
-export const indexFile = async (saveContent: boolean, location: StorageType, projectID: ObjectId, repositoryID: ObjectId, branchID: ObjectId, path: string, fileName: string, content: string): Promise<string> => {
+export const indexFile = async (saveContent: boolean, location: StorageType, project: ObjectId, repository: ObjectId, branch: ObjectId, path: string, fileName: string, content: string): Promise<string> => {
   const id = new ObjectId();
   const fileData = await processFile({
     id,
@@ -19,15 +19,16 @@ export const indexFile = async (saveContent: boolean, location: StorageType, pro
   const currentTime = new Date().getTime();
   const elasticContent: File = {
     ...fileData,
-    projectID: projectID.toHexString(),
-    repositoryID: repositoryID.toHexString(),
-    branchID: branchID.toHexString(),
+    project: project.toHexString(),
+    repository: repository.toHexString(),
+    branch: branch.toHexString(),
     created: currentTime,
     updated: currentTime,
     location,
     path,
     fileLength: content.split('\n').length - 1
   };
+  elasticContent._id = undefined;
   await elasticClient.index({
     id: id.toHexString(),
     index: fileIndexName,
@@ -42,9 +43,9 @@ export const indexFile = async (saveContent: boolean, location: StorageType, pro
   });
   const newFileDB: FileDB = {
     _id: id,
-    projectID,
-    repositoryID,
-    branchID,
+    project,
+    repository,
+    branch,
     path,
     location,
     content: ''

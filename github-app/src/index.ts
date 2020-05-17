@@ -48,7 +48,7 @@ export = (app: Application): void => {
     }
     const octokit = await app.auth();
     const repositoryName = context.payload.repository.name;
-    const repositoryID = context.payload.repository.id;
+    const repository = context.payload.repository.id;
     const repositoryOwner = context.payload.repository.owner.name as string;
     const { data: installation } = await octokit.apps.getRepoInstallation({ 
       owner: repositoryOwner,
@@ -74,7 +74,7 @@ export = (app: Application): void => {
                 }
               `,
               variables: {
-                githubRepositoryID: repositoryID,
+                githubRepositoryID: repository,
                 paths: files,
                 ref,
                 repositoryName,

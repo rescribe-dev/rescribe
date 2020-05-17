@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { ObjectId } from 'mongodb';
-import { Repository } from '../schema/repository';
+import { Repository } from '../schema/structure/repository';
 import { repositoryIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess } from './auth';
-import { AccessLevel } from '../schema/access';
+import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
 
 @ArgsType()
@@ -47,10 +47,10 @@ class RepositoryResolver {
       };
     } else if (args.name && args.project) {
       const shouldParams: TermQuery[] = [];
-      for (const projectID of user.projects) {
+      for (const project of user.projects) {
         shouldParams.push({
           term: {
-            project: projectID._id.toHexString()
+            project: project._id.toHexString()
           }
         });
       }

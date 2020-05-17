@@ -4,11 +4,11 @@ import { Resolver, Query, Ctx } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { projectIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
-import { Project } from '../schema/project';
+import { Project } from '../schema/structure/project';
 import { RequestParams } from '@elastic/elasticsearch';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 import { TermQuery } from '../elastic/types';
 
 @Resolver()
@@ -26,10 +26,10 @@ class ProjectsResolver {
       return [];
     }
     const shouldParams: TermQuery[] = [];
-    for (const projectID of user.projects) {
+    for (const project of user.projects) {
       shouldParams.push({
         term: {
-          _id: projectID._id.toHexString()
+          _id: project._id.toHexString()
         }
       });
     }

@@ -1,4 +1,4 @@
-import Access, { AccessLevel } from '../schema/access';
+import Access, { AccessLevel } from '../schema/auth/access';
 import { ObjectId } from 'mongodb';
 
 export const checkAccess = (targetID: ObjectId, accessArray: Access[], requiredLevel: AccessLevel): boolean => {

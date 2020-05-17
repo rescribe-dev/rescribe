@@ -2,15 +2,15 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { repositoryIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { RepositoryModel, RepositoryDB } from '../schema/repository';
+import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { getLogger } from 'log4js';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { checkRepositoryAccess } from './auth';
-import { AccessLevel } from '../schema/access';
-import { UserModel } from '../schema/user';
+import { AccessLevel } from '../schema/auth/access';
+import { UserModel } from '../schema/auth/user';
 import { deleteBranchUtil } from '../branches/deleteBranch.resolver';
-import { BranchModel } from '../schema/branch';
+import { BranchModel } from '../schema/structure/branch';
 
 @ArgsType()
 class DeleteRepositoryArgs {
@@ -38,10 +38,10 @@ export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: O
       }
     }
   });
-  for (const branchID of repository.branches) {
-    const branch = await BranchModel.findById(branchID);
-    if (!branch) continue;
-    await deleteBranchUtil({ id: branchID }, branch);
+  for (const branch of repository.branches) {
+    const branchID = await BranchModel.findById(branch);
+    if (!branchID) continue;
+    await deleteBranchUtil({ id: branch }, branchID);
   }
 };
 

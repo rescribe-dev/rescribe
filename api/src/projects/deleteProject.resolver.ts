@@ -2,15 +2,15 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { ProjectModel, ProjectDB } from '../schema/project';
+import { ProjectModel, ProjectDB } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { checkAccess } from '../utils/checkAccess';
-import { AccessLevel } from '../schema/access';
-import { UserModel } from '../schema/user';
+import { AccessLevel } from '../schema/auth/access';
+import { UserModel } from '../schema/auth/user';
 import { deleteRepositoryUtil } from '../repositories/deleteRepository.resolver';
-import { RepositoryModel } from '../schema/repository';
+import { RepositoryModel } from '../schema/structure/repository';
 
 @ArgsType()
 class DeleteProjectArgs {
@@ -37,10 +37,10 @@ export const deleteProjectUtil = async (args: DeleteProjectArgs, userID: ObjectI
       }
     }
   });
-  for (const repositoryID of project.repositories) {
-    const repository = await RepositoryModel.findById(repositoryID);
-    if (!repository) continue;
-    await deleteRepositoryUtil({ id: repositoryID }, userID, repository);
+  for (const repository of project.repositories) {
+    const repositoryID = await RepositoryModel.findById(repository);
+    if (!repositoryID) continue;
+    await deleteRepositoryUtil({ id: repository }, userID, repositoryID);
   }
 };
 @Resolver()

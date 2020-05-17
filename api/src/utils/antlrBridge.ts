@@ -1,22 +1,25 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import HttpStatus from 'http-status-codes';
 import { ProcessFileInput } from './antlrTypes';
-import { AntlrFile } from '../schema/file';
+import AntlrFile from '../schema/antlr/file';
 
 let antlrURI: string;
 
 let antlrClient: AxiosInstance;
 
-export const processFile = (inputData: ProcessFileInput): Promise<AntlrFile> => {
-  return antlrClient.post<AntlrFile>('/processFile', inputData).then(res => {
+export const processFile = async (inputData: ProcessFileInput): Promise<AntlrFile> => {
+  try {
+    const res = await antlrClient.post<AntlrFile>('/processFile', inputData);
     if (res.status === HttpStatus.OK) {
       return res.data;
-    } else {
+    }
+    else {
       throw new Error(`invalid response status ${res.status}`);
     }
-  }).catch((err: AxiosError) => {
+  }
+  catch (err) {
     throw new Error(err.message);
-  });
+  }
 };
 
 export const pingAntlr = (): Promise<boolean> => {

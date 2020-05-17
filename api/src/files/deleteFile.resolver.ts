@@ -1,14 +1,14 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { getLogger } from 'log4js';
-import { FileModel } from '../schema/file';
+import { FileModel } from '../schema/structure/file';
 import { elasticClient } from '../elastic/init';
 import { fileIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
+import { AccessLevel } from '../schema/auth/access';
 
 const logger = getLogger();
 
@@ -45,7 +45,7 @@ class DeleteFileResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkRepositoryAccess(user, file.projectID, file.repositoryID, AccessLevel.edit)) {
+    if (!checkRepositoryAccess(user, file.project, file.repository, AccessLevel.edit)) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     await deleteFileUtil(args);
