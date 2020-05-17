@@ -12,18 +12,18 @@ import {
   FileTextQuery,
   FileTextQueryVariables,
 } from '../lib/generated/datamodel';
+import errorHandler from '../utils/errorHandler';
 
-export const writeData = async (
+const writeData = async (
   _context: vscode.ExtensionContext,
   files: SearchQuery,
   fileIndex: number
 ): Promise<void> => {
   const fileTextArgs: FileTextQueryVariables = {
-    id: files[fileIndex]._id,
-    start: files[fileIndex].location.start,
-    end: files[fileIndex].location.end,
+    id: files.search[fileIndex]._id,
+    start: files.search[fileIndex].location.start,
+    end: files.search[fileIndex].location.end,
   };
-
   const content = await apolloClient.query<
     FileTextQuery,
     FileTextQueryVariables
@@ -31,7 +31,7 @@ export const writeData = async (
     query: FileText,
     variables: fileTextArgs,
   });
-  if (!content) {
+  if (!content.data || content.data.fileText.length === 0) {
     throw new Error('There is no content');
   }
   if (!vscode.window.activeTextEditor) {
@@ -40,7 +40,6 @@ export const writeData = async (
   if (!vscode.window.activeTextEditor) {
     throw new Error('There is no current active text editor');
   }
-
   const editor = vscode.window.activeTextEditor;
   const splitText = content.data.fileText.split('\n');
   const lineNum = editor.selection.active.line;
@@ -55,14 +54,6 @@ export const writeData = async (
     counter++;
   }
   vscode.window.showInformationMessage('pasted text');
-};
-
-const setFile = async (
-  _context: vscode.ExtensionContext,
-  _files: SearchQuery,
-  _fileIndex: number
-): Promise<void> => {
-  // set file
 };
 
 export default async (context: vscode.ExtensionContext): Promise<void> => {
@@ -84,21 +75,24 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
     throw new Error('no search results');
   }
   const quickPick = vscode.window.createQuickPick();
-  quickPick.items = res.data.search.map((result, _i) => {
-    // TODO process the fields text so it doesn't look bad
-    // https://github.com/microsoft/vscode-extension-samples/blob/master/quickinput-sample/src/quickOpen.ts
+  // https://github.com/microsoft/vscode-extension-samples/blob/master/quickinput-sample/src/quickOpen.ts
+  quickPick.items = res.data.search.map((result) => {
     return {
       label: result.name,
       description: result.preview,
       detail: result.type,
     };
   });
-  quickPick.onDidChangeSelection((selection) => {
-    const index = quickPick.items.indexOf(selection[0]);
-    if (index < 0) {
-      throw new Error('cannot find selected item');
+  quickPick.onDidChangeSelection(async (selection) => {
+    try {
+      const index = quickPick.items.indexOf(selection[0]);
+      if (index < 0) {
+        throw new Error('cannot find selected item');
+      }
+      await writeData(context, res.data, index);
+    } catch (err) {
+      errorHandler(err);
     }
-    setFile(context, res.data, index);
   });
   quickPick.onDidHide(() => quickPick.dispose());
   quickPick.show();

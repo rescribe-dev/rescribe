@@ -6,6 +6,7 @@ import getUser from './commands/getUser';
 import { callerProvider } from './commands/callerProvider';
 import { commandProvider } from './commands/commandProvider';
 import getFiles from './commands/getFiles';
+import errorHandler from './utils/errorHandler';
 const appName = 'rescribe';
 
 export const activate = async (
@@ -17,9 +18,7 @@ export const activate = async (
 
   context.subscriptions.push(
     vscode.commands.registerCommand(`${appName}.getFiles`, () => {
-      getFiles(context).catch((err: Error) => {
-        vscode.window.showErrorMessage(err.message);
-      });
+      getFiles(context).catch(errorHandler);
     })
   );
 
@@ -49,17 +48,13 @@ export const activate = async (
 
   context.subscriptions.push(
     vscode.commands.registerCommand(`${appName}.login`, () => {
-      login(context).catch((err: Error) => {
-        vscode.window.showErrorMessage(err.message);
-      });
+      login(context).catch(errorHandler);
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(`${appName}.getUser`, () => {
-      getUser(context).catch((err: Error) => {
-        vscode.window.showErrorMessage(err.message);
-      });
+      getUser(context).catch(errorHandler);
     })
   );
 };
