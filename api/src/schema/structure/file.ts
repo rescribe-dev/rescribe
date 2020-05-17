@@ -81,7 +81,7 @@ export class SearchResult {
   @Field({ description: 'type' })
   type: ResultType;
   @Field({ description: 'main description' })
-  description: string;
+  preview: string;
   @Field(_type => [String], { description: 'nested path' })
   structure: string[];
 }

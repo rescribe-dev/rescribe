@@ -29,7 +29,7 @@ export class FilesArgs {
   branch?: ObjectId;
 }
 
-const nestedFields = [
+export const nestedFields = [
   'classes',
   'functions',
   'variables',
@@ -37,7 +37,7 @@ const nestedFields = [
   'comments'
 ];
 
-const mainFields = [
+export const mainFields = [
   'name',
   'importPath',
   'path',
