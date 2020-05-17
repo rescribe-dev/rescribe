@@ -16,8 +16,16 @@ type Access {
 
 # base file
 type AntlrFile {
+  _id: ObjectId!
+
   # file name
   name: String!
+
+  # import path
+  importPath: String!
+
+  # file path
+  path: String!
 
   # classes
   classes: [Class!]!
@@ -33,9 +41,6 @@ type AntlrFile {
 
   # comments
   comments: [Comment!]!
-
-  # import path
-  importPath: String!
 }
 
 # auth notification
@@ -126,27 +131,28 @@ type BranchDB {
 
 # class
 type Class {
-  # class name
-  name: String!
+  _id: ObjectId!
 
-  # variables
-  variables: [Variable!]!
+  # parent
+  parent: Parent!
 
-  # constructor
-  constructorFunction: Function!
-
-  # functions
-  functions: [Function!]!
-
-  # class location
+  # location
   location: Location!
 
-  # comments
-  comments: [Comment!]!
+  # class name
+  name: String!
 }
 
 # comment
 type Comment {
+  _id: ObjectId!
+
+  # parent
+  parent: Parent!
+
+  # location
+  location: Location!
+
   # data
   data: String!
 
@@ -162,8 +168,16 @@ enum CommentType {
 
 # file
 type File {
+  _id: ObjectId!
+
   # file name
   name: String!
+
+  # import path
+  importPath: String!
+
+  # path
+  path: String!
 
   # classes
   classes: [Class!]!
@@ -180,21 +194,17 @@ type File {
   # comments
   comments: [Comment!]!
 
-  # import path
-  importPath: String!
-  _id: ObjectId!
+  # number of lines in file
+  fileLength: Int!
 
   # project id
-  projectID: String!
+  project: String!
 
   # repository id
-  repositoryID: String!
+  repository: String!
 
   # branch id
-  branchID: String!
-
-  # path
-  path: String!
+  branch: String!
 
   # storage location
   location: String!
@@ -204,88 +214,43 @@ type File {
 
   # date updated
   updated: Float!
-}
-
-# file search result
-type FileSearchResult {
-  # file name
-  name: String!
-
-  # classes
-  classes: [Class!]!
-
-  # functions
-  functions: [Function!]!
-
-  # variables
-  variables: [Variable!]!
-
-  # imports
-  imports: [Import!]!
-
-  # comments
-  comments: [Comment!]!
-
-  # import path
-  importPath: String!
-  _id: ObjectId!
-
-  # project id
-  projectID: String!
-
-  # repository id
-  repositoryID: String!
-
-  # branch id
-  branchID: String!
-
-  # path
-  path: String!
-
-  # storage location
-  location: String!
-
-  # date created
-  created: Float!
-
-  # date updated
-  updated: Float!
-
-  # matching field
-  fields: [String!]!
 }
 
 # baseline function
 type Function {
+  _id: ObjectId!
+
+  # parent
+  parent: Parent!
+
+  # location
+  location: Location!
+
   # function name
   name: String!
-
-  # function arguments
-  arguments: [Variable!]!
 
   # return type
   returnType: String!
 
-  # variables
-  variables: [Variable!]!
-
-  # comments
-  comments: [Comment!]!
-
-  # location
-  location: Location!
+  # is a constructor
+  isConstructor: Boolean!
 }
 
 # import
 type Import {
+  _id: ObjectId!
+
+  # parent
+  parent: Parent!
+
+  # location
+  location: Location!
+
   # path
   path: String!
 
   # selection
   selection: String!
-
-  # location
-  location: Location!
 }
 
 # location
@@ -409,8 +374,35 @@ type Mutation {
   ): String!
 }
 
+# class
+type NestedObject {
+  _id: ObjectId!
+
+  # parent
+  parent: Parent!
+
+  # location
+  location: Location!
+}
+
 # Mongo object id scalar type
 scalar ObjectId
+
+# parent
+type Parent {
+  _id: ObjectId!
+
+  # parent type
+  type: ParentType!
+}
+
+# parent type
+enum ParentType {
+  File
+  Class
+  Function
+  Variable
+}
 
 # project
 type Project {
@@ -470,7 +462,7 @@ type Query {
   ): File!
   files(
     # query
-    query: String!
+    query: String
 
     # project
     project: ObjectId
@@ -480,7 +472,7 @@ type Query {
 
     # branch
     branch: ObjectId
-  ): [FileSearchResult!]!
+  ): [File!]!
   fileText(
     # file id
     id: ObjectId!
@@ -491,6 +483,19 @@ type Query {
     # end line
     end: Int!
   ): String!
+  search(
+    # query
+    query: String
+
+    # project
+    project: ObjectId
+
+    # repository
+    repository: ObjectId
+
+    # branch
+    branch: ObjectId
+  ): [SearchResult!]!
   hello: String!
   project(
     # project id
@@ -554,6 +559,27 @@ type RepositoryDB {
   _id: ObjectId!
 }
 
+# search result
+type SearchResult {
+  # file id
+  _id: ObjectId!
+
+  # location - line numbers
+  location: Location!
+
+  # name
+  name: String!
+
+  # type
+  type: String!
+
+  # main description
+  description: String!
+
+  # nested path
+  structure: [String!]!
+}
+
 type Subscription {
   authNotifications: AuthNotification!
 }
@@ -598,15 +624,20 @@ type User {
 
 # variable
 type Variable {
+  _id: ObjectId!
+
+  # parent
+  parent: Parent!
+
+  # location
+  location: Location!
+
   # name
   name: String!
 
   # type
   type: String!
 
-  # location
-  location: Location!
-
-  # comments
-  comments: [Comment!]!
+  # is function argument
+  isArgument: Boolean!
 }

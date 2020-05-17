@@ -1,11 +1,11 @@
 import { Resolver, ArgsType, Field, Args, Ctx, Query } from 'type-graphql';
-import File from '../schema/file';
+import File from '../schema/structure/file';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { ObjectId } from 'mongodb';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
+import { AccessLevel } from '../schema/auth/access';
 import { elasticClient } from '../elastic/init';
 import { fileIndexName } from '../elastic/settings';
 
@@ -35,7 +35,7 @@ class FileResolver {
       ...fileData.body._source as File,
       _id: new ObjectId(fileData.body._id as string)
     };
-    if (!checkRepositoryAccess(user, new ObjectId(file.projectID), new ObjectId(file.repositoryID), AccessLevel.view)) {
+    if (!checkRepositoryAccess(user, new ObjectId(file.project), new ObjectId(file.repository), AccessLevel.view)) {
       throw new Error('user not authorized to view file');
     }
     return file;

@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
-import { FileModel, StorageType, FileDB } from '../schema/file';
+import { FileModel, StorageType, FileDB } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
-import User, { UserModel } from '../schema/user';
+import User, { UserModel } from '../schema/auth/user';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { getGithubFile } from '../utils/getGithubFile';
 import { createClient } from '../utils/github';
-import { RepositoryModel } from '../schema/repository';
-import { BranchModel } from '../schema/branch';
+import { RepositoryModel } from '../schema/structure/repository';
+import { BranchModel } from '../schema/structure/branch';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
-import Location from '../schema/location';
+import { AccessLevel } from '../schema/auth/access';
+import Location from '../schema/antlr/location';
 
 @ArgsType()
 class FileTextArgs {
@@ -58,13 +58,13 @@ export const getText = async (file: FileDB, user: User, args: Location): Promise
     }
     // get from github
     const repository = await RepositoryModel.findOne({
-      _id: file.repositoryID
+      _id: file.repository
     });
     if (!repository) {
       throw new Error('cannot find repository');
     }
     const branch = await BranchModel.findOne({
-      _id: file.branchID
+      _id: file.branch
     });
     if (!branch) {
       throw new Error('cannot find branch');
@@ -94,7 +94,7 @@ class FileText {
     if (!user) {
       throw new Error(`user ${args.id.toHexString()} cannot be found`);
     }
-    if (!checkRepositoryAccess(user, file.projectID, file.repositoryID, AccessLevel.view)) {
+    if (!checkRepositoryAccess(user, file.project, file.repository, AccessLevel.view)) {
       throw new Error('user not authorized to view file');
     }
     return await getText(file, user, args);

@@ -1,7 +1,7 @@
 import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
 import { Request } from 'express';
 import { nanoid } from 'nanoid';
-import User, { Plan, UserType, UserModel } from '../schema/user';
+import User, { Plan, UserType, UserModel } from '../schema/auth/user';
 
 export const enum jwtType { LOCAL, GITHUB }
 

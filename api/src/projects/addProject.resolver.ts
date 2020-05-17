@@ -2,11 +2,11 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { Project, BaseProject, ProjectDB, ProjectModel } from '../schema/project';
+import { Project, BaseProject, ProjectDB, ProjectModel } from '../schema/structure/project';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
-import Access, { AccessLevel, AccessType } from '../schema/access';
-import { UserModel } from '../schema/user';
+import Access, { AccessLevel, AccessType } from '../schema/auth/access';
+import { UserModel } from '../schema/auth/user';
 @ArgsType()
 class AddProjectArgs {
   @Field(_type => String, { description: 'project name' })

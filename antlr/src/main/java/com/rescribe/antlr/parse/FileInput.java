@@ -9,6 +9,9 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class FileInput {
+  @NotEmpty(message = "id must be provided")
+  private final String id;
+
   @NotEmpty(message = "path must be provided")
   private final String path;
 

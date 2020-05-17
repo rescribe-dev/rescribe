@@ -2,13 +2,13 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { branchIndexName } from '../elastic/settings';
-import { BranchModel, BranchDB } from '../schema/branch';
+import { BranchModel, BranchDB } from '../schema/structure/branch';
 import { getLogger } from 'log4js';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
+import { AccessLevel } from '../schema/auth/access';
 import { deleteFileUtil } from '../files/deleteFile.resolver';
 
 @ArgsType()

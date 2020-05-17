@@ -6,7 +6,7 @@ import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } 
 import { IsEmail, MinLength, Matches } from 'class-validator';
 import { authNotificationsTrigger, passwordMinLen, specialCharacterRegex } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
-import User, { UserModel } from '../schema/user';
+import User, { UserModel } from '../schema/auth/user';
 import { setRefreshToken } from '../utils/refreshToken';
 
 @ArgsType()

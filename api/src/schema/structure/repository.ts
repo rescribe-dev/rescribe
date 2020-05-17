@@ -1,7 +1,7 @@
 import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
-import Access from './access';
+import Access from '../auth/access';
 
 @ObjectType({ description : 'base repository' })
 export class BaseRepository {

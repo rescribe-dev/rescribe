@@ -109,9 +109,9 @@ export type File = {
   comments: Array<Comment>;
   importPath: Scalars['String'];
   _id: Scalars['ObjectId'];
-  projectID: Scalars['String'];
-  repositoryID: Scalars['String'];
-  branchID: Scalars['String'];
+  project: Scalars['String'];
+  repository: Scalars['String'];
+  branch: Scalars['String'];
   path: Scalars['String'];
   location: Scalars['String'];
   created: Scalars['Float'];
@@ -128,9 +128,9 @@ export type FileSearchResult = {
   comments: Array<Comment>;
   importPath: Scalars['String'];
   _id: Scalars['ObjectId'];
-  projectID: Scalars['String'];
-  repositoryID: Scalars['String'];
-  branchID: Scalars['String'];
+  project: Scalars['String'];
+  repository: Scalars['String'];
+  branch: Scalars['String'];
   path: Scalars['String'];
   location: Scalars['String'];
   created: Scalars['Float'];

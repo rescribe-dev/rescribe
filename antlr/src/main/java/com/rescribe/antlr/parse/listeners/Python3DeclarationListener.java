@@ -2,7 +2,6 @@ package com.rescribe.antlr.parse.listeners;
 
 import com.rescribe.antlr.gen.python3.Python3BaseListener;
 import com.rescribe.antlr.gen.python3.Python3Parser;
-import com.rescribe.antlr.parse.CustomListener;
 import com.rescribe.antlr.parse.FileInput;
 import com.rescribe.antlr.parse.schema.File;
 import lombok.Getter;

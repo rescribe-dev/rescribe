@@ -4,13 +4,13 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { indexFile } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
-import { StorageType } from '../schema/file';
+import { StorageType } from '../schema/structure/file';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { RepositoryModel } from '../schema/repository';
+import { RepositoryModel } from '../schema/structure/repository';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
-import { UserModel } from '../schema/user';
+import { AccessLevel } from '../schema/auth/access';
+import { UserModel } from '../schema/auth/user';
 
 @ArgsType()
 class IndexFilesArgs {

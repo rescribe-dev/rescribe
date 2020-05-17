@@ -2,13 +2,13 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { repositoryIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { Repository, BaseRepository, RepositoryDB, RepositoryModel } from '../schema/repository';
-import { ProjectModel } from '../schema/project';
+import { Repository, BaseRepository, RepositoryDB, RepositoryModel } from '../schema/structure/repository';
+import { ProjectModel } from '../schema/structure/project';
 import { checkProjectAccess } from '../projects/auth';
-import Access, { AccessLevel, AccessType } from '../schema/access';
+import Access, { AccessLevel, AccessType } from '../schema/auth/access';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 
 @ArgsType()
 class AddRepositoryArgs {

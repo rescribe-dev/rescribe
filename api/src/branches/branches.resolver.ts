@@ -4,14 +4,14 @@ import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { branchIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
-import { Branch } from '../schema/branch';
+import { Branch } from '../schema/structure/branch';
 import { RequestParams } from '@elastic/elasticsearch';
 import { TermQuery } from '../elastic/types';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
+import { AccessLevel } from '../schema/auth/access';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 
 @ArgsType()
 class BranchesArgs {

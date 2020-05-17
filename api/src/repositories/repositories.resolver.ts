@@ -4,11 +4,11 @@ import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { repositoryIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
-import { Repository } from '../schema/repository';
+import { Repository } from '../schema/structure/repository';
 import { RequestParams } from '@elastic/elasticsearch';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/user';
-import { AccessLevel } from '../schema/access';
+import { UserModel } from '../schema/auth/user';
+import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
 import { GraphQLContext } from '../utils/context';
 import { checkProjectAccess } from '../projects/auth';
@@ -36,17 +36,17 @@ class RepositoriesResolver {
       if (user.repositories.length === 0 && user.projects.length === 0) {
         return [];
       }
-      for (const projectID of user.projects) {
+      for (const project of user.projects) {
         shouldParams.push({
           term: {
-            project: projectID._id.toHexString()
+            project: project._id.toHexString()
           }
         });
       }
-      for (const repositoryID of user.repositories) {
+      for (const repository of user.repositories) {
         shouldParams.push({
           term: {
-            _id: repositoryID._id.toHexString()
+            _id: repository._id.toHexString()
           }
         });
       }

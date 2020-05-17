@@ -2,13 +2,13 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { branchIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { Branch, BaseBranch, BranchDB, BranchModel } from '../schema/branch';
-import { RepositoryModel } from '../schema/repository';
+import { Branch, BaseBranch, BranchDB, BranchModel } from '../schema/structure/branch';
+import { RepositoryModel } from '../schema/structure/repository';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/access';
-import { UserModel } from '../schema/user';
+import { AccessLevel } from '../schema/auth/access';
+import { UserModel } from '../schema/auth/user';
 
 @ArgsType()
 class AddBranchArgs {
@@ -18,13 +18,13 @@ class AddBranchArgs {
   repository: ObjectId;
 }
 
-export const addBranchUtil = async (args: AddBranchArgs, projectID: ObjectId): Promise<ObjectId> => {
+export const addBranchUtil = async (args: AddBranchArgs, project: ObjectId): Promise<ObjectId> => {
   const currentTime = new Date().getTime();
     const baseBranch: BaseBranch = {
       name: args.name,
       files: [],
       repository: args.repository,
-      project: projectID
+      project: project
     };
     const elasticBranch: Branch = {
       created: currentTime,

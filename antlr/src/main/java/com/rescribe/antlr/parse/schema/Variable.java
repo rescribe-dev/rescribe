@@ -1,15 +1,15 @@
 package com.rescribe.antlr.parse.schema;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Variable {
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class Variable extends NestedObject {
   String name;
   String type;
-  Location location;
-  List<Comment> comments = new ArrayList<>();
+  boolean isArgument;
 }

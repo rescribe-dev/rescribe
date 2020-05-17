@@ -4,11 +4,11 @@ import { GraphQLContext } from '../utils/context';
 import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
-import { UserModel } from '../schema/user';
+import { UserModel } from '../schema/auth/user';
 import { indexFile } from './shared';
-import { StorageType } from '../schema/file';
-import { RepositoryModel } from '../schema/repository';
-import { BranchModel } from '../schema/branch';
+import { StorageType } from '../schema/structure/file';
+import { RepositoryModel } from '../schema/structure/repository';
+import { BranchModel } from '../schema/structure/branch';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
@@ -43,8 +43,8 @@ const getFileName = (path: string): string => {
 };
 
 interface GithubConfiguration {
-  repositoryID: string;
-  projectID: string;
+  repository: string;
+  project: string;
 }
 
 let githubConfig: GithubConfiguration | undefined = undefined;
@@ -92,8 +92,8 @@ class IndexGithubResolver {
     if (!repository) {
       try {
         await getConfigurationData(githubClient, args);
-        repositoryID = new ObjectId(githubConfig?.repositoryID);
-        projectID = new ObjectId(githubConfig?.projectID);
+        repositoryID = new ObjectId(githubConfig?.repository);
+        projectID = new ObjectId(githubConfig?.project);
       } catch(err) {
         throw new Error('project & repo not found');
       }
