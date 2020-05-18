@@ -96,13 +96,13 @@ const addToConfig = (conf: any, allString: boolean): void => {
 
 export const initializeConfig = async (): Promise<void> => {
   const configRes = await cosmiconfig(appName, {
-    cache: true
+    cache: true,
   }).search();
-  if (configRes?.isEmpty) {
-    throw new Error('no configuration found in config');
+  if (!configRes || configRes.isEmpty) {
+    throw new Error('no configuration found');
   }
-  if (configRes?.config) {
-    const conf = configRes?.config;
+  if (configRes.config) {
+    const conf = configRes.config;
     addToConfig(conf, false);
   }
   config();

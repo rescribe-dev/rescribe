@@ -15,8 +15,8 @@ import { ObjectId } from 'mongodb';
 import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLines } from './fileText.resolver';
 
-const maxPreviewLen = 30;
 
+const maxPreviewLen = 30;
 const propertyOf = <TObj>(name: keyof TObj): string => name as string;
 
 interface DataRes {
@@ -101,8 +101,8 @@ class SearchResolver {
             preview: '',
             structure: [],
             location: {
-              start: 0,
-              end: 0,
+              start: 1,
+              end: 1,
             },
             type: ResultType.file,
             name: '',
@@ -136,8 +136,8 @@ class SearchResolver {
             preview: '',
             structure: [],
             location: {
-              start: 0,
-              end: 0,
+              start: 1,
+              end: 1,
             },
             type: ResultType.file,
             name: '',
@@ -174,11 +174,11 @@ class SearchResolver {
               }
               try {
                 fileData[fileID.toHexString()] = await getText(file, user, {
-                  start: 0,
+                  start: 1,
                   end: file.fileLength
                 });
               } catch (err) {
-                // handle error
+                // no text found
               }
             }
             if (fileData[fileID.toHexString()]) {
@@ -188,6 +188,7 @@ class SearchResolver {
               } else {
                 currentResult.preview = preview;
               }
+              currentResult.preview = currentResult.preview.trim();
             }
             results.push(currentResult);
           }

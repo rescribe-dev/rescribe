@@ -25,19 +25,22 @@ class FileTextArgs {
 }
 
 export const getLines = (content: string, location: Location): string => {
-  let lineCount = 0;
+  let lineCount = 1;
   let startIndex = -1;
   let endIndex = -1;
+  if (lineCount === location.start) {
+    startIndex = 0;
+  }
   for (let i = 0; i < content.length; i++) {
     if (content[i] === '\n') {
       lineCount++;
-    }
-    if (lineCount === location.start) {
-      startIndex = i;
-    }
-    if (lineCount === location.end) {
-      endIndex = i;
-      break;
+      if (lineCount === location.start) {
+        startIndex = i + 1;
+      }
+      if (lineCount === location.end + 1) {
+        endIndex = i - 1;
+        break;
+      }
     }
   }
   if (startIndex < 0) {

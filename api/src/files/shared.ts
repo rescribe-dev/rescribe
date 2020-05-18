@@ -56,6 +56,13 @@ export const indexFile = async (saveContent: boolean, location: StorageType, pro
     newFileDB.content = content;
   }
   const fileCreateRes = await new FileModel(newFileDB).save();
+  await BranchModel.updateOne({
+    _id: branch
+  }, {
+    $addToSet: {
+      files: id
+    }
+  });
   logger.info(`added file ${fileCreateRes.id}`);
   return `indexed file with id ${id}`;
 };
