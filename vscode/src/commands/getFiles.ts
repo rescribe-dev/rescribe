@@ -16,13 +16,13 @@ import errorHandler from '../utils/errorHandler';
 
 const writeData = async (
   _context: vscode.ExtensionContext,
-  files: SearchQuery,
+  data: SearchQuery,
   fileIndex: number
 ): Promise<void> => {
   const fileTextArgs: FileTextQueryVariables = {
-    id: files.search[fileIndex]._id,
-    start: files.search[fileIndex].location.start,
-    end: files.search[fileIndex].location.end,
+    id: data.search[fileIndex]._id,
+    start: data.search[fileIndex].location.start,
+    end: data.search[fileIndex].location.end,
   };
   const content = await apolloClient.query<
     FileTextQuery,
@@ -58,15 +58,17 @@ const writeData = async (
 
 export default async (context: vscode.ExtensionContext): Promise<void> => {
   checkAuth(context);
-  const query = await vscode.window.showInputBox();
+  let query = await vscode.window.showInputBox();
   if (!query) {
     throw new Error('no query provided');
   }
+  query = query.trim();
   const res = await apolloClient.query<SearchQuery, SearchQueryVariables>({
     query: Search,
     variables: {
       query,
     },
+    fetchPolicy: 'no-cache' // disable cache
   });
   if (!res) {
     throw new Error('no query response');
@@ -76,7 +78,7 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
   }
   const quickPick = vscode.window.createQuickPick();
   // https://github.com/microsoft/vscode-extension-samples/blob/master/quickinput-sample/src/quickOpen.ts
-  quickPick.items = res.data.search.map((result) => {
+  quickPick.items = res.data.search.map(result => {
     return {
       label: result.name,
       description: result.preview,
