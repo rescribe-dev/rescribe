@@ -54,6 +54,7 @@ const readCache = async (): Promise<void> => {
       cacheData.repository = cache.repository;
       if (configData.authToken.length === 0 && isLoggedIn(cache.authToken)) {
         configData.authToken = cache.authToken;
+        cacheData.authToken = cache.authToken;
       } else {
         setAuthToken('');
       }
