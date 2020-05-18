@@ -1,6 +1,7 @@
 import { graphql as clientUnauthenticated } from '@octokit/graphql';
 import { createAppAuth } from '@octokit/auth-app';
 import { graphql as client } from '@octokit/graphql/dist-types/types';
+import { configData } from './config';
 
 let appID: number;
 let privateKey: string;
@@ -20,15 +21,12 @@ export const createClient = (installationID: number): client => {
 };
 
 export const initializeGithub = async (): Promise<void> => {
-  if (!process.env.GITHUB_PRIVATE_KEY) {
+  if (!configData.GITHUB_PRIVATE_KEY) {
     throw new Error('no private key supplied');
   }
-  privateKey = process.env.GITHUB_PRIVATE_KEY;
-  if (!process.env.GITHUB_APP_ID) {
+  privateKey = configData.GITHUB_PRIVATE_KEY;
+  if (!configData.GITHUB_APP_ID) {
     throw new Error('github app id no supplied');
   }
-  appID = Number(process.env.GITHUB_APP_ID);
-  if (!appID) {
-    throw new Error('invalid github app id supplied');
-  }
+  appID = configData.GITHUB_APP_ID;
 };

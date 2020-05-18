@@ -22,52 +22,39 @@ import exitHook from 'exit-hook';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { TypegooseMiddleware } from './db/typegoose';
 import { handleRefreshToken } from './utils/jwt';
+import { configData } from './utils/config';
 
 const maxDepth = 7;
 const logger = getLogger();
 
 export const initializeServer = async (): Promise<void> => {
-  if (!process.env.PORT) {
-    const message = 'cannot find port';
-    throw new Error(message);
-  }
-  const port = Number(process.env.PORT);
-  if (!port) {
-    const message = 'port is not numeric';
-    throw new Error(message);
-  }
-  if (!process.env.REDIS_HOST) {
+  if (!configData.REDIS_HOST) {
     const message = 'no redis host provided';
     throw new Error(message);
   }
-  if (!process.env.REDIS_PORT) {
+  if (!configData.REDIS_PORT) {
     const message = 'no redis port provided';
     throw new Error(message);
   }
-  const redisPort = Number(process.env.REDIS_PORT);
-  if (!port) {
+  if (!configData.REDIS_PORT) {
     const message = 'redis port is not numeric';
     throw new Error(message);
   }
-  if (!process.env.REDIS_PASSWORD) {
+  if (!configData.REDIS_PASSWORD) {
     const message = 'no redis password provided';
-    throw new Error(message);
-  }
-  if (!process.env.WEBSITE_URL) {
-    const message = 'no website url provided';
     throw new Error(message);
   }
   const app = express();
   app.use(cors({
-    origin: process.env.WEBSITE_URL,
+    origin: configData.WEBSITE_URL,
     credentials: true
   }));
   app.use(cookieParser());
   const redisOptions: Redis.RedisOptions = {
-    host: process.env.REDIS_HOST,
-    port: redisPort,
+    host: configData.REDIS_HOST,
+    port: configData.REDIS_PORT,
     db: 0,
-    password: process.env.REDIS_PASSWORD
+    password: configData.REDIS_PASSWORD
   };
   const pubSub = new RedisPubSub({
     publisher: new Redis(redisOptions),
@@ -152,5 +139,5 @@ export const initializeServer = async (): Promise<void> => {
   }
   const httpServer = createServer(app);
   server.installSubscriptionHandlers(httpServer);
-  httpServer.listen(port, () => logger.info(`Api started: http://localhost:${port}/graphql 🚀`));
+  httpServer.listen(configData.PORT, () => logger.info(`Api started: http://localhost:${configData.PORT}/graphql 🚀`));
 };

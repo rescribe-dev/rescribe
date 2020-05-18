@@ -10,3 +10,7 @@ lib_test
 .env
 # ignore swap files
 *.swp
+
+# config files
+.env
+.rescriberc.yml

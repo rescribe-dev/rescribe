@@ -5,12 +5,13 @@ import { initializeServer } from './server';
 import { initializeAntlr } from './utils/antlrBridge';
 import { initializeLogger } from './utils/logger';
 import { initializeGithub } from './utils/github';
+import { configData } from './utils/config';
 
 const runAPI = async (): Promise<void> => {
   config();
   const logger = initializeLogger();
   let useAntlr = true;
-  if (process.env.CONNECT_ANTLR === 'false') {
+  if (!configData.CONNECT_ANTLR) {
     useAntlr = false;
   }
   try {

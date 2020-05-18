@@ -1,3 +1,5 @@
+import { configData } from './config';
+
 export const isDebug = (): boolean => {
-  return process.env.DEBUG === 'true';
+  return configData.DEBUG;
 };

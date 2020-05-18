@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetSecretValue",
+        "kms:Decrypt"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:SECRET-F99nfz",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:MONGOURI-t3S2TX",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:SENDGRIDAPIKEY-KXfN4C",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:ELASTICURI-z2IZtO",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:STORAGECONFIG-utfesQ",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:REDISADDRESS-LMncc0",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:REDISPASSWORD-g2jUsT",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:MAINRECAPTCHASECRET-1BlmGg",
+        "arn:aws:secretsmanager:us-east-1:125853090487:secret:STRIPEKEY-X13pwT"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
