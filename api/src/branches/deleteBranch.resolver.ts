@@ -29,7 +29,7 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs, branch: BranchDB)
     _id: args.id
   });
   for (const fileID of branch.files) {
-    await deleteFileUtil({ id: fileID });
+    await deleteFileUtil(fileID, args.id);
   }
 };
 

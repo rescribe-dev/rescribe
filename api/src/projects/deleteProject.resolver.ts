@@ -38,9 +38,9 @@ export const deleteProjectUtil = async (args: DeleteProjectArgs, userID: ObjectI
     }
   });
   for (const repository of project.repositories) {
-    const repositoryID = await RepositoryModel.findById(repository);
-    if (!repositoryID) continue;
-    await deleteRepositoryUtil({ id: repository }, userID, repositoryID);
+    const repositoryDB = await RepositoryModel.findById(repository);
+    if (!repositoryDB) continue;
+    await deleteRepositoryUtil({ id: repository }, userID, repositoryDB);
   }
 };
 @Resolver()

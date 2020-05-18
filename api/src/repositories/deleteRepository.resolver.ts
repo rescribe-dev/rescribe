@@ -39,9 +39,9 @@ export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: O
     }
   });
   for (const branch of repository.branches) {
-    const branchID = await BranchModel.findById(branch);
-    if (!branchID) continue;
-    await deleteBranchUtil({ id: branch }, branchID);
+    const branchDB = await BranchModel.findById(branch);
+    if (!branchDB) continue;
+    await deleteBranchUtil({ id: branch }, branchDB);
   }
 };
 
