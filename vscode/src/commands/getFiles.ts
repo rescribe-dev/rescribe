@@ -68,7 +68,7 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
     variables: {
       query,
     },
-    fetchPolicy: 'no-cache' // disable cache
+    fetchPolicy: 'no-cache', // disable cache
   });
   if (!res) {
     throw new Error('no query response');
@@ -78,7 +78,7 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
   }
   const quickPick = vscode.window.createQuickPick();
   // https://github.com/microsoft/vscode-extension-samples/blob/master/quickinput-sample/src/quickOpen.ts
-  quickPick.items = res.data.search.map(result => {
+  quickPick.items = res.data.search.map((result) => {
     return {
       label: result.name,
       description: result.preview,

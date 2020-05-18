@@ -2,8 +2,7 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 import HttpStatus from 'http-status-codes';
 import { ProcessFileInput } from './antlrTypes';
 import AntlrFile from '../schema/antlr/file';
-
-let antlrURI: string;
+import { configData } from './config';
 
 let antlrClient: AxiosInstance;
 
@@ -34,12 +33,11 @@ export const pingAntlr = (): Promise<boolean> => {
 };
 
 export const initializeAntlr = (): Promise<boolean> => {
-  if (!process.env.ANTLR_URI) {
+  if (!configData.ANTLR_URI) {
     throw new Error('cannot find antlr uri');
   }
-  antlrURI = process.env.ANTLR_URI;
   antlrClient = axios.create({
-    baseURL: antlrURI,
+    baseURL: configData.ANTLR_URI,
     headers: {
       common: {
         Accept: 'application/json',

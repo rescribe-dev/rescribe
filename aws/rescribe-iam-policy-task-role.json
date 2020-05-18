@@ -1,0 +1,13 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ECAllowSpecific",
+      "Effect": "Allow",
+      "Action": [
+        "elasticache:*"
+      ],
+      "Resource": "arn:aws:elasticache:us-east-1:125853090487:cluster:rescribe"
+    }
+  ]
+}
