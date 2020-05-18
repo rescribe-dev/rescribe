@@ -17,6 +17,7 @@ interface ConfigType {
   websiteURL: string;
   useSecure: boolean;
   authToken: string;
+  saveCloud: boolean;
   cacheFilePath: string;
 }
 
@@ -26,6 +27,7 @@ export const configData: ConfigType = {
   websiteURL: 'localhost:8000',
   useSecure: false,
   authToken: '',
+  saveCloud: false,
   cacheFilePath: `.${appName}.cache.yml`
 };
 
