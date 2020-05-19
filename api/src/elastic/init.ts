@@ -4,7 +4,7 @@ import { configData } from '../utils/config';
 export let elasticClient: Client;
 
 export const initializeElastic = (): Promise<string> => {
-  if (!configData.ELASTICSEARCH_URI) {
+  if (configData.ELASTICSEARCH_URI.length === 0) {
     throw new Error('cannot find elasticsearch uri');
   }
   elasticClient = new Client({

@@ -18,15 +18,15 @@
         "kms:Decrypt"
       ],
       "Resource": [
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:SECRET-F99nfz",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:MONGOURI-t3S2TX",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:SENDGRIDAPIKEY-KXfN4C",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:ELASTICURI-z2IZtO",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:STORAGECONFIG-utfesQ",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:REDISADDRESS-LMncc0",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:REDISPASSWORD-g2jUsT",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:MAINRECAPTCHASECRET-1BlmGg",
-        "arn:aws:secretsmanager:us-east-1:125853090487:secret:STRIPEKEY-X13pwT"
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:JWT_SECRET-VVDIzd",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:DB_CONNECTION_URI-OSzAkX",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:ELASTICSEARCH_URI-N3iCXK",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_APP_ID-9CB2CN",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_PRIVATE_KEY-4RJ18P",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_HOST-46AZHQ",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PORT-nnUVpT",
+        "arn:aws:secretsmanager:us-east-2:259559535892:secret:REDIS_PASSWORD-iL2COq",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PASSWORD-9Sj0QF"
       ]
     },
     {

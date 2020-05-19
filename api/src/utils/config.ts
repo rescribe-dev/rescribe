@@ -1,8 +1,5 @@
 import { config } from 'dotenv';
 import { cosmiconfig } from 'cosmiconfig';
-import { getLogger } from 'log4js';
-
-const logger = getLogger();
 
 export const appName = 'rescribe';
 
@@ -13,15 +10,15 @@ interface ConfigType {
   WEBSITE_URL: string;
   CONNECT_ANTLR: boolean;
   DEBUG: boolean;
-  JWT_SECRET?: string;
-  DB_CONNECTION_URI?: string;
-  ELASTICSEARCH_URI?: string;
-  ANTLR_URI?: string;
-  GITHUB_APP_ID?: number;
-  GITHUB_PRIVATE_KEY?: string;
-  REDIS_HOST?: string;
-  REDIS_PORT?: number;
-  REDIS_PASSWORD?: string;
+  JWT_SECRET: string;
+  DB_CONNECTION_URI: string;
+  ELASTICSEARCH_URI: string;
+  ANTLR_URI: string;
+  GITHUB_APP_ID: number;
+  GITHUB_PRIVATE_KEY: string;
+  REDIS_HOST: string;
+  REDIS_PORT: number;
+  REDIS_PASSWORD: string;
 }
 
 export const configData: ConfigType = {
@@ -30,7 +27,16 @@ export const configData: ConfigType = {
   DB_NAME: 'rescribe',
   WEBSITE_URL: 'https://rescribe.dev',
   CONNECT_ANTLR: true,
-  DEBUG: false
+  DEBUG: false,
+  JWT_SECRET: '',
+  DB_CONNECTION_URI: '',
+  ELASTICSEARCH_URI: '',
+  ANTLR_URI: '',
+  GITHUB_APP_ID: 0,
+  GITHUB_PRIVATE_KEY: '',
+  REDIS_HOST: '',
+  REDIS_PORT: 0,
+  REDIS_PASSWORD: ''
 };
 
 const addToConfig = (conf: any, allString: boolean): void => {
@@ -54,7 +60,8 @@ const addToConfig = (conf: any, allString: boolean): void => {
         }
       }
       if (currentType !== givenType) {
-        logger.warn(`invalid type ${givenType} found for ${key} in config`);
+        // eslint-disable-next-line no-console
+        console.warn(`invalid type ${givenType} found for ${key} with type ${currentType} in config`);
       } else {
         (configData as any)[key] = currentVal;
       }
@@ -66,13 +73,11 @@ export const initializeConfig = async (): Promise<void> => {
   const configRes = await cosmiconfig(appName, {
     cache: true
   }).search();
-  if (configRes?.isEmpty) {
+  if (!configRes || configRes.isEmpty) {
     throw new Error('no configuration found in config');
   }
-  if (configRes?.config) {
-    const conf = configRes?.config;
-    addToConfig(conf, false);
-  }
+  const conf = configRes.config;
+  addToConfig(conf, false);
   config();
   addToConfig(process.env, true);
 };
