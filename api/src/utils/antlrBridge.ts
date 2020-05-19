@@ -33,7 +33,7 @@ export const pingAntlr = (): Promise<boolean> => {
 };
 
 export const initializeAntlr = (): Promise<boolean> => {
-  if (!configData.ANTLR_URI) {
+  if (configData.ANTLR_URI.length === 0) {
     throw new Error('cannot find antlr uri');
   }
   antlrClient = axios.create({

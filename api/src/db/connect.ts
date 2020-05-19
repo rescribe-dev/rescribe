@@ -8,7 +8,7 @@ const logger = getLogger();
 export let client: Mongoose;
 
 export const initializeDB = async (): Promise<string> => {
-  if (!configData.DB_CONNECTION_URI) {
+  if (configData.DB_CONNECTION_URI.length === 0) {
     throw new Error('cannot find database uri');
   }
   client = await connect(configData.DB_CONNECTION_URI, {

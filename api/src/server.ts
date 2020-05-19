@@ -28,19 +28,15 @@ const maxDepth = 7;
 const logger = getLogger();
 
 export const initializeServer = async (): Promise<void> => {
-  if (!configData.REDIS_HOST) {
+  if (configData.REDIS_HOST.length === 0) {
     const message = 'no redis host provided';
     throw new Error(message);
   }
-  if (!configData.REDIS_PORT) {
+  if (configData.REDIS_PORT === 0) {
     const message = 'no redis port provided';
     throw new Error(message);
   }
-  if (!configData.REDIS_PORT) {
-    const message = 'redis port is not numeric';
-    throw new Error(message);
-  }
-  if (!configData.REDIS_PASSWORD) {
+  if (configData.REDIS_PASSWORD.length === 0) {
     const message = 'no redis password provided';
     throw new Error(message);
   }
