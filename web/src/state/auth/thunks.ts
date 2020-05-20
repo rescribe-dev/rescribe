@@ -15,10 +15,6 @@ import {
 } from '../../lib/generated/datamodel';
 import { UserType } from './types';
 
-interface LoginRes {
-  login: string;
-}
-
 const checkAuth = async (args: LoginMutationVariables): Promise<string> => {
   const apolloRes = await client.mutate<LoginMutation, LoginMutationVariables>({
     mutation: Login,

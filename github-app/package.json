@@ -19,7 +19,7 @@
     "clean": "rimraf lib && rimraf coverage",
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "precommit": "npm run clean && npm run lint && npm run format",
+    "precommit": "npm run lint && npm run format",
     "prepublishOnly": "npm run build",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
     "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
