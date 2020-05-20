@@ -14,10 +14,16 @@ import {
 } from '../lib/generated/datamodel';
 import errorHandler from '../utils/errorHandler';
 
+let search: (context: vscode.ExtensionContext) => Promise<void> = () =>
+  new Promise<void>(() => {
+    // do nothing
+  });
+
 const writeData = async (
-  _context: vscode.ExtensionContext,
+  context: vscode.ExtensionContext,
   data: SearchQuery,
-  fileIndex: number
+  fileIndex: number,
+  quickPick: vscode.QuickPick<vscode.QuickPickItem>
 ): Promise<void> => {
   const fileTextArgs: FileTextQueryVariables = {
     id: data.search[fileIndex]._id,
@@ -54,10 +60,11 @@ const writeData = async (
     counter++;
   }
   vscode.window.showInformationMessage('pasted text');
+  quickPick.hide();
+  search(context);
 };
 
-export default async (context: vscode.ExtensionContext): Promise<void> => {
-  checkAuth(context);
+search = async (context): Promise<void> => {
   let query = await vscode.window.showInputBox();
   if (!query) {
     throw new Error('no query provided');
@@ -91,11 +98,16 @@ export default async (context: vscode.ExtensionContext): Promise<void> => {
       if (index < 0) {
         throw new Error('cannot find selected item');
       }
-      await writeData(context, res.data, index);
+      await writeData(context, res.data, index, quickPick);
     } catch (err) {
       errorHandler(err);
     }
   });
   quickPick.onDidHide(() => quickPick.dispose());
   quickPick.show();
+};
+
+export default async (context: vscode.ExtensionContext): Promise<void> => {
+  checkAuth(context);
+  await search(context);
 };

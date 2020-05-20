@@ -43,7 +43,7 @@
 		"pretest": "yarn compile && yarn lint",
 		"test": "node ./out/test/runTest.js",
 		"clean": "rimraf out",
-		"precommit": "yarn clean && yarn lint",
+		"precommit": "yarn lint",
 		"codegen": "graphql-codegen --config codegen.yml"
 	},
 	"devDependencies": {
