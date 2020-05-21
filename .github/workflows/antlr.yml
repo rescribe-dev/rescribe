@@ -26,7 +26,7 @@ jobs:
         id: build-antlr
         run: |
           cd antlr
-          ./gradlew build
+          ./predeploy
           cd -
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
