@@ -1,0 +1,38 @@
+name: Upload Website
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "web/**"
+      - ".github/build-frontend/**"
+      - ".github/workflows/frontend.yml"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # checks out a copy of the repo
+      - uses: actions/checkout@master
+      - name: Setup Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: build
+        run: cd frontend && yarn && yarn predeploy && cd -
+        env:
+          GATSBY_API_URL: api.rescribe.dev
+          GATSBY_USE_SECURE: "true"
+          GATSBY_RECAPTCHA_SITE_KEY: ${{ secrets.GATSBY_RECAPTCHA_SITE_KEY }}
+      - name: copy dist
+        run: cp -r web/dist .github/build-frontend/dist
+      - name: run build
+        run: cd .github/build-frontend && npm install && npm run build && npm start && cd -
+        env:
+          AWS_S3_BUCKET: rescribe-frontend
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID }}
+          AWS_REGION: us-east-1
+          SOURCE_DIR: dist
+      - name: finish
+        run: echo "finished!"
