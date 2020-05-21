@@ -26,7 +26,7 @@ jobs:
         id: build-antlr
         run: |
           cd antlr
-          ./predeploy
+          ./predeploy.sh
           cd -
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
