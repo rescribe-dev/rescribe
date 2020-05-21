@@ -22,6 +22,13 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      - name: Build api
+        id: build-api
+        run: |
+          cd api
+          npm install
+          npm run predeploy
+          cd -
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
@@ -33,6 +40,7 @@ jobs:
           # push it to ECR so that it can
           # be deployed to ECS.
           cd api
+          npm run predeploy
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
