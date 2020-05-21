@@ -25,8 +25,13 @@ jobs:
           GATSBY_RECAPTCHA_SITE_KEY: ${{ secrets.GATSBY_RECAPTCHA_SITE_KEY }}
       - name: copy dist
         run: cp -r web/dist .github/build-frontend/dist
-      - name: run build
-        run: cd .github/build-frontend && npm install && npm run build && npm start && cd -
+      - name: upload
+        run: |
+          cd .github/build-frontend
+          yarn install
+          yarn run build
+          yarn start
+          cd -
         env:
           AWS_S3_BUCKET: rescribe-frontend
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
