@@ -67,7 +67,8 @@
   "scripts": {
     "build:gatsby": "cd gatsby && tsc",
     "prebuild": "yarn clean && yarn build:gatsby",
-    "build": "npm run codegen && gatsby build && cp -r public dist",
+    "build": "npm run codegen && gatsby build && mv public dist",
+    "predeploy": "yarn build",
     "dev": "yarn build:gatsby && yarn lint && gatsby develop",
     "serve": "node static-server.js",
     "lint": "eslint --ignore-path .gitignore . --ext ts --ext tsx --ext js --ext jsx --fix",
