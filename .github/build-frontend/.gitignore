@@ -14,8 +14,3 @@ lib/
 !src/lib/
 src/lib/generated
 lib_test
-
-# ignore config files
-.env
-.rescribe*
-rescriberc.yml

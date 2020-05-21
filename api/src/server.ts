@@ -103,6 +103,11 @@ export const initializeServer = async (): Promise<void> => {
       message: 'hello world!'
     }).status(HttpStatus.OK);
   });
+  app.get('/', (_, res) => {
+    res.json({
+      message: 'go to /graphql for playground'
+    }).status(HttpStatus.OK);
+  });
   app.post('/refreshToken', async (req, res) => {
     try {
       const accessToken = await handleRefreshToken(req);
