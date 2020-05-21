@@ -26,6 +26,8 @@ jobs:
         id: build-antlr
         run: |
           cd antlr
+          sudo apt-get update -y
+          sudo apt-get install -y antlr4
           ./predeploy.sh
           cd -
       - name: Build, tag, and push image to Amazon ECR
