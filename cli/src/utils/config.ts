@@ -17,7 +17,6 @@ interface ConfigType {
   websiteURL: string;
   useSecure: boolean;
   authToken: string;
-  saveCloud: boolean;
   cacheFilePath: string;
 }
 
@@ -27,20 +26,15 @@ export const configData: ConfigType = {
   websiteURL: 'localhost:8000',
   useSecure: false,
   authToken: '',
-  saveCloud: false,
   cacheFilePath: `.${appName}.cache.yml`
 };
 
 interface CacheType {
   authToken: string;
-  project: string;
-  repository: string;
 }
 
 export const cacheData: CacheType = {
-  authToken: '',
-  project: '',
-  repository: '',
+  authToken: ''
 };
 
 export const writeCache = async (): Promise<void> => {
@@ -52,11 +46,8 @@ const readCache = async (): Promise<void> => {
     const file = await readFile(configData.cacheFilePath, 'utf8');
     const cache: CacheType | undefined = yaml.safeLoad(file);
     if (cache) {
-      cacheData.project = cache.project;
-      cacheData.repository = cache.repository;
       if (configData.authToken.length === 0 && isLoggedIn(cache.authToken)) {
         configData.authToken = cache.authToken;
-        cacheData.authToken = cache.authToken;
       } else {
         setAuthToken('');
       }
@@ -96,13 +87,13 @@ const addToConfig = (conf: any, allString: boolean): void => {
 
 export const initializeConfig = async (): Promise<void> => {
   const configRes = await cosmiconfig(appName, {
-    cache: true,
+    cache: true
   }).search();
-  if (!configRes || configRes.isEmpty) {
-    throw new Error('no configuration found');
+  if (configRes?.isEmpty) {
+    throw new Error('no configuration found in config');
   }
-  if (configRes.config) {
-    const conf = configRes.config;
+  if (configRes?.config) {
+    const conf = configRes?.config;
     addToConfig(conf, false);
   }
   config();

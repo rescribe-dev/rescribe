@@ -1,6 +1,6 @@
 import { ObjectType, Field } from 'type-graphql';
 
-@ObjectType({ description: 'auth notification' })
+@ObjectType({ description: "auth notification" })
 export class AuthNotification {
   @Field(_type => String)
   id: string;

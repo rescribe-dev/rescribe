@@ -26,8 +26,6 @@ module.exports = {
     sourceType: 'module' // Allows for the use of imports
   },
   rules: {
-    'prettier/prettier': ['error', { 'singleQuote': true }],
-    'quotes': [2, 'single', { 'avoidEscape': true }],
     'semi': 'off',
     '@typescript-eslint/semi': ['error', 'always'],
     '@typescript-eslint/ban-ts-ignore': 'off',

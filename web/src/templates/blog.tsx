@@ -1,5 +1,5 @@
-import React from 'react';
-import Img, { FluidObject } from 'gatsby-image';
+import React from "react";
+import Img, { FluidObject } from "gatsby-image";
 
 interface BlogData {
   title: string;

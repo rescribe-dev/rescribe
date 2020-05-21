@@ -1,29 +1,25 @@
-import { navigate, PageProps } from 'gatsby';
-import { isLoggedIn } from '../state/auth/getters';
-import React, { useState } from 'react';
-import { isInProject } from '../state/project/getters';
+import { navigate, PageProps } from "gatsby";
+import { isLoggedIn } from "../state/auth/getters";
+import React, { useState } from "react";
 
 interface Input extends PageProps {
   component: (args: PageProps) => JSX.Element;
-  requiresProject?: boolean;
 }
 
 const PrivateRoute = (args: Input) => {
+  const [isLoading, setLoading] = useState(true);
   const pageArgs: PageProps = args;
   const childComponent = args.component(pageArgs);
-  const [isLoading, setLoading] = useState(true);
   isLoggedIn()
     .then((loggedIn) => {
       if (!loggedIn) {
-        navigate('/login');
-      } else if (args.requiresProject && !isInProject()) {
-        navigate('/app/account');
+        navigate("/login");
       } else {
         setLoading(false);
       }
     })
     .catch((_err) => {
-      navigate('/login');
+      navigate("/login");
     });
   return <>{isLoading ? null : childComponent}</>;
 };

@@ -1,10 +1,10 @@
-import { getLogger } from 'log4js';
+import { getLogger } from "log4js";
 import { Arguments } from 'yargs';
-import { websiteURL, apolloClient, initializeApolloClient } from '../utils/api';
-import { writeError } from '../utils/logger';
-import { setAuthToken } from '../utils/authToken';
-import { configData } from '../utils/config';
-import { LoginGuest, LoginGuestMutationVariables, LoginGuestMutation, AuthNotifications, AuthNotificationsSubscriptionVariables, AuthNotificationsSubscription } from '../lib/generated/datamodel';
+import { websiteURL, apolloClient, initializeApolloClient } from "../utils/api";
+import gql from "graphql-tag";
+import { writeError } from "../utils/logger";
+import { setAuthToken } from "../utils/authToken";
+import { configData } from "../utils/config";
 
 const logger = getLogger();
 
@@ -16,6 +16,13 @@ export const closeLoginSubscription = (): void => {
   }
 };
 
+interface AuthNotifications {
+  authNotifications?: {
+    id: string;
+    token: string;
+  };
+}
+
 const waitTime = 20 * 60 * 1000;
 
 export default async (_args: Arguments): Promise<void> => {
@@ -23,13 +30,13 @@ export default async (_args: Arguments): Promise<void> => {
     let loginTimeout: NodeJS.Timeout | undefined;
     try {
       logger.info('start login');
-      const loginGuestRes = await apolloClient.mutate<LoginGuestMutation, LoginGuestMutationVariables>({
-        mutation: LoginGuest,
-        variables: {}
+      const loginGuestRes = await apolloClient.mutate({
+        mutation: gql`
+          mutation loginGuest {
+            loginGuest
+          }
+        `
       });
-      if (!loginGuestRes.data || !loginGuestRes.data.loginGuest) {
-        throw new Error('cannot find guest token');
-      }
       await setAuthToken(loginGuestRes.data.loginGuest);
       initializeApolloClient();
       closeLoginSubscription();
@@ -37,8 +44,14 @@ export default async (_args: Arguments): Promise<void> => {
         closeLoginSubscription();
         reject(new Error('login timed out'));
       }, waitTime);
-      loginSubscription = apolloClient.subscribe<AuthNotificationsSubscription, AuthNotificationsSubscriptionVariables>({
-        query: AuthNotifications,
+      loginSubscription = apolloClient.subscribe<AuthNotifications>({
+        query: gql`
+            subscription authNotifications {
+              authNotifications {
+                token
+              }
+            }
+          `,
         variables: {}
       }).subscribe({
         next: res => {

@@ -1,16 +1,20 @@
+import { config } from 'dotenv';
 import { initializeDB } from './db/connect';
 import { initializeElastic } from './elastic/init';
 import { initializeServer } from './server';
 import { initializeAntlr } from './utils/antlrBridge';
 import { initializeLogger } from './utils/logger';
 import { initializeGithub } from './utils/github';
-import { configData, initializeConfig } from './utils/config';
 
 const runAPI = async (): Promise<void> => {
-  await initializeConfig();
+  config();
   const logger = initializeLogger();
+  let useAntlr = true;
+  if (process.env.CONNECT_ANTLR === 'false') {
+    useAntlr = false;
+  }
   try {
-    if (configData.CONNECT_ANTLR) {
+    if (useAntlr) {
       await initializeAntlr();
       logger.info('connected to antlr');
     }

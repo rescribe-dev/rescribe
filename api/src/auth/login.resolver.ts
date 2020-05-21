@@ -3,10 +3,10 @@ import { GraphQLContext } from '../utils/context';
 import { verifyGuest } from './checkAuth';
 import { generateJWTAccess, generateJWTGuest, generateJWTRefresh } from '../utils/jwt';
 import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } from 'type-graphql';
-import { IsEmail, MinLength, Matches } from 'class-validator';
+import { IsEmail, MinLength, Matches } from "class-validator";
 import { authNotificationsTrigger, passwordMinLen, specialCharacterRegex } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
-import User, { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/auth';
 import { setRefreshToken } from '../utils/refreshToken';
 
 @ArgsType()

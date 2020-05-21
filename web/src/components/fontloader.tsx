@@ -1,11 +1,11 @@
-import React from 'react';
-import WebFont from 'webfontloader';
+import React from "react";
+import WebFont from "webfontloader";
 
 class FontLoader extends React.Component {
   componentDidMount() {
     WebFont.load({
       google: {
-        families: ['Montserrat'],
+        families: ["Montserrat"],
       },
     });
   }

@@ -1,25 +1,25 @@
-import React from 'react';
-import { ApolloProvider } from '@apollo/react-hooks';
-import ApolloClient from 'apollo-client';
-import fetch from 'isomorphic-fetch';
-import { split, from } from 'apollo-link';
-import { HttpLink } from 'apollo-link-http';
-import { WebSocketLink } from 'apollo-link-ws';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
-import { getMainDefinition } from 'apollo-utilities';
-import { setContext } from 'apollo-link-context';
-import ws from 'ws';
-import { getAuthToken, isLoggedIn } from '../state/auth/getters';
-import { isSSR } from './checkSSR';
-import { useSecure } from './useSecure';
+import React from "react";
+import { ApolloProvider } from "@apollo/react-hooks";
+import ApolloClient from "apollo-client";
+import fetch from "isomorphic-fetch";
+import { split, from } from "apollo-link";
+import { HttpLink } from "apollo-link-http";
+import { WebSocketLink } from "apollo-link-ws";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { SubscriptionClient } from "subscriptions-transport-ws";
+import { getMainDefinition } from "apollo-utilities";
+import { setContext } from "apollo-link-context";
+import ws from "ws";
+import { getAuthToken, isLoggedIn } from "../state/auth/getters";
+import { isSSR } from "./checkSSR";
+import { useSecure } from "./useSecure";
 
 const link = new HttpLink({
-  uri: `${useSecure ? 'https' : 'http'}://${
+  uri: `${useSecure ? "https" : "http"}://${
     process.env.GATSBY_API_URL
   }/graphql`,
   fetch,
-  credentials: 'include',
+  credentials: "include",
 });
 
 const httpMiddleware = setContext(async (_operation) => {
@@ -47,7 +47,7 @@ export const initializeApolloClient = async (): Promise<void> => {
   const authToken = getAuthToken();
   if (await isLoggedIn()) {
     const wsClient = new SubscriptionClient(
-      `${useSecure ? 'wss' : 'ws'}://${process.env.GATSBY_API_URL}/graphql`,
+      `${useSecure ? "wss" : "ws"}://${process.env.GATSBY_API_URL}/graphql`,
       {
         reconnect: true,
         connectionParams: {
@@ -60,8 +60,8 @@ export const initializeApolloClient = async (): Promise<void> => {
     link = split(
       ({ query }) => {
         const mainDef = getMainDefinition(query);
-        if (mainDef.kind !== 'OperationDefinition') return false;
-        return mainDef.operation === 'subscription';
+        if (mainDef.kind !== "OperationDefinition") return false;
+        return mainDef.operation === "subscription";
       },
       websocket,
       link

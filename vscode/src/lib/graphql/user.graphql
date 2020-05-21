@@ -1,7 +1,0 @@
-query user {
-  user {
-    name
-    email
-    plan
-  }
-}

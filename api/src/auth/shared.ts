@@ -1,4 +1,4 @@
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from "../schema/auth";
 
 export const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
 export const passwordMinLen = 6;

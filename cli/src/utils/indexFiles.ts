@@ -1,16 +1,14 @@
-import { getLogger } from 'log4js';
+import { getLogger } from "log4js";
 import FormData from 'form-data';
 import mime from 'mime-types';
+import gql from 'graphql-tag';
 import { basename } from 'path';
 import { axiosClient, axiosRequestTimeout } from './api';
 import { AxiosError } from 'axios';
 import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
-import { GraphQLError } from 'graphql';
-import axios from 'axios';
-import { ObjectId } from 'mongodb';
-import { IndexFiles, IndexFilesMutationVariables } from '../lib/generated/datamodel';
-import { cacheData, configData } from './config';
+import { GraphQLError } from "graphql";
+import axios from "axios";
 
 const logger = getLogger();
 
@@ -18,19 +16,20 @@ interface ResIndex {
   indexFiles: string;
 }
 
-export default async (paths: string[], files: Buffer[], branch: ObjectId): Promise<string> => {
+export default async (paths: string[], files: Buffer[], branchName: string): Promise<string> => {
   const form = new FormData();
-  const variables: IndexFilesMutationVariables = {
-    files: paths.map(() => null),
-    paths: paths,
-    project: cacheData.project,
-    repository: cacheData.repository,
-    branch,
-    saveContent: configData.saveCloud
-  };
   form.append('operations', JSON.stringify({
-    query: print(IndexFiles),
-    variables
+    query: print(gql`
+      mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $repository: String!, $branch: String!) {
+        indexFiles(files: $files, paths: $paths, repository: $repository, branch: $branch)
+      }
+    `),
+    variables: {
+      files: paths.map(() => null),
+      paths: paths,
+      repository: 'test',
+      branch: branchName
+    }
   }));
   const map: any = {};
   for (let i = 0; i < paths.length; i++) {

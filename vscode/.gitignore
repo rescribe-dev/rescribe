@@ -1,4 +1,3 @@
 # ignore output
 out/
 node_modules/
-src/lib/generated

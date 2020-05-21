@@ -2,4 +2,3 @@ apiURL: localhost:8080
 debug: false
 websiteURL: localhost:8000
 useSecure: false
-saveCloud: true

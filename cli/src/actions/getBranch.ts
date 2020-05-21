@@ -1,6 +1,6 @@
-import { getBranch } from '../utils/git';
-import { logger } from '../utils/logger';
-import { Arguments } from 'yargs';
+import { getBranch } from "../utils/git";
+import { logger } from "../utils/logger";
+import { Arguments } from "yargs";
 
 interface Args {
   path?: string;

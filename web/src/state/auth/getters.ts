@@ -1,12 +1,12 @@
-import jwt from 'jsonwebtoken';
-import { store } from '../reduxWrapper';
-import { logout, setToken } from './actions';
-import { axiosClient } from '../../utils/axios';
-import { runLogout } from './thunks';
-import { RootState } from '..';
+import jwt from "jsonwebtoken";
+import { store } from "../reduxWrapper";
+import { logout, setToken } from "./actions";
+import { axiosClient } from "../../utils/axios";
+import { AuthState } from "./types";
+import { runLogout } from "./thunks";
 
 export const getAuthToken = () => {
-  return (store.getState() as RootState).authReducer.authToken;
+  return store.getState().authReducer.authToken;
 };
 
 interface RefreshRes {
@@ -15,7 +15,7 @@ interface RefreshRes {
 
 export const refreshAuth = async (): Promise<void> => {
   const refreshTokenRes = await axiosClient.post<RefreshRes>(
-    '/refreshToken',
+    "/refreshToken",
     {},
     {
       withCredentials: true,
@@ -25,14 +25,14 @@ export const refreshAuth = async (): Promise<void> => {
 };
 
 export const isLoggedIn = async () => {
-  const state = (store.getState() as RootState).authReducer;
+  const state = store.getState().authReducer as AuthState;
   if (!state.loggedIn) {
     return false;
   }
   const checkAuthCallback = async (): Promise<boolean> => {
     try {
       await refreshAuth();
-      const state = (store.getState() as RootState).authReducer;
+      const state = store.getState().authReducer as AuthState;
       return state.authToken !== undefined && state.authToken.length > 0;
     } catch (err) {
       await runLogout();
@@ -45,10 +45,10 @@ export const isLoggedIn = async () => {
   }
   try {
     const keys = jwt.decode(state.authToken);
-    if (keys === null || typeof keys === 'string') {
+    if (keys === null || typeof keys === "string") {
       return await checkAuthCallback();
     }
-    const exp: number = keys['exp'];
+    const exp: number = keys["exp"];
     if (!exp) {
       return await checkAuthCallback();
     }

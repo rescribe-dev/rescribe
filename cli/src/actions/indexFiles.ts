@@ -1,13 +1,10 @@
 import fs, { readFileSync, lstatSync } from 'fs';
-import { getLogger } from 'log4js';
-import { handleStringList } from '../utils/cli';
-import { isBinaryFile } from 'isbinaryfile';
+import { getLogger } from "log4js";
+import { handleStringList } from "../utils/cli";
+import { isBinaryFile } from "isbinaryfile";
 import { promisify } from 'util';
 import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
-import { cacheData } from '../utils/config';
-import { getBranch } from '../utils/getBranch';
-import { ObjectId } from 'mongodb';
 
 const logger = getLogger();
 
@@ -19,10 +16,6 @@ interface Args {
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
-  if (cacheData.project.length === 0 || cacheData.repository.length === 0) {
-    throw new Error('project and repository need to be set with <set-project>');
-  }
-  const branchData = await getBranch(args.branch);
   const paths = handleStringList(args.files);
   const files: Buffer[] = [];
   for (let i = 0; i < paths.length; i++) {
@@ -39,6 +32,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
     }
     files.push(buffer);
   }
-  await indexFiles(paths, files, new ObjectId(branchData.branch._id));
-  console.log('done indexing files');
+  const res = await indexFiles(paths, files, args.branch);
+  console.log(`done indexing files:`);
+  console.log(JSON.parse(res));
 };

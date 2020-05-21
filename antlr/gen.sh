@@ -16,8 +16,8 @@ java_line_comment=110
 if [ ! -d "./grammars" ]; then
   git clone https://github.com/antlr/grammars-v4 grammars
   cd grammars/java/java
-  sed -i -r "s/^(COMMENT:.*-> channel)\(HIDDEN\);$/\1\($java_multiline_comment\);/g" JavaLexer.g4
-  sed -i -r "s/^(LINE_COMMENT:.*-> channel)\(HIDDEN\);$/\1\($java_line_comment\);/g" JavaLexer.g4
+  sed -i -r "s/^(COMMENT:.*-> channel)\(HIDDEN\);$/\1\(java_multiline_comment\);/g" JavaLexer.g4
+  sed -i -r "s/^(LINE_COMMENT:.*-> channel)\(HIDDEN\);$/\1\(java_line_comment\);/g" JavaLexer.g4
   cd -
 fi
 

@@ -3,8 +3,8 @@
  * Edit the source file at `./gatsby/src/gatsby-node.ts`
  */
 
-require('dotenv').config({
+require("dotenv").config({
   path: `.env.${process.env.NODE_ENV}`,
 });
 
-module.exports = require('./gatsby/.gatsby/gatsby-config').default;
+module.exports = require("./gatsby/.gatsby/gatsby-config").default;

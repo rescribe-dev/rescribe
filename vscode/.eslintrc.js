@@ -1,26 +1,23 @@
 module.exports = {
-  root: true,
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 6,
-    sourceType: 'module'
+  'root': true,
+  'parser': '@typescript-eslint/parser',
+  'parserOptions': {
+    'ecmaVersion': 6,
+    'sourceType': 'module'
   },
-  plugins: [
+  'plugins': [
     '@typescript-eslint',
     'prefer-arrow',
     'import'
   ],
   extends: [
+    'prettier',
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier/@typescript-eslint',
-    'plugin:jsdoc/recommended',
-    'plugin:prettier/recommended'
+    'plugin:jsdoc/recommended'
   ],
-  rules: {
-    'prettier/prettier': ['error', { 'singleQuote': true }],
-    'quotes': [2, 'single', { 'avoidEscape': true }],
+  'rules': {
     'semi': 'off',
     '@typescript-eslint/semi': ['error', 'always'],
     '@typescript-eslint/no-unused-vars': [

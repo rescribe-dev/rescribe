@@ -1,6 +1,0 @@
-query projects {
-  projects {
-    _id
-    name
-  }
-}

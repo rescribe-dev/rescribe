@@ -1,6 +1,0 @@
-query repositories($project: ObjectId!) {
-  repositories(project: $project) {
-    _id
-    name
-  }
-}

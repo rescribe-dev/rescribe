@@ -7,12 +7,11 @@ module.exports = {
     'import'
   ],
   extends: [
+    'prettier',
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier/@typescript-eslint',
-    'plugin:jsdoc/recommended',
-    'plugin:prettier/recommended'
+    'plugin:jsdoc/recommended'
   ],
   env: {
     node: true
@@ -28,8 +27,6 @@ module.exports = {
     }
   },
   rules: {
-    'prettier/prettier': ['error', { 'singleQuote': true }],
-    'quotes': [2, 'single', { 'avoidEscape': true }],
     'semi': 'off',
     '@typescript-eslint/semi': ['error', 'always'],
     'no-control-regex': 'off',
