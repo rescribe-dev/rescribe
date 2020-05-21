@@ -13,4 +13,3 @@ lib_test
 
 # config files
 .env
-.rescriberc.yml
