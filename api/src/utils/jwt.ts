@@ -1,7 +1,8 @@
 import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
 import { Request } from 'express';
 import { nanoid } from 'nanoid';
-import User, { Plan, UserType, UserModel } from '../schema/auth';
+import User, { Plan, UserType, UserModel } from '../schema/auth/user';
+import { configData } from './config';
 
 export const enum jwtType { LOCAL, GITHUB }
 
@@ -24,10 +25,10 @@ const getSecret = (type: jwtType): string => {
   let secret: string | undefined;
   switch (type) {
     case jwtType.LOCAL:
-      secret = process.env.JWT_SECRET;
+      secret = configData.JWT_SECRET;
       break;
     case jwtType.GITHUB:
-      secret = process.env.GITHUB_PRIVATE_KEY;
+      secret = configData.GITHUB_PRIVATE_KEY;
       break;
     default:
       secret = undefined;
@@ -40,7 +41,7 @@ const getSecret = (type: jwtType): string => {
 };
 
 const getJWTIssuer = (): string => {
-  const jwtIssuer = process.env.JWT_ISSUER;
+  const jwtIssuer = configData.JWT_ISSUER;
   if (!jwtIssuer) {
     throw new Error('no jwt issuer found');
   }
@@ -217,13 +218,15 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
             type: res.type,
             emailVerified: res.emailVerified
           };
-        } else {
+        } else if (type === jwtType.GITHUB) {
           data = {
             id: nanoid(),
             plan: Plan.free,
-            type: UserType.admin,
+            type: UserType.github,
             emailVerified: true
           };
+        } else {
+          throw new Error('invalid type for jwt');
         }
         resolve(data);
       }

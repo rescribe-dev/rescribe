@@ -1,19 +1,14 @@
-export const LOGIN = "LOGIN";
-export const LOGOUT = "LOGOUT";
-export const SET_TOKEN = "SET_TOKEN";
-export const SET_USER = "SET_USER";
+export const LOGIN = 'LOGIN';
+export const LOGOUT = 'LOGOUT';
+export const SET_TOKEN = 'SET_TOKEN';
+export const SET_USER = 'SET_USER';
 
-export interface User {
+export interface UserType {
   _id: string;
   name: string;
   email: string;
   plan: string;
   type: string;
-}
-
-export interface LoginInput {
-  email: string;
-  password: string;
 }
 
 export interface Login {
@@ -25,7 +20,7 @@ export interface Login {
 export interface AuthState {
   authToken: string;
   email: string;
-  user: User | undefined;
+  user: UserType | undefined;
   loggedIn: boolean;
 }
 
@@ -46,7 +41,7 @@ interface SetTokenAction {
 
 interface SetUserAction {
   type: typeof SET_USER;
-  payload: User;
+  payload: UserType;
 }
 
 export type AuthActionTypes =

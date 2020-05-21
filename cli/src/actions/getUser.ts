@@ -1,8 +1,8 @@
-import { getLogger } from "log4js";
+import { getLogger } from 'log4js';
 import { Arguments } from 'yargs';
-import { apolloClient } from "../utils/api";
-import gql from "graphql-tag";
-import chalk from "chalk";
+import { apolloClient } from '../utils/api';
+import gql from 'graphql-tag';
+import chalk from 'chalk';
 
 const logger = getLogger();
 

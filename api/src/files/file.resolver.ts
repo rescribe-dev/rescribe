@@ -1,17 +1,44 @@
-import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { File } from '../schema/structure';
+import { Resolver, ArgsType, Field, Args, Ctx, Query } from 'type-graphql';
+import File from '../schema/structure/file';
+import { GraphQLContext } from '../utils/context';
+import { verifyLoggedIn } from '../auth/checkAuth';
+import { ObjectId } from 'mongodb';
+import { UserModel } from '../schema/auth/user';
+import { checkRepositoryAccess } from '../repositories/auth';
+import { AccessLevel } from '../schema/auth/access';
+import { elasticClient } from '../elastic/init';
+import { fileIndexName } from '../elastic/settings';
 
 @ArgsType()
 class FileArgs {
-  @Field(_type => String, { description: 'file id' })
-  id: string;
+  @Field(_type => ObjectId, { description: 'file id' })
+  id: ObjectId;
 }
 
 @Resolver()
 class FileResolver {
-  @Mutation(_returns => File)
-  async file(@Args() _args: FileArgs): Promise<File> {
-    throw new Error("not implemented");
+  @Query(_returns => File)
+  async file(@Args() args: FileArgs, @Ctx() ctx: GraphQLContext): Promise<File> {
+    if (!verifyLoggedIn(ctx) || !ctx.auth) {
+      throw new Error('user not logged in');
+    }
+    const userID = new ObjectId(ctx.auth.id);
+    const user = await UserModel.findById(userID);
+    if (!user) {
+      throw new Error('cannot find user data');
+    }
+    const fileData = await elasticClient.get({
+      id: args.id.toHexString(),
+      index: fileIndexName
+    });
+    const file: File = {
+      ...fileData.body._source as File,
+      _id: new ObjectId(fileData.body._id as string)
+    };
+    if (!checkRepositoryAccess(user, new ObjectId(file.project), new ObjectId(file.repository), AccessLevel.view)) {
+      throw new Error('user not authorized to view file');
+    }
+    return file;
   }
 }
 

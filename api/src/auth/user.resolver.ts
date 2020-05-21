@@ -2,11 +2,11 @@ import { verifyLoggedIn } from './checkAuth';
 import { ObjectID } from 'mongodb';
 import { Resolver, Ctx, Query } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
-import User, { UserModel } from '../schema/auth';
+import User, { UserModel } from '../schema/auth/user';
 
 @Resolver()
 class UserResolvers {
-  @Query(_type => User, { description: "user data" })
+  @Query(_type => User, { description: 'user data' })
   async user(@Ctx() ctx: GraphQLContext): Promise<User> {
     if (!verifyLoggedIn(ctx)) {
       throw new Error('user not logged in');

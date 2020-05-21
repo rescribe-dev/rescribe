@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
-import { IsEmail, MinLength, Matches } from "class-validator";
+import { IsEmail, MinLength, Matches } from 'class-validator';
 import { nameMinLen, passwordMinLen, specialCharacterRegex, accountExists, saltRounds } from './shared';
 import { ObjectID } from 'mongodb';
-import User, { Plan, UserType, UserModel } from '../schema/auth';
+import User, { Plan, UserType, UserModel } from '../schema/auth/user';
 
 @ArgsType()
 class RegisterArgs {
@@ -45,7 +45,11 @@ class RegisterResolver {
       plan: Plan.free,
       type: UserType.user,
       emailVerified: false,
-      tokenVersion: 0
+      tokenVersion: 0,
+      githubInstallationID: -1,
+      githubUsername: '',
+      projects: [],
+     repositories: []
     };
     const userCreateRes = await new UserModel(newUser).save();
     return (`created user ${userCreateRes.id}`);

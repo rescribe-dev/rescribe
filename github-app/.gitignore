@@ -13,3 +13,8 @@ yarn-error.log*
 lib_test
 # ignore swap files
 *.swp
+
+# ignore generated
+lib/
+!src/lib/
+src/lib/generated

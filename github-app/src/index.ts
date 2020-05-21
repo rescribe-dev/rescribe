@@ -1,8 +1,8 @@
 import { Application } from 'probot';
 import ApolloClient from 'apollo-boost';
-import gql from 'graphql-tag';
 import jwt from 'jsonwebtoken';
 import 'cross-fetch/polyfill';
+import { IndexGithub, IndexGithubMutationVariables, IndexGithubMutation } from './lib/generated/datamodel';
 
 interface Commit {
   id: string;
@@ -48,6 +48,7 @@ export = (app: Application): void => {
     }
     const octokit = await app.auth();
     const repositoryName = context.payload.repository.name;
+    const repository = context.payload.repository.id;
     const repositoryOwner = context.payload.repository.owner.name as string;
     const { data: installation } = await octokit.apps.getRepoInstallation({ 
       owner: repositoryOwner,
@@ -66,13 +67,10 @@ export = (app: Application): void => {
           app.log.error((err as Error).message);
         } else {
           try {
-            const res = await api.mutate({
-              mutation: gql`
-                mutation indexGithub($paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
-                  indexGithub(paths: $paths, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
-                }
-              `,
+            const res = await api.mutate<IndexGithubMutation, IndexGithubMutationVariables>({
+              mutation: IndexGithub,
               variables: {
+                githubRepositoryID: repository,
                 paths: files,
                 ref,
                 repositoryName,
@@ -85,6 +83,9 @@ export = (app: Application): void => {
                 }
               }
             });
+            if (!res.data) {
+              throw new Error('no data found');
+            }
             app.log.info(res.data.indexGithub as string);
             resolve();
           } catch(err) {

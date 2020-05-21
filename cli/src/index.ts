@@ -1,7 +1,7 @@
 import { startCLI } from './cli';
 import { initializeAPIClient } from './utils/api';
 
-import { initializeConfig } from "./utils/config";
+import { initializeConfig } from './utils/config';
 
 const runCLI = async (): Promise<void> => {
   try {

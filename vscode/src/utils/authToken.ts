@@ -1,10 +1,13 @@
 import * as vscode from 'vscode';
 import jwt from 'jsonwebtoken';
-import { configData } from "./config";
+import { configData } from './config';
 
 export const authTokenKey = 'authToken';
 
-export const setAuthToken = (token: string, context: vscode.ExtensionContext): void => {
+export const setAuthToken = (
+  token: string,
+  context: vscode.ExtensionContext
+): void => {
   configData.authToken = token;
   context.globalState.update('authToken', token);
 };
@@ -20,10 +23,10 @@ export const isLoggedIn = (context: vscode.ExtensionContext): boolean => {
   let res = true;
   try {
     const keys = jwt.decode(configData.authToken);
-    if (keys === null || typeof keys === "string") {
+    if (keys === null || typeof keys === 'string') {
       return false;
     }
-    const exp: number = keys["exp"];
+    const exp: number = keys['exp'];
     if (!exp) {
       return false;
     }

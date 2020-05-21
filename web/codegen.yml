@@ -1,0 +1,13 @@
+overwrite: true
+schema: "../schema.graphql"
+documents: "src/lib/graphql/**/*.graphql"
+generates:
+  src/lib/generated/datamodel.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-document-nodes
+      - fragment-matcher
+# src/lib/generated/react-components.tsx:
+#   plugins:
+#     - typescript-react-apollo

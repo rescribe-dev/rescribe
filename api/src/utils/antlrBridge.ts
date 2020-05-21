@@ -1,33 +1,24 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import HttpStatus from 'http-status-codes';
-
-let antlrURI: string;
+import { ProcessFileInput } from './antlrTypes';
+import AntlrFile from '../schema/antlr/file';
+import { configData } from './config';
 
 let antlrClient: AxiosInstance;
 
-export interface ProcessFileOutput {
-  name: string;
-  content: string;
-  returnType: string | undefined;
-  startIndex: number;
-  endIndex: number;
-}
-
-export interface ProcessFileInput {
-  name: string;
-  contents: string;
-}
-
-export const processFile = (inputData: ProcessFileInput): Promise<ProcessFileOutput[]> => {
-  return antlrClient.post<ProcessFileOutput[]>('/processFile', inputData).then(res => {
+export const processFile = async (inputData: ProcessFileInput): Promise<AntlrFile> => {
+  try {
+    const res = await antlrClient.post<AntlrFile>('/processFile', inputData);
     if (res.status === HttpStatus.OK) {
       return res.data;
-    } else {
+    }
+    else {
       throw new Error(`invalid response status ${res.status}`);
     }
-  }).catch((err: AxiosError) => {
+  }
+  catch (err) {
     throw new Error(err.message);
-  });
+  }
 };
 
 export const pingAntlr = (): Promise<boolean> => {
@@ -42,12 +33,11 @@ export const pingAntlr = (): Promise<boolean> => {
 };
 
 export const initializeAntlr = (): Promise<boolean> => {
-  if (!process.env.ANTLR_URI) {
+  if (configData.ANTLR_URI.length === 0) {
     throw new Error('cannot find antlr uri');
   }
-  antlrURI = process.env.ANTLR_URI;
   antlrClient = axios.create({
-    baseURL: antlrURI,
+    baseURL: configData.ANTLR_URI,
     headers: {
       common: {
         Accept: 'application/json',

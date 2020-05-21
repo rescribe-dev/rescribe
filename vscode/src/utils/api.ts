@@ -6,7 +6,7 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import axios, { AxiosInstance } from 'axios';
 import ws from 'ws';
-import fetch from "isomorphic-fetch";
+import fetch from 'isomorphic-fetch';
 import { ApolloLink, from } from 'apollo-link';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { configData } from './config';
@@ -34,7 +34,7 @@ const initializeApolloHttpClient = (context: vscode.ExtensionContext): void => {
       operation.setContext({
         headers: {
           authorization: `Bearer ${configData.authToken}`,
-        }
+        },
       });
     }
     return forward(operation);
@@ -42,7 +42,9 @@ const initializeApolloHttpClient = (context: vscode.ExtensionContext): void => {
   httpLink = from([httpMiddleware, link]);
 };
 
-export const initializeApolloClient = (context: vscode.ExtensionContext): void => {
+export const initializeApolloClient = (
+  context: vscode.ExtensionContext
+): void => {
   let link = httpLink;
   if (isLoggedIn(context)) {
     const wsClient = new SubscriptionClient(
@@ -50,8 +52,8 @@ export const initializeApolloClient = (context: vscode.ExtensionContext): void =
       {
         reconnect: true,
         connectionParams: {
-          authToken: configData.authToken
-        }
+          authToken: configData.authToken,
+        },
       },
       ws
     );
@@ -59,12 +61,13 @@ export const initializeApolloClient = (context: vscode.ExtensionContext): void =
     link = ApolloLink.split(
       ({ query }) => {
         const mainDef = getMainDefinition(query);
-        if (mainDef.kind !== 'OperationDefinition')
-          {return false;}
+        if (mainDef.kind !== 'OperationDefinition') {
+          return false;
+        }
         return mainDef.operation === 'subscription';
       },
       websocket,
-      link,
+      link
     );
   }
   apolloClient = new ApolloClient({
@@ -73,13 +76,19 @@ export const initializeApolloClient = (context: vscode.ExtensionContext): void =
   });
 };
 
-export const initializeAPIClient = async (context: vscode.ExtensionContext): Promise<void> => {
-  const baseAPIURL = `${configData.useSecure ? 'https' : 'http'}://${configData.apiURL}`;
+export const initializeAPIClient = async (
+  context: vscode.ExtensionContext
+): Promise<void> => {
+  const baseAPIURL = `${configData.useSecure ? 'https' : 'http'}://${
+    configData.apiURL
+  }`;
   apiURL = `${baseAPIURL}/graphql`;
-  websiteURL = `${configData.useSecure ? 'https' : 'http'}://${configData.websiteURL}`;
+  websiteURL = `${configData.useSecure ? 'https' : 'http'}://${
+    configData.websiteURL
+  }`;
   initializeApolloHttpClient(context);
   initializeApolloClient(context);
   axiosClient = axios.create({
-    baseURL: baseAPIURL
+    baseURL: baseAPIURL,
   });
 };

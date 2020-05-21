@@ -5,17 +5,17 @@ dist/
 *.logs*
 
 coverage/
-../node_modules/
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .nyc_output
-lib
+lib/
+!src/lib/
+src/lib/generated
 lib_test
-# ignore swap files
-*.swp
 
 # ignore config files
 .env
 .rescribe*
+rescriberc.yml

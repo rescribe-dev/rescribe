@@ -1,10 +1,10 @@
 
-import { verifyAdmin, verifyLoggedIn } from "./checkAuth";
+import { verifyAdmin, verifyLoggedIn } from './checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
-import { IsEmail, IsOptional } from "class-validator";
-import User, { UserModel } from "../schema/auth";
-import { DocumentType } from "@typegoose/typegoose";
+import { IsEmail, IsOptional } from 'class-validator';
+import User, { UserModel } from '../schema/auth/user';
+import { DocumentType } from '@typegoose/typegoose';
 
 @ArgsType()
 class DeleteArgs {

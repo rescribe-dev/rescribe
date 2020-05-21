@@ -5,11 +5,12 @@ import static java.lang.Math.abs;
 import com.rescribe.antlr.gen.java.JavaLexer;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.java.JavaParserBaseListener;
-import com.rescribe.antlr.parse.CustomListener;
+import com.rescribe.antlr.parse.FileInput;
 import com.rescribe.antlr.parse.schema.*;
 import com.rescribe.antlr.parse.schema.Class;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -17,16 +18,14 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 public class JavaDeclarationListener extends JavaParserBaseListener implements CustomListener {
   File file;
-
   BufferedTokenStream tokens;
-  Function currentFunction = null;
-  Class currentClass = null;
-  Variable currentVariable = null;
+  Stack<Parent> parents = new Stack<>();
 
-  public JavaDeclarationListener(BufferedTokenStream tokens, String filename, String path) {
+  public JavaDeclarationListener(BufferedTokenStream tokens, FileInput input) {
     super();
     this.tokens = tokens;
-    this.file = new File(filename, path);
+    this.file = new File(input);
+    parents.push(new Parent(this.file.get_id(), ParentType.File));
   }
 
   // get comments - reference book 209 - hidden channels
@@ -46,6 +45,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterImportDeclaration(JavaParser.ImportDeclarationContext ctx) {
     if (ctx.getChildCount() >= 2) {
       Import newImport = new Import();
+      newImport.setParent(parents.peek());
       newImport.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
       if (ctx.getChildCount() > 3) {
         // import everything
@@ -62,7 +62,11 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   }
 
   public List<Comment> getComments(
-      ParserRuleContext ctx, int levelNumber, boolean isBefore, boolean isMultiLine) {
+      ParserRuleContext ctx,
+      Location location,
+      int levelNumber,
+      boolean isBefore,
+      boolean isMultiLine) {
     ParserRuleContext currentCtx = ctx;
     List<Comment> comments = new ArrayList<>();
     for (int i = 0; i < abs(levelNumber); i++) {
@@ -87,10 +91,13 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
           if (isMultiLine) {
             currentComment = currentComment.substring(0, currentComment.length() - 2).trim();
           }
-          comments.add(
+          Comment comment =
               new Comment(
                   currentComment,
-                  isMultiLine ? CommentType.multilineComment : CommentType.singleLineComment));
+                  isMultiLine ? CommentType.multilineComment : CommentType.singleLineComment);
+          comment.setParent(parents.peek());
+          comment.setLocation(location);
+          comments.add(comment);
         }
       }
     }
@@ -102,30 +109,48 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   @Override
   public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
     Class newClass = new Class();
+    newClass.setParent(this.parents.peek());
+    parents.push(new Parent(newClass.get_id(), ParentType.Class));
     newClass.setName(ctx.children.get(1).getText());
     newClass.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
-    newClass.getComments().addAll(getComments(ctx, classLevelNumber, true, false));
-    newClass.getComments().addAll(getComments(ctx, classLevelNumber, true, true));
-    this.currentClass = newClass;
-    this.file.getClasses().add(this.currentClass);
+    file.getComments()
+        .addAll(
+            getComments(
+                ctx,
+                new Location(ctx.start.getLine(), ctx.start.getLine()),
+                classLevelNumber,
+                true,
+                false));
+    file.getComments()
+        .addAll(
+            getComments(
+                ctx,
+                new Location(ctx.start.getLine(), ctx.start.getLine()),
+                classLevelNumber,
+                true,
+                true));
+    this.file.getClasses().add(newClass);
   }
 
   @Override
   public void exitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
-    // process class output
-    this.currentClass = null;
+    parents.pop();
   }
 
   static final int functionLevelNumber = 2;
 
-  private Function processFunction(ParserRuleContext ctx, boolean isConstructor) {
+  private void processFunction(ParserRuleContext ctx, boolean isConstructor) {
     Function newFunction = null;
     if (ctx.getChildCount() >= 4) {
       newFunction = new Function();
+      newFunction.setParent(parents.peek());
+      parents.push(new Parent(newFunction.get_id(), ParentType.Function));
       newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
       final int offset = isConstructor ? 0 : 1;
       if (!isConstructor) {
         newFunction.setReturnType(ctx.getChild(0).getText());
+      } else {
+        newFunction.setReturnType("void");
       }
       newFunction.setName(ctx.getChild(offset).getText());
       if (ctx.getChild(1 + offset).getChildCount() == 3) {
@@ -137,83 +162,84 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
             currentVariable.setType(currentVariableData.getChild(0).getText());
             currentVariable.setName(currentVariableData.getChild(1).getText());
             currentVariable.setLocation(new Location(ctx.start.getLine(), ctx.start.getLine()));
-            newFunction.getArguments().add(currentVariable);
+            currentVariable.setParent(parents.peek());
+            currentVariable.setArgument(true);
           }
         }
       }
-      // newFunction.setContent(ctx.getChild(ctx.getChildCount() - 1).getText());
-      newFunction.getComments().addAll(getComments(ctx, functionLevelNumber, true, false));
-      newFunction.getComments().addAll(getComments(ctx, functionLevelNumber, true, true));
+      newFunction.setIsconstructor(isConstructor);
+      file.getComments()
+          .addAll(
+              getComments(
+                  ctx,
+                  new Location(ctx.start.getLine(), ctx.start.getLine()),
+                  functionLevelNumber,
+                  true,
+                  false));
+      file.getComments()
+          .addAll(
+              getComments(
+                  ctx,
+                  new Location(ctx.start.getLine(), ctx.start.getLine()),
+                  functionLevelNumber,
+                  true,
+                  true));
     }
-    return newFunction;
+    this.file.getFunctions().add(newFunction);
   }
 
   @Override
   public void enterConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
-    if (this.currentClass != null) {
-      Function newConstructor = processFunction(ctx, true);
-      this.currentClass.setConstructor(newConstructor);
-      this.currentFunction = newConstructor;
-    }
+    processFunction(ctx, true);
   }
 
   @Override
   public void exitConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
-    this.currentFunction = null;
+    this.parents.pop();
   }
 
   @Override
   public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-    Function newFunction = processFunction(ctx, false);
-    if (this.currentClass != null) {
-      this.file.getClasses().get(this.file.getClasses().size() - 1).getFunctions().add(newFunction);
-    } else {
-      this.file.getFunctions().add(newFunction);
-    }
-    this.currentFunction = newFunction;
+    processFunction(ctx, false);
   }
 
   @Override
   public void exitMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-    this.currentFunction = null;
-  }
-
-  @Override
-  public void enterGenericMethodDeclaration(JavaParser.GenericMethodDeclarationContext ctx) {
-    // process generic function
-    this.currentFunction = new Function();
-  }
-
-  @Override
-  public void exitGenericConstructorDeclaration(
-      JavaParser.GenericConstructorDeclarationContext ctx) {
-    this.currentFunction = null;
+    this.parents.pop();
   }
 
   @Override
   public void enterVariableDeclarator(JavaParser.VariableDeclaratorContext ctx) {
     Variable newVariable = new Variable();
+    newVariable.setParent(this.parents.peek());
+    parents.push(new Parent(newVariable.get_id(), ParentType.Variable));
     newVariable.setName(ctx.getChild(0).getText());
     newVariable.setType(ctx.getParent().getParent().getChild(0).getText());
     newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
-    if (this.currentFunction != null) {
-      this.currentFunction.getVariables().add(newVariable);
-    } else if (this.currentClass != null) {
-      this.currentClass.getVariables().add(newVariable);
-    } else {
-      this.file.getVariables().add(newVariable);
-    }
-    this.currentVariable = newVariable;
+    newVariable.setArgument(false);
+    this.file.getVariables().add(newVariable);
   }
 
   static final int variableLevelNumber = 3;
 
   @Override
   public void exitVariableDeclarator(JavaParser.VariableDeclaratorContext ctx) {
-    if (currentVariable != null) {
-      currentVariable.getComments().addAll(getComments(ctx, variableLevelNumber, true, false));
-      currentVariable.getComments().addAll(getComments(ctx, variableLevelNumber, true, true));
-    }
-    this.currentVariable = null;
+    file.getComments()
+        .addAll(
+            getComments(
+                ctx,
+                new Location(ctx.start.getLine(), ctx.stop.getLine()),
+                variableLevelNumber,
+                true,
+                false));
+    file.getComments()
+        .addAll(
+            getComments(
+                ctx,
+                new Location(ctx.start.getLine(), ctx.stop.getLine()),
+                variableLevelNumber,
+                true,
+                true));
+    this.parents.pop();
   }
 }

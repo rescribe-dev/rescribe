@@ -5,11 +5,11 @@ import {
   SET_TOKEN,
   SET_USER,
   LOGOUT,
-} from "./types";
+} from './types';
 
 const initialState: AuthState = {
-  authToken: "",
-  email: "",
+  authToken: '',
+  email: '',
   user: undefined,
   loggedIn: false,
 };

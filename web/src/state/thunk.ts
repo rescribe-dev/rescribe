@@ -1,6 +1,6 @@
-import { Action } from "redux";
-import { RootState } from ".";
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
+import { Action } from 'redux';
+import { RootState } from '.';
+import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
 export type AppThunkAction<ReturnType = void> = ThunkAction<
   ReturnType,

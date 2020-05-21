@@ -11,10 +11,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:rescribe.helloWorld",
-		"onCommand:rescribe.login",
-		"onCommand:rescribe.getUser",
-		"onCommand:rescribe.indexFiles"
+		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -32,8 +29,8 @@
 				"title": "Get User"
 			},
 			{
-				"command": "rescribe.indexFiles",
-				"title": "Index Files"
+				"command": "rescribe.getFiles",
+				"title": "Get Files"
 			}
 		]
 	},
@@ -46,9 +43,18 @@
 		"pretest": "yarn compile && yarn lint",
 		"test": "node ./out/test/runTest.js",
 		"clean": "rimraf out",
-		"precommit": "yarn clean && yarn lint"
+		"precommit": "yarn lint",
+		"codegen": "graphql-codegen --config codegen.yml"
 	},
 	"devDependencies": {
+		"@graphql-codegen/cli": "^1.13.5",
+    "@graphql-codegen/fragment-matcher": "^1.13.5",
+    "@graphql-codegen/introspection": "1.13.5",
+    "@graphql-codegen/typescript": "1.13.5",
+    "@graphql-codegen/typescript-document-nodes": "^1.13.5",
+    "@graphql-codegen/typescript-graphql-files-modules": "^1.13.5",
+    "@graphql-codegen/typescript-operations": "^1.13.5",
+    "@graphql-codegen/typescript-type-graphql": "^1.13.5",
 		"@types/glob": "^7.1.1",
 		"@types/isomorphic-fetch": "^0.0.35",
 		"@types/mocha": "^7.0.2",
@@ -62,6 +68,7 @@
 		"eslint-plugin-import": "^2.20.2",
 		"eslint-plugin-jsdoc": "^24.0.0",
 		"eslint-plugin-prefer-arrow": "^1.2.0",
+		"eslint-plugin-prettier": "^3.1.3",
 		"glob": "^7.1.6",
 		"mocha": "^7.1.1",
 		"prettier": "^2.0.5",

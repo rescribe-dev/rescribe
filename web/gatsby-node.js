@@ -7,4 +7,4 @@
  * Edit the source file at `./gatsby/src/gatsby-node.ts`
  */
 
-module.exports = require("./gatsby/.gatsby/gatsby-node").default;
+module.exports = require('./gatsby/.gatsby/gatsby-node').default;
