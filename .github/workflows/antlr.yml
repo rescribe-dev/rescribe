@@ -1,11 +1,11 @@
-name: Upload Api
+name: Upload Antlr
 on:
   push:
     branches:
       - master
     paths:
-      - "api/**"
-      - ".github/workflows/api.yml"
+      - "antlr/**"
+      - ".github/workflows/antlr.yml"
       - ".github/workflows/api-task.json"
 jobs:
   deploy:
@@ -22,24 +22,23 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Build api
-        id: build-api
+      - name: Build antlr
+        id: build-antlr
         run: |
-          cd api
-          yarn install
-          yarn run predeploy
+          cd antlr
+          ./gradlew build
           cd -
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: rescribe-api
+          ECR_REPOSITORY: rescribe-antlr
           IMAGE_TAG: ${{ github.sha }}
         run: |
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          cd api
+          cd antlr
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
@@ -49,7 +48,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .github/workflows/api-task.json
-          container-name: api
+          container-name: antlr
           image: ${{ steps.build-image.outputs.image }}
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
