@@ -2,3 +2,7 @@
 node_modules/
 .gradle
 .ipynb_checkpoints
+.env
+
+# ignore swap files
+*.swp
