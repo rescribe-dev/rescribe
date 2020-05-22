@@ -61,10 +61,6 @@
           "name": "REDIS_HOST"
         },
         {
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PASSWORD-9Sj0QF",
-          "name": "REDIS_PASSWORD"
-        },
-        {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PORT-nnUVpT",
           "name": "REDIS_PORT"
         }
