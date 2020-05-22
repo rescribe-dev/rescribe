@@ -4,4 +4,5 @@
 set -e
 
 ./gen.sh
+./precommit.sh
 ./gradlew build
