@@ -3,4 +3,4 @@ DB_NAME: rescribe
 PORT: 8080
 WEBSITE_URL: https://rescribe.dev
 CONNECT_ANTLR: true
-DEBUG: false
+DEBUG: true
