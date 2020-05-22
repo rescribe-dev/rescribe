@@ -47,6 +47,9 @@ export const initializeServer = async (): Promise<void> => {
     host: configData.REDIS_HOST,
     port: configData.REDIS_PORT,
     db: 0,
+    tls: {
+      checkServerIdentity: (): undefined => undefined
+    },
     password: configData.REDIS_PASSWORD.length > 0 ? configData.REDIS_PASSWORD : undefined
   };
   const publisher = new Redis(redisOptions);
