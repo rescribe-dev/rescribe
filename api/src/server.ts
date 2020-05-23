@@ -36,22 +36,24 @@ export const initializeServer = async (): Promise<void> => {
     const message = 'no redis port provided';
     throw new Error(message);
   }
-  if (configData.REDIS_PASSWORD.length === 0) {
-    const message = 'no redis password provided';
-    logger.info(message);
+  const hasRedisPassword = configData.REDIS_PASSWORD.length > 0;
+  if (!hasRedisPassword) {
+    logger.info('no redis password provided');
   } else {
-    const message = 'redis password provided';
-    logger.info(message);
+    logger.info('redis password provided');
   }
   const redisOptions: Redis.RedisOptions = {
     host: configData.REDIS_HOST,
     port: configData.REDIS_PORT,
     db: 0,
-    tls: {
-      checkServerIdentity: (): undefined => undefined
-    },
-    password: configData.REDIS_PASSWORD.length > 0 ? configData.REDIS_PASSWORD : undefined
+    password: hasRedisPassword ? configData.REDIS_PASSWORD : undefined
   };
+  if (!hasRedisPassword) {
+    redisOptions.tls = {
+      ...redisOptions.tls,
+      checkServerIdentity: (): undefined => undefined
+    };
+  }
   const publisher = new Redis(redisOptions);
   const subscriber = new Redis(redisOptions);
   const pubSub = new RedisPubSub({
