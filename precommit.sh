@@ -13,7 +13,7 @@ check_changes() {
   fi
 }
 
-node_paths=("api/" "github-app/" "cli/" "web/" "vscode" ".github/build-frontend")
+node_paths=("api/" "github-app/" "cli/" "web/" "vscode" ".github/build-frontend" "docs/website")
 
 for path in "${node_paths[@]}"
 do
