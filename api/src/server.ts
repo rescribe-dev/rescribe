@@ -38,28 +38,44 @@ export const initializeServer = async (): Promise<void> => {
   }
   if (configData.REDIS_PASSWORD.length === 0) {
     const message = 'no redis password provided';
-    throw new Error(message);
+    logger.info(message);
+  } else {
+    const message = 'redis password provided';
+    logger.info(message);
   }
+  const redisOptions: Redis.RedisOptions = {
+    host: configData.REDIS_HOST,
+    port: configData.REDIS_PORT,
+    db: 0,
+    tls: {
+      checkServerIdentity: (): undefined => undefined
+    },
+    password: configData.REDIS_PASSWORD.length > 0 ? configData.REDIS_PASSWORD : undefined
+  };
+  const publisher = new Redis(redisOptions);
+  const subscriber = new Redis(redisOptions);
+  const pubSub = new RedisPubSub({
+    publisher,
+    subscriber
+  });
+  const closeRedis = (): void => {
+    logger.info('close pub sub');
+    pubSub.close();
+  };
+  publisher.on('error', (err: Error) => {
+    closeRedis();
+    logger.error(err.message);
+    process.exit(1);
+  });
+  await publisher.ping();
+  logger.info('connected to redis');
+  exitHook(closeRedis);
   const app = express();
   app.use(cors({
     origin: configData.WEBSITE_URL,
     credentials: true
   }));
   app.use(cookieParser());
-  const redisOptions: Redis.RedisOptions = {
-    host: configData.REDIS_HOST,
-    port: configData.REDIS_PORT,
-    db: 0,
-    password: configData.REDIS_PASSWORD
-  };
-  const pubSub = new RedisPubSub({
-    publisher: new Redis(redisOptions),
-    subscriber: new Redis(redisOptions)
-  });
-  exitHook(() => {
-    logger.info('close pub sub');
-    pubSub.close();
-  });
   const schema = await buildSchema({
     resolvers: [join(__dirname, '/**/**/*.resolver.{ts,js}')],
     scalarsMap: [{
