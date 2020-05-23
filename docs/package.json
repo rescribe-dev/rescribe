@@ -1,0 +1,57 @@
+{
+  "name": "rescribe-docs",
+  "version": "0.0.1",
+  "private": true,
+  "description": "search documentation",
+  "scripts": {
+    "start": "docusaurus start",
+    "dev": "yarn start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "lint": "eslint --ignore-path .gitignore . --ext ts --ext tsx --ext js --ext jsx --fix",
+    "precommit": "yarn lint"
+  },
+  "author": "Rescribe",
+  "license": "CC-BY-NC-SA-4.0",
+  "bugs": {
+    "url": "https://github.com/mdigreg2/rescribe/issues"
+  },
+  "homepage": "https://github.com/mdigreg2/rescribe#readme",
+  "keywords": [
+    "search"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdigreg2/rescribe.git"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^2.0.0-alpha.55",
+    "@docusaurus/preset-classic": "^2.0.0-alpha.55",
+    "classnames": "^2.2.6",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.3",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.19.0",
+    "prettier": "^2.0.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
