@@ -2,6 +2,8 @@
 
 > search through your repositories with ease
 
+[Check out our documentation site](https://mdigreg2.github.io/rescribe/)
+
 ## To Build:
 1. `npm install`
 2. Run `npm install` and `yarn install` in each directory, depending on if a `yarn.lock` etc... exists. 
