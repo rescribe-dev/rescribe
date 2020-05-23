@@ -1,0 +1,32 @@
+name: Upload Docs
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs.yml"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # checks out a copy of the repo
+      - uses: actions/checkout@master
+      - name: Setup Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: build
+        run: |
+          cd docs/website
+          yarn install
+          yarn build
+          cd -
+      - name: deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS }}
+          BRANCH: gh-pages
+          FOLDER: docs/website/build/rescribe
+      - name: finish
+        run: echo "finished!"

@@ -1,0 +1,42 @@
+{
+  "name": "rescribe-docs",
+  "version": "0.0.1",
+  "description": "search documentation",
+  "dependencies": {
+    "typescript": "^3.9.3"
+  },
+  "author": "Rescribe",
+  "license": "CC-BY-NC-SA-4.0",
+  "bugs": {
+    "url": "https://github.com/mdigreg2/rescribe/issues"
+  },
+  "homepage": "https://github.com/mdigreg2/rescribe#readme",
+  "keywords": [
+    "search"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdigreg2/rescribe.git"
+  },
+  "scripts": {
+    "examples": "docusaurus-examples",
+    "start": "docusaurus-start",
+    "build": "docusaurus-build",
+    "publish-gh-pages": "docusaurus-publish",
+    "write-translations": "docusaurus-write-translations",
+    "version": "docusaurus-version",
+    "rename-version": "docusaurus-rename-version",
+    "lint": "eslint --ignore-path .gitignore . --ext ts --ext tsx --ext js --ext jsx --fix",
+    "precommit": "yarn lint"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "docusaurus": "^1.14.4",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.19.0",
+    "prettier": "^2.0.5"
+  }
+}
