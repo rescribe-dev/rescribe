@@ -1,5 +1,12 @@
 # com.rescribe.antlr
-
+## To Build: 
+1. `./gen.sh`
+2. `./precommit.sh`
+3. `./predeploy.sh`
+4. `./gradlew build`
+## To Run:
+4. `./gradlew run`
+## Old Messages:
 code for processing files
 
 - follow [these instructions](https://github.com/com.rescribe.antlr/antlr4/blob/master/doc/getting-started.md) to get environment set up
