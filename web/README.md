@@ -5,7 +5,7 @@
 
 ## To Run:
 1. `yarn dev`
-2. Navigate to [graphQL server](localhost:8000/___graphql)
+2. Navigate to (localhost:8000/___graphql)[localhost:8000/___graphql]
 
 rescribe website
 
