@@ -18,7 +18,7 @@ jobs:
           node-version: 12.x
       - name: build
         run: |
-          cd docs/website
+          cd docs
           yarn install
           yarn build
           cd -
@@ -27,6 +27,6 @@ jobs:
         with:
           ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS }}
           BRANCH: gh-pages
-          FOLDER: docs/website/build/rescribe
+          FOLDER: docs/build
       - name: finish
         run: echo "finished!"
