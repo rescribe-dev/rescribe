@@ -22,11 +22,21 @@ jobs:
           yarn install
           yarn build
           cd -
-      - name: deploy
-        uses: JamesIves/github-pages-deploy-action@releases/v3
-        with:
-          ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS }}
-          BRANCH: gh-pages
-          FOLDER: docs/build
+      - name: copy dist
+        run: cp -r docs/dist .github/build-frontend/dist
+      - name: upload
+        run: |
+          cd .github/build-frontend
+          yarn install
+          yarn run build
+          yarn start
+          cd -
+        env:
+          AWS_S3_BUCKET: rescribe-docs
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID_DOCS }}
+          AWS_REGION: us-east-1
+          SOURCE_DIR: dist
       - name: finish
         run: echo "finished!"
