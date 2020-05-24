@@ -2,7 +2,7 @@ module.exports = {
   title: 'Rescribe Docs',
   tagline: 'code search engine',
   url: 'https://mdigreg2.github.io',
-  baseUrl: '/rescribe/',
+  baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'rescribe', // Usually your GitHub org/user name.
   projectName: 'rescribe', // Usually your repo name.

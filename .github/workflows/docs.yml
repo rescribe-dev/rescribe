@@ -38,11 +38,5 @@ jobs:
           AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID_DOCS }}
           AWS_REGION: us-east-1
           SOURCE_DIR: dist
-      - name: upload to github pages
-        uses: JamesIves/github-pages-deploy-action@releases/v3
-        with:
-          ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS }}
-          BRANCH: gh-pages
-          FOLDER: docs/dist
       - name: finish
         run: echo "finished!"
