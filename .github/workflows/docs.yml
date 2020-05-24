@@ -24,7 +24,7 @@ jobs:
           cd -
       - name: copy dist
         run: cp -r docs/dist .github/build-frontend/dist
-      - name: upload
+      - name: upload to s3
         run: |
           cd .github/build-frontend
           yarn install
@@ -38,5 +38,11 @@ jobs:
           AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID_DOCS }}
           AWS_REGION: us-east-1
           SOURCE_DIR: dist
+      - name: upload to github pages
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS }}
+          BRANCH: gh-pages
+          FOLDER: docs/dist
       - name: finish
         run: echo "finished!"
