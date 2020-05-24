@@ -6,7 +6,7 @@
   "scripts": {
     "start": "docusaurus start",
     "dev": "yarn start",
-    "build": "docusaurus build",
+    "build": "docusaurus build && mv public dist",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "lint": "eslint --ignore-path .gitignore . --ext ts --ext tsx --ext js --ext jsx --fix",
