@@ -1,17 +1,12 @@
 # rescribe
 
-> search through your repositories with ease
+> a better way to search code
 
-[Check out our documentation site](https://mdigreg2.github.io/rescribe/)
-
-## To Build:
-1. `npm install`
-2. Run `npm install` and `yarn install` in each directory, depending on if a `yarn.lock` etc... exists. 
-3. Follow instructions in `/antlr`
-4. Follow instructions in `/api`
-5. Follow instructions in `/web`
+[Documentation](https://docs.rescribe.dev)
 
 ![License](https://img.shields.io/badge/License-CC--BY--NC--SA--4.0-green)
+
+![Upload Docs](https://github.com/mdigreg2/rescribe/workflows/Upload%20Docs/badge.svg)
 
 ![Upload Website](https://github.com/mdigreg2/rescribe/workflows/Upload%20Website/badge.svg)
 
