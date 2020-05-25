@@ -20,7 +20,7 @@ jobs:
         run: |
           cd docs
           yarn install
-          yarn build
+          yarn run build
           cd -
       - name: copy dist
         run: cp -r docs/dist .github/build-frontend/dist
