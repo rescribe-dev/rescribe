@@ -4,6 +4,12 @@
 	"description": "rescribe integration",
 	"version": "0.0.1",
 	"license": "CC-BY-NC-SA-4.0",
+	"repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdigreg2/rescribe.git"
+  },
+  "homepage": "https://docs.rescribe.dev",
+  "bugs": "https://github.com/rescribe/rescribe/issues",
 	"engines": {
 		"vscode": "^1.44.0"
 	},
@@ -34,9 +40,10 @@
 			}
 		]
 	},
+	"publisher": "rescribe",
 	"scripts": {
-		"vscode:prepublish": "yarn run compile",
-		"compile": "tsc -p ./",
+		"vscode:prepublish": "npm run compile",
+		"compile": "npm run codegen && tsc -p ./",
 		"lint": "eslint src --ext ts --fix",
 		"watch": "tsc-watch",
 		"dev": "yarn lint && yarn watch",

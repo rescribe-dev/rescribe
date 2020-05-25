@@ -18,7 +18,11 @@ jobs:
         with:
           node-version: 12.x
       - name: build
-        run: cd web && yarn && yarn predeploy && cd -
+        run: |
+          cd web
+          yarn install
+          yarn run predeploy
+          cd -
         env:
           GATSBY_API_URL: api.rescribe.dev
           GATSBY_USE_SECURE: "true"
