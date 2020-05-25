@@ -4,7 +4,8 @@
   "description": "This is used to make repeated and quick get and post requests to our antlr server for debugging purposes",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node dist/index.js",
+    "start": "node dist/index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ReScribe",
@@ -15,7 +16,6 @@
     "express": "^4.17.1",
     "http": "0.0.1-security",
     "json": "^9.0.6",
-    "tslint": "^6.1.2",
     "typescript": "^3.8.3"
   },
   "dependencies": {
