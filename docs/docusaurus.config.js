@@ -1,7 +1,7 @@
 module.exports = {
   title: 'Rescribe Docs',
   tagline: 'code search engine',
-  url: 'https://mdigreg2.github.io',
+  url: 'https://docs.rescribe.dev',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'rescribe', // Usually your GitHub org/user name.
@@ -35,12 +35,8 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
-              to: 'docs/',
-            },
-            {
-              label: 'Second Doc',
-              to: 'docs/doc2/',
+              label: 'Getting Started',
+              to: 'docs/getting_started/index',
             },
           ],
         },
@@ -66,7 +62,7 @@ module.exports = {
           items: [
             {
               label: 'Blog',
-              to: 'blog',
+              to: 'blog/',
             },
             {
               label: 'GitHub',
@@ -84,7 +80,7 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'doc1',
+          homePageId: 'index',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl: 'https://github.com/mdigreg2/rescribe/edit/master/docs/',
