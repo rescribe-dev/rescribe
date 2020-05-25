@@ -141,7 +141,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
 
   private void processFunction(ParserRuleContext ctx, boolean isConstructor) {
     Function newFunction = null;
-    if (ctx.getChildCount() >= 4) {
+    if (ctx.getChildCount() >= 4 || (ctx.getChildCount() == 3 && isConstructor)) {
       newFunction = new Function();
       newFunction.setParent(parents.peek());
       parents.push(new Parent(newFunction.get_id(), ParentType.Function));
