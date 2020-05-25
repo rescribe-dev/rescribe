@@ -31,7 +31,7 @@ const features = [
   },
 ];
 
-function Feature({ imageUrl, title, description }) {
+const Feature = ({ imageUrl, title, description }) => {
   const imgUrl = useBaseUrl(imageUrl);
   return (
     <div className={classnames('col col--4', styles.feature)}>
@@ -44,16 +44,13 @@ function Feature({ imageUrl, title, description }) {
       <p>{description}</p>
     </div>
   );
-}
+};
 
-function Home() {
+const Home = () => {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
-    >
+    <Layout title="Home" description="rescribe docs home page">
       <header className={classnames('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
@@ -86,6 +83,6 @@ function Home() {
       </main>
     </Layout>
   );
-}
+};
 
 export default Home;
