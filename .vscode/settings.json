@@ -5,5 +5,8 @@
     "antlr/antlr/grammars/**": true,
     "antlr/antlr/samples/*": true
   },
-  "java.configuration.updateBuildConfiguration": "disabled"
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "cSpell.words": [
+    "rescribe"
+  ]
 }

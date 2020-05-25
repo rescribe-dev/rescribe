@@ -1,4 +1,4 @@
-# rescribe README
+# rescribe
 
 - highlight text: https://github.com/cliffordfajardo/highlight-line-vscode
 
