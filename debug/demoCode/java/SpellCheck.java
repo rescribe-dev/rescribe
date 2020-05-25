@@ -106,4 +106,7 @@ public class SpellCheck {
         System.out.println(sum);
     }
     
+    public class testClass {
+        public testClass() {}
+    }
 }
