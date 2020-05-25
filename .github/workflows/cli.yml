@@ -1,0 +1,48 @@
+name: Upload CLI
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "cli/**"
+      - ".github/workflows/cli.yml"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # checks out a copy of the repo
+      - uses: actions/checkout@master
+      - name: Setup Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: install dependencies
+        run: |
+          sudo apt-get install -y libkrb5-dev
+          cd cli
+          npm install
+          cd -
+      - name: build
+        run: |
+          cd cli
+          npm run build:package
+          cd -
+      - uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: rescribe-cli
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
+          SOURCE_DIR: cli/dist
+      - name: invalidate cloudfront
+        uses: chetan/invalidate-cloudfront-action@master
+        env:
+          DISTRIBUTION: ${{ secrets.secrets.AWS_CLOUDFRONT_ID_CLI }}
+          PATHS: '/*'
+          AWS_REGION: 'us-east-1'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: finish
+        run: echo "finished!"

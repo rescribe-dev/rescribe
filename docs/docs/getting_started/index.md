@@ -28,6 +28,8 @@ View [this guide](https://github.com/com.rescribe.antlr/antlr4/blob/master/doc/g
 
 ### api
 
+First, if you're planning on developing, you should install mongodb locally. There are many examples of how to do it online, and you can even use a docker container. So google it. Then in the env file below, change the value of `DB_CONNECTION_URI` to `mongodb://localhost:27017/?readPreference=primary&ssl=false`.
+
 To run the api, in a new terminal, run these commands:
 
 1. in a new terminal: `cd api`
@@ -54,18 +56,20 @@ To run the website, run these commands:
 1. in a new terminal: `cd web`
 2. Download the `.development.env` file from [the drive](https://drive.google.com/drive/folders/1ZZhFu96jvGxrcdbPJ8U6hYke1cI3M-1b) and name it `.development.env`. Place it in the web folder.
 3. `yarn install`
-4. `yarn dev`
-5. Navigate to http://localhost:8000/___graphql to view the graphql playground.
-6. Navigate to http://localhost:8000 to view the website.
+4. `yarn codegen`
+5. `yarn dev`
+6. Navigate to http://localhost:8000/___graphql to view the graphql playground.
+7. Navigate to http://localhost:8000 to view the website.
 
 ### github
 
 To run the github app in development mode:
 
-1. in a new terminal: `cd github`
+1. in a new terminal: `cd github-app`
 2. Download the correct `.env` file from [the drive](https://drive.google.com/drive/folders/1ZZhFu96jvGxrcdbPJ8U6hYke1cI3M-1b) and name it `.env`. Place it in the github folder.
 3. `yarn install`
-4. `yarn dev`
+4. `yarn codegen`
+5. `yarn dev`
 
 ### cli
 
@@ -73,9 +77,10 @@ To run the cli:
 
 1. in a new terminal: `cd cli`
 2. Download the correct `.rescriberc.yml` file from [the drive](https://drive.google.com/drive/folders/1ZZhFu96jvGxrcdbPJ8U6hYke1cI3M-1b) and name it `.rescriberc.yml`. Place it in the cli folder.
-3. `npm install`
-4. `npm run build` If there are problems with this step with `node-git`, most likely you do not have the make dependencies installed. To get around this, try copying the `nodegit.node` file from [the drive](https://drive.google.com/drive/folders/1ZZhFu96jvGxrcdbPJ8U6hYke1cI3M-1b) and saving it to the `node_modules/nodegit/build/Release/` folder.
-5. `node lib`
+3. Install krb5 following [these instructions](https://www.npmjs.com/package/krb5), with your package manager. See [this issue](https://github.com/nodegit/nodegit/issues/1134) for more information.
+4. `npm install`
+5. `npm run build`
+6. `node lib`
 
 Build cli using [these helpful libraries](https://yvonnickfrin.dev/seven-libraries-to-build-nodejs-cli). Use [this](`https://github.com/terkelg/prompts`) to prompt for user input.
 

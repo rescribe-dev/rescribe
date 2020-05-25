@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import express from 'express';
 import depthLimit from 'graphql-depth-limit';
 import HttpStatus from 'http-status-codes';
@@ -73,10 +73,11 @@ export const initializeServer = async (): Promise<void> => {
   logger.info('connected to redis');
   exitHook(closeRedis);
   const app = express();
-  app.use(cors({
-    origin: configData.WEBSITE_URL,
-    credentials: true
-  }));
+  const corsConfig: CorsOptions = {
+    credentials: true,
+    origin: configData.WEBSITE_URL
+  };
+  app.use(cors(corsConfig));
   app.use(cookieParser());
   const schema = await buildSchema({
     resolvers: [join(__dirname, '/**/**/*.resolver.{ts,js}')],
