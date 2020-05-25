@@ -8,13 +8,18 @@ npm run package
 
 cd dist
 
-nodegit_path=../node_modules/nodegit/build/Release/nodegit.node
+cp ../node_modules/nodegit/build/Release/nodegit.node nodegit.node
 
-zip linux.zip cli-linux $nodegit_path
-rm cli-linux
-zip macos.zip cli-macos $nodegit_path
-rm cli-macos
-zip windows.zip cli-win.exe $nodegit_path
-rm cli-win.exe
+mv cli-linux rescribe
+zip linux.zip rescribe nodegit.node
+rm rescribe
+mv cli-macos rescribe
+zip macos.zip rescribe nodegit.node
+rm rescribe
+mv cli-win.exe rescribe.exe
+zip windows.zip rescribe.exe nodegit.node
+rm rescribe.exe
+
+rm nodegit.node
 
 cd -
