@@ -36,3 +36,11 @@ cd grammars/cpp
 antlr4 -visitor CPP14.g4 -package $package_base.cpp -o gen
 mv gen/ ../../$classpath/gen/cpp
 cd -
+
+cd grammars/typescript
+antlr4 -visitor TypeScriptParser.g4 TypeScriptLexer.g4 -package $package_base.typescript -o gen
+path=../../$classpath/gen/typescript
+mv gen/ $path
+cp Java/*.java $path
+sed -i "1i package $package_base.typescript;" $path/TypeScriptLexerBase.java $path/TypeScriptParserBase.java
+cd -
