@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 
 export let apiURL: string;
+export let webhookSecret: string;
 export let appID: number;
 export let privateKey: string;
 
@@ -10,6 +11,10 @@ export const initializeConfig = (): void => {
     throw new Error('no api url provided');
   }
   apiURL = process.env.API_URL;
+  if (!process.env.WEBHOOK_SECRET) {
+    throw new Error('no webhook secret provided');
+  }
+  webhookSecret = process.env.WEBHOOK_SECRET;
   if (!process.env.APP_ID) {
     throw new Error('no app id provided');
   }

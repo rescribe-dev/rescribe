@@ -1,3 +1,4 @@
+/*
 package com.rescribe.antlr.parse.listeners;
 
 import static java.lang.Math.abs;
@@ -78,7 +79,7 @@ public class TypescriptDeclarationListener extends TypeScriptParserBaseListener 
     public void enterTypeArgument(TypeScriptParser.TypeArgumentContext ctx) {
         testContext(ctx, "enter type argument - singular");
     }
-    
+
     @Override
     public void enterFunctionType(TypeScriptParser.FunctionTypeContext ctx) {
         testContext(ctx, "enter function type");
@@ -124,4 +125,4 @@ public class TypescriptDeclarationListener extends TypeScriptParserBaseListener 
         testContext(ctx, "enter parameter");
     }
 }
-
+*/
