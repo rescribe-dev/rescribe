@@ -6,11 +6,10 @@ import com.rescribe.antlr.gen.java.JavaLexer;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.python3.Python3Lexer;
 import com.rescribe.antlr.gen.python3.Python3Parser;
+import com.rescribe.antlr.gen.typescript.TypeScriptLexer;
+import com.rescribe.antlr.gen.typescript.TypeScriptParser;
 import com.rescribe.antlr.parse.exceptions.UnsupportedFileException;
-import com.rescribe.antlr.parse.listeners.CPPDeclarationListener;
-import com.rescribe.antlr.parse.listeners.CustomListener;
-import com.rescribe.antlr.parse.listeners.JavaDeclarationListener;
-import com.rescribe.antlr.parse.listeners.Python3DeclarationListener;
+import com.rescribe.antlr.parse.listeners.*;
 import com.rescribe.antlr.parse.schema.File;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -66,6 +65,17 @@ public class FileHandler {
           Python3DeclarationListener p3dl = new Python3DeclarationListener(tokens, input);
           walker.walk(p3dl, tree);
           listener = p3dl;
+          break;
+        }
+      case "ts":
+        {
+          TypeScriptLexer lexer = new TypeScriptLexer(CharStreams.fromString(input.getContent()));
+          CommonTokenStream tokens = new CommonTokenStream(lexer);
+          TypeScriptParser parser = new TypeScriptParser(tokens);
+          tree = parser.initializer();
+          TypescriptDeclarationListener tsdl = new TypescriptDeclarationListener(tokens, input);
+          walker.walk(tsdl, tree);
+          listener = tsdl;
           break;
         }
       default:
