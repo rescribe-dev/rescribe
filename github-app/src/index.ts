@@ -1,7 +1,7 @@
 import { Application } from 'probot';
 import ApolloClient from 'apollo-boost';
 import jwt from 'jsonwebtoken';
-import 'cross-fetch/polyfill';
+import fetch from 'isomorphic-fetch';
 import { IndexGithub, IndexGithubMutationVariables, IndexGithubMutation } from './lib/generated/datamodel';
 
 interface Commit {
@@ -12,20 +12,22 @@ interface Commit {
   modified: string[];
 }
 
+if (!process.env.API_URL){
+  throw new Error('no api url provided');
+}
+if (!process.env.APP_ID) {
+  throw new Error('no app id provided');
+}
+const appID = process.env.APP_ID;
+if (!process.env.PRIVATE_KEY) {
+  throw new Error('no private key provided');
+}
+const privateKey = process.env.PRIVATE_KEY.replace('\\n', '\n');
+
 export = (app: Application): void => {
-  if (!process.env.API_URL){
-    throw new Error('no api url provided');
-  }
-  if (!process.env.APP_ID) {
-    throw new Error('no app id provided');
-  }
-  const appID = process.env.APP_ID;
-  if (!process.env.PRIVATE_KEY) {
-    throw new Error('no private key provided');
-  }
-  const privateKey = process.env.PRIVATE_KEY;
   const api = new ApolloClient({
     uri: `${process.env.API_URL}/graphql`,
+    fetch,
   });
   app.on('push', async (context): Promise<void> => {
     if (context.payload.commits.length === 0) {
@@ -33,18 +35,18 @@ export = (app: Application): void => {
       return;
     }
     const commits = context.payload.commits as Commit[];
-    const indexFiles = new Set<string>();
-    const addToIndexed = (arr: string[]): void => {
-      for (const elem of arr){
-        indexFiles.add(elem);
+    const addedSet = new Set<string>();
+    const modifiedSet = new Set<string>();
+    const removedSet = new Set<string>();
+    const addToIndexed = (arr: string[], set: Set<string>): void => {
+      for (const elem of arr) {
+        set.add(elem);
       }
     };
     for (const commit of commits) {
-      addToIndexed(commit.added);
-      addToIndexed(commit.modified);
-      for (const elem of commit.removed){
-        indexFiles.delete(elem);
-      }
+      addToIndexed(commit.added, addedSet);
+      addToIndexed(commit.modified, modifiedSet);
+      addToIndexed(commit.removed, removedSet);
     }
     const octokit = await app.auth();
     const repositoryName = context.payload.repository.name;
@@ -55,7 +57,9 @@ export = (app: Application): void => {
       repo: repositoryName
     });
     const ref = context.payload.ref;
-    const files = Array.from(indexFiles);
+    const added = Array.from(addedSet);
+    const modified = Array.from(modifiedSet);
+    const removed = Array.from(removedSet);
     return new Promise((resolve, _reject) => {
       jwt.sign({
         iss: appID
@@ -71,7 +75,9 @@ export = (app: Application): void => {
               mutation: IndexGithub,
               variables: {
                 githubRepositoryID: repository,
-                paths: files,
+                added,
+                modified,
+                removed,
                 ref,
                 repositoryName,
                 repositoryOwner,

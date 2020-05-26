@@ -13,6 +13,7 @@ import { BranchModel } from '../schema/structure/branch';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import Location from '../schema/antlr/location';
+import { getS3FileData } from '../utils/aws';
 
 @ArgsType()
 class FileTextArgs {
@@ -53,30 +54,34 @@ export const getLines = (content: string, location: Location): string => {
 };
 
 export const getText = async (file: FileDB, user: User, args: Location): Promise<string> => {
-  if (file.content.length > 0) {
-    return getLines(file.content, args);
-  } else if (file.location === StorageType.github) {
-    if (user.githubUsername.length === 0) {
-      throw new Error('did not install github app');
+  if (file.location === StorageType.github) {
+    if (!file.saveContent) {
+      if (user.githubUsername.length === 0) {
+        throw new Error('did not install github app');
+      }
+      // get from github
+      const repository = await RepositoryModel.findOne({
+        _id: file.repository
+      });
+      if (!repository) {
+        throw new Error('cannot find repository');
+      }
+      const branch = await BranchModel.findOne({
+        _id: file.branch
+      });
+      if (!branch) {
+        throw new Error('cannot find branch');
+      }
+      const githubClient = createClient(user.githubInstallationID);
+      const content = await getGithubFile(githubClient, branch.name, file.path, repository.name, user.githubUsername);
+      return getLines(content, args);
     }
-    // get from github
-    const repository = await RepositoryModel.findOne({
-      _id: file.repository
-    });
-    if (!repository) {
-      throw new Error('cannot find repository');
-    }
-    const branch = await BranchModel.findOne({
-      _id: file.branch
-    });
-    if (!branch) {
-      throw new Error('cannot find branch');
-    }
-    const githubClient = createClient(user.githubInstallationID);
-    const content = await getGithubFile(githubClient, branch.name, file.path, repository.name, user.githubUsername);
-    return getLines(content, args);
+    return getLines(await getS3FileData(file.repository, file.branch, file.path), args);
   } else if (file.location === StorageType.local) {
-    throw new Error('content not stored in cloud');
+    if (!file.saveContent) {
+      throw new Error('content not stored in cloud');
+    }
+    return getLines(await getS3FileData(file.repository, file.branch, file.path), args);
   } else {
     throw new Error('invalid storage location');
   }

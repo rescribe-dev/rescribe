@@ -1,3 +1,4 @@
 # ignore dist
 dist/
 node_modules/
+demoCode/

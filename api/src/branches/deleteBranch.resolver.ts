@@ -10,6 +10,7 @@ import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { deleteFileUtil } from '../files/deleteFile.resolver';
+import { FileModel } from '../schema/structure/file';
 
 @ArgsType()
 class DeleteBranchArgs {
@@ -29,7 +30,11 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs, branch: BranchDB)
     _id: args.id
   });
   for (const fileID of branch.files) {
-    await deleteFileUtil(fileID, args.id);
+    const file = await FileModel.findById(fileID);
+    if (!file) {
+      throw new Error(`cannot find file with id ${fileID.toHexString()}`);
+    }
+    await deleteFileUtil(file);
   }
 };
 

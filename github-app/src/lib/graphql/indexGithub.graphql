@@ -1,3 +1,3 @@
-mutation indexGithub($githubRepositoryID: Int!, $paths: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
-  indexGithub(githubRepositoryID: $githubRepositoryID, paths: $paths, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
+mutation indexGithub($githubRepositoryID: Int!, $added: [String!]!, $modified: [String!]!, $removed: [String!]!, $ref: String!, $repositoryName: String!, $repositoryOwner: String!, $installationID: Int!) {
+  indexGithub(githubRepositoryID: $githubRepositoryID, added: $added, modified: $modified, removed: $removed, ref: $ref, repositoryName: $repositoryName, repositoryOwner: $repositoryOwner, installationID: $installationID)
 }

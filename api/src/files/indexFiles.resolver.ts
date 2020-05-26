@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile } from './shared';
+import { indexFile, UpdateType } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { StorageType } from '../schema/structure/file';
@@ -73,12 +73,23 @@ class IndexFilesResolver {
           }
           const content = buffer.toString('utf8');
           try {
-            await indexFile(args.saveContent, StorageType.local, args.project, args.repository, args.branch, path, file.filename, content);
+            await indexFile({
+              saveContent: args.saveContent,
+              action: UpdateType.add,
+              file: undefined,
+              location: StorageType.local,
+              project: args.project,
+              repository: args.repository,
+              branch: args.branch,
+              path,
+              fileName: file.filename,
+              content
+            });
             numIndexed++;
             if (numIndexed === args.files.length) {
               resolve('done indexing files');
             }
-          } catch(err) {
+          } catch (err) {
             reject(err);
           }
         });
