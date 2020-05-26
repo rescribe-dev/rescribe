@@ -10,7 +10,7 @@ import { getLogger } from 'log4js';
 import cookieParser from 'cookie-parser';
 import { initializeMappings } from './elastic/configure';
 import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext } from './utils/context';
-import { isDebug } from './utils/mode';
+import { isProduction } from './utils/mode';
 import { createServer } from 'http';
 import { buildSchema } from 'type-graphql';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
@@ -141,7 +141,7 @@ export const initializeServer = async (): Promise<void> => {
       }).status(HttpStatus.BAD_REQUEST);
     }
   });
-  if (isDebug()) {
+  if (!isProduction()) {
     app.post('/initializeElastic', async (_, res) => {
       try {
         await initializeMappings();

@@ -1,0 +1,38 @@
+name: Upload Github
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "github-app/**"
+      - ".github/workflows/github.yml"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # checks out a copy of the repo
+      - uses: actions/checkout@master
+      - name: Setup Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: install dependencies
+        run: |
+          cd github-app
+          yarn install
+          cd -
+      - name: build
+        run: |
+          cd github-app
+          yarn run build:package
+          cd -
+      - name: default deploy
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+          function_name: rescribe-github
+          zip_file: github-app/dist.zip
+      - name: finish
+        run: echo "finished!"

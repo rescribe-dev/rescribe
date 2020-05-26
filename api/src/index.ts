@@ -5,6 +5,7 @@ import { initializeAntlr } from './utils/antlrBridge';
 import { initializeLogger } from './utils/logger';
 import { initializeGithub } from './utils/github';
 import { configData, initializeConfig } from './utils/config';
+import { initializeAWS } from './utils/aws';
 
 const runAPI = async (): Promise<void> => {
   await initializeConfig();
@@ -14,8 +15,10 @@ const runAPI = async (): Promise<void> => {
       await initializeAntlr();
       logger.info('connected to antlr');
     }
-    await initializeGithub();
+    initializeGithub();
     logger.info('github client initialized');
+    await initializeAWS();
+    logger.info('aws initialized');
     await initializeElastic();
     logger.info('connected to elasticsearch');
     await initializeDB();

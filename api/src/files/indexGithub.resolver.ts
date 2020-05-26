@@ -5,25 +5,34 @@ import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/auth/user';
-import { indexFile } from './shared';
-import { StorageType } from '../schema/structure/file';
+import { indexFile, UpdateType } from './shared';
+import { StorageType, FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
 import { BranchModel } from '../schema/structure/branch';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
 import checkFileExtension from '../utils/checkFileExtension';
+import { deleteFileUtil } from './deleteFile.resolver';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
-@ArgsType()
-class GithubIndexArgs {//https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-an-installation
-  //https://developer.github.com/v3/apps/#create-a-new-installation-token
-  @Field(_type => Int, { description: 'github repository id' })
-  githubRepositoryID: number;  
+//https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-an-installation
+//https://developer.github.com/v3/apps/#create-a-new-installation-token
 
-  @Field(_type => [String], { description: 'paths' })
-  paths: string[];
+@ArgsType()
+class GithubIndexArgs {
+  @Field(_type => Int, { description: 'github repository id' })
+  githubRepositoryID: number;
+
+  @Field(_type => [String], { description: 'added' })
+  added: string[];
+
+  @Field(_type => [String], { description: 'modified' })
+  modified: string[];
+
+  @Field(_type => [String], { description: 'removed' })
+  removed: string[];
 
   @Field(_type => String, { description: 'branch' })
   ref: string;
@@ -94,7 +103,7 @@ class IndexGithubResolver {
         await getConfigurationData(githubClient, args);
         repositoryID = new ObjectId(githubConfig?.repository);
         projectID = new ObjectId(githubConfig?.project);
-      } catch(err) {
+      } catch (err) {
         throw new Error('project & repo not found');
       }
     } else {
@@ -116,12 +125,63 @@ class IndexGithubResolver {
       branchID = branch._id;
     }
     // as a stopgap use the configuration file to check for this stuff
-    for (const filePath of args.paths) {
+    for (const filePath of args.added) {
       if (!checkFileExtension(filePath)) {
         continue;
       }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
-      await indexFile(false, StorageType.github, projectID, repositoryID, branchID, filePath, getFileName(filePath), content);
+      await indexFile({
+        saveContent: false,
+        action: UpdateType.add,
+        file: undefined,
+        location: StorageType.github,
+        project: projectID,
+        repository: repositoryID,
+        branch: branchID,
+        path: filePath,
+        fileName: getFileName(filePath),
+        content
+      });
+    }
+    for (const filePath of args.modified) {
+      if (!checkFileExtension(filePath)) {
+        continue;
+      }
+      const file = await FileModel.findOne({
+        path: filePath,
+        branch: branchID,
+        repository: repositoryID
+      });
+      if (!file) {
+        continue;
+      }
+      const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
+      await indexFile({
+        saveContent: false,
+        action: UpdateType.update,
+        file,
+        location: StorageType.github,
+        project: projectID,
+        repository: repositoryID,
+        branch: branchID,
+        path: filePath,
+        fileName: getFileName(filePath),
+        content
+      });
+    }
+    for (const filePath of args.removed) {
+      if (!checkFileExtension(filePath)) {
+        continue;
+      }
+      const file = await FileModel.findOne({
+        path: filePath,
+        branch: branchID,
+        repository: repositoryID
+      });
+      if (!file) {
+        continue;
+      }
+      await deleteFileUtil(file);
     }
     return `successfully processed repo ${args.repositoryName}`;
   }

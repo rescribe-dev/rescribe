@@ -18,3 +18,4 @@ lib_test
 lib/
 !src/lib/
 src/lib/generated
+dist.zip
