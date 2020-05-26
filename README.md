@@ -12,5 +12,6 @@
 ![Upload Antlr](https://github.com/mdigreg2/rescribe/workflows/Upload%20Antlr/badge.svg)
 ![Upload CLI](https://github.com/mdigreg2/rescribe/workflows/Upload%20CLI/badge.svg)
 ![Upload vscode](https://github.com/mdigreg2/rescribe/workflows/Upload%20Vscode/badge.svg)
+![Upload Github](https://github.com/mdigreg2/rescribe/workflows/Upload%20Github/badge.svg)
 
 [![Buy Me A Coffee](https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png)](https://www.buymeacoffee.com/IU2gHt3Qn)
