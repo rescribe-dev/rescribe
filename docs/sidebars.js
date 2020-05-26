@@ -8,6 +8,7 @@ module.exports = {
     'Documentation Guide': ['writing_docs/style_guide', 'writing_docs/mdx'],
     Deployment: [
       'deployment/index',
+      'deployment/github',
       'deployment/aws',
       'deployment/docker',
       'deployment/vscode',
