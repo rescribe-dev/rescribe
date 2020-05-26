@@ -3,6 +3,7 @@ import ApolloClient from 'apollo-boost';
 import jwt from 'jsonwebtoken';
 import fetch from 'isomorphic-fetch';
 import { IndexGithub, IndexGithubMutationVariables, IndexGithubMutation } from './lib/generated/datamodel';
+import { initializeConfig, appID, privateKey } from './config';
 
 interface Commit {
   id: string;
@@ -12,17 +13,7 @@ interface Commit {
   modified: string[];
 }
 
-if (!process.env.API_URL){
-  throw new Error('no api url provided');
-}
-if (!process.env.APP_ID) {
-  throw new Error('no app id provided');
-}
-const appID = process.env.APP_ID;
-if (!process.env.PRIVATE_KEY) {
-  throw new Error('no private key provided');
-}
-const privateKey = process.env.PRIVATE_KEY.replace('\\n', '\n');
+initializeConfig();
 
 export = (app: Application): void => {
   const api = new ApolloClient({

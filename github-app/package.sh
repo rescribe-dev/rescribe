@@ -9,6 +9,5 @@ cp yarn.lock lib
 
 cd lib
 yarn install --production
+zip -r ../dist.zip *
 cd -
-
-zip -r dist.zip lib
