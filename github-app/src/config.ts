@@ -1,8 +1,11 @@
+import { config } from 'dotenv';
+
 export let apiURL: string;
 export let appID: number;
 export let privateKey: string;
 
 export const initializeConfig = (): void => {
+  config();
   if (!process.env.API_URL){
     throw new Error('no api url provided');
   }
@@ -10,9 +13,9 @@ export const initializeConfig = (): void => {
   if (!process.env.APP_ID) {
     throw new Error('no app id provided');
   }
-  const appIDCast = new Number(process.env.APP_ID);
-  if (!appID) {
-    throw new Error('app id is not numeric');
+  const appIDCast = Number(process.env.APP_ID);
+  if (!appIDCast) {
+    throw new Error(`app id ${process.env.APP_ID} is not numeric`);
   }
   appID = appIDCast as number;
   if (!process.env.PRIVATE_KEY) {
