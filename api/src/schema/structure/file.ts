@@ -30,8 +30,8 @@ export class FileDB {
   path: string;
   @Property({ required: true })
   location: StorageType;
-  @Property({ required: false })
-  content: string;
+  @Property({ required: true })
+  saveContent: boolean;
 }
 
 export const FileModel = getModelForClass(FileDB);

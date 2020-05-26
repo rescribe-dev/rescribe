@@ -10,6 +10,7 @@ interface ConfigType {
   WEBSITE_URL: string;
   CONNECT_ANTLR: boolean;
   DEBUG: boolean;
+  PRODUCTION: boolean;
   JWT_SECRET: string;
   DB_CONNECTION_URI: string;
   ELASTICSEARCH_URI: string;
@@ -19,6 +20,10 @@ interface ConfigType {
   REDIS_HOST: string;
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
+  AWS_S3_BUCKET_FILES: string;
+  AWS_ACCESS_KEY_ID: string;
+  AWS_SECRET_ACCESS_KEY: string;
+  AWS_REGION: string;
 }
 
 export const configData: ConfigType = {
@@ -28,6 +33,7 @@ export const configData: ConfigType = {
   WEBSITE_URL: 'https://rescribe.dev',
   CONNECT_ANTLR: true,
   DEBUG: false,
+  PRODUCTION: true,
   JWT_SECRET: '',
   DB_CONNECTION_URI: '',
   ELASTICSEARCH_URI: '',
@@ -36,7 +42,11 @@ export const configData: ConfigType = {
   GITHUB_PRIVATE_KEY: '',
   REDIS_HOST: '',
   REDIS_PORT: 0,
-  REDIS_PASSWORD: ''
+  REDIS_PASSWORD: '',
+  AWS_S3_BUCKET_FILES: 'rescribe-repositories',
+  AWS_ACCESS_KEY_ID: '',
+  AWS_SECRET_ACCESS_KEY: '',
+  AWS_REGION: 'us-east-1'
 };
 
 const addToConfig = (conf: any, allString: boolean): void => {

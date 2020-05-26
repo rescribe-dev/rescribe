@@ -338,8 +338,14 @@ type Mutation {
     # github repository id
     githubRepositoryID: Int!
 
-    # paths
-    paths: [String!]!
+    # added
+    added: [String!]!
+
+    # modified
+    modified: [String!]!
+
+    # removed
+    removed: [String!]!
 
     # branch
     ref: String!
