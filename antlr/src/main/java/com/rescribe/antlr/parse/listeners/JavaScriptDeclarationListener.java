@@ -47,16 +47,34 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     }
 
 
-    //this gives you the entire program in one long string and then the <EOF>
+/* GOING TO BE USED */
+    
+    /*DOCUMENTED*/
+
+    //these are entering variable names
+    //for assignables the parent yields the entire expression ex: thing = something else
+    //the parent of the parent yields either var thing = something else or for arguments it
+    //yields all of the arguments of the function
     @Override
-    public void enterProgram(JavaScriptParser.ProgramContext ctx) {
-        testContext(ctx, "enter program");
+    public void enterAssignable(JavaScriptParser.AssignableContext ctx) {
+        testContext(ctx, "enter assignable");
     }
 
+    //the children of this are the function keyword, the arguments, and the content of the function
+    //if you break it down further you get all of the sub expressions but we dont need those
     @Override
-    public void enterFunctionDeclaration(JavaScriptParser.FunctionDeclarationContext ctx) {
-        testContext(ctx, "enter function declaration");
+    public void enterAnoymousFunctionDecl(JavaScriptParser.AnoymousFunctionDeclContext ctx) {
+        testContext(ctx, "enter anonymous function decl context");
+        for (int i = 0; i < ctx.children.size(); i++) {
+            for (int j = 0; j < ctx.children.get(i).getChildCount(); j++) {
+                for (int k = 0; k < ctx.children.get(i).getChild(j).getChildCount(); k++) {
+                    System.out.println(ctx.children.get(i).getChild(j).getChild(k).getText());
+                }
+                System.out.println("--\n--\n--");
+            }
+        }
     }
+    /*DOCUMENTED*/
 
     @Override
     public void enterClassDeclaration(JavaScriptParser.ClassDeclarationContext ctx) {
@@ -64,65 +82,8 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     }
 
     @Override
-    public void enterMethodDefinition(JavaScriptParser.MethodDefinitionContext ctx) {
-        testContext(ctx, "enter method definition");
-    }
-
-    //this will give you all of the function bodies, inner functions will get marked as new functions
-    //and not trigger this it also doesnt provide the name / params of the function but it does give you
-    //the body   1 child
-//    @Override
-//    public void enterFunctionBody(JavaScriptParser.FunctionBodyContext ctx) {
-//        testContext(ctx, "enter function body");
-//    }
-
-    //this is going to give you anything in a parenthesis that follows a function call
-    //they dont always come out in order, but in the case of main.js in the demo code you get
-    //principal years rate
-    //click
-    //principal
-    //years
-    //calcBtn
-    //rate
-    //monthlyPayment
-    //2
-    //that entire callback function from document.addEventListener
-//    @Override
-//    public void enterArguments(JavaScriptParser.ArgumentsContext ctx) {
-//        testContext(ctx, "enter arguments");
-//    }
-
-    //this will give you everything thats not an argument in parenthesis recursively
-    //for example we get the conditions within if statements, return variables / values
-    //but without the word return
-    //if you had the expression (1 - (Math.pow(1 / (1 + monthlyRate), years * 12)))
-    //you get that, 1+monthlyRate, Math.pow(1 / (1 + monthlyRate), years * 12), 1/(1 + monthlyRate), etc
-
-//    @Override
-//    public void enterExpressionSequence(JavaScriptParser.ExpressionSequenceContext ctx) {
-//        testContext(ctx, "enter expression sequence");
-//    }
-
-    @Override
     public void enterObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
         testContext(ctx, "enter object literal expression");
-    }
-
-    @Override
-    public void enterMetaExpression(JavaScriptParser.MetaExpressionContext ctx) {
-        testContext(ctx, "enter meta expression");
-    }
-
-    //better enter function body as the beginning yields the function(args) syntax as well
-    @Override
-    public void enterFunctionExpression(JavaScriptParser.FunctionExpressionContext ctx) {
-        testContext(ctx, "enter function expression");
-    }
-
-    //when something is assigned this triggers but not all of the time
-    @Override
-    public void enterAssignmentExpression(JavaScriptParser.AssignmentExpressionContext ctx) {
-        testContext(ctx, "assignment expression context");
     }
 
     @Override
@@ -131,64 +92,55 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     }
 
     @Override
-    public void enterRelationalExpression(JavaScriptParser.RelationalExpressionContext ctx) {
-        testContext(ctx, "enter relational expression");
-    }
-
-    @Override
-    public void enterNewExpression(JavaScriptParser.NewExpressionContext ctx) {
-        testContext(ctx, "enter new expression");
-    }
-
-
-    //important
-    @Override
     public void enterMemberDotExpression(JavaScriptParser.MemberDotExpressionContext ctx) {
         testContext(ctx, "enter member dot expression");
     }
 
-    //these are entering variable names
-    @Override
-    public void enterAssignable(JavaScriptParser.AssignableContext ctx) {
-        testContext(ctx, "enter assignable");
-    }
-
-    //this one is important
     @Override
     public void enterObjectLiteral(JavaScriptParser.ObjectLiteralContext ctx) {
         testContext(ctx, "object literal");
     }
 
     @Override
-    public void enterFunctionDecl(JavaScriptParser.FunctionDeclContext ctx) {
-        testContext(ctx, "enter function decl context");
-    }
-
-    //this is going to be the good stuff it contains the function declaration and args along with content
-    //vry similar to function expression but the function args are broken down more
-    //doesnt take the variable name that the value / function is assigned to
-    @Override
-    public void enterAnoymousFunctionDecl(JavaScriptParser.AnoymousFunctionDeclContext ctx) {
-        testContext(ctx, "enter anonymous function decl context");
-    }
-//important
-    @Override
     public void enterArrowFunction(JavaScriptParser.ArrowFunctionContext ctx) {
         testContext(ctx, "enter arrow function");
     }
-//important
-    @Override
-    public void enterArrowFunctionParameters(JavaScriptParser.ArrowFunctionParametersContext ctx) {
-        testContext(ctx, "enter arrow function parameters");
-    }
-//important
-    @Override
-    public void enterArrowFunctionBody(JavaScriptParser.ArrowFunctionBodyContext ctx) {
-        testContext(ctx, "enter arrow function body");
-    }
-//important
-    @Override
-    public void enterAssignmentOperator(JavaScriptParser.AssignmentOperatorContext ctx) {
-        testContext(ctx, "enter assignment operator");
-    }
 }
+/* GOING TO BE USED */
+
+
+    /*MAYBE GOING TO BE USED*/
+//    @Override
+//    public void enterArrowFunctionParameters(JavaScriptParser.ArrowFunctionParametersContext ctx) {
+//        testContext(ctx, "enter arrow function parameters");
+//    }
+//    @Override
+//    public void enterFunctionDeclaration(JavaScriptParser.FunctionDeclarationContext ctx) {
+//        testContext(ctx, "enter function declaration");
+//    }
+//    @Override
+//    public void enterMethodDefinition(JavaScriptParser.MethodDefinitionContext ctx) {
+//        testContext(ctx, "enter method definition");
+//    }
+//    @Override
+//    public void enterMetaExpression(JavaScriptParser.MetaExpressionContext ctx) {
+//        testContext(ctx, "enter meta expression");
+//    }
+//    //when something is assigned this triggers but not all of the time
+//    @Override
+//    public void enterAssignmentExpression(JavaScriptParser.AssignmentExpressionContext ctx) {
+//        testContext(ctx, "assignment expression context");
+//    }
+//    @Override
+//    public void enterFunctionDecl(JavaScriptParser.FunctionDeclContext ctx) {
+//        testContext(ctx, "enter function decl context");
+//    }
+//    @Override
+//    public void enterArrowFunctionBody(JavaScriptParser.ArrowFunctionBodyContext ctx) {
+//        testContext(ctx, "enter arrow function body");
+//    }
+//    @Override
+//    public void enterAssignmentOperator(JavaScriptParser.AssignmentOperatorContext ctx) {
+//        testContext(ctx, "enter assignment operator");
+//    }
+    /*MAYBE GOING TO BE USED*/
