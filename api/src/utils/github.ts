@@ -17,10 +17,11 @@ export const createClient = (installationID: number): client => {
   });
 };
 
-export const initializeGithub = async (): Promise<void> => {
+export const initializeGithub = (): void => {
   if (configData.GITHUB_PRIVATE_KEY.length === 0) {
     throw new Error('no private key supplied');
   }
+  configData.GITHUB_PRIVATE_KEY = configData.GITHUB_PRIVATE_KEY.replace('\\n', '\n');
   if (configData.GITHUB_APP_ID === 0) {
     throw new Error('github app id no supplied');
   }

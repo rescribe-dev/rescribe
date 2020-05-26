@@ -1,6 +1,6 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { getLogger } from 'log4js';
-import { FileModel } from '../schema/structure/file';
+import { FileModel, FileDB } from '../schema/structure/file';
 import { elasticClient } from '../elastic/init';
 import { fileIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
@@ -10,6 +10,7 @@ import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { BranchModel } from '../schema/structure/branch';
+import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 
 const logger = getLogger();
 
@@ -19,22 +20,26 @@ class DeleteFileArgs {
   id: ObjectId;
 }
 
-export const deleteFileUtil = async (file: ObjectId, branch: ObjectId): Promise<void> => {
+export const deleteFileUtil = async (file: FileDB): Promise<void> => {
   const deleteElasticResult = await elasticClient.delete({
     index: fileIndexName,
-    id: file.toHexString()
+    id: file._id.toHexString()
   });
   logger.info(`deleted file ${JSON.stringify(deleteElasticResult.body)}`);
   await FileModel.deleteOne({
     _id: file
   });
   await BranchModel.updateOne({
-    _id: branch
+    _id: file.branch
   }, {
     $pull: {
-      files: file
+      files: file._id
     }
   });
+  await s3Client.deleteObject({
+    Bucket: fileBucket,
+    Key: getFileKey(file.repository, file.branch, file.path),
+  }).promise();
 };
 
 @Resolver()
@@ -56,7 +61,7 @@ class DeleteFileResolver {
     if (!checkRepositoryAccess(user, file.project, file.repository, AccessLevel.edit)) {
       throw new Error('user does not have edit permissions for project or repository');
     }
-    await deleteFileUtil(args.id, file.branch);
+    await deleteFileUtil(file);
     return `deleted file with id: ${args.id}`;
   }
 }
