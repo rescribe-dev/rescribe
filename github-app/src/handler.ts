@@ -12,7 +12,7 @@ interface GithubData {
   action: string;
 }
 
-const handler: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayProxyResult> => {
+export const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayProxyResult> => {
   if (event.httpMethod === 'GET' && event.path === '/') {
     return {
       statusCode: 200,
@@ -74,5 +74,3 @@ const handler: APIGatewayProxyHandler = async (event, context): Promise<APIGatew
     };
   }
 };
-
-export default handler;
