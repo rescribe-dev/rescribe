@@ -1,11 +1,11 @@
-name: Upload CLI
+name: Upload Vscode
 on:
   push:
     branches:
       - master
     paths:
-      - "cli/**"
-      - ".github/workflows/cli.yml"
+      - "vscode/**"
+      - ".github/workflows/vscode.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,28 +18,28 @@ jobs:
           node-version: 12.x
       - name: install dependencies
         run: |
-          sudo apt-get install -y libkrb5-dev
-          cd cli
-          npm install
+          npm install -g vsce
+          cd vscode
+          yarn install
           cd -
       - name: build
         run: |
-          cd cli
-          npm run build:package
+          cd vscode
+          yarn run build:package
           cd -
       - uses: jakejarvis/s3-sync-action@master
         with:
           args: --acl public-read --follow-symlinks --delete
         env:
-          AWS_S3_BUCKET: rescribe-cli
+          AWS_S3_BUCKET: rescribe-vscode
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
-          SOURCE_DIR: cli/dist
+          SOURCE_DIR: vscode/dist
       - name: invalidate cloudfront
         uses: chetan/invalidate-cloudfront-action@master
         env:
-          DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_ID_CLI }}
+          DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_ID_VSCODE }}
           PATHS: '/*'
           AWS_REGION: 'us-east-1'
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
