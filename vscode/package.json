@@ -51,6 +51,8 @@
 		"test": "node ./out/test/runTest.js",
 		"clean": "rimraf out",
 		"precommit": "yarn lint",
+		"package": "./package.sh",
+		"build:package": "npm run vscode:prepublish && npm run package",
 		"codegen": "graphql-codegen --config codegen.yml"
 	},
 	"devDependencies": {
