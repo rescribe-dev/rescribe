@@ -50,13 +50,14 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
         System.out.println("---");
     }
 
-
+    public Boolean hasCallabck(String input) {
+        return input.contains("function(");
+    }
 /* GOING TO BE USED */
     //TODO parents
     //90% of the things Ive seen in testing are assignables, object literals,
     //anonymous function declarations, and member dot expressions
     /*DOCUMENTED*/
-
     //these are entering variable names
     //for assignables the parent yields the entire expression ex: thing = something else
     //the parent of the parent yields either var thing = something else or for arguments it
@@ -66,40 +67,18 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     public void enterAssignable(JavaScriptParser.AssignableContext ctx) {
         Variable newVariable = new Variable();
         if (ctx.getParent() != null && ctx.getParent().getChildCount() >= 3) {
-            newVariable.setName(ctx.getPayload().getText());
-            newVariable.setType(ctx.getParent().getChild(2).getText());
-            newVariable.setArgument(false);
-            newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
-            this.file.getVariables().add(newVariable);
+            if (!hasCallabck(ctx.getParent().getChild(2).getText())) {
+                newVariable.setName(ctx.getPayload().getText());
+                newVariable.setType(ctx.getParent().getChild(2).getText());
+                newVariable.setArgument(false);
+                newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+                this.file.getVariables().add(newVariable);
+            }
         }
         else if (ctx.getParent().getChildCount() == 1) {
             //this is a standalone function argument
             //pretty sure the parents parent's first child is the name of a named function
         }
-//        else {
-            //1, 1, assignments seem to be function args these can be disregarded
-            System.out.println("\nstart assignemnt");
-            System.out.println(ctx.getParent().getParent().getChildCount());
-            System.out.println(ctx.getParent().getChildCount());
-            System.out.println(ctx.getPayload().getText());//this is just the variable name
-            if (ctx.getParent() != null && ctx.getParent().getChildCount() >= 3) {
-                System.out.println(ctx.getParent().getChild(2).getText()); //what its equal to
-                System.out.println(ctx.getParent().getChild(2).getChildCount());
-                if(ctx.getParent().getChild(2).getChild(1) != null) {
-                    int substringLength = ctx.getParent().getChild(2).getChild(1).getText().length() >=9 ? 9: -1;
-                    System.out.println(ctx.getParent().getChild(2).getChild(1).getText());
-                    if(substringLength > 0)
-                        System.out.println(ctx.getParent().getChild(2).getChild(1).getText().substring(1, substringLength));
-                    if (substringLength < 0) {
-                        System.out.println("not a function");
-                    }
-                    else if (ctx.getParent().getChild(2).getChild(1).getText().substring(1, substringLength).equals("function")) {
-                        System.out.println("dropped, its a function");
-                    }
-                }
-            }
-            System.out.println("end assignment\n");
-//        }
     }
 
     //the children of this are the function keyword, the arguments, and the content of the function
@@ -120,6 +99,7 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
             newFunction.setReturnType("promise");
             newFunction.setIsconstructor(false);
             newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+            this.file.getFunctions().add(newFunction);
         }
         else if (ctx.getChildCount() > 6) {
             StringBuilder sb = new StringBuilder();
@@ -131,21 +111,12 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
             newFunction.setReturnType("promise");
             newFunction.setIsconstructor(false);
             newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+            this.file.getFunctions().add(newFunction);
         }
-
-        this.file.getFunctions().add(newFunction);
-//functions are usually 1, 1
-        System.out.println("\nstart function");
-        System.out.println(ctx.getParent().getParent().getChildCount());
-        System.out.println(ctx.getParent().getChildCount());
-        System.out.println(ctx.getPayload().getText());
-        System.out.println("end function\n");
-
     }
 
     //three parent children gives you all of the expression with the syntax
     //something = document.getwhatever(adasfd).asdf
-
     //two parent children gives you all of the standalone expressions with no further frills
     //math.pow(thing)
     //document.getwhatever(asdfd)
@@ -154,14 +125,16 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     //set to be used
     @Override
     public void enterMemberDotExpression(JavaScriptParser.MemberDotExpressionContext ctx) {
-//        testContext(ctx, "enter member dot expression");
-//        if (ctx.getParent().getChildCount() == 3) {
-//            System.out.println("enter member dot expression");
-//            System.out.println(ctx.getParent().getText());
-//            System.out.println("---");
-//            System.out.println("---");
-//            System.out.println("---");
-//        }
+        //if this involves a callback, this will be treated as a function
+        Variable newVariable = new Variable();
+        if (ctx.getChildCount() >=3) {
+            if (!hasCallabck(ctx.children.get(2).getText())) {
+                //in the example object.function() set the name to object and the type to function()
+                newVariable.setName(ctx.children.get(0).getText());
+                newVariable.setType(ctx.children.get(2).getText());
+                newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+            }
+        }
     }
 
     //this gives you a list of all of the members within the object literal declaration
@@ -181,10 +154,27 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     //and the stuffs children behave as described above
     @Override
     public void enterObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
-//        testContext(ctx, "enter object literal expression");
-//        for (int i = 0; i < ctx.getParent().getChildCount(); i++) {
-//            System.out.println(ctx.getParent().getChild(i).getText());
-//        }
+        Function newFunction = new Function();
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            for (int j = 0; j < ctx.getChild(i).getChildCount(); j++) {
+                if (ctx.children.get(i).getChild(j).getChildCount() >= 3) {
+                    Variable newVariable = new Variable();
+                    System.out.println(ctx.children.get(i).getChild(j).getChild(0).getText());
+                    newVariable.setName(ctx.children.get(i).getChild(j).getChild(0).getText());
+                    newVariable.setType(ctx.children.get(i).getChild(j).getChild(2).getText());
+                    //TODO
+                    newVariable.setLocation(new Location(0,0));
+                    newVariable.setArgument(false);
+                    file.getVariables().add(newVariable);
+                }
+            }
+        }
+        //TODO determine if anonymous or named
+        newFunction.setName("");
+        newFunction.setIsconstructor(false);
+        newFunction.setReturnType("void");
+        newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+        file.getFunctions().add(newFunction);
     }
     /*DOCUMENTED*/
 
@@ -246,3 +236,32 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
 //        testContext(ctx, "object literal");
 //    }
     /*MAYBE GOING TO BE USED*/
+
+
+
+
+//debugging prints for arguments
+//        else {
+////            1, 1, assignments seem to be function args these can be disregarded
+//            System.out.println("\nstart assignemnt");
+//            System.out.println(ctx.getParent().getParent().getChildCount());
+//            System.out.println(ctx.getParent().getChildCount());
+//            System.out.println(ctx.getPayload().getText());//this is just the variable name
+//            if (ctx.getParent() != null && ctx.getParent().getChildCount() >= 3) {
+//                System.out.println(ctx.getParent().getChild(2).getText()); //what its equal to
+//                System.out.println(ctx.getParent().getChild(2).getChildCount());
+//                if(ctx.getParent().getChild(2).getChild(1) != null) {
+//                    int substringLength = ctx.getParent().getChild(2).getChild(1).getText().length() >=9 ? 9: -1;
+//                    System.out.println(ctx.getParent().getChild(2).getChild(1).getText());
+//                    if(substringLength > 0)
+//                        System.out.println(ctx.getParent().getChild(2).getChild(1).getText().substring(1, substringLength));
+//                    if (substringLength < 0) {
+//                        System.out.println("not a function");
+//                    }
+//                    else if (ctx.getParent().getChild(2).getChild(1).getText().substring(1, substringLength).equals("function")) {
+//                        System.out.println("dropped, its a function");
+//                    }
+//                }
+//            }
+//            System.out.println("end assignment\n");
+//        }
