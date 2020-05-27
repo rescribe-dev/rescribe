@@ -48,7 +48,9 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
 
 
 /* GOING TO BE USED */
-    
+
+    //90% of the things Ive seen in testing are assignables, object literals,
+    //anonymous function declarations, and member dot expressions
     /*DOCUMENTED*/
 
     //these are entering variable names
@@ -65,13 +67,56 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     @Override
     public void enterAnoymousFunctionDecl(JavaScriptParser.AnoymousFunctionDeclContext ctx) {
         testContext(ctx, "enter anonymous function decl context");
-        for (int i = 0; i < ctx.children.size(); i++) {
-            for (int j = 0; j < ctx.children.get(i).getChildCount(); j++) {
-                for (int k = 0; k < ctx.children.get(i).getChild(j).getChildCount(); k++) {
-                    System.out.println(ctx.children.get(i).getChild(j).getChild(k).getText());
-                }
-                System.out.println("--\n--\n--");
-            }
+
+        //if there are six children its an anonymous function delcared with the function syntax with
+        //no arguments
+        if(ctx.getChildCount() == 6) {
+            System.out.println(ctx.children.get(0).getText()); // this is the function keyword
+            System.out.println(ctx.children.get(4).getText()); // this is the content
+        }
+    }
+
+    //three parent children gives you all of the expression with the syntax
+    //something = document.getwhatever(adasfd).asdf
+
+    //two parent children gives you all of the standalone expressions with no further frills
+    //math.pow(thing)
+    //document.getwhatever(asdfd)
+    //it also may give you a massively long dot expression if there is a callback internal to it
+    //in that case it will give you the entire callback. I recommend three parent children as the
+    //set to be used
+    @Override
+    public void enterMemberDotExpression(JavaScriptParser.MemberDotExpressionContext ctx) {
+//        testContext(ctx, "enter member dot expression");
+        if (ctx.getParent().getChildCount() == 3) {
+            System.out.println("enter member dot expression");
+            System.out.println(ctx.getParent().getText());
+            System.out.println("---");
+            System.out.println("---");
+            System.out.println("---");
+        }
+    }
+
+    //this gives you a list of all of the members within the object literal declaration
+    //with a child being each member of the object literal and all of the commas and brackets
+    //ex: {nav:hash[0],anchor:decodeURIComponent(hash[1]||'')}   =
+    //{
+    //nav:hash[0]
+    //,
+    //anchor:decodeURIComponent(hash[1]||'')
+    //}
+    //the parents children are the name of the storage varible, an equals sign, and the raw members
+    //within the object literal declaration
+    //ex: ditto = {stuff} =
+    //ditto
+    //=
+    //{stuff}
+    //and the stuffs children behave as described above
+    @Override
+    public void enterObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
+        testContext(ctx, "enter object literal expression");
+        for (int i = 0; i < ctx.getParent().getChildCount(); i++) {
+            System.out.println(ctx.getParent().getChild(i).getText());
         }
     }
     /*DOCUMENTED*/
@@ -82,23 +127,8 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     }
 
     @Override
-    public void enterObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
-        testContext(ctx, "enter object literal expression");
-    }
-
-    @Override
     public void enterImportExpression(JavaScriptParser.ImportExpressionContext ctx) {
         testContext(ctx, "enter import expression");
-    }
-
-    @Override
-    public void enterMemberDotExpression(JavaScriptParser.MemberDotExpressionContext ctx) {
-        testContext(ctx, "enter member dot expression");
-    }
-
-    @Override
-    public void enterObjectLiteral(JavaScriptParser.ObjectLiteralContext ctx) {
-        testContext(ctx, "object literal");
     }
 
     @Override
@@ -142,5 +172,10 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
 //    @Override
 //    public void enterAssignmentOperator(JavaScriptParser.AssignmentOperatorContext ctx) {
 //        testContext(ctx, "enter assignment operator");
+//    }
+//    basically a child of the object literal expression
+//    @Override
+//    public void enterObjectLiteral(JavaScriptParser.ObjectLiteralContext ctx) {
+//        testContext(ctx, "object literal");
 //    }
     /*MAYBE GOING TO BE USED*/
