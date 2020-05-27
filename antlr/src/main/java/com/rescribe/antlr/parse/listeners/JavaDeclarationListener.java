@@ -21,11 +21,12 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   BufferedTokenStream tokens;
   Stack<Parent> parents = new Stack<>();
 
-  public JavaDeclarationListener(BufferedTokenStream tokens, FileInput input) {
+  public JavaDeclarationListener(BufferedTokenStream tokens, FileInput input, LanguageType language) {
     super();
     this.tokens = tokens;
     this.file = new File(input);
     parents.push(new Parent(this.file.get_id(), ParentType.File));
+    file.setLanguage(language);
   }
 
   // get comments - reference book 209 - hidden channels
