@@ -23,11 +23,12 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     BufferedTokenStream tokens;
     Stack<Parent> parents = new Stack<>();
 
-    public JavaScriptDeclarationListener(BufferedTokenStream tokens, FileInput input) {
+    public JavaScriptDeclarationListener(BufferedTokenStream tokens, FileInput input, LanguageType languageType) {
         super();
         this.tokens = tokens;
         this.file = new File(input);
         parents.push(new Parent(this.file.get_id(), ParentType.File));
+        this.file.setLanguage(languageType);
     }
 
     public File getFileData() {
@@ -71,12 +72,34 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
             newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
             this.file.getVariables().add(newVariable);
         }
-        //1, 1, assignments seem to be function args these can be disregarded
-        System.out.println("\nstart assignemnt");
-        System.out.println(ctx.getParent().getParent().getChildCount());
-        System.out.println(ctx.getParent().getChildCount());
-        System.out.println(ctx.getPayload().getText()); //this is just the variable name
-        System.out.println("end assignment\n");
+        else if (ctx.getParent().getChildCount() == 1) {
+            //this is a standalone function argument
+            //pretty sure the parents parent's first child is the name of a named function
+        }
+//        else {
+            //1, 1, assignments seem to be function args these can be disregarded
+            System.out.println("\nstart assignemnt");
+            System.out.println(ctx.getParent().getParent().getChildCount());
+            System.out.println(ctx.getParent().getChildCount());
+            System.out.println(ctx.getPayload().getText());//this is just the variable name
+            if (ctx.getParent() != null && ctx.getParent().getChildCount() >= 3) {
+                System.out.println(ctx.getParent().getChild(2).getText()); //what its equal to
+                System.out.println(ctx.getParent().getChild(2).getChildCount());
+                if(ctx.getParent().getChild(2).getChild(1) != null) {
+                    int substringLength = ctx.getParent().getChild(2).getChild(1).getText().length() >=9 ? 9: -1;
+                    System.out.println(ctx.getParent().getChild(2).getChild(1).getText());
+                    if(substringLength > 0)
+                        System.out.println(ctx.getParent().getChild(2).getChild(1).getText().substring(1, substringLength));
+                    if (substringLength < 0) {
+                        System.out.println("not a function");
+                    }
+                    else if (ctx.getParent().getChild(2).getChild(1).getText().substring(1, substringLength).equals("function")) {
+                        System.out.println("dropped, its a function");
+                    }
+                }
+            }
+            System.out.println("end assignment\n");
+//        }
     }
 
     //the children of this are the function keyword, the arguments, and the content of the function
