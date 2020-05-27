@@ -1,5 +1,7 @@
 const name = 'Rescribe';
 const version = '0.0.1';
+const docsWebsite = 'https://docs.rescribe.dev';
+const appWebsite = 'https://github.com/apps/rescribe-github';
 
 export default `<!DOCTYPE html>
 <html lang="en" class="height-full">
@@ -23,7 +25,8 @@ export default `<!DOCTYPE html>
       <div class="mt-4">
         <h4 class="alt-h4 text-gray-light">Need help?</h4>
         <div class="d-flex flex-justify-center mt-2">
-          <a href="https://docs.rescribe.dev" class="btn btn-outline mr-2">Documentation</a>
+          <a href="${docsWebsite}" class="btn btn-outline mr-2">Documentation</a>
+          <a href="${appWebsite}" class="btn btn-outline mr-2">Documentation</a>
         </div>
       </div>
     </div>

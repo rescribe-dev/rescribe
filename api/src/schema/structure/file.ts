@@ -1,7 +1,6 @@
 import { ObjectType, Field, registerEnumType, Int } from 'type-graphql';
 import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
-import Location from '../antlr/location';
 import AntlrFile from '../antlr/file';
 
 export enum StorageType {
@@ -55,38 +54,4 @@ export default class File extends AntlrFile {
   created: number;
   @Field({ description: 'date updated' })
   updated: number;
-}
-
-export enum ResultType {
-  file = 'file',
-  import = 'import',
-  class = 'class',
-  function = 'function',
-  variable = 'variable',
-  comment = 'comment',
-  name = 'name',
-  path = 'path',
-  importPath = 'importPath',
-}
-
-registerEnumType(ResultType, {
-  name: 'ResultType',
-  description: 'result type',
-});
-
-// result from api
-@ObjectType({ description: 'search result' })
-export class SearchResult {
-  @Field({ description: 'file id' })
-  readonly _id: ObjectId;
-  @Field({ description: 'location - line numbers' })
-  location: Location;
-  @Field({ description: 'name' })
-  name: string;
-  @Field({ description: 'type' })
-  type: ResultType;
-  @Field({ description: 'main description' })
-  preview: string;
-  @Field(_type => [String], { description: 'nested path' })
-  structure: string[];
 }

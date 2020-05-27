@@ -5,6 +5,9 @@ import functionMappings from './function';
 import classMappings from './class';
 
 const fileMappings = {
+  language: {
+    type: 'keyword'
+  },
   project: {
     type: 'keyword'
   },

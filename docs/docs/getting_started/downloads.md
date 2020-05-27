@@ -15,3 +15,7 @@ Download the cli <a href="https://cli.rescribe.dev" target="_blank">here</a>. Th
 ## vscode extension
 
 Currently, the vscode extension is not deployed to the vscode extension store. However, it is hosted on the rescribe.dev domain. Download [here](https://vscode.rescribe.dev/rescribe-0.0.1.vsix) (version 0.0.1).
+
+## github app
+
+The GitHub app is available for download, but it is unverified and not listed on the marketplace. You can install it [here](https://github.com/apps/rescribe-github).
