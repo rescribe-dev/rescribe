@@ -10,13 +10,20 @@ import { FilesArgs, search } from './files.resolver';
 import Comment from '../schema/antlr/comment';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
-import File, { SearchResult, ResultType, FileModel } from '../schema/structure/file';
+import File, { FileModel } from '../schema/structure/file';
+import { SearchResult, ResultType, FileResult, FileLocation } from '../schema/structure/search';
 import { ObjectId } from 'mongodb';
 import NestedObject from '../schema/antlr/nestedObject';
-import { getText, getLines } from './fileText.resolver';
+import { getText, getLinesArray } from './fileText.resolver';
+import { languageColorMap } from '../schema/structure/language';
+import { RepositoryModel } from '../schema/structure/repository';
+import { AccessLevel } from '../schema/auth/access';
 
 
-const maxPreviewLen = 30;
+const maxPreviewLineLen = 30;
+const minLinesToSplit = 7;
+const splitLength = Math.floor(minLinesToSplit / 2);
+
 const propertyOf = <TObj>(name: keyof TObj): string => name as string;
 
 interface DataRes {
@@ -76,8 +83,8 @@ export const hitExclude = ['project', 'repository'];
 
 @Resolver()
 class SearchResolver {
-  @Query(_returns => [SearchResult])
-  async search(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<SearchResult[]> {
+  @Query(_returns => [FileResult])
+  async search(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<FileResult[]> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
@@ -86,44 +93,77 @@ class SearchResolver {
       throw new Error('cannot find user');
     }
     const elasticFileData = await search(user, args);
-    const results: SearchResult[] = [];
+    const results: FileResult[] = [];
     if (!elasticFileData) {
       return results;
     }
-    const fileData: { [key: string]: string } = {};
+    const fileData: { [key: string]: string[] } = {};
+    const locationData: { [key: string]: FileLocation } = {};
     for (const hit of elasticFileData.body.hits.hits) {
       const fileID = new ObjectId(hit._id as string);
+      const currentFile: File = {
+        ...hit._source as File,
+        _id: new ObjectId(hit._id as string),
+      };
+      if (!(fileID.toHexString() in locationData)) {
+        const repository = await RepositoryModel.findById(currentFile.repository);
+        if (!repository) {
+          throw new Error(`cannot find repository ${currentFile.repository}`);
+        }
+        const userID = repository.access.find(access => access.level === AccessLevel.owner);
+        if (!userID) {
+          throw new Error('no owner found for repository');
+        }
+        const user = await UserModel.findById(userID);
+        if (!user) {
+          throw new Error(`cannot find user with id ${userID}`);
+        }
+        locationData[fileID.toHexString()] = {
+          image: repository.image,
+          owner: user.name,
+          repository: repository.name
+        };
+      }
+      const currentFileResult: FileResult = {
+        _id: fileID,
+        language: {
+          color: languageColorMap[currentFile.language],
+          name: currentFile.language
+        },
+        location: locationData[fileID.toHexString()],
+        name: currentFile.name,
+        path: currentFile.path,
+        results: []
+      };
       const highlight = hit.highlight as { [key: string]: string[] };
       for (const highlightField in highlight) {
         if (!hitExclude.includes(highlightField)) {
           const currentResult: SearchResult = {
-            _id: fileID,
-            preview: '',
-            structure: [],
-            location: {
-              start: 1,
-              end: 1,
-            },
             type: ResultType.file,
             name: '',
+            parents: [],
+            startPreviewLineNumber: -1,
+            endPreviewLineNumber: -1,
+            startPreviewContent: [],
+            endPreviewContent: []
           };
           switch (highlightField) {
             case propertyOf<File>('name'):
               currentResult.type = ResultType.name;
-              currentResult.preview = highlight[highlightField][0];
+              currentResult.name = highlight[highlightField][0];
               break;
             case propertyOf<File>('path'):
               currentResult.type = ResultType.path;
-              currentResult.preview = highlight[highlightField][0];
+              currentResult.name = highlight[highlightField][0];
               break;
             case propertyOf<File>('importPath'):
               currentResult.type = ResultType.importPath;
-              currentResult.preview = highlight[highlightField][0];
+              currentResult.name = highlight[highlightField][0];
               break;
             default:
-              break;
+              continue;
           }
-          results.push(currentResult);
+          currentFileResult.results.push(currentResult);
         }
       }
       for (const field in hit.inner_hits) {
@@ -132,15 +172,13 @@ class SearchResolver {
           const currentInnerHit = currentField.hits.hits[innerHit];
           const currentData: object = currentInnerHit._source;
           const currentResult: SearchResult = {
-            _id: fileID,
-            preview: '',
-            structure: [],
-            location: {
-              start: 1,
-              end: 1,
-            },
             type: ResultType.file,
             name: '',
+            parents: [],
+            startPreviewLineNumber: -1,
+            endPreviewLineNumber: -1,
+            startPreviewContent: [],
+            endPreviewContent: []
           };
           switch (field) {
             case propertyOf<File>('classes'):
@@ -164,9 +202,19 @@ class SearchResolver {
           const data = getData(currentData, currentResult.type);
           if (data) {
             currentResult.name = data.name;
-            currentResult.location = data.currentObject.location;
-            const structure: string[] = [];
-            currentResult.structure = structure;
+            currentResult.startPreviewLineNumber = data.currentObject.location.start;
+            const delta = data.currentObject.location.end - currentResult.startPreviewLineNumber;
+            const useSplit = delta >= minLinesToSplit;
+            let endStartPreviewLine: number;
+            let endEndPreviewLine: number;
+            if (useSplit) {
+              currentResult.endPreviewLineNumber = data.currentObject.location.end - splitLength + 1;
+              endStartPreviewLine = currentResult.startPreviewLineNumber + splitLength - 1;
+              endEndPreviewLine = data.currentObject.location.end;
+            } else {
+              endStartPreviewLine = data.currentObject.location.end;
+              endEndPreviewLine = -1;
+            }
             if (!(fileID.toHexString() in fileData)) {
               const file = await FileModel.findById(fileID);
               if (!file) {
@@ -174,7 +222,7 @@ class SearchResolver {
               }
               try {
                 fileData[fileID.toHexString()] = await getText(file, user, {
-                  start: 1,
+                  start: 1, // start at line 1
                   end: file.fileLength
                 });
               } catch (err) {
@@ -182,18 +230,22 @@ class SearchResolver {
               }
             }
             if (fileData[fileID.toHexString()]) {
-              const preview = getLines(fileData[fileID.toHexString()], currentResult.location);
-              if (preview.length > maxPreviewLen) {
-                currentResult.preview = preview.substr(0, maxPreviewLen);
-              } else {
-                currentResult.preview = preview;
+              currentResult.startPreviewContent = getLinesArray(fileData[fileID.toHexString()], {
+                start: currentResult.startPreviewLineNumber,
+                end: endStartPreviewLine
+              }, true, maxPreviewLineLen);
+              if (useSplit) {
+                currentResult.endPreviewContent = getLinesArray(fileData[fileID.toHexString()], {
+                  start: currentResult.endPreviewLineNumber,
+                  end: endEndPreviewLine
+                }, true, maxPreviewLineLen);
               }
-              currentResult.preview = currentResult.preview.trim();
             }
-            results.push(currentResult);
+            currentFileResult.results.push(currentResult);
           }
         }
       }
+      results.push(currentFileResult);
     }
     return results;
   }

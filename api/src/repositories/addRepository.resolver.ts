@@ -60,7 +60,7 @@ class AddRepositoryResolver {
     });
     const newAccess :Access = {
       _id: id,
-      level: AccessLevel.admin,
+      level: AccessLevel.owner,
       type: AccessType.user
     };
     await UserModel.updateOne({
@@ -72,7 +72,8 @@ class AddRepositoryResolver {
     });
     const dbRepository: RepositoryDB = {
       ...baseRepository,
-      _id: id
+      _id: id,
+      image: ''
     };
     await new RepositoryModel(dbRepository).save();
     return `indexed repository with id ${id.toHexString()}`;

@@ -25,7 +25,16 @@ class FileTextArgs {
   end: number;
 }
 
-export const getLines = (content: string, location: Location): string => {
+export const getLinesArray = (content: string[], location: Location, trim: boolean, maxLineLength?: number): string[] => {
+  if (location.end <= location.start) {
+    return [];
+  }
+  const slicedContent = content.slice(location.start, location.end);
+  const reducedContent = maxLineLength ? slicedContent.map(line => line.substring(0, maxLineLength)) : slicedContent;
+  return trim ? reducedContent.map(line => line.trim()) : reducedContent;
+};
+
+export const getLines = (content: string, location: Location): string[] => {
   let lineCount = 1;
   let startIndex = -1;
   let endIndex = -1;
@@ -45,15 +54,15 @@ export const getLines = (content: string, location: Location): string => {
     }
   }
   if (startIndex < 0) {
-    return '';
+    return [];
   }
   if (endIndex < 0) {
     endIndex = content.length - 1;
   }
-  return content.substring(startIndex, endIndex + 1);
+  return content.substring(startIndex, endIndex + 1).split('\n');
 };
 
-export const getText = async (file: FileDB, user: User, args: Location): Promise<string> => {
+export const getText = async (file: FileDB, user: User, args: Location): Promise<string[]> => {
   if (file.location === StorageType.github) {
     if (!file.saveContent) {
       if (user.githubUsername.length === 0) {
@@ -89,8 +98,8 @@ export const getText = async (file: FileDB, user: User, args: Location): Promise
 
 @Resolver()
 class FileText {
-  @Query(_returns => String)
-  async fileText(@Args() args: FileTextArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+  @Query(_returns => [String])
+  async fileText(@Args() args: FileTextArgs, @Ctx() ctx: GraphQLContext): Promise<string[]> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }

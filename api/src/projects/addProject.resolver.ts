@@ -25,7 +25,7 @@ class AddProjectResolver {
     const userID = new ObjectId(ctx.auth.id);
     const newAccess: Access = {
       _id: userID,
-      level: AccessLevel.admin,
+      level: AccessLevel.owner,
       type: AccessType.user
     };
     const baseProject: BaseProject = {
@@ -45,7 +45,7 @@ class AddProjectResolver {
     });
     const projectAccess : Access = {
       _id: id,  
-      level: AccessLevel.admin,
+      level: AccessLevel.owner,
       type: AccessType.user
     };
     await UserModel.updateOne({

@@ -3,6 +3,7 @@ import { prop as Property } from '@typegoose/typegoose';
 import { ObjectType, Field, registerEnumType } from 'type-graphql';
 
 export enum AccessLevel {
+  owner = 'owner',
   admin = 'admin',
   edit = 'edit',
   view = 'view',

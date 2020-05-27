@@ -14,5 +14,6 @@ module.exports = {
       'deployment/vscode',
     ],
     Development: ['development/index'],
+    Notes: ['notes/index', 'notes/github'],
   },
 };

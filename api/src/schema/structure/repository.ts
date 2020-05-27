@@ -36,6 +36,8 @@ export class Repository extends BaseRepository {
 export class RepositoryDB extends BaseRepository {
   @Field()
   readonly _id: ObjectId;
+  @Field({ description: 'repository image' })
+  image: string;
 }
 
 export const RepositoryModel = getModelForClass(RepositoryDB);
