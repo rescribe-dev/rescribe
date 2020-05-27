@@ -4,6 +4,7 @@ import static java.lang.Math.abs;
 
 import com.rescribe.antlr.gen.javascript.*;
 import com.rescribe.antlr.parse.FileInput;
+import com.rescribe.antlr.parse.exceptions.UnsupportedFileException;
 import com.rescribe.antlr.parse.schema.*;
 import com.rescribe.antlr.parse.schema.Class;
 import java.util.ArrayList;
@@ -27,10 +28,12 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
         this.tokens = tokens;
         this.file = new File(input);
         parents.push(new Parent(this.file.get_id(), ParentType.File));
-        System.out.println("hello world");
     }
 
     public File getFileData() {
+        if(this.file.getLanguage() == LanguageType.DEFAULT){
+            throw new UnsupportedFileException("Unexpected file extension");
+        }
         return this.file;
     }
 
@@ -48,7 +51,7 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
 
 
 /* GOING TO BE USED */
-
+    //TODO parents
     //90% of the things Ive seen in testing are assignables, object literals,
     //anonymous function declarations, and member dot expressions
     /*DOCUMENTED*/
@@ -57,23 +60,64 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     //for assignables the parent yields the entire expression ex: thing = something else
     //the parent of the parent yields either var thing = something else or for arguments it
     //yields all of the arguments of the function
+    //this procs on function assignemnts too
     @Override
     public void enterAssignable(JavaScriptParser.AssignableContext ctx) {
-        testContext(ctx, "enter assignable");
+        Variable newVariable = new Variable();
+        if (ctx.getParent() != null && ctx.getParent().getChildCount() >= 3) {
+            newVariable.setName(ctx.getPayload().getText());
+            newVariable.setType(ctx.getParent().getChild(2).getText());
+            newVariable.setArgument(false);
+            newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+            this.file.getVariables().add(newVariable);
+        }
+        //1, 1, assignments seem to be function args these can be disregarded
+        System.out.println("\nstart assignemnt");
+        System.out.println(ctx.getParent().getParent().getChildCount());
+        System.out.println(ctx.getParent().getChildCount());
+        System.out.println(ctx.getPayload().getText()); //this is just the variable name
+        System.out.println("end assignment\n");
     }
 
     //the children of this are the function keyword, the arguments, and the content of the function
     //if you break it down further you get all of the sub expressions but we dont need those
+    static final int functionNameChars = 15;
+
     @Override
     public void enterAnoymousFunctionDecl(JavaScriptParser.AnoymousFunctionDeclContext ctx) {
-        testContext(ctx, "enter anonymous function decl context");
 
-        //if there are six children its an anonymous function delcared with the function syntax with
+        Function newFunction = new Function();
+        //if there are six children its an anonymous function declared with the function syntax with
         //no arguments
+        //anonymous function with no arguments
         if(ctx.getChildCount() == 6) {
-            System.out.println(ctx.children.get(0).getText()); // this is the function keyword
-            System.out.println(ctx.children.get(4).getText()); // this is the content
+            int length = ctx.children.get(4).getText().length() > functionNameChars ? functionNameChars : ctx.children.get(4).getText().length();
+            newFunction.setName("function(){" + ctx.children.get(4).getText().substring(0, length));
+            //promise or no promise, TODO
+            newFunction.setReturnType("promise");
+            newFunction.setIsconstructor(false);
+            newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
         }
+        else if (ctx.getChildCount() > 6) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < ctx.getChildCount() - 3; i++) {
+                sb.append(ctx.children.get(i).getText());
+            }
+            newFunction.setName(sb.toString());
+            //TODO
+            newFunction.setReturnType("promise");
+            newFunction.setIsconstructor(false);
+            newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
+        }
+
+        this.file.getFunctions().add(newFunction);
+//functions are usually 1, 1
+        System.out.println("\nstart function");
+        System.out.println(ctx.getParent().getParent().getChildCount());
+        System.out.println(ctx.getParent().getChildCount());
+        System.out.println(ctx.getPayload().getText());
+        System.out.println("end function\n");
+
     }
 
     //three parent children gives you all of the expression with the syntax
@@ -88,13 +132,13 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     @Override
     public void enterMemberDotExpression(JavaScriptParser.MemberDotExpressionContext ctx) {
 //        testContext(ctx, "enter member dot expression");
-        if (ctx.getParent().getChildCount() == 3) {
-            System.out.println("enter member dot expression");
-            System.out.println(ctx.getParent().getText());
-            System.out.println("---");
-            System.out.println("---");
-            System.out.println("---");
-        }
+//        if (ctx.getParent().getChildCount() == 3) {
+//            System.out.println("enter member dot expression");
+//            System.out.println(ctx.getParent().getText());
+//            System.out.println("---");
+//            System.out.println("---");
+//            System.out.println("---");
+//        }
     }
 
     //this gives you a list of all of the members within the object literal declaration
@@ -114,10 +158,10 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     //and the stuffs children behave as described above
     @Override
     public void enterObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
-        testContext(ctx, "enter object literal expression");
-        for (int i = 0; i < ctx.getParent().getChildCount(); i++) {
-            System.out.println(ctx.getParent().getChild(i).getText());
-        }
+//        testContext(ctx, "enter object literal expression");
+//        for (int i = 0; i < ctx.getParent().getChildCount(); i++) {
+//            System.out.println(ctx.getParent().getChild(i).getText());
+//        }
     }
     /*DOCUMENTED*/
 
