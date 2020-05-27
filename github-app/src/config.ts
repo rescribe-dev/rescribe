@@ -26,5 +26,5 @@ export const initializeConfig = (): void => {
   if (!process.env.PRIVATE_KEY) {
     throw new Error('no private key provided');
   }
-  privateKey = process.env.PRIVATE_KEY.replace('\\n', '\n');
+  privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 };
