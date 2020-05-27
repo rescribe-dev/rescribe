@@ -74,7 +74,7 @@ public class FileHandler {
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           JavaScriptParser parser = new JavaScriptParser(tokens);
           tree = parser.program();
-          JavaScriptDeclarationListener jsdl = new JavaScriptDeclarationListener(tokens, input);
+          JavaScriptDeclarationListener jsdl = new JavaScriptDeclarationListener(tokens, input, LanguageType.JAVASCRIPT);
           walker.walk(jsdl, tree);
           listener = jsdl;
           break;
