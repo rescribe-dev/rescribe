@@ -126,6 +126,10 @@ class SearchResolver {
       }
       const currentFileResult: FileResult = {
         _id: fileID,
+        lines: {
+          start: 1,
+          end: currentFile.fileLength
+        },
         language: {
           color: languageColorMap[currentFile.language],
           name: currentFile.language

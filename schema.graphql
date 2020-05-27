@@ -41,6 +41,9 @@ type AntlrFile {
 
   # comments
   comments: [Comment!]!
+
+  # language type
+  language: [Language!]!
 }
 
 # auth notification
@@ -194,6 +197,9 @@ type File {
   # comments
   comments: [Comment!]!
 
+  # language type
+  language: [Language!]!
+
   # number of lines in file
   fileLength: Int!
 
@@ -214,6 +220,42 @@ type File {
 
   # date updated
   updated: Float!
+}
+
+# file owner
+type FileLocation {
+  # repository name
+  repository: String!
+
+  # repository owner
+  owner: String!
+
+  # repository image
+  image: String!
+}
+
+# file result
+type FileResult {
+  # file id
+  _id: ObjectId!
+
+  # file name
+  name: String!
+
+  # file path
+  path: String!
+
+  # search results
+  results: [SearchResult!]!
+
+  # language data
+  language: LanguageData!
+
+  # file location
+  location: FileLocation!
+
+  # lines in file
+  lines: Location!
 }
 
 # baseline function
@@ -251,6 +293,21 @@ type Import {
 
   # selection
   selection: String!
+}
+
+# language type
+enum Language {
+  java
+  javascript
+}
+
+# language data
+type LanguageData {
+  # language name
+  name: Language!
+
+  # associated color
+  color: Int!
 }
 
 # location
@@ -402,6 +459,15 @@ type Parent {
   type: ParentType!
 }
 
+# parent element object
+type ParentElement {
+  # parent name
+  name: String!
+
+  # parent type
+  type: String!
+}
+
 # parent type
 enum ParentType {
   File
@@ -488,7 +554,7 @@ type Query {
 
     # end line
     end: Int!
-  ): String!
+  ): [String!]!
   search(
     # query
     query: String
@@ -501,7 +567,7 @@ type Query {
 
     # branch
     branch: ObjectId
-  ): [SearchResult!]!
+  ): [FileResult!]!
   hello: String!
   project(
     # project id
@@ -563,27 +629,33 @@ type RepositoryDB {
   # repository access
   access: [Access!]!
   _id: ObjectId!
+
+  # repository image
+  image: String!
 }
 
 # search result
 type SearchResult {
-  # file id
-  _id: ObjectId!
-
-  # location - line numbers
-  location: Location!
-
-  # name
+  # item name
   name: String!
 
-  # type
+  # item type
   type: String!
 
-  # main description
-  preview: String!
+  # parents to current result
+  parents: [ParentElement!]!
 
-  # nested path
-  structure: [String!]!
+  # preview start line number
+  startPreviewLineNumber: Int!
+
+  # preview start content
+  startPreviewContent: [String!]!
+
+  # preview end line number
+  endPreviewLineNumber: Int!
+
+  # preview end content
+  endPreviewContent: [String!]!
 }
 
 type Subscription {

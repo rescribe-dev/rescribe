@@ -29,6 +29,7 @@ export type AntlrFile = {
   variables: Array<Variable>;
   imports: Array<Import>;
   comments: Array<Comment>;
+  language: Array<Language>;
 };
 
 export type AuthNotification = {
@@ -113,6 +114,7 @@ export type File = {
   variables: Array<Variable>;
   imports: Array<Import>;
   comments: Array<Comment>;
+  language: Array<Language>;
   fileLength: Scalars['Int'];
   project: Scalars['String'];
   repository: Scalars['String'];
@@ -120,6 +122,24 @@ export type File = {
   location: Scalars['String'];
   created: Scalars['Float'];
   updated: Scalars['Float'];
+};
+
+export type FileLocation = {
+   __typename?: 'FileLocation';
+  repository: Scalars['String'];
+  owner: Scalars['String'];
+  image: Scalars['String'];
+};
+
+export type FileResult = {
+   __typename?: 'FileResult';
+  _id: Scalars['ObjectId'];
+  name: Scalars['String'];
+  path: Scalars['String'];
+  results: Array<SearchResult>;
+  language: LanguageData;
+  location: FileLocation;
+  lines: Location;
 };
 
 export type Function = {
@@ -139,6 +159,17 @@ export type Import = {
   location: Location;
   path: Scalars['String'];
   selection: Scalars['String'];
+};
+
+export enum Language {
+  Java = 'java',
+  Javascript = 'javascript'
+}
+
+export type LanguageData = {
+   __typename?: 'LanguageData';
+  name: Language;
+  color: Scalars['Int'];
 };
 
 export type Location = {
@@ -226,7 +257,9 @@ export type MutationIndexFilesArgs = {
 
 export type MutationIndexGithubArgs = {
   githubRepositoryID: Scalars['Int'];
-  paths: Array<Scalars['String']>;
+  added: Array<Scalars['String']>;
+  modified: Array<Scalars['String']>;
+  removed: Array<Scalars['String']>;
   ref: Scalars['String'];
   repositoryName: Scalars['String'];
   repositoryOwner: Scalars['String'];
@@ -268,6 +301,12 @@ export type Parent = {
   type: ParentType;
 };
 
+export type ParentElement = {
+   __typename?: 'ParentElement';
+  name: Scalars['String'];
+  type: Scalars['String'];
+};
+
 export enum ParentType {
   File = 'File',
   Class = 'Class',
@@ -300,8 +339,8 @@ export type Query = {
   branches: Array<Branch>;
   file: File;
   files: Array<File>;
-  fileText: Scalars['String'];
-  search: Array<SearchResult>;
+  fileText: Array<Scalars['String']>;
+  search: Array<FileResult>;
   hello: Scalars['String'];
   project: Project;
   projects: Array<Project>;
@@ -386,16 +425,18 @@ export type RepositoryDb = {
   project: Scalars['ObjectId'];
   access: Array<Access>;
   _id: Scalars['ObjectId'];
+  image: Scalars['String'];
 };
 
 export type SearchResult = {
    __typename?: 'SearchResult';
-  _id: Scalars['ObjectId'];
-  location: Location;
   name: Scalars['String'];
   type: Scalars['String'];
-  preview: Scalars['String'];
-  structure: Array<Scalars['String']>;
+  parents: Array<ParentElement>;
+  startPreviewLineNumber: Scalars['Int'];
+  startPreviewContent: Array<Scalars['String']>;
+  endPreviewLineNumber: Scalars['Int'];
+  endPreviewContent: Array<Scalars['String']>;
 };
 
 export type Subscription = {

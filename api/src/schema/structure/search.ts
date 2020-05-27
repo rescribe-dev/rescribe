@@ -1,6 +1,7 @@
 import { ObjectType, Field, registerEnumType, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { LanguageData } from './language';
+import Location from '../antlr/location';
 
 export enum ResultType {
   file = 'file',
@@ -74,4 +75,6 @@ export class FileResult {
   language: LanguageData;
   @Field(_type => FileLocation, { description: 'file location' })
   location: FileLocation;
+  @Field(_type => Location, { description: 'lines in file' })
+  lines: Location;
 }
