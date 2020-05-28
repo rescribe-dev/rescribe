@@ -71,7 +71,7 @@ class RepositoriesResolver {
       }
     } else {
       for (const projectID of args.projects) {
-        if (!checkProjectAccess(user, projectID, AccessLevel.view)) {
+        if (!(await checkProjectAccess(user, projectID, AccessLevel.view))) {
           throw new Error('user does not have view access to project');
         }
         shouldParams.push({

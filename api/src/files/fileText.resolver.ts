@@ -111,7 +111,7 @@ class FileText {
     if (!user) {
       throw new Error(`user ${args.id.toHexString()} cannot be found`);
     }
-    if (!checkRepositoryAccess(user, file.project, file.repository, AccessLevel.view)) {
+    if (!(await checkRepositoryAccess(user, file.project, file.repository, AccessLevel.view))) {
       throw new Error('user not authorized to view file');
     }
     return await getText(file, user, args);

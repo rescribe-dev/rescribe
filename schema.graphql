@@ -14,6 +14,15 @@ type Access {
   type: String!
 }
 
+# access level
+enum AccessLevel {
+  owner
+  admin
+  edit
+  view
+  none
+}
+
 # base file
 type AntlrFile {
   _id: ObjectId!
@@ -77,6 +86,9 @@ type BaseProject {
 
   # project access
   access: [Access!]!
+
+  # public access level
+  public: [Access!]!
 }
 
 # base repository
@@ -92,6 +104,9 @@ type BaseRepository {
 
   # repository access
   access: [Access!]!
+
+  # public access level
+  public: [Access!]!
 }
 
 # branch
@@ -419,6 +434,9 @@ type Mutation {
   addProject(
     # project name
     name: String!
+
+    # public access level
+    publicAccess: AccessLevel!
   ): String!
   deleteRepository(
     # repository id
@@ -434,6 +452,9 @@ type Mutation {
 
     # project
     project: ObjectId!
+
+    # public access level
+    publicAccess: AccessLevel!
   ): String!
 }
 
@@ -486,6 +507,9 @@ type Project {
 
   # project access
   access: [Access!]!
+
+  # public access level
+  public: [Access!]!
   _id: ObjectId!
 
   # date created
@@ -505,6 +529,9 @@ type ProjectDB {
 
   # project access
   access: [Access!]!
+
+  # public access level
+  public: [Access!]!
   _id: ObjectId!
 }
 
@@ -630,6 +657,9 @@ type Repository {
 
   # repository access
   access: [Access!]!
+
+  # public access level
+  public: [Access!]!
   _id: ObjectId!
 
   # date created
@@ -652,6 +682,9 @@ type RepositoryDB {
 
   # repository access
   access: [Access!]!
+
+  # public access level
+  public: [Access!]!
   _id: ObjectId!
 
   # repository image

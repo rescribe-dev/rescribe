@@ -92,7 +92,7 @@ class BranchResolver {
     } else {
       throw new Error('user must supply name or id');
     }
-    if (!checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.view)) {
+    if (!(await checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.view))) {
       throw new Error('user not authorized to view branch');
     }
     return branch;

@@ -58,7 +58,7 @@ class DeleteFileResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkRepositoryAccess(user, file.project, file.repository, AccessLevel.edit)) {
+    if (!(await checkRepositoryAccess(user, file.project, file.repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     await deleteFileUtil(file);

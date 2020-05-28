@@ -61,7 +61,7 @@ class DeleteRepositoryResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkRepositoryAccess(user, repository.project, repository._id, AccessLevel.admin)) {
+    if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.admin))) {
       throw new Error('user does not have admin permissions for project or repository');
     }
     await deleteRepositoryUtil(args, userID, repository);

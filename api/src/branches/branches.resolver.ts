@@ -33,7 +33,7 @@ class BranchesResolver {
     if (!user) {
       throw new Error('cannot find user');
     }
-    if (!checkRepositoryAccess(user, args.project, args.repository, AccessLevel.view)) {
+    if (!(await checkRepositoryAccess(user, args.project, args.repository, AccessLevel.view))) {
       throw new Error('user does not have view access to repository');
     }
     const mustParams: TermQuery[] = [{

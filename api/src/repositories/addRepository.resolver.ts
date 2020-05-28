@@ -16,6 +16,8 @@ class AddRepositoryArgs {
   name: string;
   @Field(_type => ObjectId, { description: 'project' })
   project: ObjectId;
+  @Field(_type => AccessLevel, { description: 'public access level' })
+  publicAccess: AccessLevel;
 }
 
 @Resolver()
@@ -30,7 +32,7 @@ class AddRepositoryResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkProjectAccess(user, args.project, AccessLevel.edit)) {
+    if (!(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project');
     }
     const id = new ObjectId();
@@ -39,7 +41,8 @@ class AddRepositoryResolver {
       name: args.name,
       branches: [],
       project: args.project,
-      access: []
+      access: [],
+      public: args.publicAccess,
     };
     const elasticRepository: Repository = {
       created: currentTime,

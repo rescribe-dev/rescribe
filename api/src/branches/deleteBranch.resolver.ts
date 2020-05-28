@@ -54,7 +54,7 @@ class DeleteBranchResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.edit)) {
+    if (!(await checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     await deleteBranchUtil(args, branch);
