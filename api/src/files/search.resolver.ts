@@ -9,14 +9,14 @@ import Import from '../schema/antlr/import';
 import { FilesArgs, search } from './files.resolver';
 import Comment from '../schema/antlr/comment';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/auth/user';
 import File, { FileModel } from '../schema/structure/file';
 import { SearchResult, ResultType, FileResult, FileLocation } from '../schema/structure/search';
 import { ObjectId } from 'mongodb';
 import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLinesArray } from './fileText.resolver';
 import { languageColorMap } from '../schema/structure/language';
-import { RepositoryModel } from '../schema/structure/repository';
+import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { AccessLevel } from '../schema/auth/access';
 
 
@@ -88,11 +88,14 @@ class SearchResolver {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
+    const userData: { [key: string]: User } = {};
     const user = await UserModel.findById(ctx.auth.id);
     if (!user) {
       throw new Error('cannot find user');
     }
-    const elasticFileData = await search(user, args);
+    userData[ctx.auth.id] = user;
+    const repositoryData: { [key: string]: RepositoryDB } = {};
+    const elasticFileData = await search(user, args, repositoryData);
     const results: FileResult[] = [];
     if (!elasticFileData) {
       return results;
@@ -106,21 +109,28 @@ class SearchResolver {
         _id: new ObjectId(hit._id as string),
       };
       if (!(fileID.toHexString() in locationData)) {
-        const repository = await RepositoryModel.findById(currentFile.repository);
-        if (!repository) {
-          throw new Error(`cannot find repository ${currentFile.repository}`);
+        if (!(currentFile.repository in repositoryData)) {
+          const repository = await RepositoryModel.findById(currentFile.repository);
+          if (!repository) {
+            throw new Error(`cannot find repository ${currentFile.repository}`);
+          }
+          repositoryData[currentFile.repository] = repository;
         }
-        const userID = repository.access.find(access => access.level === AccessLevel.owner);
-        if (!userID) {
+        const repository = repositoryData[currentFile.repository];
+        const userAccess = repository.access.find(access => access.level === AccessLevel.owner);
+        if (!userAccess) {
           throw new Error('no owner found for repository');
         }
-        const user = await UserModel.findById(userID);
-        if (!user) {
-          throw new Error(`cannot find user with id ${userID}`);
+        if (!(userAccess._id.toHexString() in userData)) {
+          const currentUser = await UserModel.findById(userAccess._id);
+          if (!currentUser) {
+            throw new Error(`cannot find user with id ${userAccess._id.toHexString()}`);
+          }
+          userData[userAccess._id.toHexString()] = currentUser;
         }
         locationData[fileID.toHexString()] = {
           image: repository.image,
-          owner: user.name,
+          owner: userData[userAccess._id.toHexString()].name,
           repository: repository.name
         };
       }

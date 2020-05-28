@@ -536,14 +536,20 @@ type Query {
     # query
     query: String
 
-    # project
-    project: ObjectId
+    # projects
+    projects: [ObjectId!]
 
-    # repository
-    repository: ObjectId
+    # repositories
+    repositories: [ObjectId!]
 
     # branch
-    branch: ObjectId
+    branches: [ObjectId!]
+
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
   ): [File!]!
   fileText(
     # file id
@@ -559,14 +565,20 @@ type Query {
     # query
     query: String
 
-    # project
-    project: ObjectId
+    # projects
+    projects: [ObjectId!]
 
-    # repository
-    repository: ObjectId
+    # repositories
+    repositories: [ObjectId!]
 
     # branch
-    branch: ObjectId
+    branches: [ObjectId!]
+
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
   ): [FileResult!]!
   hello: String!
   project(
@@ -579,7 +591,7 @@ type Query {
   projects: [Project!]!
   repositories(
     # project id
-    project: ObjectId
+    projects: [ObjectId!]
   ): [Repository!]!
   repository(
     # repository id

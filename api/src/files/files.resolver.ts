@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
+import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import File from '../schema/structure/file';
 import { fileIndexName } from '../elastic/settings';
@@ -13,20 +13,56 @@ import { TermQuery } from '../elastic/types';
 import { checkProjectAccess } from '../projects/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { checkRepositoryAccess } from '../repositories/auth';
+import { Min, Max, MinLength, ArrayMaxSize } from 'class-validator';
+import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
+import { BranchDB, BranchModel } from '../schema/structure/branch';
+
+const maxPerPage = 20;
+const queryMinLength = 3;
+const projectsMaxLength = 5;
+const repositoriesMaxLength = 5;
+const branchesMaxLength = 5;
 
 @ArgsType()
 export class FilesArgs {
+  @MinLength(queryMinLength, {
+    message: `query must be at least ${queryMinLength} characters long`
+  })
   @Field(_type => String, { description: 'query', nullable: true })
   query?: string;
 
-  @Field(_type => ObjectId, { description: 'project', nullable: true })
-  project?: ObjectId;
+  @ArrayMaxSize(projectsMaxLength, {
+    message: `can only select up to ${projectsMaxLength} projects to filter from`
+  })
+  @Field(_type => [ObjectId], { description: 'projects', nullable: true })
+  projects?: ObjectId[];
 
-  @Field(_type => ObjectId, { description: 'repository', nullable: true })
-  repository?: ObjectId;
+  @ArrayMaxSize(repositoriesMaxLength, {
+    message: `can only select up to ${repositoriesMaxLength} repositories to filter from`
+  })
+  @Field(_type => [ObjectId], { description: 'repositories', nullable: true })
+  repositories?: ObjectId[];
 
-  @Field(_type => ObjectId, { description: 'branch', nullable: true })
-  branch?: ObjectId;
+  @ArrayMaxSize(branchesMaxLength, {
+    message: `can only select up to ${branchesMaxLength} branches to filter from`
+  })
+  @Field(_type => [ObjectId], { description: 'branch', nullable: true })
+  branches?: ObjectId[];
+
+  @Min(0, {
+    message: 'page number must be greater than or equal to 0'
+  })
+  @Field(_type => Int, { description: 'page number', nullable: true })
+  page?: number;
+
+  @Min(1, {
+    message: 'per page must be greater than or equal to 1'
+  })
+  @Max(maxPerPage, {
+    message: `per page must be less than or equal to ${maxPerPage}`
+  })
+  @Field(_type => Int, { description: 'number per page', nullable: true })
+  perpage?: number;
 }
 
 export const nestedFields = [
@@ -44,41 +80,75 @@ export const mainFields = [
   'location'
 ];
 
-export const search = async (user: User, args: FilesArgs): Promise<ApiResponse<any, any> | null> => {
+export const search = async (user: User, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
   const filterShouldParams: TermQuery[] = [];
-  const mustParams: TermQuery[] = [];
-  if (args.repository) {
-    if (!args.project) {
-      throw new Error('project id is required');
-    }
-    if (!checkRepositoryAccess(user, args.project, args.repository, AccessLevel.view)) {
-      throw new Error('user does not have access to repository');
-    }
-    if (args.branch) {
-      mustParams.push({
-        term: {
-          branch: args.branch
-        }
-      });
-    } else {
-      mustParams.push({
-        term: {
-          repository: args.repository
-        }
-      });
-    }
-  } else if (args.project) {
-    if (!checkProjectAccess(user, args.project, AccessLevel.view)) {
-      throw new Error('user does not have access to project');
-    }
-    mustParams.push({
-      term: {
-        project: args.project
+  const mustShouldParams: object[] = [];
+  if ((args.perpage === undefined) !== (args.page === undefined)) {
+    throw new Error('per page and page should be defined or not defined');
+  }
+  let hasFilter = false;
+  if (args.projects && args.projects.length > 0) {
+    hasFilter = true;
+    for (const projectID of args.projects) {
+      if (!checkProjectAccess(user, projectID, AccessLevel.view)) {
+        throw new Error('user does not have access to project');
       }
-    });
-  } else {
+      filterShouldParams.push({
+        term: {
+          project: projectID.toHexString()
+        }
+      });
+    }
+  }
+  if (!repositoryData) {
+    repositoryData = {};
+  }
+  if (args.repositories && args.repositories.length > 0) {
+    hasFilter = true;
+    for (const repositoryID of args.repositories) {
+      if (!(repositoryID.toHexString() in repositoryData)) {
+        const repository = await RepositoryModel.findById(repositoryID);
+        if (!repository) {
+          throw new Error(`cannot find repository with id ${repositoryID.toHexString()}`);
+        }
+        repositoryData[repositoryID.toHexString()] = repository;
+      }
+      const repository = repositoryData[repositoryID.toHexString()];
+      if (!checkRepositoryAccess(user, repository.project, repositoryID, AccessLevel.view)) {
+        throw new Error('user does not have access to repository');
+      }
+      filterShouldParams.push({
+        term: {
+          repository: repositoryID.toHexString()
+        }
+      });
+    }
+  }
+  const branchData: { [key: string]: BranchDB } = {};
+  if (args.branches && args.branches.length > 0) {
+    hasFilter = true;
+    for (const branchID of args.branches) {
+      if (!(branchID.toHexString() in branchData)) {
+        const branch = await BranchModel.findById(branchID);
+        if (!branch) {
+          throw new Error(`cannot find repository with id ${branchID.toHexString()}`);
+        }
+        branchData[branchID.toHexString()] = branch;
+      }
+      const branch = branchData[branchID.toHexString()];
+      if (!checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.view)) {
+        throw new Error('user does not have access to branch');
+      }
+      filterShouldParams.push({
+        term: {
+          branch: branchID.toHexString()
+        }
+      });
+    }
+  }
+  if (!hasFilter) {
     if (user.repositories.length === 0 && user.projects.length === 0) {
       return null;
     }
@@ -104,7 +174,6 @@ export const search = async (user: User, args: FilesArgs): Promise<ApiResponse<a
     pre_tags: [''],
     post_tags: ['']
   };
-  const mustShouldParams: object[] = [];
   for (const nestedField of nestedFields) {
     const currentQuery: object = args.query ? {
       multi_match: {
@@ -158,6 +227,10 @@ export const search = async (user: User, args: FilesArgs): Promise<ApiResponse<a
       highlight
     }
   };
+  if (args.perpage && args.page) {
+    searchParams.from = args.page;
+
+  }
   const elasticFileData = await elasticClient.search(searchParams);
   return elasticFileData;
 };

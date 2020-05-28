@@ -16,25 +16,15 @@ import { Formik } from 'formik';
 import './index.scss';
 
 import SEO from '../../components/seo';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../state';
 import ObjectId from 'bson-objectid';
 import { toast } from 'react-toastify';
 import {
-  Files,
-  FilesQuery,
-  FilesQueryVariables,
-  RepositoriesQuery,
-  RepositoriesQueryVariables,
-  Repositories,
+  Search,
+  SearchQuery,
+  SearchQueryVariables,
 } from '../../lib/generated/datamodel';
 import { client } from '../../utils/apollo';
-import AsyncSelect from 'react-select/async';
-
-interface SelectObject {
-  value: ObjectId;
-  label: string;
-}
+import Filters from './filters';
 
 const loaderCSS = css`
   display: block;
@@ -46,50 +36,13 @@ const loaderCSS = css`
 interface SearchPageDataType {}
 
 const SearchPage = (_args: PageProps<SearchPageDataType>) => {
-  const project = useSelector<RootState, ObjectId | null>((state) => {
-    return state.projectReducer.id
-      ? new ObjectId(state.projectReducer.id)
-      : null;
-  });
-  if (!project) {
-    return <div></div>;
-  }
-  const getRepositories = async (
-    inputValue: string
-  ): Promise<SelectObject[]> => {
-    const repositoriesData = await client.query<
-      RepositoriesQuery,
-      RepositoriesQueryVariables
-    >({
-      query: Repositories,
-      variables: {
-        project,
-      },
-    });
-    if (repositoriesData.data) {
-      return repositoriesData.data.repositories
-        .filter((repository) => {
-          return repository.name
-            .toLowerCase()
-            .includes(inputValue.toLowerCase());
-        })
-        .map((repository) => {
-          const newSelectItem: SelectObject = {
-            label: repository.name,
-            value: new ObjectId(repository._id),
-          };
-          return newSelectItem;
-        });
-    } else {
-      throw new Error('cannot find projects data');
-    }
-  };
-  const [searchResult, setSearchResult] = useState<FilesQuery | undefined>(
+  const [searchResult, setSearchResult] = useState<SearchQuery | undefined>(
     undefined
   );
-  const [selectedRepositories, setSelectedRepositories] = useState<
-    SelectObject[]
-  >([]);
+  const [selectedProjects, setSelectedProjects] = useState<ObjectId[]>([]);
+  const [selectedRepositories, setSelectedRepositories] = useState<ObjectId[]>(
+    []
+  );
   return (
     <>
       <SEO title="Project" />
@@ -99,12 +52,13 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
           marginBottom: '5rem',
         }}
       >
-        <div>{project.toHexString()}</div>
+        <Filters
+          onChangeProjects={setSelectedProjects}
+          onChangeRepositories={setSelectedRepositories}
+        />
         <Formik
           initialValues={{
             query: '',
-            repositories: [],
-            branch: '',
           }}
           validationSchema={yup.object({
             query: yup.string().required('required'),
@@ -117,15 +71,22 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
             };
             try {
               console.log(formData);
+              const variables: SearchQueryVariables = {
+                query: formData.query,
+              };
+              if (selectedProjects.length > 0) {
+                if (selectedRepositories.length > 0) {
+                  variables.repositories = selectedRepositories;
+                } else {
+                  variables.projects = selectedProjects;
+                }
+              }
               const queryRes = await client.query<
-                FilesQuery,
-                FilesQueryVariables
+                SearchQuery,
+                SearchQueryVariables
               >({
-                query: Files,
-                variables: {
-                  query: formData.query,
-                  project,
-                },
+                query: Search,
+                variables,
               });
               if (queryRes.errors) {
                 toast(queryRes.errors.join(', '), {
@@ -153,7 +114,6 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
             handleBlur,
             handleSubmit,
             isSubmitting,
-            setFieldValue,
           }) => [
             <Form key="form">
               <FormGroup>
@@ -182,38 +142,6 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
                   {touched.query && errors.query ? errors.query : ''}
                 </FormFeedback>
               </FormGroup>
-              <FormGroup>
-                <Label for="repository">Repository</Label>
-                <AsyncSelect
-                  id="repositories"
-                  name="repositories"
-                  isMulti
-                  cacheOptions
-                  defaultOptions
-                  value={selectedRepositories}
-                  onChange={(selectedOptions) => {
-                    if (!selectedOptions) {
-                      selectedOptions = [];
-                    }
-                    setSelectedRepositories(selectedOptions as SelectObject[]);
-                    const repositories = selectedRepositories.map(
-                      (repository) => repository.value
-                    );
-                    setFieldValue('repositories', repositories, true);
-                  }}
-                  onBlur={handleBlur}
-                  loadOptions={getRepositories}
-                />
-                <FormFeedback
-                  style={{
-                    marginBottom: '1rem',
-                  }}
-                  className="feedback"
-                  type="invalid"
-                >
-                  {touched.query && errors.query ? errors.query : ''}
-                </FormFeedback>
-              </FormGroup>
               <Button
                 type="submit"
                 onClick={(evt: React.MouseEvent) => {
@@ -231,7 +159,7 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
               />
             </Form>,
             searchResult === undefined ||
-            searchResult.files.length === 0 ? null : (
+            searchResult.search.length === 0 ? null : (
               <Container key="result">
                 <p>{JSON.stringify(searchResult)}</p>
               </Container>

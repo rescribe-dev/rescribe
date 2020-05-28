@@ -12,18 +12,8 @@ const App = (args: PageProps) => {
     <Layout>
       <Router>
         <PrivateRoute {...args} path="/app/account" component={Account} />
-        <PrivateRoute
-          {...args}
-          path="/app/project"
-          requiresProject={true}
-          component={Project}
-        />
-        <PrivateRoute
-          {...args}
-          path="/app/search"
-          requiresProject={true}
-          component={Search}
-        />
+        <PrivateRoute {...args} path="/app/project" component={Project} />
+        <PrivateRoute {...args} path="/app/search" component={Search} />
       </Router>
     </Layout>
   );
