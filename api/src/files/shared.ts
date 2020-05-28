@@ -6,6 +6,7 @@ import File, { FileModel, FileDB, StorageType } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
 import { BranchModel } from '../schema/structure/branch';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
+import { AccessLevel } from '../schema/auth/access';
 
 const logger = getLogger();
 
@@ -25,6 +26,7 @@ export interface FileIndexArgs {
   path: string;
   fileName: string;
   content: string;
+  public: AccessLevel;
 }
 
 export const indexFile = async (args: FileIndexArgs): Promise<string> => {
@@ -49,6 +51,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
       path: args.path,
       location: args.location,
       fileLength,
+      public: args.public,
       saveContent: args.saveContent
     };
     const elasticContent: File = {
@@ -61,6 +64,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
       updated: currentTime,
       location: args.location,
       path: args.path,
+      public: args.public,
       fileLength
     };
     await elasticClient.index({

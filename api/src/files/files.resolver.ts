@@ -127,10 +127,10 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   const filterShouldParams: TermQuery[] = [];
   const mustShouldParams: object[] = [];
   checkPaginationArgs(args);
-  let hasFilter = false;
+  let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
   if (args.projects && args.projects.length > 0) {
-    hasFilter = true;
+    hasStructureFilter = true;
     for (const projectID of args.projects) {
       await getSaveDatastore(projectID, projectData, DatastoreType.project);
       const project = projectData[projectID.toHexString()];
@@ -148,7 +148,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
     repositoryData = {};
   }
   if (args.repositories && args.repositories.length > 0) {
-    hasFilter = true;
+    hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
       await getSaveDatastore(repositoryID, repositoryData, DatastoreType.repository);
       const repository = repositoryData[repositoryID.toHexString()];
@@ -166,7 +166,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   }
   const branchData: { [key: string]: BranchDB } = {};
   if (args.branches && args.branches.length > 0) {
-    hasFilter = true;
+    hasStructureFilter = true;
     for (const branchID of args.branches) {
       await getSaveDatastore(branchID, branchData, DatastoreType.branch);
       const branch = branchData[branchID.toHexString()];
@@ -184,7 +184,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       });
     }
   }
-  if (!hasFilter) {
+  if (!hasStructureFilter) {
     if (user.repositories.length === 0 && user.projects.length === 0) {
       return null;
     }
@@ -202,6 +202,16 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
         }
       });
     }
+    filterShouldParams.push({
+      term: {
+        public: AccessLevel.view
+      }
+    });
+    filterShouldParams.push({
+      term: {
+        public: AccessLevel.edit
+      }
+    });
   }
   const highlight: object = {
     fields: {

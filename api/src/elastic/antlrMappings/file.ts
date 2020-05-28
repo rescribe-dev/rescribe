@@ -17,6 +17,9 @@ const fileMappings = {
   branch: {
     type: 'keyword'
   },
+  public: {
+    type: 'keyword'
+  },
   created: {
     type: 'date',
     format: 'epoch_millis'
