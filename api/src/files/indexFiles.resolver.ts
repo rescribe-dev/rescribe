@@ -27,7 +27,7 @@ class IndexFilesArgs {
   repository: ObjectId;
 
   @Field(_type => ObjectId, { description: 'branch' })
-  branch: ObjectId;
+  branch: string;
 
   @Field({ description: 'branch', defaultValue: false })
   saveContent: boolean;
@@ -51,6 +51,9 @@ class IndexFilesResolver {
     }
     if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
+    }
+    if (!repository.branches.includes(args.branch)) {
+      throw new Error(`repository does not contain branch ${args.branch}`);
     }
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;

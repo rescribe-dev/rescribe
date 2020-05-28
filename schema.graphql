@@ -61,21 +61,6 @@ type AuthNotification {
   token: String!
 }
 
-# base branch
-type BaseBranch {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-}
-
 # base project
 type BaseProject {
   # name
@@ -97,7 +82,7 @@ type BaseRepository {
   name: String!
 
   # branches
-  branches: [ObjectId!]!
+  branches: [String!]!
 
   # project
   project: ObjectId!
@@ -107,44 +92,6 @@ type BaseRepository {
 
   # public access level
   public: [Access!]!
-}
-
-# branch
-type Branch {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-  _id: ObjectId!
-
-  # date created
-  created: Float!
-
-  # date updated
-  updated: Float!
-}
-
-# branch database
-type BranchDB {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-  _id: ObjectId!
 }
 
 # class
@@ -226,6 +173,9 @@ type File {
 
   # branch id
   branch: String!
+
+  # public access level
+  public: AccessLevel!
 
   # storage location
   location: String!
@@ -384,8 +334,11 @@ type Mutation {
     id: ObjectId!
   ): String!
   deleteBranch(
-    # branch id
-    id: ObjectId!
+    # repository id
+    repository: ObjectId!
+
+    # branch name
+    name: String!
   ): String!
   indexFiles(
     # paths
@@ -538,23 +491,6 @@ type ProjectDB {
 type Query {
   # user data
   user: User!
-  branch(
-    # branch id
-    id: ObjectId
-
-    # branch name
-    name: String
-
-    # repository id
-    repository: ObjectId
-  ): Branch!
-  branches(
-    # repository id
-    repository: ObjectId!
-
-    # project id
-    project: ObjectId!
-  ): [Branch!]!
   file(
     # file id
     id: ObjectId!
@@ -569,8 +505,8 @@ type Query {
     # repositories
     repositories: [ObjectId!]
 
-    # branch
-    branches: [ObjectId!]
+    # branches
+    branches: [String!]
 
     # page number
     page: Int
@@ -598,8 +534,8 @@ type Query {
     # repositories
     repositories: [ObjectId!]
 
-    # branch
-    branches: [ObjectId!]
+    # branches
+    branches: [String!]
 
     # page number
     page: Int
@@ -650,7 +586,7 @@ type Repository {
   name: String!
 
   # branches
-  branches: [ObjectId!]!
+  branches: [String!]!
 
   # project
   project: ObjectId!
@@ -675,7 +611,7 @@ type RepositoryDB {
   name: String!
 
   # branches
-  branches: [ObjectId!]!
+  branches: [String!]!
 
   # project
   project: ObjectId!

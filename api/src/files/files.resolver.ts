@@ -15,7 +15,6 @@ import { AccessLevel } from '../schema/auth/access';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { Min, Max, MinLength, ArrayMaxSize, ArrayUnique } from 'class-validator';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
-import { BranchDB, BranchModel } from '../schema/structure/branch';
 import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 
@@ -57,8 +56,8 @@ export class FilesArgs {
   @ArrayUnique({
     message: 'all branches must be unique'
   })
-  @Field(_type => [ObjectId], { description: 'branch', nullable: true })
-  branches?: ObjectId[];
+  @Field(_type => [String], { description: 'branches', nullable: true })
+  branches?: string[];
 
   @Min(0, {
     message: 'page number must be greater than or equal to 0'
@@ -93,11 +92,10 @@ export const mainFields = [
 
 enum DatastoreType { 
   project,
-  repository,
-  branch
+  repository
 };
 
-const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: ProjectDB | RepositoryDB | BranchDB }, type: DatastoreType): Promise<void> => {
+const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: ProjectDB | RepositoryDB }, type: DatastoreType): Promise<void> => {
   if (!(id.toHexString() in datastore)) {
     if (type === DatastoreType.project) {
       const project = await ProjectModel.findById(id);
@@ -105,18 +103,14 @@ const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: Projec
         throw new Error(`cannot find project with id ${id.toHexString()}`);
       }
       datastore[id.toHexString()] = project;
-    } else if (type === DatastoreType.branch) {
+    } else if (type === DatastoreType.repository) {
       const repository = await RepositoryModel.findById(id);
       if (!repository) {
         throw new Error(`cannot find repository with id ${id.toHexString()}`);
       }
       datastore[id.toHexString()] = repository;
     } else {
-      const branch = await BranchModel.findById(id);
-      if (!branch) {
-        throw new Error(`cannot find branch with id ${id.toHexString()}`);
-      }
-      datastore[id.toHexString()] = branch;
+      throw new Error('invalid datastore type');
     }
   }
 };
@@ -164,22 +158,12 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       });
     }
   }
-  const branchData: { [key: string]: BranchDB } = {};
   if (args.branches && args.branches.length > 0) {
     hasStructureFilter = true;
-    for (const branchID of args.branches) {
-      await getSaveDatastore(branchID, branchData, DatastoreType.branch);
-      const branch = branchData[branchID.toHexString()];
-      await getSaveDatastore(branch.project, projectData, DatastoreType.project);
-      const currentProject = projectData[branch.project.toHexString()];
-      await getSaveDatastore(branch.repository, repositoryData, DatastoreType.repository);
-      const currentRepository = repositoryData[branch.repository.toHexString()];
-      if (!(await checkRepositoryAccess(user, currentProject, currentRepository, AccessLevel.view))) {
-        throw new Error('user does not have access to branch');
-      }
+    for (const branch of args.branches) {
       filterShouldParams.push({
         term: {
-          branch: branchID.toHexString()
+          branches: branch
         }
       });
     }

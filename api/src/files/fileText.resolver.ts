@@ -9,7 +9,6 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { getGithubFile } from '../utils/getGithubFile';
 import { createClient } from '../utils/github';
 import { RepositoryModel } from '../schema/structure/repository';
-import { BranchModel } from '../schema/structure/branch';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import Location from '../schema/antlr/location';
@@ -75,14 +74,8 @@ export const getText = async (file: FileDB, user: User, args: Location): Promise
       if (!repository) {
         throw new Error('cannot find repository');
       }
-      const branch = await BranchModel.findOne({
-        _id: file.branch
-      });
-      if (!branch) {
-        throw new Error('cannot find branch');
-      }
       const githubClient = createClient(user.githubInstallationID);
-      const content = await getGithubFile(githubClient, branch.name, file.path, repository.name, user.githubUsername);
+      const content = await getGithubFile(githubClient, file.branch, file.path, repository.name, user.githubUsername);
       return getLines(content, args);
     }
     return getLines(await getS3FileData(file.repository, file.branch, file.path), args);

@@ -1,8 +1,7 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { branchIndexName } from '../elastic/settings';
+import { repositoryIndexName, fileIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { Branch, BaseBranch, BranchDB, BranchModel } from '../schema/structure/branch';
 import { RepositoryModel } from '../schema/structure/repository';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
@@ -18,38 +17,54 @@ class AddBranchArgs {
   repository: ObjectId;
 }
 
-export const addBranchUtil = async (args: AddBranchArgs, project: ObjectId): Promise<ObjectId> => {
+export const addBranchUtil = async (args: AddBranchArgs): Promise<void> => {
   const currentTime = new Date().getTime();
-    const baseBranch: BaseBranch = {
-      name: args.name,
-      files: [],
-      repository: args.repository,
-      project: project
-    };
-    const elasticBranch: Branch = {
-      created: currentTime,
-      updated: currentTime,
-      ...baseBranch
-    };
-    const id = new ObjectId();
-    await elasticClient.index({
-      id: id.toHexString(),
-      index: branchIndexName,
-      body: elasticBranch
-    });
-    await RepositoryModel.updateOne({
-      _id: args.repository
-    }, {
-      $addToSet: {
-        branches: id
+  await elasticClient.update({
+    index: repositoryIndexName,
+    id: args.repository.toHexString(),
+    body: {
+      script: {
+        source: `
+          if(!ctx._source.branches.contains(branch)) {
+            ctx._source.branches += branch
+            ctx._source.updated = currentTime
+          }
+        `,
+        lang: 'painless'
+      },
+      params: {
+        branch: args.name,
+        currentTime
       }
-    });
-    const dbBranch: BranchDB = {
-      ...baseBranch,
-      _id: id
-    };
-    await new BranchModel(dbBranch).save();
-    return id;
+    }
+  });
+  await elasticClient.updateByQuery({
+    index: fileIndexName,
+    body: {
+      script: {
+        source: `
+          if(!ctx._source.branches.contains(branch)) {
+            ctx._source.branches += branch
+            ctx._source.numBranches++
+            ctx._source.updated = currentTime
+          }
+        `,
+        lang: 'painless'
+      },
+      query: {
+        match: {
+          repository: args.repository.toHexString()
+        }
+      }
+    }
+  });
+  await RepositoryModel.updateOne({
+    _id: args.repository
+  }, {
+    $addToSet: {
+      branches: args.name
+    }
+  });
 };
 
 @Resolver()
@@ -68,11 +83,14 @@ class AddBranchResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
+    if (repository.branches.includes(args.name)) {
+      throw new Error(`repository already has branch named ${args.name}`);
+    }
     if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.admin))) {
       throw new Error('user does not have admin permissions for project or repository');
     }
-    const id = await addBranchUtil(args, repository.project);
-    return `indexed branch with id ${id.toHexString()}`;
+    await addBranchUtil(args);
+    return `added branch ${args.name}`;
   }
 } 
 

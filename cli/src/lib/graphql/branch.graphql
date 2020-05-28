@@ -1,5 +1,0 @@
-query branch($repository: ObjectId!, $name: String!) {
-  branch(repository: $repository, name: $name) {
-    _id
-  }
-}

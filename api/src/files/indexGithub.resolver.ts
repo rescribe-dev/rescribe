@@ -8,7 +8,6 @@ import { UserModel } from '../schema/auth/user';
 import { indexFile, UpdateType } from './shared';
 import { StorageType, FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
-import { BranchModel } from '../schema/structure/branch';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
@@ -105,6 +104,9 @@ class IndexGithubResolver {
         await getConfigurationData(githubClient, args);
         repositoryID = new ObjectId(githubConfig?.repository);
         repository = await RepositoryModel.findById(repositoryID);
+        if (!repository) {
+          throw new Error(`cannot find repository with id ${repositoryID.toHexString()}`);
+        }
         projectID = new ObjectId(githubConfig?.project);
         if (!(await ProjectModel.findById(projectID))) {
           throw new Error(`cannot find project with id ${projectID.toHexString()}`);
@@ -116,19 +118,13 @@ class IndexGithubResolver {
       repositoryID = repository._id;
       projectID = repository.project;
     }
-    const branch = await BranchModel.findOne({
-      name: args.ref,
-      repository: repositoryID
-    });
-    let branchID: ObjectId;
-    if (!branch) {
+    const branch = args.ref;
+    if (!repository.branches.includes(branch)) {
       // create branch here
-      branchID = await addBranchUtil({
-        name: args.ref,
+      await addBranchUtil({
+        name: branch,
         repository: repositoryID
-      }, projectID);
-    } else {
-      branchID = branch._id;
+      });
     }
     // as a stopgap use the configuration file to check for this stuff
     for (const filePath of args.added) {
@@ -143,7 +139,7 @@ class IndexGithubResolver {
         location: StorageType.github,
         project: projectID,
         repository: repositoryID,
-        branch: branchID,
+        branch,
         path: filePath,
         fileName: getFileName(filePath),
         public: repository?.public as AccessLevel,
@@ -156,7 +152,7 @@ class IndexGithubResolver {
       }
       const file = await FileModel.findOne({
         path: filePath,
-        branch: branchID,
+        branch,
         repository: repositoryID
       });
       if (!file) {
@@ -170,20 +166,21 @@ class IndexGithubResolver {
         location: StorageType.github,
         project: projectID,
         repository: repositoryID,
-        branch: branchID,
+        branch,
         path: filePath,
         fileName: getFileName(filePath),
         public: repository?.public as AccessLevel,
         content
       });
     }
+    // TODO - bulk request to find and delete files with no branches anymore
     for (const filePath of args.removed) {
       if (!checkFileExtension(filePath)) {
         continue;
       }
       const file = await FileModel.findOne({
         path: filePath,
-        branch: branchID,
+        branch,
         repository: repositoryID
       });
       if (!file) {

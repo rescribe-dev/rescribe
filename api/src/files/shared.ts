@@ -4,7 +4,6 @@ import { processFile } from '../utils/antlrBridge';
 import { fileIndexName } from '../elastic/settings';
 import File, { FileModel, FileDB, StorageType } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
-import { BranchModel } from '../schema/structure/branch';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { AccessLevel } from '../schema/auth/access';
 
@@ -22,7 +21,7 @@ export interface FileIndexArgs {
   location: StorageType;
   project: ObjectId;
   repository: ObjectId;
-  branch: ObjectId;
+  branch: string;
   path: string;
   fileName: string;
   content: string;
@@ -59,7 +58,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
       _id: undefined,
       project: args.project.toHexString(),
       repository: args.repository.toHexString(),
-      branch: args.branch.toHexString(),
+      branch: args.branch,
       created: currentTime,
       updated: currentTime,
       location: args.location,
@@ -72,21 +71,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
       index: fileIndexName,
       body: elasticContent
     });
-    await BranchModel.updateOne({
-      _id: id
-    }, {
-      $addToSet: {
-        files: id
-      }
-    });
     await new FileModel(newFileDB).save();
-    await BranchModel.updateOne({
-      _id: args.branch
-    }, {
-      $addToSet: {
-        files: id
-      }
-    });
     if (args.saveContent) {
       await s3Client.upload({
         Bucket: fileBucket,
