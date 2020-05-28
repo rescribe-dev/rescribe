@@ -23,7 +23,7 @@ export class FileDB {
   @Property({ required: true })
   repository: ObjectId;
   @Property({ required: true })
-  branch: ObjectId;
+  branch: string;
   @Property({ required: true })
   public: AccessLevel;
   @Property({ required: true })

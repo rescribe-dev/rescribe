@@ -8,17 +8,18 @@ import { ApolloQueryResult } from 'apollo-client';
 import { print } from 'graphql/language/printer';
 import { GraphQLError } from 'graphql';
 import axios from 'axios';
-import { ObjectId } from 'mongodb';
 import { IndexFiles, IndexFilesMutationVariables } from '../lib/generated/datamodel';
 import { cacheData, configData } from './config';
 
 const logger = getLogger();
 
+const maxFilesPerUpload = 5;
+
 interface ResIndex {
   indexFiles: string;
 }
 
-export default async (paths: string[], files: Buffer[], branch: ObjectId): Promise<string> => {
+const indexFilesSubset = async (paths: string[], files: Buffer[], branch: string): Promise<string> => {
   const form = new FormData();
   const variables: IndexFilesMutationVariables = {
     files: paths.map(() => null),
@@ -78,4 +79,14 @@ export default async (paths: string[], files: Buffer[], branch: ObjectId): Promi
       throw new Error(errObj.message);
     }
   }
+};
+
+export default async (paths: string[], files: Buffer[], branch: string): Promise<string> => {
+  const indexResults: string[] = [];
+  for (let i = 0; i < paths.length; i += maxFilesPerUpload) {
+    const currentPaths = paths.slice(i, i + maxFilesPerUpload);
+    const currentFiles = files.slice(i, i + maxFilesPerUpload);
+    indexResults.push(await indexFilesSubset(currentPaths, currentFiles, branch));
+  }
+  return indexResults.join(', ');
 };

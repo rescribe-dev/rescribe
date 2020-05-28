@@ -2,6 +2,9 @@ const repositoryMappings = {
   project: {
     type: 'keyword'
   },
+  branches: {
+    type: 'keyword'
+  },
   name: {
     type: 'text'
   },

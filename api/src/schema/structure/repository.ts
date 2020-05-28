@@ -9,9 +9,9 @@ export class BaseRepository {
   @Property({required: true})
   name:string;
 
-  @Field(_type => [ObjectId], { description: 'branches' })
+  @Field(_type => [String], { description: 'branches' })
   @Property({required: true})
-  branches: ObjectId[];
+  branches: string[];
 
   @Field({ description: 'project' })
   @Property({required: true})

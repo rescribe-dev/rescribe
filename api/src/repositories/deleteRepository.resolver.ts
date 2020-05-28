@@ -10,7 +10,6 @@ import { checkRepositoryAccess } from './auth';
 import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { deleteBranchUtil } from '../branches/deleteBranch.resolver';
-import { BranchModel } from '../schema/structure/branch';
 
 @ArgsType()
 class DeleteRepositoryArgs {
@@ -39,9 +38,10 @@ export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: O
     }
   });
   for (const branch of repository.branches) {
-    const branchDB = await BranchModel.findById(branch);
-    if (!branchDB) continue;
-    await deleteBranchUtil({ id: branch }, branchDB);
+    await deleteBranchUtil({
+      name: branch,
+      repository: repository._id
+    });
   }
 };
 
