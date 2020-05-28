@@ -81,6 +81,12 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
         }
     }
 
+    @Override
+    public void exitAssignable(JavaScriptParser.AssignableContext ctx) {
+        //push and pop for variable stack
+    }
+
+
     //the children of this are the function keyword, the arguments, and the content of the function
     //if you break it down further you get all of the sub expressions but we dont need those
     static final int functionNameChars = 15;
@@ -115,6 +121,11 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
         }
     }
 
+    @Override
+    public void exitAnoymousFunctionDecl(JavaScriptParser.AnoymousFunctionDeclContext ctx) {
+        //push and pop to parent satck
+    }
+
     //three parent children gives you all of the expression with the syntax
     //something = document.getwhatever(adasfd).asdf
     //two parent children gives you all of the standalone expressions with no further frills
@@ -135,6 +146,11 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
                 newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
             }
         }
+    }
+
+    @Override
+    public void exitMemberDotExpression(JavaScriptParser.MemberDotExpressionContext ctx) {
+        //push and pop to parent stack
     }
 
     //this gives you a list of all of the members within the object literal declaration
@@ -176,6 +192,11 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
         newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
         file.getFunctions().add(newFunction);
     }
+
+    @Override
+    public void enterObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
+        //push and pop parent stack with a new function so that we get all of the variables as marked underneath the object literal
+    }
     /*DOCUMENTED*/
 
     @Override
@@ -195,47 +216,6 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
 }
 /* GOING TO BE USED */
 
-
-    /*MAYBE GOING TO BE USED*/
-//    @Override
-//    public void enterArrowFunctionParameters(JavaScriptParser.ArrowFunctionParametersContext ctx) {
-//        testContext(ctx, "enter arrow function parameters");
-//    }
-//    @Override
-//    public void enterFunctionDeclaration(JavaScriptParser.FunctionDeclarationContext ctx) {
-//        testContext(ctx, "enter function declaration");
-//    }
-//    @Override
-//    public void enterMethodDefinition(JavaScriptParser.MethodDefinitionContext ctx) {
-//        testContext(ctx, "enter method definition");
-//    }
-//    @Override
-//    public void enterMetaExpression(JavaScriptParser.MetaExpressionContext ctx) {
-//        testContext(ctx, "enter meta expression");
-//    }
-//    //when something is assigned this triggers but not all of the time
-//    @Override
-//    public void enterAssignmentExpression(JavaScriptParser.AssignmentExpressionContext ctx) {
-//        testContext(ctx, "assignment expression context");
-//    }
-//    @Override
-//    public void enterFunctionDecl(JavaScriptParser.FunctionDeclContext ctx) {
-//        testContext(ctx, "enter function decl context");
-//    }
-//    @Override
-//    public void enterArrowFunctionBody(JavaScriptParser.ArrowFunctionBodyContext ctx) {
-//        testContext(ctx, "enter arrow function body");
-//    }
-//    @Override
-//    public void enterAssignmentOperator(JavaScriptParser.AssignmentOperatorContext ctx) {
-//        testContext(ctx, "enter assignment operator");
-//    }
-//    basically a child of the object literal expression
-//    @Override
-//    public void enterObjectLiteral(JavaScriptParser.ObjectLiteralContext ctx) {
-//        testContext(ctx, "object literal");
-//    }
-    /*MAYBE GOING TO BE USED*/
 
 
 
