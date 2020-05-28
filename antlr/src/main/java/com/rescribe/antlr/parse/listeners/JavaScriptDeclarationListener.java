@@ -194,7 +194,7 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener 
     }
 
     @Override
-    public void enterObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
+    public void exitObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
         //push and pop parent stack with a new function so that we get all of the variables as marked underneath the object literal
     }
     /*DOCUMENTED*/
