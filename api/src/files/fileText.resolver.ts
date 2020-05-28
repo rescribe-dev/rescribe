@@ -18,6 +18,8 @@ import { getS3FileData } from '../utils/aws';
 class FileTextArgs {
   @Field(_type => ObjectId, { description: 'file id' })
   id: ObjectId;
+  @Field({ description: 'branch name' })
+  branch: string;
   @Field(_type => Int, { description: 'start line' })
   start: number;
   @Field(_type => Int, { description: 'end line' })
@@ -61,7 +63,7 @@ export const getLines = (content: string, location: Location): string[] => {
   return content.substring(startIndex, endIndex + 1).split('\n');
 };
 
-export const getText = async (file: FileDB, user: User, args: Location): Promise<string[]> => {
+export const getText = async (file: FileDB, branch: string, user: User, args: Location): Promise<string[]> => {
   if (file.location === StorageType.github) {
     if (!file.saveContent) {
       if (user.githubUsername.length === 0) {
@@ -75,15 +77,15 @@ export const getText = async (file: FileDB, user: User, args: Location): Promise
         throw new Error('cannot find repository');
       }
       const githubClient = createClient(user.githubInstallationID);
-      const content = await getGithubFile(githubClient, file.branch, file.path, repository.name, user.githubUsername);
+      const content = await getGithubFile(githubClient, branch, file.path, repository.name, user.githubUsername);
       return getLines(content, args);
     }
-    return getLines(await getS3FileData(file.repository, file.branch, file.path), args);
+    return getLines(await getS3FileData(file.repository, branch, file.path), args);
   } else if (file.location === StorageType.local) {
     if (!file.saveContent) {
       throw new Error('content not stored in cloud');
     }
-    return getLines(await getS3FileData(file.repository, file.branch, file.path), args);
+    return getLines(await getS3FileData(file.repository, branch, file.path), args);
   } else {
     throw new Error('invalid storage location');
   }
@@ -107,7 +109,10 @@ class FileText {
     if (!(await checkRepositoryAccess(user, file.project, file.repository, AccessLevel.view))) {
       throw new Error('user not authorized to view file');
     }
-    return await getText(file, user, args);
+    if (!file.branches.includes(args.branch)) {
+      throw new Error(`branch ${args.branch} not found for file ${args.id.toHexString()}`);
+    }
+    return await getText(file, args.branch, user, args);
   }
 }
 

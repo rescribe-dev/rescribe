@@ -147,6 +147,7 @@ class SearchResolver {
         location: locationData[fileID.toHexString()],
         name: currentFile.name,
         path: currentFile.path,
+        branches: currentFile.branches,
         results: []
       };
       const highlight = hit.highlight as { [key: string]: string[] };
@@ -235,7 +236,7 @@ class SearchResolver {
                 throw new Error(`cannot find file ${fileID.toHexString()}`);
               }
               try {
-                fileData[fileID.toHexString()] = await getText(file, user, {
+                fileData[fileID.toHexString()] = await getText(file, file.branches[0], user, {
                   start: 1, // start at line 1
                   end: file.fileLength
                 });

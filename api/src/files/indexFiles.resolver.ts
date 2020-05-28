@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, UpdateType } from './shared';
+import { indexFile, UpdateType, SaveElasticElement, saveToElastic } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { StorageType } from '../schema/structure/file';
@@ -55,6 +55,7 @@ class IndexFilesResolver {
     if (!repository.branches.includes(args.branch)) {
       throw new Error(`repository does not contain branch ${args.branch}`);
     }
+    const elasticElements: SaveElasticElement[] = [];
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
@@ -76,7 +77,7 @@ class IndexFilesResolver {
           }
           const content = buffer.toString('utf8');
           try {
-            await indexFile({
+            elasticElements.push(await indexFile({
               saveContent: args.saveContent,
               action: UpdateType.add,
               file: undefined,
@@ -88,9 +89,10 @@ class IndexFilesResolver {
               fileName: file.filename,
               content,
               public: repository.public
-            });
+            }));
             numIndexed++;
             if (numIndexed === args.files.length) {
+              await saveToElastic(elasticElements);
               resolve('done indexing files');
             }
           } catch (err) {

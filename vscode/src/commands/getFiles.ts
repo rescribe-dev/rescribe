@@ -36,10 +36,14 @@ const writeData = async (
   selectedItem: SearchItem,
   quickPick: vscode.QuickPick<vscode.QuickPickItem>
 ): Promise<void> => {
+  if (data.search[selectedItem.fileIndex].branches.length === 0) {
+    throw new Error('no branch found for selected file');
+  }
   let fileTextArgs: FileTextQueryVariables;
   if (selectedItem.selectionType === SelectionType.file) {
     fileTextArgs = {
       id: data.search[selectedItem.fileIndex]._id,
+      branch: data.search[selectedItem.fileIndex].branches[0],
       start: data.search[selectedItem.fileIndex].lines.start,
       end: data.search[selectedItem.fileIndex].lines.end,
     };
@@ -50,6 +54,7 @@ const writeData = async (
       // not split
       fileTextArgs = {
         id: data.search[selectedItem.fileIndex]._id,
+        branch: data.search[selectedItem.fileIndex].branches[0],
         start: result.startPreviewLineNumber,
         end:
           result.startPreviewLineNumber + result.startPreviewContent.length - 1,
@@ -57,6 +62,7 @@ const writeData = async (
     } else {
       fileTextArgs = {
         id: data.search[selectedItem.fileIndex]._id,
+        branch: data.search[selectedItem.fileIndex].branches[0],
         start: result.startPreviewLineNumber,
         end: result.endPreviewLineNumber + result.endPreviewContent.length - 1,
       };

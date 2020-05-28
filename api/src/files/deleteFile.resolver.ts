@@ -14,15 +14,17 @@ import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 class DeleteFileArgs {
   @Field(_type => ObjectId, { description: 'file id' })
   id: ObjectId;
+  @Field(_type => String, { description: 'branch name' })
+  branch: string;
 }
 
-export const deleteFileUtil = async (file: FileDB): Promise<void> => {
+export const deleteFileUtil = async (file: FileDB, branch: string): Promise<void> => {
   await FileModel.deleteOne({
-    _id: file
+    _id: file._id
   });
   await s3Client.deleteObject({
     Bucket: fileBucket,
-    Key: getFileKey(file.repository, file.branch, file.path),
+    Key: getFileKey(file.repository, branch, file.path),
   }).promise();
 };
 
@@ -45,11 +47,34 @@ class DeleteFileResolver {
     if (!(await checkRepositoryAccess(user, file.project, file.repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
-    await elasticClient.delete({
-      index: fileIndexName,
-      id: file._id.toHexString()
-    });
-    await deleteFileUtil(file);
+    if (!file.branches.includes(args.branch)) {
+      throw new Error(`file is not in branch ${args.branch}`);
+    }
+    if (file.branches.length === 1) {
+      await elasticClient.delete({
+        index: fileIndexName,
+        id: file._id.toHexString()
+      });
+    } else {
+      await elasticClient.update({
+        index: fileIndexName,
+        id: file._id.toHexString(),
+        body: {
+          script: {
+            source: `
+              ctx._source.branches.remove(branch)
+              ctx._source.numBranches--
+              ctx._source.updated = currentTime
+            `,
+            lang: 'painless',
+            params: {
+              branch: args.branch
+            }
+          }
+        }
+      });
+    }
+    await deleteFileUtil(file, args.branch);
     return `deleted file with id: ${args.id}`;
   }
 }

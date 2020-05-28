@@ -23,7 +23,7 @@ export class FileDB {
   @Property({ required: true })
   repository: ObjectId;
   @Property({ required: true })
-  branch: string;
+  branches: string[];
   @Property({ required: true })
   public: AccessLevel;
   @Property({ required: true })
@@ -47,8 +47,10 @@ export default class File extends AntlrFile {
   project: string;
   @Field({ description: 'repository id' })
   repository: string;
-  @Field({ description: 'branch id' })
-  branch: string;
+  @Field(_type => [String], { description: 'branches' })
+  branches: string[];
+  @Field(_type => Int, { description: 'number of branches' })
+  numBranches: number;
   @Field(_type => AccessLevel, { description: 'public access level' })
   public: AccessLevel;
   @Field({ description: 'path' })

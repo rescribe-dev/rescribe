@@ -14,8 +14,11 @@ const fileMappings = {
   repository: {
     type: 'keyword'
   },
-  branch: {
+  branches: {
     type: 'keyword'
+  },
+  numBranches: {
+    type: 'integer'
   },
   public: {
     type: 'keyword'

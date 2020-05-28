@@ -51,7 +51,10 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> =>
           ctx._source.numBranches--
           ctx._source.updated = currentTime
         `,
-        lang: 'painless'
+        lang: 'painless',
+        params: {
+          branch: args.name
+        }
       },
       query: {
         bool: {
@@ -105,7 +108,7 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> =>
     if (!file) {
       throw new Error(`cannot find file with id ${fileID.toHexString()}`);
     }
-    await deleteFileUtil(file);
+    await deleteFileUtil(file, args.name);
   }
 };
 
