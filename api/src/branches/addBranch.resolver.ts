@@ -49,7 +49,10 @@ export const addBranchUtil = async (args: AddBranchArgs): Promise<void> => {
             ctx._source.updated = currentTime
           }
         `,
-        lang: 'painless'
+        lang: 'painless',
+        params: {
+          branch: args.name
+        }
       },
       query: {
         match: {

@@ -11,6 +11,7 @@ query search($query: String!) {
       start
       end
     }
+    branches
     results {
       name
       type

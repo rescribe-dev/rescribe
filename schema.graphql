@@ -171,8 +171,11 @@ type File {
   # repository id
   repository: String!
 
-  # branch id
-  branch: String!
+  # branches
+  branches: [String!]!
+
+  # number of branches
+  numBranches: Int!
 
   # public access level
   public: AccessLevel!
@@ -221,6 +224,9 @@ type FileResult {
 
   # lines in file
   lines: Location!
+
+  # branches
+  branches: [String!]!
 }
 
 # baseline function
@@ -332,6 +338,9 @@ type Mutation {
   deleteFile(
     # file id
     id: ObjectId!
+
+    # branch name
+    branch: String!
   ): String!
   deleteBranch(
     # repository id
@@ -517,6 +526,9 @@ type Query {
   fileText(
     # file id
     id: ObjectId!
+
+    # branch name
+    branch: String!
 
     # start line
     start: Int!

@@ -77,4 +77,6 @@ export class FileResult {
   location: FileLocation;
   @Field(_type => Location, { description: 'lines in file' })
   lines: Location;
+  @Field(_type => [String], { description: 'branches' })
+  branches: string[];
 }
