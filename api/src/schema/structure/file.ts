@@ -24,7 +24,7 @@ export class FileDB {
   repository: ObjectId;
   @Property({ required: true })
   branch: ObjectId;
-  @Property({ required: true, type: AccessLevel })
+  @Property({ required: true })
   public: AccessLevel;
   @Property({ required: true })
   fileLength: number;
