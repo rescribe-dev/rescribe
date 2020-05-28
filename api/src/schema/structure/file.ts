@@ -2,6 +2,7 @@ import { ObjectType, Field, registerEnumType, Int } from 'type-graphql';
 import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import AntlrFile from '../antlr/file';
+import { AccessLevel } from '../auth/access';
 
 export enum StorageType {
   local = 'local',
@@ -23,6 +24,8 @@ export class FileDB {
   repository: ObjectId;
   @Property({ required: true })
   branch: ObjectId;
+  @Property({ required: true, type: AccessLevel })
+  public: AccessLevel;
   @Property({ required: true })
   fileLength: number;
   @Property({ required: true })
@@ -46,6 +49,8 @@ export default class File extends AntlrFile {
   repository: string;
   @Field({ description: 'branch id' })
   branch: string;
+  @Field(_type => AccessLevel, { description: 'public access level' })
+  public: AccessLevel;
   @Field({ description: 'path' })
   path: string;
   @Field({ description: 'storage location' })

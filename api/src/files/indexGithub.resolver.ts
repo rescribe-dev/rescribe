@@ -14,6 +14,8 @@ import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
 import checkFileExtension from '../utils/checkFileExtension';
 import { deleteFileUtil } from './deleteFile.resolver';
+import { AccessLevel } from '../schema/auth/access';
+import { ProjectModel } from '../schema/structure/project';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
@@ -92,7 +94,7 @@ class IndexGithubResolver {
       });
     }
     const githubClient = createClient(args.installationID);
-    const repository = await RepositoryModel.findOne({
+    let repository = await RepositoryModel.findOne({
       githubID: args.githubRepositoryID,
     });
     let repositoryID: ObjectId;
@@ -102,7 +104,11 @@ class IndexGithubResolver {
       try {
         await getConfigurationData(githubClient, args);
         repositoryID = new ObjectId(githubConfig?.repository);
+        repository = await RepositoryModel.findById(repositoryID);
         projectID = new ObjectId(githubConfig?.project);
+        if (!(await ProjectModel.findById(projectID))) {
+          throw new Error(`cannot find project with id ${projectID.toHexString()}`);
+        }
       } catch (err) {
         throw new Error('project & repo not found');
       }
@@ -140,6 +146,7 @@ class IndexGithubResolver {
         branch: branchID,
         path: filePath,
         fileName: getFileName(filePath),
+        public: repository?.public as AccessLevel,
         content
       });
     }
@@ -166,6 +173,7 @@ class IndexGithubResolver {
         branch: branchID,
         path: filePath,
         fileName: getFileName(filePath),
+        public: repository?.public as AccessLevel,
         content
       });
     }

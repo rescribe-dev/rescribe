@@ -83,7 +83,8 @@ class IndexFilesResolver {
               branch: args.branch,
               path,
               fileName: file.filename,
-              content
+              content,
+              public: repository.public
             });
             numIndexed++;
             if (numIndexed === args.files.length) {
