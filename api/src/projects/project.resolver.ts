@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
-import { Project } from '../schema/structure/project';
+import { Project, ProjectDB } from '../schema/structure/project';
 import { ObjectId } from 'mongodb';
 import { projectIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
@@ -78,7 +78,7 @@ class ProjectResolver {
     } else {
       throw new Error('user must supply name or id');
     }
-    if (!checkProjectAccess(user, project._id as ObjectId, AccessLevel.view)) {
+    if (!(await checkProjectAccess(user, project as ProjectDB, AccessLevel.view))) {
       throw new Error('user not authorized to view project');
     }
     return project;

@@ -7,6 +7,7 @@ export enum AccessLevel {
   admin = 'admin',
   edit = 'edit',
   view = 'view',
+  none = 'none',
 }
 
 registerEnumType(AccessLevel, {

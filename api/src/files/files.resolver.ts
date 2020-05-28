@@ -13,10 +13,11 @@ import { TermQuery } from '../elastic/types';
 import { checkProjectAccess } from '../projects/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { Min, Max, MinLength, ArrayMaxSize } from 'class-validator';
+import { Min, Max, MinLength, ArrayMaxSize, ArrayUnique } from 'class-validator';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
 import { BranchDB, BranchModel } from '../schema/structure/branch';
 import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
+import { ProjectDB, ProjectModel } from '../schema/structure/project';
 
 const maxPerPage = 20;
 const queryMinLength = 3;
@@ -35,17 +36,26 @@ export class FilesArgs {
   @ArrayMaxSize(projectsMaxLength, {
     message: `can only select up to ${projectsMaxLength} projects to filter from`
   })
+  @ArrayUnique({
+    message: 'all projects must be unique'
+  })
   @Field(_type => [ObjectId], { description: 'projects', nullable: true })
   projects?: ObjectId[];
 
   @ArrayMaxSize(repositoriesMaxLength, {
     message: `can only select up to ${repositoriesMaxLength} repositories to filter from`
   })
+  @ArrayUnique({
+    message: 'all repositories must be unique'
+  })
   @Field(_type => [ObjectId], { description: 'repositories', nullable: true })
   repositories?: ObjectId[];
 
   @ArrayMaxSize(branchesMaxLength, {
     message: `can only select up to ${branchesMaxLength} branches to filter from`
+  })
+  @ArrayUnique({
+    message: 'all branches must be unique'
   })
   @Field(_type => [ObjectId], { description: 'branch', nullable: true })
   branches?: ObjectId[];
@@ -81,6 +91,36 @@ export const mainFields = [
   'location'
 ];
 
+enum DatastoreType { 
+  project,
+  repository,
+  branch
+};
+
+const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: ProjectDB | RepositoryDB | BranchDB }, type: DatastoreType): Promise<void> => {
+  if (!(id.toHexString() in datastore)) {
+    if (type === DatastoreType.project) {
+      const project = await ProjectModel.findById(id);
+      if (!project) {
+        throw new Error(`cannot find project with id ${id.toHexString()}`);
+      }
+      datastore[id.toHexString()] = project;
+    } else if (type === DatastoreType.branch) {
+      const repository = await RepositoryModel.findById(id);
+      if (!repository) {
+        throw new Error(`cannot find repository with id ${id.toHexString()}`);
+      }
+      datastore[id.toHexString()] = repository;
+    } else {
+      const branch = await BranchModel.findById(id);
+      if (!branch) {
+        throw new Error(`cannot find branch with id ${id.toHexString()}`);
+      }
+      datastore[id.toHexString()] = branch;
+    }
+  }
+};
+
 export const search = async (user: User, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
@@ -88,10 +128,13 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   const mustShouldParams: object[] = [];
   checkPaginationArgs(args);
   let hasFilter = false;
+  const projectData: { [key: string]: ProjectDB } = {};
   if (args.projects && args.projects.length > 0) {
     hasFilter = true;
     for (const projectID of args.projects) {
-      if (!checkProjectAccess(user, projectID, AccessLevel.view)) {
+      await getSaveDatastore(projectID, projectData, DatastoreType.project);
+      const project = projectData[projectID.toHexString()];
+      if (!(await checkProjectAccess(user, project, AccessLevel.view))) {
         throw new Error('user does not have access to project');
       }
       filterShouldParams.push({
@@ -107,15 +150,11 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   if (args.repositories && args.repositories.length > 0) {
     hasFilter = true;
     for (const repositoryID of args.repositories) {
-      if (!(repositoryID.toHexString() in repositoryData)) {
-        const repository = await RepositoryModel.findById(repositoryID);
-        if (!repository) {
-          throw new Error(`cannot find repository with id ${repositoryID.toHexString()}`);
-        }
-        repositoryData[repositoryID.toHexString()] = repository;
-      }
+      await getSaveDatastore(repositoryID, repositoryData, DatastoreType.repository);
       const repository = repositoryData[repositoryID.toHexString()];
-      if (!checkRepositoryAccess(user, repository.project, repositoryID, AccessLevel.view)) {
+      await getSaveDatastore(repository.project, projectData, DatastoreType.project);
+      const project = projectData[repository.project.toHexString()];
+      if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
         throw new Error('user does not have access to repository');
       }
       filterShouldParams.push({
@@ -129,15 +168,13 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   if (args.branches && args.branches.length > 0) {
     hasFilter = true;
     for (const branchID of args.branches) {
-      if (!(branchID.toHexString() in branchData)) {
-        const branch = await BranchModel.findById(branchID);
-        if (!branch) {
-          throw new Error(`cannot find repository with id ${branchID.toHexString()}`);
-        }
-        branchData[branchID.toHexString()] = branch;
-      }
+      await getSaveDatastore(branchID, branchData, DatastoreType.branch);
       const branch = branchData[branchID.toHexString()];
-      if (!checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.view)) {
+      await getSaveDatastore(branch.project, projectData, DatastoreType.project);
+      const currentProject = projectData[branch.project.toHexString()];
+      await getSaveDatastore(branch.repository, repositoryData, DatastoreType.repository);
+      const currentRepository = repositoryData[branch.repository.toHexString()];
+      if (!(await checkRepositoryAccess(user, currentProject, currentRepository, AccessLevel.view))) {
         throw new Error('user does not have access to branch');
       }
       filterShouldParams.push({

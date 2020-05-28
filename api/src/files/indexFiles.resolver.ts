@@ -49,7 +49,7 @@ class IndexFilesResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkRepositoryAccess(user, repository.project, repository._id, AccessLevel.edit)) {
+    if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     return new Promise(async (resolve, reject) => {
