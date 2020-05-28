@@ -588,10 +588,22 @@ type Query {
     # project id
     name: String
   ): Project!
-  projects: [Project!]!
+  projects(
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
+  ): [Project!]!
   repositories(
     # project id
     projects: [ObjectId!]
+
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
   ): [Repository!]!
   repository(
     # repository id

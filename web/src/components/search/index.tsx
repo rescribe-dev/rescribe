@@ -26,6 +26,10 @@ import {
 import { client } from '../../utils/apollo';
 import Filters from './filters';
 
+const perpageOptions = [10, 20];
+
+const defaultPerpage = perpageOptions[0];
+
 const loaderCSS = css`
   display: block;
   margin: 0 auto;
@@ -36,6 +40,8 @@ const loaderCSS = css`
 interface SearchPageDataType {}
 
 const SearchPage = (_args: PageProps<SearchPageDataType>) => {
+  const [page] = useState<number>(0);
+  const [perpage] = useState<number>(defaultPerpage);
   const [searchResult, setSearchResult] = useState<SearchQuery | undefined>(
     undefined
   );
@@ -73,6 +79,8 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
               console.log(formData);
               const variables: SearchQueryVariables = {
                 query: formData.query,
+                page,
+                perpage,
               };
               if (selectedProjects.length > 0) {
                 if (selectedRepositories.length > 0) {

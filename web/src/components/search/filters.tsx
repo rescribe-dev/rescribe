@@ -16,6 +16,9 @@ import { client } from '../../utils/apollo';
 import AsyncSelect from 'react-select/async';
 import { ValueType } from 'react-select';
 
+const numProjectPerPage = 20;
+const numRepositoriesPerPage = 20;
+
 interface SelectObject {
   value: ObjectId;
   label: string;
@@ -34,7 +37,10 @@ const Filters = (args: FiltersPropsDataType) => {
       ProjectsQueryVariables
     >({
       query: Projects,
-      variables: {},
+      variables: {
+        page: 0,
+        perpage: numProjectPerPage,
+      },
     });
     if (projectData.data) {
       return projectData.data.projects
@@ -62,6 +68,8 @@ const Filters = (args: FiltersPropsDataType) => {
       query: Repositories,
       variables: {
         projects: selectedProjects,
+        page: 0,
+        perpage: numRepositoriesPerPage,
       },
     });
     if (repositoriesData.data) {

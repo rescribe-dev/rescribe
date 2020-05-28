@@ -16,6 +16,7 @@ import { checkRepositoryAccess } from '../repositories/auth';
 import { Min, Max, MinLength, ArrayMaxSize } from 'class-validator';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
 import { BranchDB, BranchModel } from '../schema/structure/branch';
+import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 
 const maxPerPage = 20;
 const queryMinLength = 3;
@@ -85,9 +86,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
   const filterShouldParams: TermQuery[] = [];
   const mustShouldParams: object[] = [];
-  if ((args.perpage === undefined) !== (args.page === undefined)) {
-    throw new Error('per page and page should be defined or not defined');
-  }
+  checkPaginationArgs(args);
   let hasFilter = false;
   if (args.projects && args.projects.length > 0) {
     hasFilter = true;
@@ -227,10 +226,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       highlight
     }
   };
-  if (args.perpage && args.page) {
-    searchParams.from = args.page;
-
-  }
+  setPaginationArgs(args, searchParams);
   const elasticFileData = await elasticClient.search(searchParams);
   return elasticFileData;
 };
