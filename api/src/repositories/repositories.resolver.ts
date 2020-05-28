@@ -15,8 +15,8 @@ import { checkProjectAccess } from '../projects/auth';
 
 @ArgsType()
 class RepositoriesArgs {
-  @Field(_type => ObjectId, { description: 'project id', nullable: true })
-  project?: ObjectId;
+  @Field(_type => [ObjectId], { description: 'project id', nullable: true })
+  projects?: ObjectId[];
 }
 
 @Resolver()
@@ -30,9 +30,8 @@ class RepositoriesResolver {
     if (!user) {
       throw new Error('cannot find user');
     }
-    const mustParams: TermQuery[] = [];
     const shouldParams: TermQuery[] = [];
-    if (!args.project) {
+    if (!args.projects || args.projects.length === 0) {
       if (user.repositories.length === 0 && user.projects.length === 0) {
         return [];
       }
@@ -51,14 +50,16 @@ class RepositoriesResolver {
         });
       }
     } else {
-      if (!checkProjectAccess(user, args.project, AccessLevel.view)) {
-        throw new Error('user does not have view access to project');
-      }
-      mustParams.push({
-        term: {
-          project: args.project.toHexString()
+      for (const projectID of args.projects) {
+        if (!checkProjectAccess(user, projectID, AccessLevel.view)) {
+          throw new Error('user does not have view access to project');
         }
-      });
+        shouldParams.push({
+          term: {
+            project: projectID.toHexString()
+          }
+        });
+      }
     }
     const searchParams: RequestParams.Search = {
       index: repositoryIndexName,
@@ -67,7 +68,6 @@ class RepositoriesResolver {
           bool: {
             filter: {
               bool: {
-                must: mustParams,
                 should: shouldParams
               }
             }

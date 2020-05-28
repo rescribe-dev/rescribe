@@ -12,18 +12,15 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  NavItem,
 } from 'reactstrap';
 import { isLoggedIn } from '../../state/auth/getters';
 import { store } from '../../state/reduxWrapper';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { navigate } from '@reach/router';
 import { isSSR } from '../../utils/checkSSR';
 import { AppThunkDispatch } from '../../state/thunk';
 import { AuthActionTypes } from '../../state/auth/types';
 import { thunkLogout } from '../../state/auth/thunks';
-import { RootState } from '../../state';
-import ProjectSelector from '../projectSelector';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -47,12 +44,8 @@ const Header = (args: HeaderArgs) => {
     return store.subscribe(() => loggedIn);
   }, []);
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
-  let project: string | null = null;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
-    project = useSelector<RootState, string | null>(
-      (state) => state.projectReducer.id
-    );
   }
   return (
     <>
@@ -79,26 +72,9 @@ const Header = (args: HeaderArgs) => {
                   <NavLink key="account" tag={Link} to="/app/account">
                     Account
                   </NavLink>,
-                  <NavItem
-                    key="select-project"
-                    style={{
-                      minWidth: '10rem',
-                    }}
-                  >
-                    <ProjectSelector />
-                  </NavItem>,
-                  project !== null ? (
-                    [
-                      <NavLink key="project" tag={Link} to="/app/project">
-                        Project
-                      </NavLink>,
-                      <NavLink key="search" tag={Link} to="/app/search">
-                        Search
-                      </NavLink>,
-                    ]
-                  ) : (
-                    <div key="no-project"></div>
-                  ),
+                  <NavLink key="search" tag={Link} to="/app/search">
+                    Search
+                  </NavLink>,
                   <UncontrolledDropdown key="dropdown" nav inNavbar>
                     <DropdownToggle key="toggle-options" nav caret>
                       Options

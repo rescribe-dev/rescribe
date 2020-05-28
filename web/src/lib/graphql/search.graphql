@@ -1,0 +1,32 @@
+fragment resultFields on SearchResult {
+  name
+  type
+  startPreviewLineNumber
+  startPreviewContent
+  endPreviewLineNumber
+  endPreviewContent
+}
+
+query search($query: String!, $projects: [ObjectId!], $repositories: [ObjectId!]) {
+  search(query: $query, projects: $projects, repositories: $repositories) {
+    _id
+    name
+    path
+    location {
+      owner
+      repository
+      image
+    }
+    language {
+      name
+      color
+    }
+    lines {
+      start
+      end
+    }
+    results {
+      ...resultFields
+    }
+  }
+}
