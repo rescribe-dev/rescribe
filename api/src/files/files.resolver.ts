@@ -2,7 +2,7 @@
 
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
-import File from '../schema/structure/file';
+import File, { FileModel } from '../schema/structure/file';
 import { fileIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -53,6 +53,9 @@ export class FilesArgs {
   @Field(_type => [ObjectId], { description: 'repositories', nullable: true })
   repositories?: ObjectId[];
 
+  @Field(_type => ObjectId, { description: 'file id', nullable: true })
+  file?: ObjectId;
+
   @ArrayMaxSize(branchesMaxLength, {
     message: `can only select up to ${branchesMaxLength} branches to filter from`
   })
@@ -89,8 +92,7 @@ export const nestedFields = [
 export const mainFields = [
   'name',
   'importPath',
-  'path',
-  'location'
+  'path'
 ];
 
 enum DatastoreType { 
@@ -121,13 +123,34 @@ const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: Projec
 export const search = async (user: User, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
-  const startTime = new Date();
   const filterShouldParams: TermQuery[] = [];
   const mustShouldParams: object[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
-  if (args.projects && args.projects.length > 0) {
+  if (!repositoryData) {
+    repositoryData = {};
+  }
+  const oneFile = args.file !== undefined;
+  if (oneFile) {
+    const file = await FileModel.findById(args.file);
+    if (!file) {
+      throw new Error('cannot find file with given id');
+    }
+    await getSaveDatastore(file.repository, repositoryData, DatastoreType.repository);
+    const repository = repositoryData[file.repository.toHexString()];
+    await getSaveDatastore(repository.project, projectData, DatastoreType.project);
+    const project = projectData[repository.project.toHexString()];
+    if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
+      throw new Error('user does not have access to repository');
+    }
+    filterShouldParams.push({
+      term: {
+        _id: args.file?.toHexString()
+      }
+    });
+  }
+  if (!oneFile && args.projects && args.projects.length > 0) {
     hasStructureFilter = true;
     for (const projectID of args.projects) {
       await getSaveDatastore(projectID, projectData, DatastoreType.project);
@@ -142,10 +165,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       });
     }
   }
-  if (!repositoryData) {
-    repositoryData = {};
-  }
-  if (args.repositories && args.repositories.length > 0) {
+  if (!oneFile && args.repositories && args.repositories.length > 0) {
     hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
       await getSaveDatastore(repositoryID, repositoryData, DatastoreType.repository);
@@ -162,7 +182,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       });
     }
   }
-  if (args.branches && args.branches.length > 0) {
+  if (!oneFile && args.branches && args.branches.length > 0) {
     hasStructureFilter = true;
     for (const branch of args.branches) {
       filterShouldParams.push({
@@ -172,7 +192,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       });
     }
   }
-  if (!hasStructureFilter) {
+  if (!oneFile && !hasStructureFilter) {
     if (user.repositories.length === 0 && user.projects.length === 0) {
       return null;
     }
@@ -209,12 +229,11 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
     post_tags: ['']
   };
   for (const nestedField of nestedFields) {
+    // TODO - tweak this to get it faster - boosting alternatives
+    // use boost to make certain fields weighted higher than others
     const currentQuery: object = args.query ? {
-      match: {
-        _all: {
-           query: args.query,
-           operator: 'and'
-        }
+      multi_match: {
+        query: args.query
       }
     } : {
         match_all: {}
@@ -232,8 +251,6 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   const fieldsQuery: object = args.query ? {
     multi_match: {
       query: args.query,
-      fuzziness: 'AUTO',
-      max_expansions: 10,
       fields: mainFields
     }
   } : {
@@ -261,14 +278,20 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
         }
       }, // https://discuss.elastic.co/t/providing-weight-to-individual-fields/63081/3
       //https://stackoverflow.com/questions/39150946/highlight-in-elasticsearch
-      highlight
+      highlight,
+      sort: {
+        _score: {
+          order: 'desc'
+        }
+      }
     }
   };
-  setPaginationArgs(args, searchParams);
-  const start2Time = new Date();
+  if (!oneFile) {
+    setPaginationArgs(args, searchParams);
+  }
+  const startTime = new Date();
   const elasticFileData = await elasticClient.search(searchParams);
-  logger.info(new Date().getTime() - startTime.getTime());
-  logger.info(new Date().getTime() - start2Time.getTime());
+  logger.info(`search function time: ${new Date().getTime() - startTime.getTime()}`);
   return elasticFileData;
 };
 

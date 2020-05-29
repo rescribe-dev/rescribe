@@ -17,6 +17,18 @@ const fileMappings = {
   branches: {
     type: 'keyword'
   },
+  name: {
+    type: 'text',
+    analyzer: 'trigrams'
+  },
+  importPath: {
+    type: 'text',
+    analyzer: 'trigrams'
+  },
+  path: {
+    type: 'text',
+    analyzer: 'trigrams'
+  },
   numBranches: {
     type: 'integer'
   },
@@ -30,15 +42,6 @@ const fileMappings = {
   updated: {
     type: 'date',
     format: 'epoch_millis'
-  },
-  name: {
-    type: 'text'
-  },
-  importPath: {
-    type: 'text'
-  },
-  path: {
-    type: 'text'
   },
   comments: {
     type: 'nested',

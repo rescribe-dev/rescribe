@@ -224,6 +224,9 @@ type FileResult {
 
   # branches
   branches: [String!]!
+
+  # result score
+  score: Float!
 }
 
 # baseline function
@@ -505,6 +508,9 @@ type Query {
     # repositories
     repositories: [ObjectId!]
 
+    # file id
+    file: ObjectId
+
     # branches
     branches: [String!]
 
@@ -537,6 +543,9 @@ type Query {
     # repositories
     repositories: [ObjectId!]
 
+    # file id
+    file: ObjectId
+
     # branches
     branches: [String!]
 
@@ -545,6 +554,9 @@ type Query {
 
     # number per page
     perpage: Int
+
+    # end line
+    maxResultsPerFile: Int
   ): [FileResult!]!
   hello: String!
   project(
@@ -652,6 +664,9 @@ type SearchResult {
 
   # preview end line number
   endPreviewLineNumber: Int!
+
+  # result score
+  score: Float!
 
   # preview end content
   endPreviewContent: [String!]!

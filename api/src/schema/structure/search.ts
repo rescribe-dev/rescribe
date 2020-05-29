@@ -1,4 +1,4 @@
-import { ObjectType, Field, registerEnumType, Int } from 'type-graphql';
+import { ObjectType, Field, registerEnumType, Int, Float } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { LanguageData } from './language';
 import Location from '../antlr/location';
@@ -45,6 +45,8 @@ export class SearchResult {
   startPreviewContent: string[];
   @Field(_type => Int, { description: 'preview end line number' })
   endPreviewLineNumber: number;
+  @Field(_type => Float, { description: 'result score' })
+  score: number;
   @Field(_type => [String], { description: 'preview end content' })
   endPreviewContent: string[];
 }
@@ -79,4 +81,6 @@ export class FileResult {
   lines: Location;
   @Field(_type => [String], { description: 'branches' })
   branches: string[];
+  @Field(_type => Float, { description: 'result score' })
+  score: number;
 }

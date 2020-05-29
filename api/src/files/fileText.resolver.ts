@@ -12,7 +12,11 @@ import { RepositoryModel } from '../schema/structure/repository';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import Location from '../schema/antlr/location';
-import { getS3FileData } from '../utils/aws';
+import { getS3FileData, getFileKey } from '../utils/aws';
+import { cache } from '../utils/redis';
+import { configData } from '../utils/config';
+
+const redisExpireSeconds = 60 * 20;
 
 @ArgsType()
 class FileTextArgs {
@@ -27,12 +31,12 @@ class FileTextArgs {
 }
 
 export const getLinesArray = (content: string[], location: Location, trim: boolean, maxLineLength?: number): string[] => {
-  if (location.end <= location.start) {
+  if (location.end < location.start) {
     return [];
   }
-  const slicedContent = content.slice(location.start, location.end);
+  const slicedContent = content.slice(location.start - 1, location.end);
   const reducedContent = maxLineLength ? slicedContent.map(line => line.substring(0, maxLineLength)) : slicedContent;
-  return trim ? reducedContent.map(line => line.trim()) : reducedContent;
+  return trim ? reducedContent.map(line => line.trimRight()) : reducedContent;
 };
 
 export const getLines = (content: string, location: Location): string[] => {
@@ -63,7 +67,23 @@ export const getLines = (content: string, location: Location): string[] => {
   return content.substring(startIndex, endIndex + 1).split('\n');
 };
 
+interface RedisKey {
+  fileKey: string;
+  location: StorageType;
+}
+
 export const getText = async (file: FileDB, branch: string, user: User, args: Location): Promise<string[]> => {
+  const fileKey = getFileKey(file.repository, branch, file.path);
+  const redisKeyObject: RedisKey = {
+    fileKey,
+    location: file.location
+  };
+  const redisKey = JSON.stringify(redisKeyObject);
+  const redisData = await cache.get(redisKey);
+  if (redisData && !configData.DISABLE_CACHE) {
+    return getLines(redisData, args);
+  }
+  let content: string;
   if (file.location === StorageType.github) {
     if (!file.saveContent) {
       if (user.githubUsername.length === 0) {
@@ -77,18 +97,19 @@ export const getText = async (file: FileDB, branch: string, user: User, args: Lo
         throw new Error('cannot find repository');
       }
       const githubClient = createClient(user.githubInstallationID);
-      const content = await getGithubFile(githubClient, branch, file.path, repository.name, user.githubUsername);
-      return getLines(content, args);
+      content = await getGithubFile(githubClient, branch, file.path, repository.name, user.githubUsername);
     }
-    return getLines(await getS3FileData(file.repository, branch, file.path), args);
+    content = await getS3FileData(fileKey);
   } else if (file.location === StorageType.local) {
     if (!file.saveContent) {
       throw new Error('content not stored in cloud');
     }
-    return getLines(await getS3FileData(file.repository, branch, file.path), args);
+    content = await getS3FileData(fileKey);
   } else {
     throw new Error('invalid storage location');
   }
+  await cache.set(redisKey, content, 'ex', redisExpireSeconds);
+  return getLines(content, args);
 };
 
 @Resolver()

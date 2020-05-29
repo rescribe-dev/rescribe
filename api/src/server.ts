@@ -13,12 +13,10 @@ import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, 
 import { isProduction } from './utils/mode';
 import { createServer } from 'http';
 import { buildSchema } from 'type-graphql';
-import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from './scalars/ObjectId';
-import Redis from 'ioredis';
 import { join } from 'path';
-import exitHook from 'exit-hook';
+import { pubSub } from './utils/redis';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { TypegooseMiddleware } from './db/typegoose';
 import { handleRefreshToken } from './utils/jwt';
@@ -28,50 +26,6 @@ const maxDepth = 7;
 const logger = getLogger();
 
 export const initializeServer = async (): Promise<void> => {
-  if (configData.REDIS_HOST.length === 0) {
-    const message = 'no redis host provided';
-    throw new Error(message);
-  }
-  if (configData.REDIS_PORT === 0) {
-    const message = 'no redis port provided';
-    throw new Error(message);
-  }
-  const hasRedisPassword = configData.REDIS_PASSWORD.length > 0;
-  if (!hasRedisPassword) {
-    logger.info('no redis password provided');
-  } else {
-    logger.info('redis password provided');
-  }
-  const redisOptions: Redis.RedisOptions = {
-    host: configData.REDIS_HOST,
-    port: configData.REDIS_PORT,
-    db: 0,
-    password: hasRedisPassword ? configData.REDIS_PASSWORD : undefined
-  };
-  if (!hasRedisPassword) {
-    redisOptions.tls = {
-      ...redisOptions.tls,
-      checkServerIdentity: (): undefined => undefined
-    };
-  }
-  const publisher = new Redis(redisOptions);
-  const subscriber = new Redis(redisOptions);
-  const pubSub = new RedisPubSub({
-    publisher,
-    subscriber
-  });
-  const closeRedis = (): void => {
-    logger.info('close pub sub');
-    pubSub.close();
-  };
-  publisher.on('error', (err: Error) => {
-    closeRedis();
-    logger.error(err.message);
-    process.exit(1);
-  });
-  await publisher.ping();
-  logger.info('connected to redis');
-  exitHook(closeRedis);
   const app = express();
   const corsConfig: CorsOptions = {
     credentials: true,

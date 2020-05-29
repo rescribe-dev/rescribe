@@ -17,7 +17,7 @@ public class File {
   List<Variable> variables = new ArrayList<>();
   List<Import> imports = new ArrayList<>();
   List<Comment> comments = new ArrayList<>();
-  LanguageType language = LanguageType.DEFAULT;
+  LanguageType language = LanguageType.none;
 
   public File(FileInput input) {
     this._id = input.getId();

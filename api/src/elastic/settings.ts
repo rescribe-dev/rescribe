@@ -16,45 +16,27 @@ export const repositoryIndexSettings = {
 
 export const fileType = 'file';
 export const fileIndexName = 'files';
+// the min_gram determines the minimum search query length, otherwise you get no results
 export const fileIndexSettings = {
   number_of_shards: 1,
   number_of_replicas: 0,
   analysis: {
     filter: {
-      nGram_filter: {
-        type: 'nGram',
-        min_gram: 4,
-        max_gram: 5,
-        token_chars: [
-          'letter',
-          'digit',
-          'punctuation',
-          'symbol'
-        ]
+      trigrams_filter: {
+        type: 'ngram',
+        min_gram: 5,
+        max_gram: 5
       }
     },
     analyzer: {
-      nGram_analyzer: {
+      trigrams: {
         type: 'custom',
-        tokenizer: 'whitespace',
+        tokenizer: 'standard',
         filter: [
           'lowercase',
-          'asciifolding',
-          'nGram_filter'
-        ]
-      },
-      whitespace_analyzer: {
-        type: 'custom',
-        tokenizer: 'whitespace',
-        filter: [
-          'lowercase',
-          'asciifolding'
+          'trigrams_filter'
         ]
       }
     }
   }
-};
-export const fileAllSettings = {
-  index_analyzer: 'nGram_analyzer',
-  search_analyzer: 'whitespace_analyzer'
 };

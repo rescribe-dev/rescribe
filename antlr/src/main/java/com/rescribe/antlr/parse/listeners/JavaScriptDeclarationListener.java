@@ -27,7 +27,7 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
   }
 
   public File getFileData() {
-    if (this.file.getLanguage() == LanguageType.DEFAULT) {
+    if (this.file.getLanguage() == LanguageType.none) {
       throw new UnsupportedFileException("Unexpected file extension");
     }
     return this.file;
