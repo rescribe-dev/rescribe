@@ -7,8 +7,22 @@ fragment resultFields on SearchResult {
   endPreviewContent
 }
 
-query search($query: String!, $projects: [ObjectId!], $repositories: [ObjectId!], $perpage: Int!, $page: Int!) {
-  search(query: $query, projects: $projects, repositories: $repositories, perpage: $perpage, page: $page) {
+query search(
+  $query: String!
+  $projects: [ObjectId!]
+  $repositories: [ObjectId!]
+  $perpage: Int!
+  $page: Int!
+  $maxResultsPerFile: Int
+) {
+  search(
+    query: $query
+    projects: $projects
+    repositories: $repositories
+    perpage: $perpage
+    page: $page,
+    maxResultsPerFile: $maxResultsPerFile
+  ) {
     _id
     name
     path

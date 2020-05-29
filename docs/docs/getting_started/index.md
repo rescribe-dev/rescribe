@@ -11,6 +11,8 @@ First clone the repository:
 1. `git clone https://github.com/mdigreg2/rescribe`
 2. `cd rescribe`
 
+Then make sure your system time is correct. Otherwise the pings will not work. Make sure node.js and java jdk 8 is installed - you can use [this link](https://github.com/nodesource/distributions) for node and [this](https://openjdk.java.net/install/) for java. Next make sure yarn is installed [from here](https://classic.yarnpkg.com/en/docs/install).
+
 Then optionally install git pre-commit hooks (required if developing). These hooks are used for linting files, ensuring code consistency and style guides: `npm install`
 
 ### antlr

@@ -59,6 +59,9 @@ const Header = (args: HeaderArgs) => {
             <NavLink key="home" tag={Link} to="/">
               Home
             </NavLink>
+            <NavLink key="search" tag={Link} to="/app/search">
+              Search
+            </NavLink>
             {!loggedIn
               ? [
                   <NavLink key="register" tag={Link} to="/register">
@@ -71,9 +74,6 @@ const Header = (args: HeaderArgs) => {
               : [
                   <NavLink key="account" tag={Link} to="/app/account">
                     Account
-                  </NavLink>,
-                  <NavLink key="search" tag={Link} to="/app/search">
-                    Search
                   </NavLink>,
                   <UncontrolledDropdown key="dropdown" nav inNavbar>
                     <DropdownToggle key="toggle-options" nav caret>

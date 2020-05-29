@@ -39,7 +39,7 @@ const loaderCSS = css`
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface SearchPageDataType {}
 
-const SearchPage = (_args: PageProps<SearchPageDataType>) => {
+const SearchPage = (args: PageProps<SearchPageDataType>) => {
   const [page] = useState<number>(0);
   const [perpage] = useState<number>(defaultPerpage);
   const [searchResult, setSearchResult] = useState<SearchQuery | undefined>(
@@ -49,6 +49,13 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
   const [selectedRepositories, setSelectedRepositories] = useState<ObjectId[]>(
     []
   );
+  let initialQuery = '';
+  if (args.location.search.length > 0) {
+    const searchParams = new URLSearchParams(args.location.search);
+    if (searchParams.has('search')) {
+      initialQuery = searchParams.get('token') as string;
+    }
+  }
   return (
     <>
       <SEO title="Project" />
@@ -64,7 +71,7 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
         />
         <Formik
           initialValues={{
-            query: '',
+            query: initialQuery,
           }}
           validationSchema={yup.object({
             query: yup.string().required('required'),
@@ -81,6 +88,7 @@ const SearchPage = (_args: PageProps<SearchPageDataType>) => {
                 query: formData.query,
                 page,
                 perpage,
+                maxResultsPerFile: 1,
               };
               if (selectedProjects.length > 0) {
                 if (selectedRepositories.length > 0) {
