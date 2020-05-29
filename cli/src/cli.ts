@@ -55,7 +55,7 @@ export const startCLI = async (): Promise<void> => {
     .example('$0 set-project my-project master', 'set current project and repository to my-master and master');
   yargs
     .command('index-files <branch> <files>', 'index files in repository', {}, actionRunner(indexFiles))
-    .example('$0 index-files test.js master', 'index test.js on master branch');
+    .example('$0 index-files master "test.js"', 'index test.js on master branch');
   yargs
     .command('get-branch [path]', 'get current branch in repository', {}, actionRunner(getBranch))
     .example('$0 get-branch ..', 'get branch of parent folder');

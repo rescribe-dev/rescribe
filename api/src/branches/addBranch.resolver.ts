@@ -25,17 +25,19 @@ export const addBranchUtil = async (args: AddBranchArgs): Promise<void> => {
     body: {
       script: {
         source: `
-          if(!ctx._source.branches.contains(branch)) {
-            ctx._source.branches += branch
-            ctx._source.updated = currentTime
+          // first update
+          if(!ctx._source.branches.contains(params.branch)) {
+            ctx._source.branches.add(params.branch);
+            ctx._source.numBranches++;
+            ctx._source.updated = params.currentTime;
           }
         `,
-        lang: 'painless'
+        lang: 'painless',
+        params: {
+          branch: args.name,
+          currentTime
+        }
       },
-      params: {
-        branch: args.name,
-        currentTime
-      }
     }
   });
   await elasticClient.updateByQuery({
@@ -43,15 +45,16 @@ export const addBranchUtil = async (args: AddBranchArgs): Promise<void> => {
     body: {
       script: {
         source: `
-          if(!ctx._source.branches.contains(branch)) {
-            ctx._source.branches += branch
-            ctx._source.numBranches++
-            ctx._source.updated = currentTime
+          if(!ctx._source.branches.contains(params.branch)) {
+            ctx._source.branches.add(params.branch);
+            ctx._source.numBranches++;
+            ctx._source.updated = params.currentTime;
           }
         `,
         lang: 'painless',
         params: {
-          branch: args.name
+          branch: args.name,
+          currentTime
         }
       },
       query: {

@@ -177,6 +177,7 @@ class IndexGithubResolver {
       }));
     }
     const deleteIDs: ObjectId[] = [];
+    const currentTime = new Date().getTime();
     for (const filePath of args.removed) {
       if (!checkFileExtension(filePath)) {
         continue;
@@ -198,13 +199,14 @@ class IndexGithubResolver {
           data: {
             script: {
               source: `
-                ctx._source.branches.remove(branch)
-                ctx._source.numBranches--
-                ctx._source.updated = currentTime
+                ctx._source.branches.remove(params.branch);
+                ctx._source.numBranches--;
+                ctx._source.updated = params.currentTime;
               `,
               lang: 'painless',
               params: {
-                branch
+                branch,
+                currentTime
               }
             },
           }

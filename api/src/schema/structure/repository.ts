@@ -1,4 +1,4 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import Access, { AccessLevel } from '../auth/access';
@@ -9,6 +9,10 @@ export class BaseRepository {
   @Property({required: true})
   name:string;
 
+  @Field({ description: 'branches' })
+  @Property({required: true})
+  owner: ObjectId;
+
   @Field(_type => [String], { description: 'branches' })
   @Property({required: true})
   branches: string[];
@@ -16,10 +20,6 @@ export class BaseRepository {
   @Field({ description: 'project' })
   @Property({required: true})
   project: ObjectId;
-
-  @Field(_type => [Access], { description: 'repository access' })
-  @Property({ required: true })
-  access: Access[];
 
   @Field(_type => [Access], { description: 'public access level' })
   @Property({ required: true })
@@ -34,6 +34,8 @@ export class Repository extends BaseRepository {
   created: number;
   @Field({ description: 'date updated' })
   updated: number;
+  @Field(_type => Int, { description: 'number of branches' })
+  numBranches: number;
 }
 @ObjectType({ description: 'repository db' })
 @modelOptions({schemaOptions: {collection: 'repositories'}})

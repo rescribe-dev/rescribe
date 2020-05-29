@@ -26,7 +26,7 @@ class IndexFilesArgs {
   @Field(_type => ObjectId, { description: 'repo name' })
   repository: ObjectId;
 
-  @Field(_type => ObjectId, { description: 'branch' })
+  @Field(_type => String, { description: 'branch' })
   branch: string;
 
   @Field({ description: 'branch', defaultValue: false })

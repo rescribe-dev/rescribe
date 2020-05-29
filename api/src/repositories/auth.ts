@@ -17,6 +17,7 @@ export const checkRepositoryAccess = async (user: User, project: ObjectId | Proj
   if (checkAccessLevel(repository.public, accessLevel)) {
     return true;
   }
-  return (await checkProjectAccess(user, project, accessLevel))
+  return ((await checkProjectAccess(user, project, accessLevel)) && 
+    !checkAccess(repository._id, user.repositories, AccessLevel.none))
     || checkAccess(repository._id, user.repositories, accessLevel);
 };

@@ -5,6 +5,9 @@ const repositoryMappings = {
   branches: {
     type: 'keyword'
   },
+  numBranches: {
+    type: 'integer'
+  },
   name: {
     type: 'text'
   },

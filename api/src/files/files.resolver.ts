@@ -17,6 +17,9 @@ import { Min, Max, MinLength, ArrayMaxSize, ArrayUnique } from 'class-validator'
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
 import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 const maxPerPage = 20;
 const queryMinLength = 3;
@@ -118,6 +121,7 @@ const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: Projec
 export const search = async (user: User, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
+  const startTime = new Date();
   const filterShouldParams: TermQuery[] = [];
   const mustShouldParams: object[] = [];
   checkPaginationArgs(args);
@@ -206,9 +210,11 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
   };
   for (const nestedField of nestedFields) {
     const currentQuery: object = args.query ? {
-      multi_match: {
-        query: args.query,
-        fuzziness: 'AUTO'
+      match: {
+        _all: {
+           query: args.query,
+           operator: 'and'
+        }
       }
     } : {
         match_all: {}
@@ -227,6 +233,7 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
     multi_match: {
       query: args.query,
       fuzziness: 'AUTO',
+      max_expansions: 10,
       fields: mainFields
     }
   } : {
@@ -258,7 +265,10 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
     }
   };
   setPaginationArgs(args, searchParams);
+  const start2Time = new Date();
   const elasticFileData = await elasticClient.search(searchParams);
+  logger.info(new Date().getTime() - startTime.getTime());
+  logger.info(new Date().getTime() - start2Time.getTime());
   return elasticFileData;
 };
 

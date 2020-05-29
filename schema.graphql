@@ -69,9 +69,6 @@ type BaseProject {
   # repositories
   repositories: [ObjectId!]!
 
-  # project access
-  access: [Access!]!
-
   # public access level
   public: [Access!]!
 }
@@ -82,13 +79,13 @@ type BaseRepository {
   name: String!
 
   # branches
+  owner: ObjectId!
+
+  # branches
   branches: [String!]!
 
   # project
   project: ObjectId!
-
-  # repository access
-  access: [Access!]!
 
   # public access level
   public: [Access!]!
@@ -363,7 +360,7 @@ type Mutation {
     repository: ObjectId!
 
     # branch
-    branch: ObjectId!
+    branch: String!
 
     # branch
     saveContent: Boolean = false
@@ -467,9 +464,6 @@ type Project {
   # repositories
   repositories: [ObjectId!]!
 
-  # project access
-  access: [Access!]!
-
   # public access level
   public: [Access!]!
   _id: ObjectId!
@@ -488,9 +482,6 @@ type ProjectDB {
 
   # repositories
   repositories: [ObjectId!]!
-
-  # project access
-  access: [Access!]!
 
   # public access level
   public: [Access!]!
@@ -587,7 +578,7 @@ type Query {
     # project id
     project: ObjectId
 
-    # project id
+    # repository name
     name: String
   ): Repository!
 }
@@ -598,13 +589,13 @@ type Repository {
   name: String!
 
   # branches
+  owner: ObjectId!
+
+  # branches
   branches: [String!]!
 
   # project
   project: ObjectId!
-
-  # repository access
-  access: [Access!]!
 
   # public access level
   public: [Access!]!
@@ -615,6 +606,9 @@ type Repository {
 
   # date updated
   updated: Float!
+
+  # number of branches
+  numBranches: Int!
 }
 
 # repository db
@@ -623,13 +617,13 @@ type RepositoryDB {
   name: String!
 
   # branches
+  owner: ObjectId!
+
+  # branches
   branches: [String!]!
 
   # project
   project: ObjectId!
-
-  # repository access
-  access: [Access!]!
 
   # public access level
   public: [Access!]!

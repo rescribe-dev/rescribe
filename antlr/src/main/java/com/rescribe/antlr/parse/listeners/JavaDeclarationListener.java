@@ -21,7 +21,8 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   BufferedTokenStream tokens;
   Stack<Parent> parents = new Stack<>();
 
-  public JavaDeclarationListener(BufferedTokenStream tokens, FileInput input, LanguageType languageType) {
+  public JavaDeclarationListener(
+      BufferedTokenStream tokens, FileInput input, LanguageType languageType) {
     super();
     this.tokens = tokens;
     this.file = new File(input);

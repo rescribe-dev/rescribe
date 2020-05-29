@@ -11,7 +11,7 @@
     "lint": "eslint \"src/**/*.ts\" --fix",
     "precommit": "npm run lint && npm run format",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
-    "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
+    "prebuild": "npm run format && npm run lint && npm run printTypescriptVersion",
     "build": "tsc",
     "test": "jest",
     "coverage": "jest --coverage",
