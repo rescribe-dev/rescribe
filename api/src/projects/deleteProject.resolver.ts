@@ -6,11 +6,11 @@ import { ProjectModel, ProjectDB } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { checkAccess } from '../utils/checkAccess';
 import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { deleteRepositoryUtil } from '../repositories/deleteRepository.resolver';
 import { RepositoryModel } from '../schema/structure/repository';
+import { checkProjectAccess } from './auth';
 
 @ArgsType()
 class DeleteProjectArgs {
@@ -50,12 +50,16 @@ class DeleteProjectResolver {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
+    const userID = new ObjectId(ctx.auth.id);
+    const user = await UserModel.findById(userID);
+    if (!user) {
+      throw new Error('cannot find current user');
+    }
     const project = await ProjectModel.findById(args.id);
     if (!project) {
-      throw new Error(`cannot find project with id ${args.id.toHexString()}`);
+      throw new Error(`cannot find given project ${args.id.toHexString()}`);
     }
-    const userID = new ObjectId(ctx.auth.id);
-    if (!checkAccess(userID, project.access, AccessLevel.admin)) {
+    if (!checkProjectAccess(user, project, AccessLevel.admin)) {
       throw new Error('user does not have admin access to project');
     }
     await deleteProjectUtil(args, userID, project);

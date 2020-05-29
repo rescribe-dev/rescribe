@@ -66,7 +66,7 @@
   "main": "n/a",
   "scripts": {
     "build:gatsby": "cd gatsby && tsc",
-    "prebuild": "yarn clean && yarn build:gatsby",
+    "prebuild": "yarn build:gatsby",
     "build": "npm run codegen && gatsby build && mv public dist",
     "predeploy": "yarn build",
     "dev": "yarn build:gatsby && yarn lint && gatsby develop",

@@ -25,15 +25,9 @@ class AddProjectResolver {
     const id = new ObjectId();
     const currentTime = new Date().getTime();
     const userID = new ObjectId(ctx.auth.id);
-    const newAccess: Access = {
-      _id: userID,
-      level: AccessLevel.owner,
-      type: AccessType.user
-    };
     const baseProject: BaseProject = {
       name: args.name,
       repositories: [],
-      access: [newAccess],
       public: args.publicAccess,
     };
     const elasticProject: Project = {

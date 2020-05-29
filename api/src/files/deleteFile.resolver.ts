@@ -56,19 +56,21 @@ class DeleteFileResolver {
         id: file._id.toHexString()
       });
     } else {
+      const currentTime = new Date().getTime();
       await elasticClient.update({
         index: fileIndexName,
         id: file._id.toHexString(),
         body: {
           script: {
             source: `
-              ctx._source.branches.remove(branch)
-              ctx._source.numBranches--
-              ctx._source.updated = currentTime
+              ctx._source.branches.remove(params.branch);
+              ctx._source.numBranches--;
+              ctx._source.updated = params.currentTime;
             `,
             lang: 'painless',
             params: {
-              branch: args.branch
+              branch: args.branch,
+              currentTime
             }
           }
         }

@@ -10,6 +10,7 @@ import { GraphQLError } from 'graphql';
 import axios from 'axios';
 import { IndexFiles, IndexFilesMutationVariables } from '../lib/generated/datamodel';
 import { cacheData, configData } from './config';
+import { ObjectId } from 'mongodb';
 
 const logger = getLogger();
 
@@ -24,8 +25,8 @@ const indexFilesSubset = async (paths: string[], files: Buffer[], branch: string
   const variables: IndexFilesMutationVariables = {
     files: paths.map(() => null),
     paths: paths,
-    project: cacheData.project,
-    repository: cacheData.repository,
+    project: new ObjectId(cacheData.project),
+    repository: new ObjectId(cacheData.repository),
     branch,
     saveContent: configData.saveCloud
   };

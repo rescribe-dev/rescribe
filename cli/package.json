@@ -27,7 +27,7 @@
     "precommit": "npm run lint && npm run format",
     "prepublishOnly": "npm run build",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
-    "prebuild": "npm run clean && npm run format && npm run lint && npm run printTypescriptVersion",
+    "prebuild": "npm run format && npm run lint && npm run printTypescriptVersion",
     "build": "npm run codegen && tsc",
     "test": "jest",
     "coverage": "jest --coverage",

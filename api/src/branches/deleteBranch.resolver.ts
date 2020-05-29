@@ -31,14 +31,15 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> =>
     body: {
       script: {
         source: `
-          ctx._source.branches.removeAll(branch)
-          ctx._source.updated = currentTime
+          ctx._source.branches.remove(params.branch);
+          ctx._source.numBranches--;
+          ctx._source.updated = params.currentTime;
         `,
-        lang: 'painless'
-      },
-      params: {
-        branch: args.name,
-        currentTime
+        lang: 'painless',
+        params: {
+          branch: args.name,
+          currentTime
+        }
       }
     }
   });
@@ -47,13 +48,14 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> =>
     body: {
       script: {
         source: `
-          ctx._source.branches.remove(branch)
-          ctx._source.numBranches--
-          ctx._source.updated = currentTime
+          ctx._source.branches.remove(params.branch);
+          ctx._source.numBranches--;
+          ctx._source.updated = params.currentTime;
         `,
         lang: 'painless',
         params: {
-          branch: args.name
+          branch: args.name,
+          currentTime
         }
       },
       query: {

@@ -12,9 +12,6 @@ export class BaseProject {
   @Field(_type => [ObjectId], { description: 'repositories' })
   @Property({ required: true })
   repositories: ObjectId[];
-  @Field(_type => [Access], { description: 'project access' })
-  @Property({ required: true })
-  access: Access[];
   @Field(_type => [Access], { description: 'public access level' })
   @Property({ required: true })
   public: AccessLevel;

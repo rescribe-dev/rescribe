@@ -39,14 +39,15 @@ class AddRepositoryResolver {
     const currentTime = new Date().getTime();
     const baseRepository: BaseRepository = {
       name: args.name,
+      owner: userID,
       branches: [],
       project: args.project,
-      access: [],
       public: args.publicAccess,
     };
     const elasticRepository: Repository = {
       created: currentTime,
       updated: currentTime,
+      numBranches: 0,
       ...baseRepository
     };
     await elasticClient.index({

@@ -17,8 +17,6 @@ import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLinesArray } from './fileText.resolver';
 import { languageColorMap } from '../schema/structure/language';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
-import { AccessLevel } from '../schema/auth/access';
-
 
 const maxPreviewLineLen = 30;
 const minLinesToSplit = 7;
@@ -117,20 +115,16 @@ class SearchResolver {
           repositoryData[currentFile.repository] = repository;
         }
         const repository = repositoryData[currentFile.repository];
-        const userAccess = repository.access.find(access => access.level === AccessLevel.owner);
-        if (!userAccess) {
-          throw new Error('no owner found for repository');
-        }
-        if (!(userAccess._id.toHexString() in userData)) {
-          const currentUser = await UserModel.findById(userAccess._id);
+        if (!(repository.owner.toHexString() in userData)) {
+          const currentUser = await UserModel.findById(repository.owner);
           if (!currentUser) {
-            throw new Error(`cannot find user with id ${userAccess._id.toHexString()}`);
+            throw new Error(`cannot find user with id ${repository.owner.toHexString()}`);
           }
-          userData[userAccess._id.toHexString()] = currentUser;
+          userData[repository.owner.toHexString()] = currentUser;
         }
         locationData[fileID.toHexString()] = {
           image: repository.image,
-          owner: userData[userAccess._id.toHexString()].name,
+          owner: userData[repository.owner.toHexString()].name,
           repository: repository.name
         };
       }
