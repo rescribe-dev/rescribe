@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import './style.scss';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
-import { SearchPageDataType } from '../search/index';
-import { PageProps } from 'gatsby';
 import {
   SearchQueryVariables,
   SearchQuery,
@@ -27,7 +25,7 @@ const loaderCSS = css`
   border-color: red;
 `;
 
-export default function SearchBar(_args: PageProps<SearchPageDataType>) {
+export default function SearchBar() {
   const [page] = useState<number>(0);
   const [perpage] = useState<number>(defaultPerpage);
   const [searchResult, setSearchResult] = useState<SearchQuery | undefined>(
@@ -153,7 +151,7 @@ export default function SearchBar(_args: PageProps<SearchPageDataType>) {
 }
 
 SearchBar.propTypes = {
-  callback: PropTypes.func.isRequired,
+  // callback: PropTypes.func.isRequired,
   id: PropTypes.string,
   placeholder: PropTypes.string,
 };
