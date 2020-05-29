@@ -7,6 +7,25 @@ fragment resultFields on SearchResult {
   endPreviewContent
 }
 
+fragment fileFields on FileResult {
+  _id
+  name
+  path
+  location {
+    owner
+    repository
+    image
+  }
+  language {
+    name
+    color
+  }
+  lines {
+    start
+    end
+  }
+}
+
 query search(
   $query: String!
   $projects: [ObjectId!]
@@ -23,22 +42,7 @@ query search(
     page: $page,
     maxResultsPerFile: $maxResultsPerFile
   ) {
-    _id
-    name
-    path
-    location {
-      owner
-      repository
-      image
-    }
-    language {
-      name
-      color
-    }
-    lines {
-      start
-      end
-    }
+    ...fileFields
     results {
       ...resultFields
     }

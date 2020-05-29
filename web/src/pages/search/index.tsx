@@ -13,6 +13,7 @@ import {
 } from 'reactstrap';
 import { PageProps } from 'gatsby';
 import { Formik } from 'formik';
+
 import './index.scss';
 
 import SEO from '../../components/seo';
@@ -24,7 +25,9 @@ import {
   SearchQueryVariables,
 } from '../../lib/generated/datamodel';
 import { client } from '../../utils/apollo';
-import Filters from './filters';
+import Filters from '../../components/search/filters';
+import { FileResultComponent } from '../../components/search/fileResult';
+import Layout from '../../layouts';
 
 const perpageOptions = [10, 20];
 
@@ -57,8 +60,8 @@ const SearchPage = (args: PageProps<SearchPageDataType>) => {
     }
   }
   return (
-    <>
-      <SEO title="Project" />
+    <Layout>
+      <SEO title="Search" />
       <Container
         style={{
           marginTop: '3rem',
@@ -177,13 +180,21 @@ const SearchPage = (args: PageProps<SearchPageDataType>) => {
             searchResult === undefined ||
             searchResult.search.length === 0 ? null : (
               <Container key="result">
-                <p>{JSON.stringify(searchResult)}</p>
+                {searchResult.search.map((file) => {
+                  return (
+                    <FileResultComponent
+                      key={`file-${file._id}`}
+                      file={file}
+                      previewSearchResults={file.results}
+                    />
+                  );
+                })}
               </Container>
             ),
           ]}
         </Formik>
       </Container>
-    </>
+    </Layout>
   );
 };
 

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Form, Label, FormGroup } from 'reactstrap';
-import './index.scss';
-
-import SEO from '../../components/seo';
+import SEO from '../../../components/seo';
 import ObjectId from 'bson-objectid';
 import {
   RepositoriesQuery,
@@ -11,8 +9,8 @@ import {
   ProjectsQuery,
   ProjectsQueryVariables,
   Projects,
-} from '../../lib/generated/datamodel';
-import { client } from '../../utils/apollo';
+} from '../../../lib/generated/datamodel';
+import { client } from '../../../utils/apollo';
 import AsyncSelect from 'react-select/async';
 import { ValueType } from 'react-select';
 
