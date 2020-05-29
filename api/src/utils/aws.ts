@@ -14,14 +14,13 @@ export const getFileKey = (repository: ObjectId, branch: string, path: string): 
   return `${repository.toHexString()}/${branch}/${path}`;
 };
 
-export const getS3FileData = async (repository: ObjectId, branch: string, path: string): Promise<string> => {
-  const key = getFileKey(repository, branch, path);
+export const getS3FileData = async (fileKey: string): Promise<string> => {
   const s3File = await s3Client.getObject({
     Bucket: fileBucket,
-    Key: key,
+    Key: fileKey,
   }).promise();
   if (!s3File.Body) {
-    throw new Error(`no body for file ${key}`);
+    throw new Error(`no body for file ${fileKey}`);
   }
   return s3File.Body.toString();
 };

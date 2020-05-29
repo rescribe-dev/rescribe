@@ -5,13 +5,13 @@ import lombok.Setter;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 public class CustomContext {
-  public enum CONTEXT_TYPE {
-    JAVA,
-    PYTHON,
-    CPP
+  public enum contextType {
+    java,
+    python,
+    cpp
   }
 
-  @Getter @Setter public CONTEXT_TYPE context_type;
+  @Getter @Setter public contextType context_type;
 
   @Getter @Setter private ParserRuleContext class_ctx, method_ctx, variable_ctx;
 
@@ -23,13 +23,13 @@ public class CustomContext {
 
     switch (type) {
       case "java":
-        this.context_type = CONTEXT_TYPE.JAVA;
+        this.context_type = contextType.java;
         break;
       case "python":
-        this.context_type = CONTEXT_TYPE.PYTHON;
+        this.context_type = contextType.python;
         break;
       case "cpp":
-        this.context_type = CONTEXT_TYPE.CPP;
+        this.context_type = contextType.cpp;
         break;
       default:
         throw new IllegalStateException(
@@ -57,17 +57,17 @@ public class CustomContext {
 //        this.java_class_ctx = ctx;
 //        this.java_method_ctx = mctx;
 //        this.java_variable_ctx = vctx;
-//        this.context_type = CONTEXT_TYPE.JAVA;
+//        this.context_type = contextType.java;
 //    }
 //
 //    public CustomContext(Python3Parser.ClassdefContext ctx, Python3Parser.FuncdefContext mctx) {
 //        this.python_class_ctx = ctx;
 //        this.python_method_ctx = mctx;
-//        this.context_type = CONTEXT_TYPE.PYTHON;
+//        this.context_type = contextType.python;
 //    }
 //
 //    public CustomContext(CPP14Parser.ClassnameContext ctx, CPP14Parser.FunctiondefinitionContext
 // mctx) {
 //        this.cpp_class_ctx = ctx;
 //        this.cpp_method_ctx = mctx;
-//        this.context_type = CONTEXT_TYPE.CPP;
+//        this.context_type = contextType.cpp;

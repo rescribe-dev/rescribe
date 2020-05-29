@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { Resolver, Args, Query, Ctx } from 'type-graphql';
+import { Resolver, Args, Query, Ctx, Int, ArgsType, Field } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import Class from '../schema/antlr/class';
 import Function from '../schema/antlr/function';
@@ -17,10 +17,26 @@ import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLinesArray } from './fileText.resolver';
 import { languageColorMap } from '../schema/structure/language';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
+import { Min } from 'class-validator';
+import { getLogger } from 'log4js';
+import { hasPagination } from '../utils/pagination';
 
-const maxPreviewLineLen = 30;
+@ArgsType()
+class SearchArgs extends FilesArgs {
+  @Min(1, {
+    message: 'page number must be greater than or equal to 0'
+  })
+  @Field(_type => Int, { description: 'end line', nullable: true })
+  maxResultsPerFile?: number;
+}
+
+const logger = getLogger();
+
+const maxPreviewLineLen = 100;
 const minLinesToSplit = 7;
 const splitLength = Math.floor(minLinesToSplit / 2);
+
+export const hitExclude = ['project', 'repository'];
 
 const propertyOf = <TObj>(name: keyof TObj): string => name as string;
 
@@ -77,12 +93,17 @@ const getData = (currentData: object, type: ResultType): DataRes | null => {
   }
 };
 
-export const hitExclude = ['project', 'repository'];
+interface Sortable {
+  score: number;
+}
+
+const sortByScore = (a: Sortable, b: Sortable): number => (a.score < b.score) ? 1 : ((b.score < a.score) ? -1 : 0);
 
 @Resolver()
 class SearchResolver {
   @Query(_returns => [FileResult])
-  async search(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<FileResult[]> {
+  async search(@Args() args: SearchArgs, @Ctx() ctx: GraphQLContext): Promise<FileResult[]> {
+    const startTime = new Date();
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
@@ -100,6 +121,15 @@ class SearchResolver {
     }
     const fileData: { [key: string]: string[] } = {};
     const locationData: { [key: string]: FileLocation } = {};
+    let resultIndex = 0;
+    let resultStartIndex = 0;
+    let resultEndIndex = -1;
+    const oneFile = args.file !== undefined;
+    const paginateResults = oneFile && hasPagination(args);
+    if (args.page !== undefined && args.perpage !== undefined) {
+      resultStartIndex = args.page * args.perpage;
+      resultEndIndex = resultStartIndex + args.perpage;
+    }
     for (const hit of elasticFileData.body.hits.hits) {
       const fileID = new ObjectId(hit._id as string);
       const currentFile: File = {
@@ -132,7 +162,7 @@ class SearchResolver {
         _id: fileID,
         lines: {
           start: 1,
-          end: currentFile.fileLength
+          end: currentFile.fileLength + 1
         },
         language: {
           color: languageColorMap[currentFile.language],
@@ -142,11 +172,16 @@ class SearchResolver {
         name: currentFile.name,
         path: currentFile.path,
         branches: currentFile.branches,
-        results: []
+        results: [],
+        score: hit._score
       };
       const highlight = hit.highlight as { [key: string]: string[] };
       for (const highlightField in highlight) {
         if (!hitExclude.includes(highlightField)) {
+          resultIndex++;
+          if (paginateResults && (resultIndex - 1 < resultStartIndex || resultIndex - 1 >= resultEndIndex)) {
+            continue;
+          }
           const currentResult: SearchResult = {
             type: ResultType.file,
             name: '',
@@ -154,7 +189,8 @@ class SearchResolver {
             startPreviewLineNumber: -1,
             endPreviewLineNumber: -1,
             startPreviewContent: [],
-            endPreviewContent: []
+            endPreviewContent: [],
+            score: hit._score
           };
           switch (highlightField) {
             case propertyOf<File>('name'):
@@ -173,11 +209,22 @@ class SearchResolver {
               continue;
           }
           currentFileResult.results.push(currentResult);
+          if (currentFileResult.results.length === args.maxResultsPerFile) {
+            break;
+          }
         }
+      }
+      if (currentFileResult.results.length === args.maxResultsPerFile) {
+        results.push(currentFileResult);
+        continue;
       }
       for (const field in hit.inner_hits) {
         const currentField = hit.inner_hits[field];
         for(const innerHit in currentField.hits.hits) {
+          resultIndex++;
+          if (paginateResults && (resultIndex - 1 < resultStartIndex || resultIndex - 1 >= resultEndIndex)) {
+            continue;
+          }
           const currentInnerHit = currentField.hits.hits[innerHit];
           const currentData: object = currentInnerHit._source;
           const currentResult: SearchResult = {
@@ -187,7 +234,8 @@ class SearchResolver {
             startPreviewLineNumber: -1,
             endPreviewLineNumber: -1,
             startPreviewContent: [],
-            endPreviewContent: []
+            endPreviewContent: [],
+            score: currentInnerHit._score
           };
           switch (field) {
             case propertyOf<File>('classes'):
@@ -217,8 +265,8 @@ class SearchResolver {
             let endStartPreviewLine: number;
             let endEndPreviewLine: number;
             if (useSplit) {
-              currentResult.endPreviewLineNumber = data.currentObject.location.end - splitLength + 1;
               endStartPreviewLine = currentResult.startPreviewLineNumber + splitLength - 1;
+              currentResult.endPreviewLineNumber = data.currentObject.location.end - splitLength + 1;
               endEndPreviewLine = data.currentObject.location.end;
             } else {
               endStartPreviewLine = data.currentObject.location.end;
@@ -229,6 +277,7 @@ class SearchResolver {
               if (!file) {
                 throw new Error(`cannot find file ${fileID.toHexString()}`);
               }
+              const startTime2 = new Date();
               try {
                 fileData[fileID.toHexString()] = await getText(file, file.branches[0], user, {
                   start: 1, // start at line 1
@@ -237,6 +286,7 @@ class SearchResolver {
               } catch (err) {
                 // no text found
               }
+              logger.info(`time for get text: ${new Date().getTime() - startTime2.getTime()}`);
             }
             if (fileData[fileID.toHexString()]) {
               currentResult.startPreviewContent = getLinesArray(fileData[fileID.toHexString()], {
@@ -251,12 +301,20 @@ class SearchResolver {
               }
             }
             currentFileResult.results.push(currentResult);
+            if (currentFileResult.results.length === args.maxResultsPerFile) {
+              break;
+            }
           }
         }
+        if (currentFileResult.results.length === args.maxResultsPerFile) {
+          break;
+        }
       }
+      currentFileResult.results = currentFileResult.results.sort(sortByScore);
       results.push(currentFileResult);
     }
-    return results;
+    logger.info(`total time: ${new Date().getTime() - startTime.getTime()}`);
+    return results.sort(sortByScore);
   }
 }
 

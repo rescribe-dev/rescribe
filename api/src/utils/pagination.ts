@@ -17,3 +17,7 @@ export const setPaginationArgs = (args: PageArgs, searchParams: RequestParams.Se
     searchParams.size = args.perpage;
   }
 };
+
+export const hasPagination = (args: PageArgs): boolean => {
+  return (args.perpage !== undefined) && (args.page !== undefined);
+};

@@ -11,7 +11,7 @@ import { IndicesPutMapping } from '@elastic/elasticsearch/api/requestParams';
 
 const logger = getLogger();
 
-const initializeMapping = async (indexName: string, indexSettings: object, indexMappings: object, indexType: string, allSettings?: object): Promise<void> => {
+const initializeMapping = async (indexName: string, indexSettings: object, indexMappings: object, indexType: string): Promise<void> => {
   const deleteRes = await elasticClient.indices.delete({
     index: indexName,
     ignore_unavailable: true
@@ -40,9 +40,6 @@ const initializeMapping = async (indexName: string, indexSettings: object, index
     },
     include_type_name: true
   };
-  if (allSettings) {
-    mappingsConfig.body._all = allSettings;
-  }
   try {
     const setIndexMappingsRes = await elasticClient.indices.putMapping(mappingsConfig);
     logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`);
@@ -56,7 +53,7 @@ const initializeMapping = async (indexName: string, indexSettings: object, index
 };
 
 export const initializeMappings = async (): Promise<void> => {
-  await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType, settings.fileAllSettings);
-  await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
+  await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType);
   await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
+  await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
 };

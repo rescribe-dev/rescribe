@@ -42,7 +42,7 @@ public class FileHandler {
           JavaParser parser = new JavaParser(tokens);
           tree = parser.compilationUnit();
           JavaDeclarationListener jdl =
-              new JavaDeclarationListener(tokens, input, LanguageType.JAVA);
+              new JavaDeclarationListener(tokens, input, LanguageType.java);
           walker.walk(jdl, tree);
           listener = jdl;
           break;
@@ -76,7 +76,7 @@ public class FileHandler {
           JavaScriptParser parser = new JavaScriptParser(tokens);
           tree = parser.program();
           JavaScriptDeclarationListener jsdl =
-              new JavaScriptDeclarationListener(tokens, input, LanguageType.JAVASCRIPT);
+              new JavaScriptDeclarationListener(tokens, input, LanguageType.javascript);
           walker.walk(jsdl, tree);
           listener = jsdl;
           break;
