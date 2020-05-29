@@ -42,6 +42,7 @@ export class Repository extends BaseRepository {
 export class RepositoryDB extends BaseRepository {
   @Field()
   readonly _id: ObjectId;
+  @Property({ required: false })
   @Field({ description: 'repository image' })
   image: string;
 }
