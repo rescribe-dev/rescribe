@@ -59,7 +59,7 @@ const Header = (args: HeaderArgs) => {
             <NavLink key="home" tag={Link} to="/">
               Home
             </NavLink>
-            <NavLink key="search" tag={Link} to="/app/search">
+            <NavLink key="search" tag={Link} to="/search">
               Search
             </NavLink>
             {!loggedIn
