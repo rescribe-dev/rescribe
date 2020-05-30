@@ -68,9 +68,6 @@ type BaseProject {
 
   # repositories
   repositories: [ObjectId!]!
-
-  # public access level
-  public: [Access!]!
 }
 
 # base repository
@@ -213,6 +210,9 @@ type FileResult {
   # search results
   results: [SearchResult!]!
 
+  # file search results
+  fileResult: FileSearchResult
+
   # language data
   language: LanguageData!
 
@@ -227,6 +227,15 @@ type FileResult {
 
   # result score
   score: Float!
+}
+
+# file result match
+type FileSearchResult {
+  # file search results
+  results: [SearchResult!]!
+
+  # file preview
+  preview: Preview!
 }
 
 # baseline function
@@ -396,9 +405,6 @@ type Mutation {
   addProject(
     # project name
     name: String!
-
-    # public access level
-    publicAccess: AccessLevel!
   ): String!
   deleteRepository(
     # repository id
@@ -448,7 +454,7 @@ type ParentElement {
   name: String!
 
   # parent type
-  type: String!
+  type: ResultType!
 }
 
 # parent type
@@ -459,6 +465,21 @@ enum ParentType {
   Variable
 }
 
+# preview data
+type Preview {
+  # preview start line number
+  startPreviewLineNumber: Int!
+
+  # preview start content
+  startPreviewContent: [String!]!
+
+  # preview end line number
+  endPreviewLineNumber: Int!
+
+  # preview end content
+  endPreviewContent: [String!]!
+}
+
 # project
 type Project {
   # name
@@ -466,9 +487,6 @@ type Project {
 
   # repositories
   repositories: [ObjectId!]!
-
-  # public access level
-  public: [Access!]!
   _id: ObjectId!
 
   # date created
@@ -485,9 +503,6 @@ type ProjectDB {
 
   # repositories
   repositories: [ObjectId!]!
-
-  # public access level
-  public: [Access!]!
   _id: ObjectId!
 }
 
@@ -501,6 +516,9 @@ type Query {
   files(
     # query
     query: String
+
+    # only user files
+    onlyUser: Boolean
 
     # projects
     projects: [ObjectId!]
@@ -536,6 +554,9 @@ type Query {
   search(
     # query
     query: String
+
+    # only user files
+    onlyUser: Boolean
 
     # projects
     projects: [ObjectId!]
@@ -645,31 +666,34 @@ type RepositoryDB {
   image: String!
 }
 
+# result type
+enum ResultType {
+  import
+  class
+  function
+  variable
+  comment
+  name
+  path
+  importPath
+}
+
 # search result
 type SearchResult {
   # item name
   name: String!
 
   # item type
-  type: String!
+  type: ResultType!
 
   # parents to current result
   parents: [ParentElement!]!
 
-  # preview start line number
-  startPreviewLineNumber: Int!
-
-  # preview start content
-  startPreviewContent: [String!]!
-
-  # preview end line number
-  endPreviewLineNumber: Int!
-
   # result score
-  score: Float!
+  score: Float
 
-  # preview end content
-  endPreviewContent: [String!]!
+  # result preview
+  preview: Preview
 }
 
 type Subscription {

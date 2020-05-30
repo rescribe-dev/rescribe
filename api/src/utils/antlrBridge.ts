@@ -8,6 +8,9 @@ let antlrClient: AxiosInstance;
 
 export const processFile = async (inputData: ProcessFileInput): Promise<AntlrFile> => {
   try {
+    if (!antlrClient) {
+      throw new Error('antlr client not initialized');
+    }
     const res = await antlrClient.post<AntlrFile>('/processFile', inputData);
     if (res.status === HttpStatus.OK) {
       return res.data;

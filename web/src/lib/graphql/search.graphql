@@ -1,10 +1,26 @@
-fragment resultFields on SearchResult {
-  name
-  type
+fragment previewFields on Preview {
   startPreviewLineNumber
   startPreviewContent
   endPreviewLineNumber
   endPreviewContent
+}
+
+fragment resultFields on SearchResult {
+  name
+  type
+  preview {
+    ...previewFields
+  }
+}
+
+fragment fileResultFields on FileSearchResult {
+  results {
+    name
+    type
+  }
+  preview {
+    ...previewFields
+  }
 }
 
 fragment fileFields on FileResult {
@@ -45,6 +61,9 @@ query search(
     ...fileFields
     results {
       ...resultFields
+    }
+    fileResult {
+      ...fileResultFields
     }
   }
 }

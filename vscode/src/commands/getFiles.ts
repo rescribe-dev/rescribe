@@ -50,21 +50,29 @@ const writeData = async (
   } else if (selectedItem.selectionType === SelectionType.result) {
     const result =
       data.search[selectedItem.fileIndex].results[selectedItem.resultIndex];
-    if (result.endPreviewContent.length === 0) {
+    if (!result.preview) {
+      throw new Error('preview undefined');
+    }
+    if (result.preview.endPreviewContent.length === 0) {
       // not split
       fileTextArgs = {
         id: data.search[selectedItem.fileIndex]._id,
         branch: data.search[selectedItem.fileIndex].branches[0],
-        start: result.startPreviewLineNumber,
+        start: result.preview.startPreviewLineNumber,
         end:
-          result.startPreviewLineNumber + result.startPreviewContent.length - 1,
+          result.preview.startPreviewLineNumber +
+          result.preview.startPreviewContent.length -
+          1,
       };
     } else {
       fileTextArgs = {
         id: data.search[selectedItem.fileIndex]._id,
         branch: data.search[selectedItem.fileIndex].branches[0],
-        start: result.startPreviewLineNumber,
-        end: result.endPreviewLineNumber + result.endPreviewContent.length - 1,
+        start: result.preview.startPreviewLineNumber,
+        end:
+          result.preview.endPreviewLineNumber +
+          result.preview.endPreviewContent.length -
+          1,
       };
     }
   } else {
@@ -141,9 +149,12 @@ search = async (context): Promise<void> => {
       resultIndex++
     ) {
       const result = file.results[resultIndex];
-      let description = result.startPreviewContent.join('\n');
-      if (result.endPreviewContent.length > 0) {
-        description = `${description}\n    ...\n${result.endPreviewContent.join(
+      if (!result.preview) {
+        throw new Error('preview undefined');
+      }
+      let description = result.preview.startPreviewContent.join('\n');
+      if (result.preview.endPreviewContent.length > 0) {
+        description = `${description}\n    ...\n${result.preview.endPreviewContent.join(
           '\n'
         )}`;
       }

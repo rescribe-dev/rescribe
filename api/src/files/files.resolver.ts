@@ -18,6 +18,7 @@ import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
 import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
+import { checkAccessLevel } from '../utils/checkAccess';
 
 const logger = getLogger();
 
@@ -34,6 +35,9 @@ export class FilesArgs {
   })
   @Field(_type => String, { description: 'query', nullable: true })
   query?: string;
+
+  @Field({ description: 'only user files', nullable: true })
+  onlyUser?: boolean;
 
   @ArrayMaxSize(projectsMaxLength, {
     message: `can only select up to ${projectsMaxLength} projects to filter from`
@@ -95,7 +99,7 @@ export const mainFields = [
   'path'
 ];
 
-enum DatastoreType { 
+enum DatastoreType {
   project,
   repository
 };
@@ -120,9 +124,12 @@ const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: Projec
   }
 };
 
-export const search = async (user: User, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
+export const search = async (user: User | null, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
+  if (args.onlyUser && !user) {
+    throw new Error('cannot get only user files when not logged in');
+  }
   const filterShouldParams: TermQuery[] = [];
   const mustShouldParams: object[] = [];
   checkPaginationArgs(args);
@@ -137,12 +144,18 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
     if (!file) {
       throw new Error('cannot find file with given id');
     }
-    await getSaveDatastore(file.repository, repositoryData, DatastoreType.repository);
-    const repository = repositoryData[file.repository.toHexString()];
-    await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-    const project = projectData[repository.project.toHexString()];
-    if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
-      throw new Error('user does not have access to repository');
+    if (checkAccessLevel(file.public, AccessLevel.view)) {
+      // public access
+    } else if (!user) {
+      throw new Error(`user must be logged in to access file ${args.file?.toHexString()}`);
+    } else {
+      await getSaveDatastore(file.repository, repositoryData, DatastoreType.repository);
+      const repository = repositoryData[file.repository.toHexString()];
+      await getSaveDatastore(repository.project, projectData, DatastoreType.project);
+      const project = projectData[repository.project.toHexString()];
+      if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
+        throw new Error('user does not have access to repository');
+      }
     }
     filterShouldParams.push({
       term: {
@@ -150,7 +163,13 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       }
     });
   }
-  if (!oneFile && args.projects && args.projects.length > 0) {
+  if (args.projects && args.projects.length > 0) {
+    if (oneFile) {
+      throw new Error('file cannot be defined with projects');
+    }
+    if (!user) {
+      throw new Error('user must be logged in to filter on projects');
+    }
     hasStructureFilter = true;
     for (const projectID of args.projects) {
       await getSaveDatastore(projectID, projectData, DatastoreType.project);
@@ -165,15 +184,24 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       });
     }
   }
-  if (!oneFile && args.repositories && args.repositories.length > 0) {
+  if (args.repositories && args.repositories.length > 0) {
+    if (oneFile) {
+      throw new Error('file cannot be defined with repositories');
+    }
     hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
       await getSaveDatastore(repositoryID, repositoryData, DatastoreType.repository);
       const repository = repositoryData[repositoryID.toHexString()];
-      await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-      const project = projectData[repository.project.toHexString()];
-      if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
-        throw new Error('user does not have access to repository');
+      if (checkAccessLevel(repository.public, AccessLevel.view)) {
+        // public access
+      } else if (!user) {
+        throw new Error(`user must be logged in to access file ${args.file?.toHexString()}`);
+      } else {
+        await getSaveDatastore(repository.project, projectData, DatastoreType.project);
+        const project = projectData[repository.project.toHexString()];
+        if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
+          throw new Error('user does not have access to repository');
+        }
       }
       filterShouldParams.push({
         term: {
@@ -193,33 +221,43 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
     }
   }
   if (!oneFile && !hasStructureFilter) {
-    if (user.repositories.length === 0 && user.projects.length === 0) {
-      return null;
-    }
-    for (const project of user.projects) {
+    if (args.onlyUser === undefined || !args.onlyUser) {
+      // include public files too
       filterShouldParams.push({
         term: {
-          project: project._id.toHexString()
+          public: AccessLevel.view
         }
       });
     }
-    for (const repository of user.repositories) {
+    if (user) {
+      if (user.repositories.length === 0 && user.projects.length === 0) {
+        return null;
+      }
+      for (const project of user.projects) {
+        filterShouldParams.push({
+          term: {
+            project: project._id.toHexString()
+          }
+        });
+      }
+      for (const repository of user.repositories) {
+        filterShouldParams.push({
+          term: {
+            repository: repository._id.toHexString()
+          }
+        });
+      }
       filterShouldParams.push({
         term: {
-          repository: repository._id.toHexString()
+          public: AccessLevel.view
+        }
+      });
+      filterShouldParams.push({
+        term: {
+          public: AccessLevel.edit
         }
       });
     }
-    filterShouldParams.push({
-      term: {
-        public: AccessLevel.view
-      }
-    });
-    filterShouldParams.push({
-      term: {
-        public: AccessLevel.edit
-      }
-    });
   }
   const highlight: object = {
     fields: {
@@ -254,11 +292,11 @@ export const search = async (user: User, args: FilesArgs, repositoryData?: { [ke
       fields: mainFields
     }
   } : {
-    multi_match: {
-      query: '*',
-      fields: mainFields
-    }
-  };
+      multi_match: {
+        query: '*',
+        fields: mainFields
+      }
+    };
   mustShouldParams.push(fieldsQuery);
   const searchParams: RequestParams.Search = {
     index: fileIndexName,

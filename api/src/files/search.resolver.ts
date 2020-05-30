@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { Resolver, Args, Query, Ctx, Int, ArgsType, Field } from 'type-graphql';
+import { Resolver, Args, Query, Ctx, Int, ArgsType, Field, Info } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import Class from '../schema/antlr/class';
 import Function from '../schema/antlr/function';
@@ -11,7 +11,7 @@ import Comment from '../schema/antlr/comment';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import User, { UserModel } from '../schema/auth/user';
 import File, { FileModel } from '../schema/structure/file';
-import { SearchResult, ResultType, FileResult, FileLocation } from '../schema/structure/search';
+import { SearchResult, ResultType, FileResult, FileLocation, Preview } from '../schema/structure/search';
 import { ObjectId } from 'mongodb';
 import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLinesArray } from './fileText.resolver';
@@ -19,7 +19,10 @@ import { languageColorMap } from '../schema/structure/language';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { Min } from 'class-validator';
 import { getLogger } from 'log4js';
+import graphqlFields from 'graphql-fields';
 import { hasPagination } from '../utils/pagination';
+import Location from '../schema/antlr/location';
+import { GraphQLResolveInfo } from 'graphql';
 
 @ArgsType()
 class SearchArgs extends FilesArgs {
@@ -93,49 +96,110 @@ const getData = (currentData: object, type: ResultType): DataRes | null => {
   }
 };
 
-interface Sortable {
-  score: number;
-}
-
-const sortByScore = (a: Sortable, b: Sortable): number => (a.score < b.score) ? 1 : ((b.score < a.score) ? -1 : 0);
+const getPreview = async (fileData: { [key: string]: string[] }, fileID: ObjectId, preview: Preview, location?: Location): Promise<void> => {
+  if (!location) {
+    location = {
+      start: 1,
+      end: minLinesToSplit
+    };
+  }
+  preview.startPreviewLineNumber = location.start;
+  const delta = location.end - preview.startPreviewLineNumber;
+  const useSplit = delta >= minLinesToSplit;
+  let endStartPreviewLine: number;
+  let endEndPreviewLine: number;
+  if (useSplit) {
+    endStartPreviewLine = preview.startPreviewLineNumber + splitLength - 1;
+    preview.endPreviewLineNumber = location.end - splitLength + 1;
+    endEndPreviewLine = location.end;
+  } else {
+    endStartPreviewLine = location.end;
+    endEndPreviewLine = -1;
+  }
+  if (!(fileID.toHexString() in fileData)) {
+    const file = await FileModel.findById(fileID);
+    if (!file) {
+      throw new Error(`cannot find file ${fileID.toHexString()}`);
+    }
+    const startTime2 = new Date();
+    try {
+      fileData[fileID.toHexString()] = await getText(file, file.branches[0], {
+        start: 1, // start at line 1
+        end: file.fileLength
+      });
+    } catch (err) {
+      // no text found
+      // logger.info(err);
+    }
+    logger.info(`time for get text: ${new Date().getTime() - startTime2.getTime()}`);
+  }
+  if (fileData[fileID.toHexString()]) {
+    preview.startPreviewContent = getLinesArray(fileData[fileID.toHexString()], {
+      start: preview.startPreviewLineNumber,
+      end: endStartPreviewLine
+    }, true, maxPreviewLineLen);
+    if (useSplit) {
+      preview.endPreviewContent = getLinesArray(fileData[fileID.toHexString()], {
+        start: preview.endPreviewLineNumber,
+        end: endEndPreviewLine
+      }, true, maxPreviewLineLen);
+    }
+  }
+};
 
 @Resolver()
 class SearchResolver {
   @Query(_returns => [FileResult])
-  async search(@Args() args: SearchArgs, @Ctx() ctx: GraphQLContext): Promise<FileResult[]> {
+  async search(@Args() args: SearchArgs, @Ctx() ctx: GraphQLContext, @Info() info: GraphQLResolveInfo): Promise<FileResult[]> {
     const startTime = new Date();
-    if (!verifyLoggedIn(ctx) || !ctx.auth) {
-      throw new Error('user not logged in');
+    const oneFile = args.file !== undefined;
+    if (args.maxResultsPerFile !== undefined && oneFile) {
+      throw new Error('max results cannot be defined when searching through single file');
     }
     const userData: { [key: string]: User } = {};
-    const user = await UserModel.findById(ctx.auth.id);
-    if (!user) {
-      throw new Error('cannot find user');
+    let user: User | null = null;
+    if (verifyLoggedIn(ctx) && ctx.auth) {
+      user = await UserModel.findById(ctx.auth.id);
+      if (!user) {
+        throw new Error('cannot find user');
+      }
+      userData[ctx.auth.id] = user;
     }
-    userData[ctx.auth.id] = user;
     const repositoryData: { [key: string]: RepositoryDB } = {};
+    // do the actual search:
     const elasticFileData = await search(user, args, repositoryData);
     const results: FileResult[] = [];
     if (!elasticFileData) {
       return results;
     }
+
+    // preprocessing:
+
     const fileData: { [key: string]: string[] } = {};
     const locationData: { [key: string]: FileLocation } = {};
     let resultIndex = 0;
     let resultStartIndex = 0;
     let resultEndIndex = -1;
-    const oneFile = args.file !== undefined;
     const paginateResults = oneFile && hasPagination(args);
     if (args.page !== undefined && args.perpage !== undefined) {
       resultStartIndex = args.page * args.perpage;
       resultEndIndex = resultStartIndex + args.perpage;
     }
+
+    const topLevelFields = graphqlFields(info);
+    const topLevelFieldNames = Object.keys(topLevelFields);
+
+    // iterate over top-level hits
+
     for (const hit of elasticFileData.body.hits.hits) {
       const fileID = new ObjectId(hit._id as string);
       const currentFile: File = {
         ...hit._source as File,
         _id: new ObjectId(hit._id as string),
       };
+
+      // get file data
+
       if (!(fileID.toHexString() in locationData)) {
         if (!(currentFile.repository in repositoryData)) {
           const repository = await RepositoryModel.findById(currentFile.repository);
@@ -176,65 +240,117 @@ class SearchResolver {
         score: hit._score
       };
       const highlight = hit.highlight as { [key: string]: string[] };
-      for (const highlightField in highlight) {
-        if (!hitExclude.includes(highlightField)) {
-          resultIndex++;
-          if (paginateResults && (resultIndex - 1 < resultStartIndex || resultIndex - 1 >= resultEndIndex)) {
-            continue;
-          }
-          const currentResult: SearchResult = {
-            type: ResultType.file,
-            name: '',
-            parents: [],
-            startPreviewLineNumber: -1,
-            endPreviewLineNumber: -1,
-            startPreviewContent: [],
-            endPreviewContent: [],
-            score: hit._score
-          };
-          switch (highlightField) {
-            case propertyOf<File>('name'):
-              currentResult.type = ResultType.name;
-              currentResult.name = highlight[highlightField][0];
-              break;
-            case propertyOf<File>('path'):
-              currentResult.type = ResultType.path;
-              currentResult.name = highlight[highlightField][0];
-              break;
-            case propertyOf<File>('importPath'):
-              currentResult.type = ResultType.importPath;
-              currentResult.name = highlight[highlightField][0];
-              break;
-            default:
-              continue;
-          }
-          currentFileResult.results.push(currentResult);
-          if (currentFileResult.results.length === args.maxResultsPerFile) {
-            break;
+
+      // iterate over file highlights
+      let resultCount = 0;
+      if (topLevelFieldNames.includes(propertyOf<FileResult>('fileResult'))) {
+        for (const highlightField in highlight) {
+          if (!hitExclude.includes(highlightField)) {
+            if (!currentFileResult.fileResult) {
+              if (paginateResults) {
+                resultIndex++;
+                if (resultIndex - 1 < resultStartIndex || resultIndex - 1 >= resultEndIndex) {
+                  break;
+                }
+              }
+              resultCount = 1;
+              const preview: Preview = {
+                startPreviewLineNumber: -1,
+                endPreviewLineNumber: -1,
+                startPreviewContent: [],
+                endPreviewContent: [],
+              };
+              currentFileResult.fileResult = {
+                preview,
+                results: []
+              };
+              await getPreview(fileData, fileID, preview);
+            }
+            const currentResult: SearchResult = {
+              type: ResultType.name,
+              name: '',
+              parents: []
+            };
+            switch (highlightField) {
+              case propertyOf<File>('name'):
+                currentResult.type = ResultType.name;
+                currentResult.name = highlight[highlightField][0];
+                break;
+              case propertyOf<File>('path'):
+                currentResult.type = ResultType.path;
+                currentResult.name = highlight[highlightField][0];
+                break;
+              case propertyOf<File>('importPath'):
+                currentResult.type = ResultType.importPath;
+                currentResult.name = highlight[highlightField][0];
+                break;
+              default:
+                continue;
+            }
+            currentFileResult.fileResult.results.push(currentResult);
           }
         }
+        if (paginateResults && resultIndex - 1 >= resultEndIndex) {
+          return results;
+        }
+        if (args.maxResultsPerFile === resultCount) {
+          results.push(currentFileResult);
+          continue;
+        }
       }
-      if (currentFileResult.results.length === args.maxResultsPerFile) {
-        results.push(currentFileResult);
-        continue;
-      }
-      for (const field in hit.inner_hits) {
-        const currentField = hit.inner_hits[field];
-        for(const innerHit in currentField.hits.hits) {
-          resultIndex++;
-          if (paginateResults && (resultIndex - 1 < resultStartIndex || resultIndex - 1 >= resultEndIndex)) {
-            continue;
+
+      // at this point done with file results.
+      // now look at inner hits
+
+      if (topLevelFieldNames.includes(propertyOf<FileResult>('results'))) {
+        // get the highest score
+        const currentIndexes: { [key: string]: number } = {};
+        let foundHit: boolean;
+        let firstRound = true;
+        for (; ;) {
+          foundHit = false;
+          let maxScore = -1;
+          let field = '';
+          for (const currentField in hit.inner_hits) {
+            const currentFieldData = hit.inner_hits[currentField];
+            const currentHits = currentFieldData.hits.hits;
+            if (firstRound && currentHits.length > 0) {
+              currentIndexes[currentField] = 0;
+            }
+            if (currentHits.length > currentIndexes[currentField]) {
+              foundHit = true;
+              const currentScore = currentHits[currentIndexes[currentField]]._score;
+              if (currentScore > maxScore) {
+                maxScore = currentScore;
+                field = currentField;
+              }
+            }
           }
-          const currentInnerHit = currentField.hits.hits[innerHit];
+          if (!foundHit) {
+            break;
+          }
+          firstRound = false;
+          const currentIndex = currentIndexes[field];
+
+          // pagination
+          currentIndexes[field]++;
+          if (paginateResults) {
+            resultIndex++;
+            if (resultIndex - 1 < resultStartIndex) {
+              continue;
+            } else if (resultIndex - 1 >= resultEndIndex) {
+              break;
+            }
+          }
+
+          const currentField = hit.inner_hits[field];
+          const currentInnerHit = currentField.hits.hits[currentIndex];
+          // now found max field score. iterate over it:
           const currentData: object = currentInnerHit._source;
           const currentResult: SearchResult = {
-            type: ResultType.file,
+            type: ResultType.name,
             name: '',
             parents: [],
-            startPreviewLineNumber: -1,
-            endPreviewLineNumber: -1,
-            startPreviewContent: [],
-            endPreviewContent: [],
             score: currentInnerHit._score
           };
           switch (field) {
@@ -259,62 +375,26 @@ class SearchResolver {
           const data = getData(currentData, currentResult.type);
           if (data) {
             currentResult.name = data.name;
-            currentResult.startPreviewLineNumber = data.currentObject.location.start;
-            const delta = data.currentObject.location.end - currentResult.startPreviewLineNumber;
-            const useSplit = delta >= minLinesToSplit;
-            let endStartPreviewLine: number;
-            let endEndPreviewLine: number;
-            if (useSplit) {
-              endStartPreviewLine = currentResult.startPreviewLineNumber + splitLength - 1;
-              currentResult.endPreviewLineNumber = data.currentObject.location.end - splitLength + 1;
-              endEndPreviewLine = data.currentObject.location.end;
-            } else {
-              endStartPreviewLine = data.currentObject.location.end;
-              endEndPreviewLine = -1;
-            }
-            if (!(fileID.toHexString() in fileData)) {
-              const file = await FileModel.findById(fileID);
-              if (!file) {
-                throw new Error(`cannot find file ${fileID.toHexString()}`);
-              }
-              const startTime2 = new Date();
-              try {
-                fileData[fileID.toHexString()] = await getText(file, file.branches[0], user, {
-                  start: 1, // start at line 1
-                  end: file.fileLength
-                });
-              } catch (err) {
-                // no text found
-              }
-              logger.info(`time for get text: ${new Date().getTime() - startTime2.getTime()}`);
-            }
-            if (fileData[fileID.toHexString()]) {
-              currentResult.startPreviewContent = getLinesArray(fileData[fileID.toHexString()], {
-                start: currentResult.startPreviewLineNumber,
-                end: endStartPreviewLine
-              }, true, maxPreviewLineLen);
-              if (useSplit) {
-                currentResult.endPreviewContent = getLinesArray(fileData[fileID.toHexString()], {
-                  start: currentResult.endPreviewLineNumber,
-                  end: endEndPreviewLine
-                }, true, maxPreviewLineLen);
-              }
-            }
+            const preview: Preview = {
+              startPreviewLineNumber: -1,
+              endPreviewLineNumber: -1,
+              startPreviewContent: [],
+              endPreviewContent: [],
+            };
+            await getPreview(fileData, fileID, preview, data.currentObject.location);
+            currentResult.preview = preview;
             currentFileResult.results.push(currentResult);
-            if (currentFileResult.results.length === args.maxResultsPerFile) {
+            resultCount++;
+            if (args.maxResultsPerFile === resultCount) {
               break;
             }
           }
         }
-        if (currentFileResult.results.length === args.maxResultsPerFile) {
-          break;
-        }
       }
-      currentFileResult.results = currentFileResult.results.sort(sortByScore);
       results.push(currentFileResult);
     }
     logger.info(`total time: ${new Date().getTime() - startTime.getTime()}`);
-    return results.sort(sortByScore);
+    return results;
   }
 }
 
