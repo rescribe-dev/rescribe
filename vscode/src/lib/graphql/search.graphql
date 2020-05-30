@@ -15,10 +15,24 @@ query search($query: String!) {
     results {
       name
       type
-      startPreviewLineNumber
-      startPreviewContent
-      endPreviewLineNumber
-      endPreviewContent
+      preview {
+        startPreviewLineNumber
+        startPreviewContent
+        endPreviewLineNumber
+        endPreviewContent
+      }
+    }
+    fileResult {
+      results {
+        name
+        type
+      }
+      preview {
+        startPreviewLineNumber
+        startPreviewContent
+        endPreviewLineNumber
+        endPreviewContent
+      }
     }
   }
 }

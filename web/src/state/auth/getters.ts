@@ -35,7 +35,11 @@ export const isLoggedIn = async () => {
       const state = (store.getState() as RootState).authReducer;
       return state.authToken !== undefined && state.authToken.length > 0;
     } catch (err) {
-      await runLogout();
+      try {
+        await runLogout();
+      } catch (err) {
+        // cannot logout because server connection is broken
+      }
       store.dispatch(logout());
     }
     return false;

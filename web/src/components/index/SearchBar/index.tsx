@@ -7,8 +7,8 @@ import {
   SearchQueryVariables,
   SearchQuery,
   Search,
-} from '../../lib/generated/datamodel';
-import { client } from '../../utils/apollo';
+} from '../../../lib/generated/datamodel';
+import { client } from '../../../utils/apollo';
 import { ObjectId } from 'mongodb';
 import { toast } from 'react-toastify';
 import { FormGroup, Input, FormFeedback, Button, Container } from 'reactstrap';

@@ -18,12 +18,16 @@ export const FileResultComponent = (args: FileResultCardArgs) => {
     <Card className="search-result-card">
       <CardBody>
         <CardTitle>{args.file.name}</CardTitle>
+        <div>{args.previewSearchResults.length}</div>
         {args.previewSearchResults.map((result, index) => {
           return (
             <SearchResultComponent
               key={`result-${result.type}-${index}`}
               language={args.file.language.name as Language}
-              result={result}
+              name={result.name}
+              preview={result.preview}
+              type={result.type}
+              index={index}
             />
           );
         })}

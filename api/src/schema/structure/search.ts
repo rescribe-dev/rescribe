@@ -4,7 +4,6 @@ import { LanguageData } from './language';
 import Location from '../antlr/location';
 
 export enum ResultType {
-  file = 'file',
   import = 'import',
   class = 'class',
   function = 'function',
@@ -24,8 +23,20 @@ registerEnumType(ResultType, {
 export class ParentElement {
   @Field({ description: 'parent name' })
   name: string;
-  @Field({ description: 'parent type' })
+  @Field(_type => ResultType, { description: 'parent type' })
   type: ResultType;
+}
+
+@ObjectType({ description: 'preview data' })
+export class Preview {
+  @Field(_type => Int, { description: 'preview start line number' })
+  startPreviewLineNumber: number;
+  @Field(_type => [String], { description: 'preview start content' })
+  startPreviewContent: string[];
+  @Field(_type => Int, { description: 'preview end line number' })
+  endPreviewLineNumber: number;
+  @Field(_type => [String], { description: 'preview end content' })
+  endPreviewContent: string[];
 }
 
 // single search result (lowest denominator)
@@ -33,22 +44,24 @@ export class ParentElement {
 export class SearchResult {
   @Field({ description: 'item name' })
   name: string;
-  @Field({ description: 'item type' })
+  @Field(_type => ResultType, { description: 'item type' })
   type: ResultType;
   // parent elements
   @Field(_type => [ParentElement], { description: 'parents to current result' })
   parents: ParentElement[];
-  // preview lines:
-  @Field(_type => Int, { description: 'preview start line number' })
-  startPreviewLineNumber: number;
-  @Field(_type => [String], { description: 'preview start content' })
-  startPreviewContent: string[];
-  @Field(_type => Int, { description: 'preview end line number' })
-  endPreviewLineNumber: number;
-  @Field(_type => Float, { description: 'result score' })
-  score: number;
-  @Field(_type => [String], { description: 'preview end content' })
-  endPreviewContent: string[];
+  @Field(_type => Float, { description: 'result score', nullable: true })
+  score?: number;
+  @Field(_type => Preview, { description: 'result preview', nullable: true })
+  preview?: Preview;
+}
+
+// single search result (lowest denominator)
+@ObjectType({ description: 'file result match' })
+export class FileSearchResult {
+  @Field(_type => [SearchResult], { description: 'file search results' })
+  results: SearchResult[];
+  @Field(_type => Preview, { description: 'file preview' })
+  preview: Preview;
 }
 
 // file owner object
@@ -73,6 +86,8 @@ export class FileResult {
   path: string;
   @Field(_type => [SearchResult], { description: 'search results' })
   results: SearchResult[];
+  @Field(_type => FileSearchResult, { description: 'file search results', nullable: true })
+  fileResult?: FileSearchResult;
   @Field(_type => LanguageData, { description: 'language data' })
   language: LanguageData;
   @Field(_type => FileLocation, { description: 'file location' })

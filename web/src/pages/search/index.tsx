@@ -106,6 +106,7 @@ const SearchPage = (args: PageProps<SearchPageDataType>) => {
               >({
                 query: Search,
                 variables,
+                fetchPolicy: 'no-cache', // disable cache
               });
               if (queryRes.errors) {
                 toast(queryRes.errors.join(', '), {
@@ -181,11 +182,23 @@ const SearchPage = (args: PageProps<SearchPageDataType>) => {
             searchResult.search.length === 0 ? null : (
               <Container key="result">
                 {searchResult.search.map((file) => {
+                  const fileResults = file.results;
+                  if (file.fileResult) {
+                    const names = file.fileResult.results
+                      .map((resultData) => resultData.name)
+                      .join(', ');
+                    const type = file.fileResult.results[0].type;
+                    file.results.unshift({
+                      name: names,
+                      type,
+                      preview: file.fileResult.preview,
+                    });
+                  }
                   return (
                     <FileResultComponent
                       key={`file-${file._id}`}
                       file={file}
-                      previewSearchResults={file.results}
+                      previewSearchResults={fileResults}
                     />
                   );
                 })}

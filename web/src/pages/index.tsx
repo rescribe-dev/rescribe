@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container } from 'reactstrap';
-import SearchBar from '../components/SearchBar';
+import SearchBar from '../components/index/SearchBar';
 import Layout from '../layouts/index';
 import SEO from '../components/seo';
 import './index.scss';

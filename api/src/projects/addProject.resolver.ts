@@ -11,8 +11,6 @@ import { UserModel } from '../schema/auth/user';
 class AddProjectArgs {
   @Field(_type => String, { description: 'project name' })
   name: string;
-  @Field(_type => AccessLevel, { description: 'public access level' })
-  publicAccess: AccessLevel;
 }
 
 @Resolver()
@@ -28,7 +26,6 @@ class AddProjectResolver {
     const baseProject: BaseProject = {
       name: args.name,
       repositories: [],
-      public: args.publicAccess,
     };
     const elasticProject: Project = {
       created: currentTime,

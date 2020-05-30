@@ -1,7 +1,6 @@
 import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
-import Access, { AccessLevel } from '../auth/access';
 
 // both
 @ObjectType({ description: 'base project' })
@@ -12,9 +11,6 @@ export class BaseProject {
   @Field(_type => [ObjectId], { description: 'repositories' })
   @Property({ required: true })
   repositories: ObjectId[];
-  @Field(_type => [Access], { description: 'public access level' })
-  @Property({ required: true })
-  public: AccessLevel;
 }
 
 // elastic & graphql

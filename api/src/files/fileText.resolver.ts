@@ -3,12 +3,9 @@
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { FileModel, StorageType, FileDB } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
-import User, { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/auth/user';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { getGithubFile } from '../utils/getGithubFile';
-import { createClient } from '../utils/github';
-import { RepositoryModel } from '../schema/structure/repository';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import Location from '../schema/antlr/location';
@@ -72,7 +69,7 @@ interface RedisKey {
   location: StorageType;
 }
 
-export const getText = async (file: FileDB, branch: string, user: User, args: Location): Promise<string[]> => {
+export const getText = async (file: FileDB, branch: string, args: Location): Promise<string[]> => {
   const fileKey = getFileKey(file.repository, branch, file.path);
   const redisKeyObject: RedisKey = {
     fileKey,
@@ -84,26 +81,10 @@ export const getText = async (file: FileDB, branch: string, user: User, args: Lo
     return getLines(redisData, args);
   }
   let content: string;
-  if (file.location === StorageType.github) {
-    if (!file.saveContent) {
-      if (user.githubUsername.length === 0) {
-        throw new Error('did not install github app');
-      }
-      // get from github
-      const repository = await RepositoryModel.findOne({
-        _id: file.repository
-      });
-      if (!repository) {
-        throw new Error('cannot find repository');
-      }
-      const githubClient = createClient(user.githubInstallationID);
-      content = await getGithubFile(githubClient, branch, file.path, repository.name, user.githubUsername);
-    }
-    content = await getS3FileData(fileKey);
-  } else if (file.location === StorageType.local) {
-    if (!file.saveContent) {
-      throw new Error('content not stored in cloud');
-    }
+  if (!file.saveContent) {
+    throw new Error('content not stored in cloud');
+  }
+  if ([StorageType.github, StorageType.local].includes(file.location)) {
     content = await getS3FileData(fileKey);
   } else {
     throw new Error('invalid storage location');
@@ -133,7 +114,7 @@ class FileText {
     if (!file.branches.includes(args.branch)) {
       throw new Error(`branch ${args.branch} not found for file ${args.id.toHexString()}`);
     }
-    return await getText(file, args.branch, user, args);
+    return await getText(file, args.branch, args);
   }
 }
 
