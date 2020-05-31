@@ -26,7 +26,8 @@
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_HOST-46AZHQ",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PORT-nnUVpT",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:ANTLR_URI-2nN5iS",
-        "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PASSWORD-9Sj0QF"
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PASSWORD-9Sj0QF",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5"
       ]
     },
     {

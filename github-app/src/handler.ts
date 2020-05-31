@@ -1,6 +1,7 @@
 import template from './template';
 import appFunction from './';
 import { createProbot } from 'probot';
+import HttpStatus from 'http-status-codes';
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { appID, webhookSecret, privateKey } from './config';
 
@@ -15,7 +16,7 @@ interface GithubData {
 const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayProxyResult> => {
   if (event.httpMethod === 'GET' && event.path === '/') {
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       headers: {
         'Content-Type': 'text/html'
       },
@@ -59,7 +60,7 @@ const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewa
         payload: event.body
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         body: JSON.stringify({
           message: `Received ${e}.${body.action}`
         })
@@ -67,7 +68,7 @@ const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewa
     } catch (err) {
       probot.logger.error(err);
       return {
-        statusCode: 500,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         body: JSON.stringify(err)
       };
     }

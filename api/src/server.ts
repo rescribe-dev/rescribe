@@ -9,8 +9,8 @@ import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
 import cookieParser from 'cookie-parser';
 import { initializeMappings } from './elastic/configure';
-import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext } from './utils/context';
-import { isProduction } from './utils/mode';
+import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext, getToken } from './utils/context';
+import { enableInitialization } from './utils/mode';
 import { createServer } from 'http';
 import { buildSchema } from 'type-graphql';
 import { ObjectId } from 'mongodb';
@@ -74,12 +74,12 @@ export const initializeServer = async (): Promise<void> => {
   app.get('/hello', (_, res) => {
     res.json({
       message: 'hello world!'
-    }).status(HttpStatus.OK);
+    });
   });
   app.get('/', (_, res) => {
     res.json({
       message: 'go to /graphql for playground'
-    }).status(HttpStatus.OK);
+    });
   });
   app.post('/refreshToken', async (req, res) => {
     try {
@@ -87,27 +87,34 @@ export const initializeServer = async (): Promise<void> => {
       res.json({
         accessToken,
         message: 'got access token'
-      }).status(HttpStatus.OK);
+      });
     } catch (err) {
       const errObj = err as Error;
-      res.json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         message: errObj.message
-      }).status(HttpStatus.BAD_REQUEST);
+      });
     }
   });
-  if (!isProduction()) {
-    app.post('/initializeElastic', async (_, res) => {
+  if (enableInitialization()) {
+    app.post('/initializeElastic', async (req, res) => {
       try {
+        const token = getToken(req);
+        if (token.length === 0) {
+          throw new Error('no authentication provided');
+        }
+        if (token !== configData.INITIALIZATION_KEY) {
+          throw new Error('invalid token provided');
+        }
         await initializeMappings();
-        res.json({
+        res.status(HttpStatus.OK).json({
           message: 'initialized mappings'
-        }).status(HttpStatus.OK);
+        });
       } catch (err) {
         const errObj = err as Error;
         logger.error(errObj.message);
-        res.json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           message: errObj.message
-        }).status(HttpStatus.BAD_REQUEST);
+        });
       }
     });
   }

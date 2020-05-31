@@ -32,6 +32,14 @@ export const onSubscription = async (params: SubscriptionContextParams): Promise
   };
 };
 
+export const getToken = (req: Request): string => {
+  if (!(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')) {
+    // no authorization found
+    return '';
+  }
+  return req.headers.authorization.split(' ')[1];
+};
+
 export const getContext = async ({ req, res, connection }: ExpressContext): Promise<GraphQLContext> => {
   if (connection) {
     return {
@@ -40,14 +48,14 @@ export const getContext = async ({ req, res, connection }: ExpressContext): Prom
       res
     };
   }
-  if (!(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')) {
+  const token = getToken(req);
+  if (token.length === 0) {
     // don't require any authorization
     return {
       req,
       res
     };
   }
-  const token = req.headers.authorization.split(' ')[1];
   let authData: AuthData | undefined;
   try {
     authData = await decodeAuth(jwtType.LOCAL, token);
