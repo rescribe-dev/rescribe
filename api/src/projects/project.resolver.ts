@@ -54,7 +54,7 @@ class ProjectResolver {
       }
       const mustParams: TermQuery[] = [{
         term: {
-          name: args.name
+          name: args.name.toLowerCase()
         }
       }];
       const projectData = await elasticClient.search({

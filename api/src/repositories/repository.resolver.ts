@@ -60,7 +60,7 @@ class RepositoryResolver {
       logger.info(args.name);
       const mustParams: TermQuery[] = [{
         term: {
-          name: args.name
+          name: args.name.toLowerCase()
         }
       }, {
         term: {
