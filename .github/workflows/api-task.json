@@ -25,7 +25,12 @@
       "command": null,
       "linuxParameters": null,
       "cpu": 0,
-      "environment": [],
+      "environment": [
+        {
+          "name": "ENABLE_INITIALIZATION",
+          "value": "true"
+        }
+      ],
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,
@@ -63,6 +68,10 @@
         {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PORT-nnUVpT",
           "name": "REDIS_PORT"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5",
+          "name": "INITIALIZATION_KEY"
         }
       ],
       "dockerSecurityOptions": null,

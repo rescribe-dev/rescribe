@@ -7,3 +7,7 @@ export const isDebug = (): boolean => {
 export const isProduction = (): boolean => {
   return configData.PRODUCTION;
 };
+
+export const enableInitialization = (): boolean => {
+  return configData.ENABLE_INITIALIZATION && configData.INITIALIZATION_KEY.length > 0;
+};
