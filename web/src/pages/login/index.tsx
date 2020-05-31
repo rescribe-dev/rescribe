@@ -178,6 +178,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                   name="email"
                   type="email"
                   placeholder="Email"
+                  autoComplete="username"
                   style={{
                     marginBottom: '0.5rem',
                   }}
@@ -203,6 +204,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                   id="password"
                   name="password"
                   type="password"
+                  autoComplete="current-password"
                   placeholder="Password"
                   onKeyDown={(evt: React.KeyboardEvent) => {
                     if (evt.key === 'Enter') {

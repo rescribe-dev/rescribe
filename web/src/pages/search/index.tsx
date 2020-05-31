@@ -52,6 +52,7 @@ const SearchPage = (args: PageProps<SearchPageDataType>) => {
   const [selectedRepositories, setSelectedRepositories] = useState<ObjectId[]>(
     []
   );
+  const [hasSearched, setHasSearched] = useState(false);
   let initialQuery = '';
   if (args.location.search.length > 0) {
     const searchParams = new URLSearchParams(args.location.search);
@@ -114,6 +115,7 @@ const SearchPage = (args: PageProps<SearchPageDataType>) => {
                 });
                 onError();
               } else {
+                setHasSearched(true);
                 setStatus({ success: true });
                 setSearchResult(queryRes.data);
                 setSubmitting(false);
@@ -134,77 +136,87 @@ const SearchPage = (args: PageProps<SearchPageDataType>) => {
             handleBlur,
             handleSubmit,
             isSubmitting,
-          }) => [
-            <Form key="form">
-              <FormGroup>
-                <Label for="query">Search Term</Label>
-                <Input
-                  id="query"
-                  name="query"
-                  type="text"
-                  placeholder="search term"
-                  style={{
-                    marginBottom: '0.5rem',
+          }) => (
+            <>
+              <Form>
+                <FormGroup>
+                  <Label for="query">Search Term</Label>
+                  <Input
+                    id="query"
+                    name="query"
+                    type="text"
+                    placeholder="search term"
+                    style={{
+                      marginBottom: '0.5rem',
+                    }}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.query}
+                    invalid={!!(touched.query && errors.query)}
+                    disabled={isSubmitting}
+                  />
+                  <FormFeedback
+                    style={{
+                      marginBottom: '1rem',
+                    }}
+                    className="feedback"
+                    type="invalid"
+                  >
+                    {touched.query && errors.query ? errors.query : ''}
+                  </FormFeedback>
+                </FormGroup>
+                <Button
+                  type="submit"
+                  onClick={(evt: React.MouseEvent) => {
+                    evt.preventDefault();
+                    handleSubmit();
                   }}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.query}
-                  invalid={!!(touched.query && errors.query)}
-                  disabled={isSubmitting}
-                />
-                <FormFeedback
-                  style={{
-                    marginBottom: '1rem',
-                  }}
-                  className="feedback"
-                  type="invalid"
                 >
-                  {touched.query && errors.query ? errors.query : ''}
-                </FormFeedback>
-              </FormGroup>
-              <Button
-                type="submit"
-                onClick={(evt: React.MouseEvent) => {
-                  evt.preventDefault();
-                  handleSubmit();
-                }}
-              >
-                Submit
-              </Button>
-              <BeatLoader
-                css={loaderCSS}
-                size={10}
-                color={'red'}
-                loading={isSubmitting}
-              />
-            </Form>,
-            searchResult === undefined ||
-            searchResult.search.length === 0 ? null : (
-              <Container key="result">
-                {searchResult.search.map((file) => {
-                  const fileResults = file.results;
-                  if (file.fileResult) {
-                    const names = file.fileResult.results
-                      .map((resultData) => resultData.name)
-                      .join(', ');
-                    const type = file.fileResult.results[0].type;
-                    file.results.unshift({
-                      name: names,
-                      type,
-                      preview: file.fileResult.preview,
-                    });
-                  }
-                  return (
-                    <FileResultComponent
-                      key={`file-${file._id}`}
-                      file={file}
-                      previewSearchResults={fileResults}
-                    />
-                  );
-                })}
-              </Container>
-            ),
-          ]}
+                  Submit
+                </Button>
+                <BeatLoader
+                  css={loaderCSS}
+                  size={10}
+                  color={'red'}
+                  loading={isSubmitting}
+                />
+              </Form>
+              {searchResult === undefined ||
+              searchResult.search.length === 0 ? (
+                <>
+                  {hasSearched ? (
+                    <p>no results found</p>
+                  ) : (
+                    <p>try searching for something</p>
+                  )}
+                </>
+              ) : (
+                <Container>
+                  {searchResult.search.map((file) => {
+                    const fileResults = [...file.results];
+                    if (file.fileResult && file.fileResult.results.length > 0) {
+                      const names = file.fileResult.results
+                        .map((resultData) => resultData.name)
+                        .join(', ');
+                      const type = file.fileResult.results[0].type;
+                      fileResults.unshift({
+                        name: names,
+                        type,
+                        preview: file.fileResult.preview,
+                      });
+                    }
+                    return (
+                      <FileResultComponent
+                        key={`file-${file._id}`}
+                        file={file}
+                        previewSearchResults={fileResults}
+                      />
+                    );
+                  })}
+                </Container>
+              )}
+            </>
+          )}
         </Formik>
       </Container>
     </Layout>

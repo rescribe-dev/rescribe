@@ -10,7 +10,6 @@ import { AuthActionTypes, UserType } from '../../state/auth/types';
 import { AppThunkDispatch } from '../../state/thunk';
 import { thunkGetUser } from '../../state/auth/thunks';
 import { RootState } from '../../state';
-import { isSSR } from '../../utils/checkSSR';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AccountPageDataType {}
@@ -22,17 +21,14 @@ declare global {
 }
 
 const AccountPage = (_args: PageProps<AccountPageDataType>) => {
-  let user: UserType | undefined = undefined;
-  if (!isSSR) {
-    user = useSelector<RootState, UserType | undefined>(
-      (state) => state.authReducer.user
+  const user = useSelector<RootState, UserType | undefined>(
+    (state) => state.authReducer.user
+  );
+  if (!user) {
+    const dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
+    dispatchAuthThunk(thunkGetUser()).catch((err: Error) =>
+      console.error(err.message)
     );
-    if (!user) {
-      const dispatchAuthThunk = useDispatch<
-        AppThunkDispatch<AuthActionTypes>
-      >();
-      dispatchAuthThunk(thunkGetUser());
-    }
   }
   return (
     <>

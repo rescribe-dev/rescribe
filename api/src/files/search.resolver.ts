@@ -39,9 +39,13 @@ const maxPreviewLineLen = 100;
 const minLinesToSplit = 7;
 const splitLength = Math.floor(minLinesToSplit / 2);
 
-export const hitExclude = ['project', 'repository'];
-
 const propertyOf = <TObj>(name: keyof TObj): string => name as string;
+
+export const fileHitInclude = [
+  propertyOf<File>('name'),
+  propertyOf<File>('path'),
+  propertyOf<File>('importPath')
+];
 
 interface DataRes {
   name: string;
@@ -245,7 +249,7 @@ class SearchResolver {
       let resultCount = 0;
       if (topLevelFieldNames.includes(propertyOf<FileResult>('fileResult'))) {
         for (const highlightField in highlight) {
-          if (!hitExclude.includes(highlightField)) {
+          if (fileHitInclude.includes(highlightField)) {
             if (!currentFileResult.fileResult) {
               if (paginateResults) {
                 resultIndex++;
@@ -272,15 +276,15 @@ class SearchResolver {
               parents: []
             };
             switch (highlightField) {
-              case propertyOf<File>('name'):
+              case fileHitInclude[0]:
                 currentResult.type = ResultType.name;
                 currentResult.name = highlight[highlightField][0];
                 break;
-              case propertyOf<File>('path'):
+              case fileHitInclude[1]:
                 currentResult.type = ResultType.path;
                 currentResult.name = highlight[highlightField][0];
                 break;
-              case propertyOf<File>('importPath'):
+              case fileHitInclude[2]:
                 currentResult.type = ResultType.importPath;
                 currentResult.name = highlight[highlightField][0];
                 break;

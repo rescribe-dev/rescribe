@@ -36,14 +36,16 @@ export const isLoggedIn = async () => {
       return state.authToken !== undefined && state.authToken.length > 0;
     } catch (err) {
       try {
+        await axiosClient.get('/hello');
         await runLogout();
       } catch (err) {
-        // cannot logout because server connection is broken
+        // cannot connect to server
       }
       store.dispatch(logout());
     }
     return false;
   };
+
   if (state.authToken && state.authToken.length === 0) {
     return await checkAuthCallback();
   }
