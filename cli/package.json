@@ -34,7 +34,7 @@
     "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
     "watch:test": "jest --watch",
     "package": "pkg . --out-path=dist",
-    "build:package": "npm run build && ./package.sh",
+    "build:package": "npm run codegen && npm run build && ./package.sh",
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {

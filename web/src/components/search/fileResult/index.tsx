@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, CardTitle } from 'reactstrap';
+import { Card, CardBody, CardTitle, CardText } from 'reactstrap';
 import {
   ResultFieldsFragment,
   FileFieldsFragment,
@@ -18,7 +18,11 @@ export const FileResultComponent = (args: FileResultCardArgs) => {
     <Card className="search-result-card">
       <CardBody>
         <CardTitle>{args.file.name}</CardTitle>
-        <div>{args.previewSearchResults.length}</div>
+        <CardText>written in {args.file.language.name}</CardText>
+        <CardText>path: {args.file.path}</CardText>
+        <CardText>
+          location: {args.file.location.repository}/{args.file.location.owner}
+        </CardText>
         {args.previewSearchResults.map((result, index) => {
           return (
             <SearchResultComponent
@@ -27,7 +31,6 @@ export const FileResultComponent = (args: FileResultCardArgs) => {
               name={result.name}
               preview={result.preview}
               type={result.type}
-              index={index}
             />
           );
         })}

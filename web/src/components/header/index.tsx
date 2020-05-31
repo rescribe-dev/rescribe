@@ -84,7 +84,9 @@ const Header = (args: HeaderArgs) => {
                         key="logout"
                         onClick={(evt: React.MouseEvent) => {
                           evt.preventDefault();
-                          dispatchAuthThunk(thunkLogout());
+                          dispatchAuthThunk(thunkLogout()).catch((err: Error) =>
+                            console.error(err)
+                          );
                           navigate('/login');
                         }}
                       >
