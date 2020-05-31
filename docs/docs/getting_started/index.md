@@ -78,9 +78,10 @@ To run the cli:
 1. in a new terminal: `cd cli`
 2. Download the correct `.rescriberc.yml` file from [the drive](https://drive.google.com/drive/folders/1ZZhFu96jvGxrcdbPJ8U6hYke1cI3M-1b) and name it `.rescriberc.yml`. Place it in the cli folder.
 3. Install krb5 following [these instructions](https://www.npmjs.com/package/krb5), with your package manager. See [this issue](https://github.com/nodegit/nodegit/issues/1134) for more information.
-4. `npm install`
-5. `npm run build`
-6. `node lib`
+4. Install nodegit: `npm i nodegit`
+5. `npm install`
+6. `npm run build`
+7. `node lib`
 
 Build cli using [these helpful libraries](https://yvonnickfrin.dev/seven-libraries-to-build-nodejs-cli). Use [this](`https://github.com/terkelg/prompts`) to prompt for user input.
 
