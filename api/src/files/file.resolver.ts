@@ -35,7 +35,7 @@ class FileResolver {
       ...fileData.body._source as File,
       _id: new ObjectId(fileData.body._id as string)
     };
-    if (!checkRepositoryAccess(user, new ObjectId(file.project), new ObjectId(file.repository), AccessLevel.view)) {
+    if (!(await checkRepositoryAccess(user, new ObjectId(file.project), new ObjectId(file.repository), AccessLevel.view))) {
       throw new Error('user not authorized to view file');
     }
     return file;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
+import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { repositoryIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
@@ -12,11 +12,30 @@ import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
 import { GraphQLContext } from '../utils/context';
 import { checkProjectAccess } from '../projects/auth';
+import { Min, Max } from 'class-validator';
+import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
+
+const maxPerPage = 20;
 
 @ArgsType()
 class RepositoriesArgs {
-  @Field(_type => ObjectId, { description: 'project id', nullable: true })
-  project?: ObjectId;
+  @Field(_type => [ObjectId], { description: 'project id', nullable: true })
+  projects?: ObjectId[];
+
+  @Min(0, {
+    message: 'page number must be greater than or equal to 0'
+  })
+  @Field(_type => Int, { description: 'page number', nullable: true })
+  page?: number;
+
+  @Min(1, {
+    message: 'per page must be greater than or equal to 1'
+  })
+  @Max(maxPerPage, {
+    message: `per page must be less than or equal to ${maxPerPage}`
+  })
+  @Field(_type => Int, { description: 'number per page', nullable: true })
+  perpage?: number;
 }
 
 @Resolver()
@@ -26,13 +45,13 @@ class RepositoriesResolver {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
+    checkPaginationArgs(args);
     const user = await UserModel.findById(ctx.auth.id);
     if (!user) {
       throw new Error('cannot find user');
     }
-    const mustParams: TermQuery[] = [];
     const shouldParams: TermQuery[] = [];
-    if (!args.project) {
+    if (!args.projects || args.projects.length === 0) {
       if (user.repositories.length === 0 && user.projects.length === 0) {
         return [];
       }
@@ -51,14 +70,16 @@ class RepositoriesResolver {
         });
       }
     } else {
-      if (!checkProjectAccess(user, args.project, AccessLevel.view)) {
-        throw new Error('user does not have view access to project');
-      }
-      mustParams.push({
-        term: {
-          project: args.project.toHexString()
+      for (const projectID of args.projects) {
+        if (!(await checkProjectAccess(user, projectID, AccessLevel.view))) {
+          throw new Error('user does not have view access to project');
         }
-      });
+        shouldParams.push({
+          term: {
+            project: projectID.toHexString()
+          }
+        });
+      }
     }
     const searchParams: RequestParams.Search = {
       index: repositoryIndexName,
@@ -67,7 +88,6 @@ class RepositoriesResolver {
           bool: {
             filter: {
               bool: {
-                must: mustParams,
                 should: shouldParams
               }
             }
@@ -75,6 +95,7 @@ class RepositoriesResolver {
         }
       }
     };
+    setPaginationArgs(args, searchParams);
     const elasticRepositoryData = await elasticClient.search(searchParams);
     const result: Repository[] = [];
     for (const hit of elasticRepositoryData.body.hits.hits) {

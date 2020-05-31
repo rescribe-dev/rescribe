@@ -2,11 +2,37 @@ query search($query: String!) {
   search(query: $query) {
     _id
     name
-    type
-    preview
-    location {
+    path
+    language {
+      name
+      color
+    }
+    lines {
       start
       end
+    }
+    branches
+    results {
+      name
+      type
+      preview {
+        startPreviewLineNumber
+        startPreviewContent
+        endPreviewLineNumber
+        endPreviewContent
+      }
+    }
+    fileResult {
+      results {
+        name
+        type
+      }
+      preview {
+        startPreviewLineNumber
+        startPreviewContent
+        endPreviewLineNumber
+        endPreviewContent
+      }
     }
   }
 }

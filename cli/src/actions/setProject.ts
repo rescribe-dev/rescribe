@@ -13,7 +13,7 @@ interface Args {
 
 export default async (args: Arguments<Args>): Promise<void> => {
   const projectQueryVars: ProjectQueryVariables = {
-    name: args.project
+    name: args.project.toLowerCase()
   };
   const projectRes = await apolloClient.query<ProjectQuery, ProjectQueryVariables>({
     query: Project,
@@ -21,7 +21,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
   });
   cacheData.project = projectRes.data.project._id;
   const repoQueryVars: RepositoryQueryVariables = {
-    name: args.repository,
+    name: args.repository.toLowerCase(),
     project: projectRes.data.project._id
   };
   const repositoryRes = await apolloClient.query<RepositoryQuery, RepositoryQueryVariables>({

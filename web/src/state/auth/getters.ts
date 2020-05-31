@@ -35,11 +35,17 @@ export const isLoggedIn = async () => {
       const state = (store.getState() as RootState).authReducer;
       return state.authToken !== undefined && state.authToken.length > 0;
     } catch (err) {
-      await runLogout();
+      try {
+        await axiosClient.get('/hello');
+        await runLogout();
+      } catch (err) {
+        // cannot connect to server
+      }
       store.dispatch(logout());
     }
     return false;
   };
+
   if (state.authToken && state.authToken.length === 0) {
     return await checkAuthCallback();
   }

@@ -1,5 +1,5 @@
-query repositories($project: ObjectId!) {
-  repositories(project: $project) {
+query repositories($projects: [ObjectId!]!, $perpage: Int!, $page: Int!) {
+  repositories(projects: $projects, perpage: $perpage, page: $page) {
     _id
     name
   }

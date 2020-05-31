@@ -23,15 +23,9 @@ class AddProjectResolver {
     const id = new ObjectId();
     const currentTime = new Date().getTime();
     const userID = new ObjectId(ctx.auth.id);
-    const newAccess: Access = {
-      _id: userID,
-      level: AccessLevel.admin,
-      type: AccessType.user
-    };
     const baseProject: BaseProject = {
       name: args.name,
       repositories: [],
-      access: [newAccess]
     };
     const elasticProject: Project = {
       created: currentTime,
@@ -45,7 +39,7 @@ class AddProjectResolver {
     });
     const projectAccess : Access = {
       _id: id,  
-      level: AccessLevel.admin,
+      level: AccessLevel.owner,
       type: AccessType.user
     };
     await UserModel.updateOne({

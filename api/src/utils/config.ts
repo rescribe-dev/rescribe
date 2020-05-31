@@ -24,6 +24,7 @@ interface ConfigType {
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
   AWS_REGION: string;
+  DISABLE_CACHE: boolean;
 }
 
 export const configData: ConfigType = {
@@ -46,7 +47,8 @@ export const configData: ConfigType = {
   AWS_S3_BUCKET_FILES: 'rescribe-repositories',
   AWS_ACCESS_KEY_ID: '',
   AWS_SECRET_ACCESS_KEY: '',
-  AWS_REGION: 'us-east-1'
+  AWS_REGION: 'us-east-1',
+  DISABLE_CACHE: false
 };
 
 const addToConfig = (conf: any, allString: boolean): void => {

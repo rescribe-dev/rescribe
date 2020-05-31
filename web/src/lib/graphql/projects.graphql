@@ -1,5 +1,5 @@
-query projects {
-  projects {
+query projects($perpage: Int!, $page: Int!) {
+  projects(perpage: $perpage, page: $page) {
     _id
     name
   }

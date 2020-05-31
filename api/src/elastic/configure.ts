@@ -6,8 +6,8 @@ import { elasticClient } from './init';
 import * as settings from './settings';
 import projectMappings from './structureMappings/project';
 import repositoryMappings from './structureMappings/repository';
-import branchMappings from './structureMappings/branch';
 import fileMappings from './antlrMappings/file';
+import { IndicesPutMapping } from '@elastic/elasticsearch/api/requestParams';
 
 const logger = getLogger();
 
@@ -17,27 +17,43 @@ const initializeMapping = async (indexName: string, indexSettings: object, index
     ignore_unavailable: true
   });
   logger.info(`deleted ${indexName} from elasticsearch: ${deleteRes.body.acknowledged as boolean}`);
-  const createIndexRes = await elasticClient.indices.create({
-    index: indexName,
-    body: {
-      settings: indexSettings
-    }
-  });
-  logger.info(`created ${indexName} index: ${createIndexRes.statusCode === HttpStatus.OK}`);
-  const setIndexMappingsRes = await elasticClient.indices.putMapping({
+  try {
+    const createIndexRes = await elasticClient.indices.create({
+      index: indexName,
+      body: {
+        settings: indexSettings
+      }
+    });
+    logger.info(`created ${indexName} index: ${createIndexRes.statusCode === HttpStatus.OK}`);
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    // eslint-disable-next-line no-console
+    console.log(err.meta.body.error);
+    throw err;
+  }
+  const mappingsConfig: IndicesPutMapping = {
     index: indexName,
     type: indexType,
     body: {
       properties: indexMappings
     },
     include_type_name: true
-  });
-  logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`);
+  };
+  try {
+    const setIndexMappingsRes = await elasticClient.indices.putMapping(mappingsConfig);
+    logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`);
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    // eslint-disable-next-line no-console
+    console.log(err.meta.body.error);
+    throw err;
+  }
 };
 
 export const initializeMappings = async (): Promise<void> => {
-  await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
-  await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
-  await initializeMapping(settings.branchIndexName, settings.branchIndexSettings, branchMappings, settings.repositoryType);
   await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType);
+  await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
+  await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
 };

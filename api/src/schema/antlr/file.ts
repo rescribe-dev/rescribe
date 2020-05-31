@@ -5,6 +5,7 @@ import Variable from './variable';
 import Comment from './comment';
 import Import from './import';
 import { ObjectId } from 'mongodb';
+import { Language } from '../structure/language';
 
 // output from antlr
 @ObjectType({ description: 'base file' })
@@ -27,4 +28,6 @@ export default class AntlrFile {
   imports: Import[];
   @Field(_type => [Comment], { description: 'comments' })
   comments: Comment[];
+  @Field(_type => [Language], { description: 'language type' })
+  language: Language;
 }

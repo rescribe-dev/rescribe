@@ -2,8 +2,6 @@ import Git, { TreeEntry } from 'nodegit';
 import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
-import { getBranch } from '../utils/getBranch';
-import { ObjectId } from 'mongodb';
 
 enum OPEN_FLAG {
   OPEN_NO_SEARCH = 1,
@@ -27,7 +25,6 @@ export default async (args: Arguments<Args>): Promise<void> => {
   }
   const repo = await Git.Repository.openExt(args.path, OPEN_FLAG.OPEN_FROM_ENV, '/');
   const branchName = (await repo.getBranch(args.branch)).name();
-  const branchData = await getBranch(branchName);
   const commit = await repo.getBranchCommit(args.branch);
   const tree = await commit.getTree();
   const walker = tree.walk();
@@ -37,7 +34,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
     let finished = false;
     const callback = async (): Promise<void> => {
       try {
-        await indexFiles(paths, files, new ObjectId(branchData.branch._id));
+        await indexFiles(paths, files, branchName);
         console.log('done indexing files');
         resolve();
       } catch(err) {

@@ -11,6 +11,7 @@ import com.rescribe.antlr.gen.python3.Python3Parser;
 import com.rescribe.antlr.parse.exceptions.UnsupportedFileException;
 import com.rescribe.antlr.parse.listeners.*;
 import com.rescribe.antlr.parse.schema.File;
+import com.rescribe.antlr.parse.schema.LanguageType;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -40,7 +41,8 @@ public class FileHandler {
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           JavaParser parser = new JavaParser(tokens);
           tree = parser.compilationUnit();
-          JavaDeclarationListener jdl = new JavaDeclarationListener(tokens, input);
+          JavaDeclarationListener jdl =
+              new JavaDeclarationListener(tokens, input, LanguageType.java);
           walker.walk(jdl, tree);
           listener = jdl;
           break;
@@ -73,7 +75,8 @@ public class FileHandler {
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           JavaScriptParser parser = new JavaScriptParser(tokens);
           tree = parser.program();
-          JavaScriptDeclarationListener jsdl = new JavaScriptDeclarationListener(tokens, input);
+          JavaScriptDeclarationListener jsdl =
+              new JavaScriptDeclarationListener(tokens, input, LanguageType.javascript);
           walker.walk(jsdl, tree);
           listener = jsdl;
           break;

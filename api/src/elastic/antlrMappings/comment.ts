@@ -3,7 +3,8 @@ import nestedMappings from './nestedObject';
 const commentMappings = {
   ...nestedMappings,
   data: {
-    type: 'text'
+    type: 'text',
+    analyzer: 'trigrams'
   },
   type: {
     type: 'keyword'
