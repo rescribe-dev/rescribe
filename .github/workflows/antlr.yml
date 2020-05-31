@@ -40,7 +40,8 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: rescribe-antlr
-          IMAGE_TAG: ${{ github.sha }}
+          # change image tag to ${{ github.sha }} if you want
+          IMAGE_TAG: latest
         run: |
           # Build a docker container and
           # push it to ECR so that it can
