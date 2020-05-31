@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { Resolver, Query, Ctx } from 'type-graphql';
+import { Resolver, Query, Ctx, ArgsType, Field, Int, Args } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { projectIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
@@ -10,14 +10,37 @@ import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { TermQuery } from '../elastic/types';
+import { Min, Max } from 'class-validator';
+import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
+
+const maxPerPage = 20;
+
+@ArgsType()
+export class ProjectsArgs {
+  @Min(0, {
+    message: 'page number must be greater than or equal to 0'
+  })
+  @Field(_type => Int, { description: 'page number', nullable: true })
+  page?: number;
+
+  @Min(1, {
+    message: 'per page must be greater than or equal to 1'
+  })
+  @Max(maxPerPage, {
+    message: `per page must be less than or equal to ${maxPerPage}`
+  })
+  @Field(_type => Int, { description: 'number per page', nullable: true })
+  perpage?: number;
+}
 
 @Resolver()
 class ProjectsResolver {
   @Query(_returns => [Project])
-  async projects(@Ctx() ctx: GraphQLContext): Promise<Project[]> {
+  async projects(@Args() args: ProjectsArgs, @Ctx() ctx: GraphQLContext): Promise<Project[]> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
+    checkPaginationArgs(args);
     const user = await UserModel.findById(ctx.auth.id);
     if (!user) {
       throw new Error('cannot find user');
@@ -43,6 +66,7 @@ class ProjectsResolver {
         }
       }
     };
+    setPaginationArgs(args, searchParams);
     const elasticProjectData = await elasticClient.search(searchParams);
     const result: Project[] = [];
     for (const hit of elasticProjectData.body.hits.hits) {

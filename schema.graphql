@@ -14,6 +14,15 @@ type Access {
   type: String!
 }
 
+# access level
+enum AccessLevel {
+  owner
+  admin
+  edit
+  view
+  none
+}
+
 # base file
 type AntlrFile {
   _id: ObjectId!
@@ -41,27 +50,15 @@ type AntlrFile {
 
   # comments
   comments: [Comment!]!
+
+  # language type
+  language: [Language!]!
 }
 
 # auth notification
 type AuthNotification {
   id: String!
   token: String!
-}
-
-# base branch
-type BaseBranch {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
 }
 
 # base project
@@ -71,9 +68,6 @@ type BaseProject {
 
   # repositories
   repositories: [ObjectId!]!
-
-  # project access
-  access: [Access!]!
 }
 
 # base repository
@@ -82,51 +76,16 @@ type BaseRepository {
   name: String!
 
   # branches
-  branches: [ObjectId!]!
+  owner: ObjectId!
+
+  # branches
+  branches: [String!]!
 
   # project
   project: ObjectId!
 
-  # repository access
-  access: [Access!]!
-}
-
-# branch
-type Branch {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-  _id: ObjectId!
-
-  # date created
-  created: Float!
-
-  # date updated
-  updated: Float!
-}
-
-# branch database
-type BranchDB {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-  _id: ObjectId!
+  # public access level
+  public: [Access!]!
 }
 
 # class
@@ -194,6 +153,9 @@ type File {
   # comments
   comments: [Comment!]!
 
+  # language type
+  language: [Language!]!
+
   # number of lines in file
   fileLength: Int!
 
@@ -203,8 +165,14 @@ type File {
   # repository id
   repository: String!
 
-  # branch id
-  branch: String!
+  # branches
+  branches: [String!]!
+
+  # number of branches
+  numBranches: Int!
+
+  # public access level
+  public: AccessLevel!
 
   # storage location
   location: String!
@@ -214,6 +182,60 @@ type File {
 
   # date updated
   updated: Float!
+}
+
+# file owner
+type FileLocation {
+  # repository name
+  repository: String!
+
+  # repository owner
+  owner: String!
+
+  # repository image
+  image: String!
+}
+
+# file result
+type FileResult {
+  # file id
+  _id: ObjectId!
+
+  # file name
+  name: String!
+
+  # file path
+  path: String!
+
+  # search results
+  results: [SearchResult!]!
+
+  # file search results
+  fileResult: FileSearchResult
+
+  # language data
+  language: LanguageData!
+
+  # file location
+  location: FileLocation!
+
+  # lines in file
+  lines: Location!
+
+  # branches
+  branches: [String!]!
+
+  # result score
+  score: Float!
+}
+
+# file result match
+type FileSearchResult {
+  # file search results
+  results: [SearchResult!]!
+
+  # file preview
+  preview: Preview!
 }
 
 # baseline function
@@ -251,6 +273,21 @@ type Import {
 
   # selection
   selection: String!
+}
+
+# language type
+enum Language {
+  java
+  javascript
+}
+
+# language data
+type LanguageData {
+  # language name
+  name: Language!
+
+  # associated color
+  color: Int!
 }
 
 # location
@@ -310,10 +347,16 @@ type Mutation {
   deleteFile(
     # file id
     id: ObjectId!
+
+    # branch name
+    branch: String!
   ): String!
   deleteBranch(
-    # branch id
-    id: ObjectId!
+    # repository id
+    repository: ObjectId!
+
+    # branch name
+    name: String!
   ): String!
   indexFiles(
     # paths
@@ -329,7 +372,7 @@ type Mutation {
     repository: ObjectId!
 
     # branch
-    branch: ObjectId!
+    branch: String!
 
     # branch
     saveContent: Boolean = false
@@ -377,6 +420,9 @@ type Mutation {
 
     # project
     project: ObjectId!
+
+    # public access level
+    publicAccess: AccessLevel!
   ): String!
 }
 
@@ -402,12 +448,36 @@ type Parent {
   type: ParentType!
 }
 
+# parent element object
+type ParentElement {
+  # parent name
+  name: String!
+
+  # parent type
+  type: ResultType!
+}
+
 # parent type
 enum ParentType {
   File
   Class
   Function
   Variable
+}
+
+# preview data
+type Preview {
+  # preview start line number
+  startPreviewLineNumber: Int!
+
+  # preview start content
+  startPreviewContent: [String!]!
+
+  # preview end line number
+  endPreviewLineNumber: Int!
+
+  # preview end content
+  endPreviewContent: [String!]!
 }
 
 # project
@@ -417,9 +487,6 @@ type Project {
 
   # repositories
   repositories: [ObjectId!]!
-
-  # project access
-  access: [Access!]!
   _id: ObjectId!
 
   # date created
@@ -436,32 +503,12 @@ type ProjectDB {
 
   # repositories
   repositories: [ObjectId!]!
-
-  # project access
-  access: [Access!]!
   _id: ObjectId!
 }
 
 type Query {
   # user data
   user: User!
-  branch(
-    # branch id
-    id: ObjectId
-
-    # branch name
-    name: String
-
-    # repository id
-    repository: ObjectId
-  ): Branch!
-  branches(
-    # repository id
-    repository: ObjectId!
-
-    # project id
-    project: ObjectId!
-  ): [Branch!]!
   file(
     # file id
     id: ObjectId!
@@ -470,38 +517,68 @@ type Query {
     # query
     query: String
 
-    # project
-    project: ObjectId
+    # only user files
+    onlyUser: Boolean
 
-    # repository
-    repository: ObjectId
+    # projects
+    projects: [ObjectId!]
 
-    # branch
-    branch: ObjectId
+    # repositories
+    repositories: [ObjectId!]
+
+    # file id
+    file: ObjectId
+
+    # branches
+    branches: [String!]
+
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
   ): [File!]!
   fileText(
     # file id
     id: ObjectId!
+
+    # branch name
+    branch: String!
 
     # start line
     start: Int!
 
     # end line
     end: Int!
-  ): String!
+  ): [String!]!
   search(
     # query
     query: String
 
-    # project
-    project: ObjectId
+    # only user files
+    onlyUser: Boolean
 
-    # repository
-    repository: ObjectId
+    # projects
+    projects: [ObjectId!]
 
-    # branch
-    branch: ObjectId
-  ): [SearchResult!]!
+    # repositories
+    repositories: [ObjectId!]
+
+    # file id
+    file: ObjectId
+
+    # branches
+    branches: [String!]
+
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
+
+    # end line
+    maxResultsPerFile: Int
+  ): [FileResult!]!
   hello: String!
   project(
     # project id
@@ -510,10 +587,22 @@ type Query {
     # project id
     name: String
   ): Project!
-  projects: [Project!]!
+  projects(
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
+  ): [Project!]!
   repositories(
     # project id
-    project: ObjectId
+    projects: [ObjectId!]
+
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
   ): [Repository!]!
   repository(
     # repository id
@@ -522,7 +611,7 @@ type Query {
     # project id
     project: ObjectId
 
-    # project id
+    # repository name
     name: String
   ): Repository!
 }
@@ -533,13 +622,16 @@ type Repository {
   name: String!
 
   # branches
-  branches: [ObjectId!]!
+  owner: ObjectId!
+
+  # branches
+  branches: [String!]!
 
   # project
   project: ObjectId!
 
-  # repository access
-  access: [Access!]!
+  # public access level
+  public: [Access!]!
   _id: ObjectId!
 
   # date created
@@ -547,6 +639,9 @@ type Repository {
 
   # date updated
   updated: Float!
+
+  # number of branches
+  numBranches: Int!
 }
 
 # repository db
@@ -555,35 +650,50 @@ type RepositoryDB {
   name: String!
 
   # branches
-  branches: [ObjectId!]!
+  owner: ObjectId!
+
+  # branches
+  branches: [String!]!
 
   # project
   project: ObjectId!
 
-  # repository access
-  access: [Access!]!
+  # public access level
+  public: [Access!]!
   _id: ObjectId!
+
+  # repository image
+  image: String!
+}
+
+# result type
+enum ResultType {
+  import
+  class
+  function
+  variable
+  comment
+  name
+  path
+  importPath
 }
 
 # search result
 type SearchResult {
-  # file id
-  _id: ObjectId!
-
-  # location - line numbers
-  location: Location!
-
-  # name
+  # item name
   name: String!
 
-  # type
-  type: String!
+  # item type
+  type: ResultType!
 
-  # main description
-  preview: String!
+  # parents to current result
+  parents: [ParentElement!]!
 
-  # nested path
-  structure: [String!]!
+  # result score
+  score: Float
+
+  # result preview
+  preview: Preview
 }
 
 type Subscription {

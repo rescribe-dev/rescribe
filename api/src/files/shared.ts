@@ -4,8 +4,8 @@ import { processFile } from '../utils/antlrBridge';
 import { fileIndexName } from '../elastic/settings';
 import File, { FileModel, FileDB, StorageType } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
-import { BranchModel } from '../schema/structure/branch';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
+import { AccessLevel } from '../schema/auth/access';
 
 const logger = getLogger();
 
@@ -21,13 +21,56 @@ export interface FileIndexArgs {
   location: StorageType;
   project: ObjectId;
   repository: ObjectId;
-  branch: ObjectId;
+  branch: string;
   path: string;
   fileName: string;
   content: string;
+  public: AccessLevel;
 }
 
-export const indexFile = async (args: FileIndexArgs): Promise<string> => {
+export interface SaveElasticElement {
+  id: ObjectId;
+  data: object;
+  action: UpdateType;
+}
+
+export const saveToElastic = async (elements: SaveElasticElement[]): Promise<void> => {
+  let indexBody: object[] = [];
+  let updateBody: object[] = [];
+  for (const element of elements) {
+    if (element.action === UpdateType.add) {
+      indexBody.push([{
+        index: {
+          _index: fileIndexName,
+          _id: element.id.toHexString()
+        }
+      }, element.data]);
+    } else if (element.action === UpdateType.update) {
+      indexBody.push([{
+        update: {
+          _index: fileIndexName,
+          _id: element.id.toHexString()
+        }
+      }, element.data]);
+    }
+  }
+  indexBody = indexBody.flat();
+  updateBody = updateBody.flat();
+  if (indexBody.length > 0) {
+    await elasticClient.bulk({
+      refresh: 'true',
+      body: indexBody
+    });
+  }
+  if (updateBody.length > 0) {
+    await elasticClient.bulk({
+      refresh: 'true',
+      body: updateBody
+    });
+  }
+};
+
+export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement> => {
   if (args.action === UpdateType.update && !args.file) {
     throw new Error('file is required for update');
   }
@@ -38,6 +81,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
     content: args.content,
     path: args.path
   });
+  let elasticElement: SaveElasticElement;
   const currentTime = new Date().getTime();
   const fileLength = args.content.split('\n').length - 1;
   if (args.action === UpdateType.add) {
@@ -45,10 +89,11 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
       _id: id,
       project: args.project,
       repository: args.repository,
-      branch: args.branch,
+      branches: [args.branch],
       path: args.path,
       location: args.location,
       fileLength,
+      public: args.public,
       saveContent: args.saveContent
     };
     const elasticContent: File = {
@@ -56,33 +101,21 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
       _id: undefined,
       project: args.project.toHexString(),
       repository: args.repository.toHexString(),
-      branch: args.branch.toHexString(),
+      branches: [args.branch],
+      numBranches: 1,
       created: currentTime,
       updated: currentTime,
       location: args.location,
       path: args.path,
+      public: args.public,
       fileLength
     };
-    await elasticClient.index({
-      id: id.toHexString(),
-      index: fileIndexName,
-      body: elasticContent
-    });
-    await BranchModel.updateOne({
-      _id: id
-    }, {
-      $addToSet: {
-        files: id
-      }
-    });
+    elasticElement = {
+      action: args.action,
+      data: elasticContent,
+      id
+    };
     await new FileModel(newFileDB).save();
-    await BranchModel.updateOne({
-      _id: args.branch
-    }, {
-      $addToSet: {
-        files: id
-      }
-    });
     if (args.saveContent) {
       await s3Client.upload({
         Bucket: fileBucket,
@@ -96,11 +129,11 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
       _id: undefined,
       updated: currentTime,
     };
-    await elasticClient.update({
-      id: id.toHexString(),
-      index: fileIndexName,
-      body: elasticContent
-    });
+    elasticElement = {
+      action: args.action,
+      data: elasticContent,
+      id
+    };
     await FileModel.updateOne({
       _id: id
     }, {
@@ -113,7 +146,9 @@ export const indexFile = async (args: FileIndexArgs): Promise<string> => {
         Body: args.content
       }).promise();
     }
+  } else {
+    throw new Error(`invalid action ${args.action} provided`);
   }
   logger.info(`${args.action}ed file ${id.toHexString()}`);
-  return `indexed file with id ${id.toHexString()}`;
+  return elasticElement;
 };

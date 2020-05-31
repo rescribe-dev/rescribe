@@ -6,6 +6,7 @@ import { initializeLogger } from './utils/logger';
 import { initializeGithub } from './utils/github';
 import { configData, initializeConfig } from './utils/config';
 import { initializeAWS } from './utils/aws';
+import { initializeRedis } from './utils/redis';
 
 const runAPI = async (): Promise<void> => {
   await initializeConfig();
@@ -23,6 +24,8 @@ const runAPI = async (): Promise<void> => {
     logger.info('connected to elasticsearch');
     await initializeDB();
     logger.info('database connection set up');
+    await initializeRedis();
+    logger.info('connected to redis');
     await initializeServer();
     logger.info('server started');
   } catch(err) {

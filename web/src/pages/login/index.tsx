@@ -15,22 +15,19 @@ import {
 import BeatLoader from 'react-spinners/BeatLoader';
 import { PageProps, navigate } from 'gatsby';
 
-import './register.scss';
+import './index.scss';
 
-import Layout from '../layouts/index';
-import SEO from '../components/seo';
-import { client } from '../utils/apollo';
-import { isLoggedIn } from '../state/auth/getters';
+import Layout from '../../layouts/index';
+import SEO from '../../components/seo';
+import { initializeApolloClient } from '../../utils/apollo';
+import { isLoggedIn } from '../../state/auth/getters';
+import { thunkLogin, thunkLogout } from '../../state/auth/thunks';
 import { useDispatch } from 'react-redux';
-import { AuthActionTypes } from '../state/auth/types';
-import { AppThunkDispatch } from '../state/thunk';
-import { isSSR } from '../utils/checkSSR';
-import { thunkLogout } from '../state/auth/thunks';
-import {
-  Register,
-  RegisterMutation,
-  RegisterMutationVariables,
-} from '../lib/generated/datamodel';
+import { AuthActionTypes } from '../../state/auth/types';
+import { AppThunkDispatch } from '../../state/thunk';
+import { setToken } from '../../state/auth/actions';
+import { isSSR } from '../../utils/checkSSR';
+import { Dispatch } from 'redux';
 
 const loaderCSS = css`
   display: block;
@@ -39,7 +36,7 @@ const loaderCSS = css`
 `;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface RegisterPageDataType {}
+interface LoginPageDataType {}
 
 declare global {
   interface Window {
@@ -47,15 +44,39 @@ declare global {
   }
 }
 
-const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
+const LoginPage = (args: PageProps<LoginPageDataType>) => {
+  let token: string | undefined;
+  let redirect: string | undefined;
+  let cliLogin = false;
+  let vscodeLogin = false;
+  if (args.location.search.length > 0) {
+    const searchParams = new URLSearchParams(args.location.search);
+    if (searchParams.has('token')) {
+      token = searchParams.get('token') as string;
+    }
+    if (searchParams.has('redirect')) {
+      redirect = searchParams.get('redirect') as string;
+    }
+    if (searchParams.has('cli')) {
+      cliLogin = true;
+    } else if (searchParams.has('vscode')) {
+      vscodeLogin = true;
+    }
+  }
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
+  let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
+    dispatch = useDispatch();
   }
   isLoggedIn()
     .then((loggedIn) => {
-      if (loggedIn) {
-        navigate('/app/account');
+      if (token === undefined && loggedIn) {
+        if (redirect !== undefined) {
+          navigate(redirect);
+        } else {
+          navigate('/app/account');
+        }
       }
     })
     .catch((_err) => {
@@ -72,7 +93,6 @@ const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
       >
         <Formik
           initialValues={{
-            name: '',
             email: '',
             password: '',
           }}
@@ -98,21 +118,30 @@ const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
               try {
                 window.grecaptcha
                   .execute(process.env.GATSBY_RECAPTCHA_SITE_KEY, {
-                    action: 'register',
+                    action: 'login',
                   })
                   .then(async (_recaptchaToken: string) => {
+                    if (token !== undefined) {
+                      dispatch(setToken(token));
+                      await initializeApolloClient();
+                    }
                     try {
-                      const registerRes = await client.mutate<
-                        RegisterMutation,
-                        RegisterMutationVariables
-                      >({
-                        mutation: Register,
-                        variables: formData,
-                      });
-                      if (registerRes.errors) {
-                        throw new Error(registerRes.errors.join(', '));
+                      await dispatchAuthThunk(thunkLogin(formData));
+                      await initializeApolloClient();
+                      if (redirect !== undefined) {
+                        navigate(redirect);
+                      } else {
+                        if (cliLogin) {
+                          toast('view cli', {
+                            type: 'success',
+                          });
+                        } else if (vscodeLogin) {
+                          toast('view vscode', {
+                            type: 'success',
+                          });
+                        }
+                        navigate('/app/account');
                       }
-                      navigate('/login');
                     } catch (err) {
                       toast(err.message, {
                         type: 'error',
@@ -143,38 +172,13 @@ const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
           }) => (
             <Form>
               <FormGroup>
-                <Label for="name">Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="Name"
-                  style={{
-                    marginBottom: '0.5rem',
-                  }}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.name}
-                  invalid={!!(touched.name && errors.name)}
-                  disabled={isSubmitting}
-                />
-                <FormFeedback
-                  style={{
-                    marginBottom: '1rem',
-                  }}
-                  className="feedback"
-                  type="invalid"
-                >
-                  {touched.name && errors.name ? errors.name : ''}
-                </FormFeedback>
-              </FormGroup>
-              <FormGroup>
                 <Label for="email">Email</Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   placeholder="Email"
+                  autoComplete="username"
                   style={{
                     marginBottom: '0.5rem',
                   }}
@@ -200,6 +204,7 @@ const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
                   id="password"
                   name="password"
                   type="password"
+                  autoComplete="current-password"
                   placeholder="Password"
                   onKeyDown={(evt: React.KeyboardEvent) => {
                     if (evt.key === 'Enter') {
@@ -249,4 +254,4 @@ const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
   );
 };
 
-export default RegisterPage;
+export default LoginPage;

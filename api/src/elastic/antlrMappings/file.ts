@@ -5,13 +5,34 @@ import functionMappings from './function';
 import classMappings from './class';
 
 const fileMappings = {
+  language: {
+    type: 'keyword'
+  },
   project: {
     type: 'keyword'
   },
   repository: {
     type: 'keyword'
   },
-  branch: {
+  branches: {
+    type: 'keyword'
+  },
+  name: {
+    type: 'text',
+    analyzer: 'trigrams'
+  },
+  importPath: {
+    type: 'text',
+    analyzer: 'trigrams'
+  },
+  path: {
+    type: 'text',
+    analyzer: 'trigrams'
+  },
+  numBranches: {
+    type: 'integer'
+  },
+  public: {
     type: 'keyword'
   },
   created: {
@@ -21,15 +42,6 @@ const fileMappings = {
   updated: {
     type: 'date',
     format: 'epoch_millis'
-  },
-  name: {
-    type: 'text'
-  },
-  importPath: {
-    type: 'text'
-  },
-  path: {
-    type: 'text'
   },
   comments: {
     type: 'nested',

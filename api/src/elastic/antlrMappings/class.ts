@@ -3,7 +3,8 @@ import nestedMappings from './nestedObject';
 const classMappings = {
   ...nestedMappings,
   name: {
-    type: 'text'
+    type: 'text',
+    analyzer: 'trigrams'
   }
 };
 

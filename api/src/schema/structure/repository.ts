@@ -1,7 +1,7 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
-import Access from '../auth/access';
+import Access, { AccessLevel } from '../auth/access';
 
 @ObjectType({ description : 'base repository' })
 export class BaseRepository {
@@ -9,17 +9,21 @@ export class BaseRepository {
   @Property({required: true})
   name:string;
 
-  @Field(_type => [ObjectId], { description: 'branches' })
+  @Field({ description: 'branches' })
   @Property({required: true})
-  branches: ObjectId[];
+  owner: ObjectId;
+
+  @Field(_type => [String], { description: 'branches' })
+  @Property({required: true})
+  branches: string[];
 
   @Field({ description: 'project' })
   @Property({required: true})
   project: ObjectId;
 
-  @Field(_type => [Access], { description: 'repository access' })
+  @Field(_type => [Access], { description: 'public access level' })
   @Property({ required: true })
-  access: Access[];
+  public: AccessLevel;
 }
 
 @ObjectType({ description: 'repository' })
@@ -30,12 +34,17 @@ export class Repository extends BaseRepository {
   created: number;
   @Field({ description: 'date updated' })
   updated: number;
+  @Field(_type => Int, { description: 'number of branches' })
+  numBranches: number;
 }
 @ObjectType({ description: 'repository db' })
 @modelOptions({schemaOptions: {collection: 'repositories'}})
 export class RepositoryDB extends BaseRepository {
   @Field()
   readonly _id: ObjectId;
+  @Property({ required: false })
+  @Field({ description: 'repository image' })
+  image: string;
 }
 
 export const RepositoryModel = getModelForClass(RepositoryDB);

@@ -1,9 +1,6 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { branchIndexName } from '../elastic/settings';
-import { BranchModel, BranchDB } from '../schema/structure/branch';
-import { getLogger } from 'log4js';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
@@ -11,30 +8,109 @@ import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { deleteFileUtil } from '../files/deleteFile.resolver';
 import { FileModel } from '../schema/structure/file';
+import { RepositoryModel } from '../schema/structure/repository';
+import { repositoryIndexName, fileIndexName } from '../elastic/settings';
 
 @ArgsType()
 class DeleteBranchArgs {
-  @Field(_type => ObjectId, { description: 'branch id' })
-  id: ObjectId;
+  @Field(_type => ObjectId, { description: 'repository id' })
+  repository: ObjectId;
+  @Field(_type => String, { description: 'branch name' })
+  name: string;
 }
 
-const logger = getLogger();
+interface FileHit {
+  _id: string;
+}
 
-export const deleteBranchUtil = async (args: DeleteBranchArgs, branch: BranchDB): Promise<void> => {
-  const deleteElasticResult = await elasticClient.delete({
-    index: branchIndexName,
-    id: args.id.toHexString()
+export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> => {
+  const currentTime = new Date().getTime();
+  await elasticClient.update({
+    index: repositoryIndexName,
+    id: args.repository.toHexString(),
+    body: {
+      script: {
+        source: `
+          ctx._source.branches.remove(params.branch);
+          ctx._source.numBranches--;
+          ctx._source.updated = params.currentTime;
+        `,
+        lang: 'painless',
+        params: {
+          branch: args.name,
+          currentTime
+        }
+      }
+    }
   });
-  logger.info(`deleted branch ${JSON.stringify(deleteElasticResult.body)}`);
-  await BranchModel.deleteOne({
-    _id: args.id
+  await elasticClient.updateByQuery({
+    index: fileIndexName,
+    body: {
+      script: {
+        source: `
+          ctx._source.branches.remove(params.branch);
+          ctx._source.numBranches--;
+          ctx._source.updated = params.currentTime;
+        `,
+        lang: 'painless',
+        params: {
+          branch: args.name,
+          currentTime
+        }
+      },
+      query: {
+        bool: {
+          filter: [
+            {
+              terms: {
+                repository: args.repository.toHexString()
+              }
+            },
+            {
+              terms: {
+                branches: args.name
+              }
+            }
+          ]
+        }
+      }
+    }
   });
-  for (const fileID of branch.files) {
+  const files = await elasticClient.search({
+    index: fileIndexName,
+    body: {
+      fields: [],
+      match: {
+        numBranches: 0
+      }
+    }
+  });
+  const deleteIDs = (files.body.hits.hits as FileHit[]).map(hit => new ObjectId(hit._id));
+  const deleteFilesBody = deleteIDs.flatMap(id => {
+    return [{
+      delete: {
+        _id: id,
+        _index: fileIndexName
+      }
+    }];
+  });
+  await elasticClient.bulk({ 
+    refresh: 'true', 
+    body: deleteFilesBody
+  });
+  await RepositoryModel.updateOne({
+    _id: args.repository
+  }, {
+    $pull: {
+      branches: args.name
+    }
+  });
+  for (const fileID of deleteIDs) {
     const file = await FileModel.findById(fileID);
     if (!file) {
       throw new Error(`cannot find file with id ${fileID.toHexString()}`);
     }
-    await deleteFileUtil(file);
+    await deleteFileUtil(file, args.name);
   }
 };
 
@@ -45,20 +121,23 @@ class DeleteBranchResolver {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
-    const branch = await BranchModel.findById(args.id);
-    if (!branch) {
-      throw new Error(`cannot find branch with id ${args.id.toHexString()}`);
+    const repository = await RepositoryModel.findById(args.repository);
+    if (!repository) {
+      throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
     }
     const userID = new ObjectId(ctx.auth.id);
     const user = await UserModel.findById(userID);
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkRepositoryAccess(user, branch.project, branch.repository, AccessLevel.edit)) {
+    if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
-    await deleteBranchUtil(args, branch);
-    return `deleted branch with id: ${args.id}`;
+    if (!repository.branches.includes(args.name)) {
+      throw new Error(`cannot find branch with name ${args.name} on repository`);
+    }
+    await deleteBranchUtil(args);
+    return `deleted branch ${args.name}`;
   }
 }
 

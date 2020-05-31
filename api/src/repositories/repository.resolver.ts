@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { ObjectId } from 'mongodb';
-import { Repository } from '../schema/structure/repository';
+import { Repository, RepositoryDB } from '../schema/structure/repository';
 import { repositoryIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
@@ -10,6 +10,9 @@ import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess } from './auth';
 import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 @ArgsType()
 class RepositoryArgs {
@@ -19,7 +22,7 @@ class RepositoryArgs {
   @Field(_type => ObjectId, { description: 'project id', nullable: true })
   project?: ObjectId;
 
-  @Field({ description: 'project id', nullable: true })
+  @Field({ description: 'repository name', nullable: true })
   name?: string;
 }
 
@@ -54,6 +57,7 @@ class RepositoryResolver {
           }
         });
       }
+      logger.info(args.name);
       const mustParams: TermQuery[] = [{
         term: {
           name: args.name
@@ -84,7 +88,12 @@ class RepositoryResolver {
     } else {
       throw new Error('user must supply name or id');
     }
-    if (!checkRepositoryAccess(user, repository.project, repository._id as ObjectId, AccessLevel.view)) {
+    const repositoryDBType: RepositoryDB = {
+      ...repository,
+      image: '',
+      _id: repository._id as ObjectId
+    };
+    if (!(await checkRepositoryAccess(user, repository.project, repositoryDBType, AccessLevel.view))) {
       throw new Error('user not authorized to view repository');
     }
     return repository;

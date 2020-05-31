@@ -5,6 +5,9 @@ const projectMappings = {
   name: {
     type: 'text'
   },
+  public: {
+    type: 'keyword'
+  },
   created: {
     type: 'date',
     format: 'epoch_millis'

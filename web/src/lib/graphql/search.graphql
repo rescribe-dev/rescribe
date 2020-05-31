@@ -1,0 +1,69 @@
+fragment previewFields on Preview {
+  startPreviewLineNumber
+  startPreviewContent
+  endPreviewLineNumber
+  endPreviewContent
+}
+
+fragment resultFields on SearchResult {
+  name
+  type
+  preview {
+    ...previewFields
+  }
+}
+
+fragment fileResultFields on FileSearchResult {
+  results {
+    name
+    type
+  }
+  preview {
+    ...previewFields
+  }
+}
+
+fragment fileFields on FileResult {
+  _id
+  name
+  path
+  location {
+    owner
+    repository
+    image
+  }
+  language {
+    name
+    color
+  }
+  lines {
+    start
+    end
+  }
+}
+
+query search(
+  $query: String!
+  $projects: [ObjectId!]
+  $repositories: [ObjectId!]
+  $perpage: Int!
+  $page: Int!
+  $maxResultsPerFile: Int
+) {
+  search(
+    query: $query
+    projects: $projects
+    repositories: $repositories
+    perpage: $perpage
+    page: $page,
+    maxResultsPerFile: $maxResultsPerFile
+  ) {
+    ...fileFields
+    results {
+      ...resultFields
+    }
+    fileResult {
+      ...fileResultFields
+    }
+  }
+}

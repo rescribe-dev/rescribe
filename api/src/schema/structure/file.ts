@@ -1,8 +1,8 @@
 import { ObjectType, Field, registerEnumType, Int } from 'type-graphql';
 import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
-import Location from '../antlr/location';
 import AntlrFile from '../antlr/file';
+import { AccessLevel } from '../auth/access';
 
 export enum StorageType {
   local = 'local',
@@ -23,7 +23,9 @@ export class FileDB {
   @Property({ required: true })
   repository: ObjectId;
   @Property({ required: true })
-  branch: ObjectId;
+  branches: string[];
+  @Property({ required: true })
+  public: AccessLevel;
   @Property({ required: true })
   fileLength: number;
   @Property({ required: true })
@@ -45,8 +47,12 @@ export default class File extends AntlrFile {
   project: string;
   @Field({ description: 'repository id' })
   repository: string;
-  @Field({ description: 'branch id' })
-  branch: string;
+  @Field(_type => [String], { description: 'branches' })
+  branches: string[];
+  @Field(_type => Int, { description: 'number of branches' })
+  numBranches: number;
+  @Field(_type => AccessLevel, { description: 'public access level' })
+  public: AccessLevel;
   @Field({ description: 'path' })
   path: string;
   @Field({ description: 'storage location' })
@@ -55,38 +61,4 @@ export default class File extends AntlrFile {
   created: number;
   @Field({ description: 'date updated' })
   updated: number;
-}
-
-export enum ResultType {
-  file = 'file',
-  import = 'import',
-  class = 'class',
-  function = 'function',
-  variable = 'variable',
-  comment = 'comment',
-  name = 'name',
-  path = 'path',
-  importPath = 'importPath',
-}
-
-registerEnumType(ResultType, {
-  name: 'ResultType',
-  description: 'result type',
-});
-
-// result from api
-@ObjectType({ description: 'search result' })
-export class SearchResult {
-  @Field({ description: 'file id' })
-  readonly _id: ObjectId;
-  @Field({ description: 'location - line numbers' })
-  location: Location;
-  @Field({ description: 'name' })
-  name: string;
-  @Field({ description: 'type' })
-  type: ResultType;
-  @Field({ description: 'main description' })
-  preview: string;
-  @Field(_type => [String], { description: 'nested path' })
-  structure: string[];
 }

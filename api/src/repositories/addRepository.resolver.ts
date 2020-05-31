@@ -16,6 +16,8 @@ class AddRepositoryArgs {
   name: string;
   @Field(_type => ObjectId, { description: 'project' })
   project: ObjectId;
+  @Field(_type => AccessLevel, { description: 'public access level' })
+  publicAccess: AccessLevel;
 }
 
 @Resolver()
@@ -30,20 +32,22 @@ class AddRepositoryResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!checkProjectAccess(user, args.project, AccessLevel.edit)) {
+    if (!(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project');
     }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
     const baseRepository: BaseRepository = {
       name: args.name,
+      owner: userID,
       branches: [],
       project: args.project,
-      access: []
+      public: args.publicAccess,
     };
     const elasticRepository: Repository = {
       created: currentTime,
       updated: currentTime,
+      numBranches: 0,
       ...baseRepository
     };
     await elasticClient.index({
@@ -60,7 +64,7 @@ class AddRepositoryResolver {
     });
     const newAccess :Access = {
       _id: id,
-      level: AccessLevel.admin,
+      level: AccessLevel.owner,
       type: AccessType.user
     };
     await UserModel.updateOne({
@@ -72,7 +76,8 @@ class AddRepositoryResolver {
     });
     const dbRepository: RepositoryDB = {
       ...baseRepository,
-      _id: id
+      _id: id,
+      image: ''
     };
     await new RepositoryModel(dbRepository).save();
     return `indexed repository with id ${id.toHexString()}`;
