@@ -55,7 +55,7 @@ const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
   isLoggedIn()
     .then((loggedIn) => {
       if (loggedIn) {
-        navigate('/app/account');
+        navigate('/account');
       }
     })
     .catch((_err) => {

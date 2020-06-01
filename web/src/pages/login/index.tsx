@@ -75,7 +75,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
         if (redirect !== undefined) {
           navigate(redirect);
         } else {
-          navigate('/app/account');
+          navigate('/account');
         }
       }
     })
@@ -140,7 +140,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
                             type: 'success',
                           });
                         }
-                        navigate('/app/account');
+                        navigate('/account');
                       }
                     } catch (err) {
                       toast(err.message, {

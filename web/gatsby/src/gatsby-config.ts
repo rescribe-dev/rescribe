@@ -69,7 +69,7 @@ export default {
     'gatsby-plugin-styled-components',
     {
       resolve: 'gatsby-plugin-create-client-paths',
-      options: { prefixes: ['/app/*'] },
+      options: { prefixes: [] },
     },
     // see https://github.com/jlengstorf/gatsby-hasura-realtime-app
     // `gatsby-source-graphql`,

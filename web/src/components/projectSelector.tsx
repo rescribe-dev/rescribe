@@ -29,7 +29,10 @@ const ProjectSelector = () => {
       ProjectsQueryVariables
     >({
       query: Projects,
-      variables: {},
+      variables: {
+        page: 0,
+        perpage: 5,
+      },
     });
     if (projectData.data) {
       return projectData.data.projects
@@ -79,7 +82,7 @@ const ProjectSelector = () => {
                 id: valueObj.value.toHexString(),
               })
             );
-            navigate('/app/project');
+            navigate('/project');
           }
         }}
       />

@@ -1,8 +1,7 @@
-interface CreatePagesArgs {
-  graphql: any;
-  actions: any;
-}
+import { GatsbyNode } from 'gatsby';
 
-export default async (_args: CreatePagesArgs) => {
+const onCreatePage: GatsbyNode['onCreatePage'] = async (_args) => {
   // create pages here
 };
+
+export default onCreatePage;
