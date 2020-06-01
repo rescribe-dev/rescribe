@@ -7,14 +7,21 @@
 const regexSuffixless = /\/[^/.]+$/; // e.g. "/some/page" but not "/", "/some/" or "/some.jpg"
 const regexTrailingSlash = /.+\/$/; // e.g. "/some/" or "/some/page/" but not root "/"
 
+const nonIndexFolders = ['/404'];
+
 exports.handler = (event, _context, callback) => {
   const request = event.Records[0].cf.request
   const headers = request.headers
-  const useBrotli = headers['accept-encoding'] && headers['accept-encoding'][0].value.indexOf('br') > -1
-  request.uri = (useBrotli ? '/brotli' : '/gzip') + request.uri
+	const useBrotli = headers['accept-encoding'] && headers['accept-encoding'][0].value.indexOf('br') > -1
+	const originalRequestURI = request.uri;
+  request.uri = (useBrotli ? '/brotli' : '/gzip') + originalRequestURI
   // Append ".html" to origin request
 	if (request.uri.match(regexSuffixless)) {
-		request.uri = request.uri + '.html'
+		if (nonIndexFolders.includes(originalRequestURI)) {
+			request.uri = request.uri + '.html'
+		} else {
+			request.uri = request.uri + '/index.html'
+		}
 		callback(null, request)
 		return
 	}

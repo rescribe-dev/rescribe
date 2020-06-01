@@ -72,7 +72,7 @@ const Header = (args: HeaderArgs) => {
                   </NavLink>,
                 ]
               : [
-                  <NavLink key="account" tag={Link} to="/app/account">
+                  <NavLink key="account" tag={Link} to="/account">
                     Account
                   </NavLink>,
                   <UncontrolledDropdown key="dropdown" nav inNavbar>
