@@ -4,6 +4,7 @@ node_modules/
 .gradle
 .ipynb_checkpoints
 .env
-debug/demoCode/*
+demoCode/
+debug/demoCode/
 # ignore swap files
 *.swp
