@@ -22,7 +22,7 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
     super();
     this.tokens = tokens;
     this.file = new File(input);
-    parents.push(new Parent(this.file.get_id(), ParentType.File));
+    parents.push(new Parent(this.file.get_id(), ParentType.FILE));
     this.file.setLanguage(languageType);
   }
 
@@ -48,14 +48,17 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
   public Boolean hasCallabck(String input) {
     return input.contains("function(");
   }
+
   /* GOING TO BE USED */
   // TODO parents
   // 90% of the things Ive seen in testing are assignables, object literals,
   // anonymous function declarations, and member dot expressions
-  /*DOCUMENTED*/
+  /* DOCUMENTED */
   // these are entering variable names
-  // for assignables the parent yields the entire expression ex: thing = something else
-  // the parent of the parent yields either var thing = something else or for arguments it
+  // for assignables the parent yields the entire expression ex: thing = something
+  // else
+  // the parent of the parent yields either var thing = something else or for
+  // arguments it
   // yields all of the arguments of the function
   // this procs on function assignemnts too
   @Override
@@ -80,15 +83,18 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
     // push and pop for variable stack
   }
 
-  // the children of this are the function keyword, the arguments, and the content of the function
-  // if you break it down further you get all of the sub expressions but we dont need those
+  // the children of this are the function keyword, the arguments, and the content
+  // of the function
+  // if you break it down further you get all of the sub expressions but we dont
+  // need those
   static final int functionNameChars = 15;
 
   @Override
   public void enterAnoymousFunctionDecl(JavaScriptParser.AnoymousFunctionDeclContext ctx) {
 
     Function newFunction = new Function();
-    // if there are six children its an anonymous function declared with the function syntax with
+    // if there are six children its an anonymous function declared with the
+    // function syntax with
     // no arguments
     // anonymous function with no arguments
     if (ctx.getChildCount() == 6) {
@@ -123,11 +129,14 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
 
   // three parent children gives you all of the expression with the syntax
   // something = document.getwhatever(adasfd).asdf
-  // two parent children gives you all of the standalone expressions with no further frills
+  // two parent children gives you all of the standalone expressions with no
+  // further frills
   // math.pow(thing)
   // document.getwhatever(asdfd)
-  // it also may give you a massively long dot expression if there is a callback internal to it
-  // in that case it will give you the entire callback. I recommend three parent children as the
+  // it also may give you a massively long dot expression if there is a callback
+  // internal to it
+  // in that case it will give you the entire callback. I recommend three parent
+  // children as the
   // set to be used
   @Override
   public void enterMemberDotExpression(JavaScriptParser.MemberDotExpressionContext ctx) {
@@ -135,7 +144,8 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
     Variable newVariable = new Variable();
     if (ctx.getChildCount() >= 3) {
       if (!hasCallabck(ctx.children.get(2).getText())) {
-        // in the example object.function() set the name to object and the type to function()
+        // in the example object.function() set the name to object and the type to
+        // function()
         newVariable.setName(ctx.children.get(0).getText());
         newVariable.setType(ctx.children.get(2).getText());
         newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
@@ -148,15 +158,18 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
     // push and pop to parent stack
   }
 
-  // this gives you a list of all of the members within the object literal declaration
-  // with a child being each member of the object literal and all of the commas and brackets
-  // ex: {nav:hash[0],anchor:decodeURIComponent(hash[1]||'')}   =
+  // this gives you a list of all of the members within the object literal
+  // declaration
+  // with a child being each member of the object literal and all of the commas
+  // and brackets
+  // ex: {nav:hash[0],anchor:decodeURIComponent(hash[1]||'')} =
   // {
   // nav:hash[0]
   // ,
   // anchor:decodeURIComponent(hash[1]||'')
   // }
-  // the parents children are the name of the storage varible, an equals sign, and the raw members
+  // the parents children are the name of the storage varible, an equals sign, and
+  // the raw members
   // within the object literal declaration
   // ex: ditto = {stuff} =
   // ditto
@@ -190,10 +203,11 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
 
   @Override
   public void exitObjectLiteralExpression(JavaScriptParser.ObjectLiteralExpressionContext ctx) {
-    // push and pop parent stack with a new function so that we get all of the variables as marked
+    // push and pop parent stack with a new function so that we get all of the
+    // variables as marked
     // underneath the object literal
   }
-  /*DOCUMENTED*/
+  /* DOCUMENTED */
 
   @Override
   public void enterClassDeclaration(JavaScriptParser.ClassDeclarationContext ctx) {
@@ -213,31 +227,33 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
 /* GOING TO BE USED */
 
 // debugging prints for arguments
-//        else {
-////            1, 1, assignments seem to be function args these can be disregarded
-//            System.out.println("\nstart assignemnt");
-//            System.out.println(ctx.getParent().getParent().getChildCount());
-//            System.out.println(ctx.getParent().getChildCount());
-//            System.out.println(ctx.getPayload().getText());//this is just the variable name
-//            if (ctx.getParent() != null && ctx.getParent().getChildCount() >= 3) {
-//                System.out.println(ctx.getParent().getChild(2).getText()); //what its equal to
-//                System.out.println(ctx.getParent().getChild(2).getChildCount());
-//                if(ctx.getParent().getChild(2).getChild(1) != null) {
-//                    int substringLength =
+// else {
+//// 1, 1, assignments seem to be function args these can be disregarded
+// System.out.println("\nstart assignemnt");
+// System.out.println(ctx.getParent().getParent().getChildCount());
+// System.out.println(ctx.getParent().getChildCount());
+// System.out.println(ctx.getPayload().getText());//this is just the variable
+// name
+// if (ctx.getParent() != null && ctx.getParent().getChildCount() >= 3) {
+// System.out.println(ctx.getParent().getChild(2).getText()); //what its equal
+// to
+// System.out.println(ctx.getParent().getChild(2).getChildCount());
+// if(ctx.getParent().getChild(2).getChild(1) != null) {
+// int substringLength =
 // ctx.getParent().getChild(2).getChild(1).getText().length() >=9 ? 9: -1;
-//                    System.out.println(ctx.getParent().getChild(2).getChild(1).getText());
-//                    if(substringLength > 0)
+// System.out.println(ctx.getParent().getChild(2).getChild(1).getText());
+// if(substringLength > 0)
 //
 // System.out.println(ctx.getParent().getChild(2).getChild(1).getText().substring(1,
 // substringLength));
-//                    if (substringLength < 0) {
-//                        System.out.println("not a function");
-//                    }
-//                    else if (ctx.getParent().getChild(2).getChild(1).getText().substring(1,
+// if (substringLength < 0) {
+// System.out.println("not a function");
+// }
+// else if (ctx.getParent().getChild(2).getChild(1).getText().substring(1,
 // substringLength).equals("function")) {
-//                        System.out.println("dropped, its a function");
-//                    }
-//                }
-//            }
-//            System.out.println("end assignment\n");
-//        }
+// System.out.println("dropped, its a function");
+// }
+// }
+// }
+// System.out.println("end assignment\n");
+// }
