@@ -26,7 +26,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     super();
     this.tokens = tokens;
     this.file = new File(input);
-    parents.push(new Parent(this.file.get_id(), ParentType.File));
+    parents.push(new Parent(this.file.get_id(), ParentType.FILE));
     file.setLanguage(languageType);
   }
 
@@ -112,7 +112,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
     Class newClass = new Class();
     newClass.setParent(this.parents.peek());
-    parents.push(new Parent(newClass.get_id(), ParentType.Class));
+    parents.push(new Parent(newClass.get_id(), ParentType.CLASS));
     newClass.setName(ctx.children.get(1).getText());
     newClass.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
     file.getComments()
@@ -146,7 +146,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
     if (ctx.getChildCount() >= 4 || (ctx.getChildCount() == 3 && isConstructor)) {
       newFunction = new Function();
       newFunction.setParent(parents.peek());
-      parents.push(new Parent(newFunction.get_id(), ParentType.Function));
+      parents.push(new Parent(newFunction.get_id(), ParentType.FUNCTION));
       newFunction.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
       final int offset = isConstructor ? 0 : 1;
       if (!isConstructor) {
@@ -214,7 +214,7 @@ public class JavaDeclarationListener extends JavaParserBaseListener implements C
   public void enterVariableDeclarator(JavaParser.VariableDeclaratorContext ctx) {
     Variable newVariable = new Variable();
     newVariable.setParent(this.parents.peek());
-    parents.push(new Parent(newVariable.get_id(), ParentType.Variable));
+    parents.push(new Parent(newVariable.get_id(), ParentType.VAR));
     newVariable.setName(ctx.getChild(0).getText());
     newVariable.setType(ctx.getParent().getParent().getChild(0).getText());
     newVariable.setLocation(new Location(ctx.start.getLine(), ctx.stop.getLine()));
