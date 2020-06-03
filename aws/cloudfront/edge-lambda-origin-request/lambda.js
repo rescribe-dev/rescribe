@@ -9,12 +9,27 @@ const regexTrailingSlash = /.+\/$/; // e.g. "/some/" or "/some/page/" but not ro
 
 const nonIndexFolders = ['/404'];
 
+const routedPaths = [
+	{
+		regex: /^\/project\/\S+$/,
+		value: '/project/index.html'
+	}
+]
+
 exports.handler = (event, _context, callback) => {
   const request = event.Records[0].cf.request
   const headers = request.headers
 	const useBrotli = headers['accept-encoding'] && headers['accept-encoding'][0].value.indexOf('br') > -1
 	const originalRequestURI = request.uri;
-  request.uri = (useBrotli ? '/brotli' : '/gzip') + originalRequestURI
+	const encodingComponent = (useBrotli ? '/brotli' : '/gzip');
+	for (const elem of routedPaths) {
+		if (originalRequestURI.match(elem.regex)) {
+			request.uri = encodingComponent + elem.value;
+			callback(null, request)
+			return
+		}
+	}
+	request.uri = encodingComponent + originalRequestURI
   // Append ".html" to origin request
 	if (request.uri.match(regexSuffixless)) {
 		if (nonIndexFolders.includes(originalRequestURI)) {
