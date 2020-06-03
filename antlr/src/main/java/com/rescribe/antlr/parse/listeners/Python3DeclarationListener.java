@@ -18,6 +18,7 @@ public class Python3DeclarationListener extends Python3BaseListener implements C
   Stack<Parent> parents = new Stack<>();
 
   public File getFileData() {
+    output("Call to getFileData() intercepted\t" + Thread.currentThread().getStackTrace());
     return file;
   }
 
@@ -38,6 +39,10 @@ public class Python3DeclarationListener extends Python3BaseListener implements C
     for (int i = 0; i < ctx.getChildCount(); i++) {
       output(Integer.toString(i) + ctx.getChild(i).getText());
     }
+    String fID = null;
+    ParentType fileParentType = ParentType.FILE;
+    Parent file = new Parent(fID, fileParentType);
+    parents.push(file);
   }
 
   /**
@@ -95,6 +100,8 @@ public class Python3DeclarationListener extends Python3BaseListener implements C
 
     String args = ctx.parameters().getText();
     String contents = ctx.children.get(4).getText();
+
+    this.file.getFunctions().add(fn);
   }
 
   /**
