@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useStaticQuery, graphql } from 'gatsby';
 
 import Header from '../components/header';
+import Footer from '../components/footer';
+
 import './index.scss';
 import { Container } from 'reactstrap';
 
@@ -55,6 +57,7 @@ const Layout = (args: LayoutArgs) => {
       <Fonts />
       <main>{args.children}</main>
       <Container>
+        <Footer />
         <footer>© {new Date().getFullYear()}, Rescribe</footer>
       </Container>
     </>

@@ -8,5 +8,8 @@
   "java.configuration.updateBuildConfiguration": "disabled",
   "cSpell.words": [
     "rescribe"
-  ]
+  ],
+  "extensions.ignoreRecommendations": true,
+  "files.autoSave": "off",
+  "debug.allowBreakpointsEverywhere": true
 }
