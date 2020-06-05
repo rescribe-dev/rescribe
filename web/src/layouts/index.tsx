@@ -11,6 +11,7 @@ import Footer from '../components/footer';
 
 import './index.scss';
 import { Container } from 'reactstrap';
+import { WindowLocation } from '@reach/router';
 
 toast.configure({
   autoClose: 4000,
@@ -25,6 +26,7 @@ const Fonts = Loadable(() => import('../components/fontloader'));
 
 interface LayoutArgs {
   children: any;
+  location: WindowLocation;
 }
 
 interface IndexLayoutProps {
@@ -48,7 +50,10 @@ const Layout = (args: LayoutArgs) => {
 
   return (
     <>
-      <Header siteTitle={data.site.siteMetadata.title} />
+      <Header
+        siteTitle={data.site.siteMetadata.title}
+        location={args.location}
+      />
       <Helmet>
         <script
           src={`https://www.google.com/recaptcha/api.js?render=${process.env.GATSBY_RECAPTCHA_SITE_KEY}`}

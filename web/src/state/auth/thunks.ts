@@ -1,7 +1,6 @@
 import { AppThunkAction } from '../thunk';
 import { client } from '../../utils/apollo';
 import { login, setUser, logout } from './actions';
-import { setProject } from '../project/actions';
 import {
   Logout,
   LogoutMutation,
@@ -59,12 +58,6 @@ export const thunkLogout = (): AppThunkAction<Promise<void>> => async (
   dispatch
 ) => {
   await runLogout();
-  dispatch(
-    setProject({
-      name: '',
-      id: null,
-    })
-  );
   dispatch(logout());
 };
 

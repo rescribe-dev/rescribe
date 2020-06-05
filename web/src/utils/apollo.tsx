@@ -43,6 +43,9 @@ export let client: ApolloClient<any>;
 const wsForNode = isSSR ? ws : null;
 
 export const initializeApolloClient = async (): Promise<void> => {
+  if (!process.env.GATSBY_API_URL) {
+    throw new Error('no api url provided');
+  }
   let link = httpLink;
   const authToken = getAuthToken();
   if (await isLoggedIn()) {

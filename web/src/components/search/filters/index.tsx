@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Container, Form, Label, FormGroup } from 'reactstrap';
-import SEO from '../../../components/seo';
 import ObjectId from 'bson-objectid';
 import {
   RepositoriesQuery,
@@ -13,22 +12,32 @@ import {
 import { client } from '../../../utils/apollo';
 import AsyncSelect from 'react-select/async';
 import { ValueType } from 'react-select';
-
-const numProjectPerPage = 20;
-const numRepositoriesPerPage = 20;
+import { Dispatch } from 'redux';
+import { isSSR } from '../../../utils/checkSSR';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../../state';
+import { setProjects, setRepositories } from '../../../state/search/actions';
+import { perpageFilters } from '../../../utils/config';
 
 interface SelectObject {
   value: ObjectId;
   label: string;
 }
 
-interface FiltersPropsDataType {
-  onChangeRepositories: (repositories: ObjectId[]) => void;
-  onChangeProjects: (projects: ObjectId[]) => void;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface FiltersPropsDataType {}
 
-const Filters = (args: FiltersPropsDataType) => {
+const Filters = (_args: FiltersPropsDataType) => {
   const [selectedProjects, setSelectedProjects] = useState<SelectObject[]>([]);
+  const projects = isSSR
+    ? undefined
+    : useSelector<RootState, ObjectId[] | undefined>(
+        (state) => state.searchReducer.filters.projects
+      );
+  let dispatch: Dispatch<any>;
+  if (!isSSR) {
+    dispatch = useDispatch();
+  }
   const getProjects = async (inputValue: string): Promise<SelectObject[]> => {
     const projectData = await client.query<
       ProjectsQuery,
@@ -37,7 +46,7 @@ const Filters = (args: FiltersPropsDataType) => {
       query: Projects,
       variables: {
         page: 0,
-        perpage: numProjectPerPage,
+        perpage: perpageFilters.projects,
       },
     });
     if (projectData.data) {
@@ -59,15 +68,18 @@ const Filters = (args: FiltersPropsDataType) => {
   const getRepositories = async (
     inputValue: string
   ): Promise<SelectObject[]> => {
+    if (!projects) {
+      return [];
+    }
     const repositoriesData = await client.query<
       RepositoriesQuery,
       RepositoriesQueryVariables
     >({
       query: Repositories,
       variables: {
-        projects: selectedProjects,
+        projects,
         page: 0,
-        perpage: numRepositoriesPerPage,
+        perpage: perpageFilters.repositories,
       },
     });
     if (repositoriesData.data) {
@@ -90,7 +102,6 @@ const Filters = (args: FiltersPropsDataType) => {
   };
   return (
     <>
-      <SEO title="Project" />
       <Container
         style={{
           marginTop: '3rem',
@@ -114,7 +125,11 @@ const Filters = (args: FiltersPropsDataType) => {
                 const selected = selectedOptions as SelectObject[];
                 setSelectedProjects(selected);
                 const projects = selected.map((project) => project.value);
-                args.onChangeProjects(projects);
+                dispatch(
+                  setProjects({
+                    projects,
+                  })
+                );
               }}
             />
           </FormGroup>
@@ -134,7 +149,11 @@ const Filters = (args: FiltersPropsDataType) => {
                 const repositories = (selectedOptions as SelectObject[]).map(
                   (repository) => repository.value
                 );
-                args.onChangeRepositories(repositories);
+                dispatch(
+                  setRepositories({
+                    repositories,
+                  })
+                );
               }}
             />
           </FormGroup>

@@ -27,6 +27,7 @@ const persistedReducer = persistReducer(
     key: 'rescribe',
     storage,
     transforms: [createBlacklistFilter('authReducer', ['authToken'])],
+    blacklist: ['searchReducer'],
   },
   rootReducer
 );

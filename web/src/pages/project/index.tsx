@@ -21,9 +21,9 @@ import Layout from '../../layouts';
 import { isSSR } from '../../utils/checkSSR';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ProjectPageDataType {}
+interface ProjectPageDataType extends PageProps {}
 
-const ProjectPage = (_args: PageProps<ProjectPageDataType>) => {
+const ProjectPage = (args: ProjectPageDataType) => {
   const project = isSSR
     ? null
     : useSelector<RootState, ObjectId | null>((state) => {
@@ -52,7 +52,7 @@ const ProjectPage = (_args: PageProps<ProjectPageDataType>) => {
   }
   return (
     <PrivateRoute>
-      <Layout>
+      <Layout location={args.location}>
         <SEO title="Project" />
         {project ? (
           <Container

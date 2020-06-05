@@ -15,9 +15,9 @@ import Layout from '../../layouts';
 import { isSSR } from '../../utils/checkSSR';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface AccountPageDataType {}
+interface AccountPageDataType extends PageProps {}
 
-const AccountPage = (_args: PageProps<AccountPageDataType>) => {
+const AccountPage = (args: AccountPageDataType) => {
   const user = isSSR
     ? undefined
     : useSelector<RootState, UserType | undefined>(
@@ -31,7 +31,7 @@ const AccountPage = (_args: PageProps<AccountPageDataType>) => {
   }
   return (
     <PrivateRoute>
-      <Layout>
+      <Layout location={args.location}>
         <SEO title="Account" />
         <Container
           style={{

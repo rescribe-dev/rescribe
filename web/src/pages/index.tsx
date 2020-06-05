@@ -8,10 +8,10 @@ import { isSSR } from '../utils/checkSSR';
 import { useQuery } from '@apollo/react-hooks';
 import { HelloQuery, Hello } from '../lib/generated/datamodel';
 import NavCard from '../components/naviagtionCard';
-import { graphql } from 'gatsby';
+import { graphql, PageProps } from 'gatsby';
 import { FixedObject } from 'gatsby-image';
 
-interface IndexPageProps {
+interface IndexPageProps extends PageProps {
   data: {
     file: {
       childImageSharp: {
@@ -28,7 +28,7 @@ const IndexPage = (args: IndexPageProps) => {
   const loremText =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultricies porttitor ullamcorper. Lorem ipsum dolor sit amet, consectetur adipiscing elit';
   return (
-    <Layout>
+    <Layout location={args.location}>
       <SEO title="Rescribe" />
       <Container
         style={{

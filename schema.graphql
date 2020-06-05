@@ -61,21 +61,6 @@ type AuthNotification {
   token: String!
 }
 
-# base branch
-type BaseBranch {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-}
-
 # base project
 type BaseProject {
   # name
@@ -101,44 +86,6 @@ type BaseRepository {
 
   # public access level
   public: [Access!]!
-}
-
-# branch
-type Branch {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-  _id: ObjectId!
-
-  # date created
-  created: Float!
-
-  # date updated
-  updated: Float!
-}
-
-# branch database
-type BranchDB {
-  # name
-  name: String!
-
-  # repository id
-  repository: ObjectId!
-
-  # project id
-  project: ObjectId!
-
-  # files
-  files: [ObjectId!]!
-  _id: ObjectId!
 }
 
 # class
@@ -562,16 +509,6 @@ type ProjectDB {
 type Query {
   # user data
   user: User!
-  branch(
-    # branch id
-    id: ObjectId
-
-    # branch name
-    name: String
-
-    # repository id
-    repository: ObjectId
-  ): Branch!
   branches(
     # repository id
     repository: ObjectId!

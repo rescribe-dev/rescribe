@@ -8,6 +8,11 @@ import { FormGroup, Input, FormFeedback, Button } from 'reactstrap';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { css } from '@emotion/core';
 import { navigate } from '@reach/router';
+import { getSearchURL } from '../../../state/search/getters';
+import { useDispatch } from 'react-redux';
+import { isSSR } from '../../../utils/checkSSR';
+import { Dispatch } from 'redux';
+import { setQuery } from '../../../state/search/actions';
 
 const loaderCSS = css`
   display: block;
@@ -15,7 +20,11 @@ const loaderCSS = css`
   border-color: red;
 `;
 
-export default function SearchBar() {
+const SearchBar = () => {
+  let dispatch: Dispatch<any>;
+  if (!isSSR) {
+    dispatch = useDispatch();
+  }
   return (
     <Formik
       initialValues={{
@@ -31,8 +40,12 @@ export default function SearchBar() {
           setSubmitting(false);
         };
         try {
-          console.log(formData);
-          navigate(`/search?query=${formData.query}`);
+          dispatch(
+            setQuery({
+              query: formData.query,
+            })
+          );
+          navigate(getSearchURL());
         } catch (err) {
           toast(err.message, {
             type: 'error',
@@ -96,10 +109,12 @@ export default function SearchBar() {
       )}
     </Formik>
   );
-}
+};
 
 SearchBar.propTypes = {
   // callback: PropTypes.func.isRequired,
   id: PropTypes.string,
   placeholder: PropTypes.string,
 };
+
+export default SearchBar;

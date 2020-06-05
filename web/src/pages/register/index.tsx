@@ -39,7 +39,7 @@ const loaderCSS = css`
 `;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface RegisterPageDataType {}
+interface RegisterPageDataType extends PageProps {}
 
 declare global {
   interface Window {
@@ -47,7 +47,7 @@ declare global {
   }
 }
 
-const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
+const RegisterPage = (args: RegisterPageDataType) => {
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
@@ -62,7 +62,7 @@ const RegisterPage = (_args: PageProps<RegisterPageDataType>) => {
       dispatchAuthThunk(thunkLogout());
     });
   return (
-    <Layout>
+    <Layout location={args.location}>
       <SEO title="Login" />
       <Container
         style={{
