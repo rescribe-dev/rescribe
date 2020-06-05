@@ -36,7 +36,7 @@ const loaderCSS = css`
 `;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface LoginPageDataType {}
+interface LoginPageDataType extends PageProps {}
 
 declare global {
   interface Window {
@@ -44,7 +44,7 @@ declare global {
   }
 }
 
-const LoginPage = (args: PageProps<LoginPageDataType>) => {
+const LoginPage = (args: LoginPageDataType) => {
   let token: string | undefined;
   let redirect: string | undefined;
   let cliLogin = false;
@@ -83,7 +83,7 @@ const LoginPage = (args: PageProps<LoginPageDataType>) => {
       dispatchAuthThunk(thunkLogout());
     });
   return (
-    <Layout>
+    <Layout location={args.location}>
       <SEO title="Login" />
       <Container
         style={{
