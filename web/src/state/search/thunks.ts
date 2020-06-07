@@ -38,34 +38,14 @@ const search = async (): Promise<SearchQuery> => {
 export const thunkSearch = (): AppThunkAction<Promise<void>> => async (
   dispatch
 ) => {
-  dispatch(
-    setHasSearched({
-      hasSearched: true,
-    })
-  );
-  dispatch(
-    setSearching({
-      searching: true,
-    })
-  );
+  dispatch(setHasSearched(true));
+  dispatch(setSearching(true));
   try {
     const searchResults = await search();
-    dispatch(
-      setSearchResults({
-        searchResults,
-      })
-    );
-    dispatch(
-      setSearching({
-        searching: false,
-      })
-    );
+    dispatch(setSearchResults(searchResults));
+    dispatch(setSearching(false));
   } catch (err) {
-    dispatch(
-      setSearching({
-        searching: false,
-      })
-    );
+    dispatch(setSearching(false));
     throw err;
   }
 };

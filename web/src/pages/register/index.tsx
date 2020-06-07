@@ -20,7 +20,7 @@ import './index.scss';
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';
 import { client } from '../../utils/apollo';
-import { isLoggedIn } from '../../state/auth/getters';
+import { isLoggedIn, getUsername } from '../../state/auth/getters';
 import { useDispatch } from 'react-redux';
 import { AuthActionTypes } from '../../state/auth/types';
 import { AppThunkDispatch } from '../../state/thunk';
@@ -31,6 +31,12 @@ import {
   RegisterMutation,
   RegisterMutationVariables,
 } from '../../lib/generated/datamodel';
+import {
+  nameMinLen,
+  passwordMinLen,
+  specialCharacterRegex,
+  usernameMinLen,
+} from '../../utils/variables';
 
 const loaderCSS = css`
   display: block;
@@ -55,7 +61,10 @@ const RegisterPage = (args: RegisterPageDataType) => {
   isLoggedIn()
     .then((loggedIn) => {
       if (loggedIn) {
-        navigate('/account');
+        const username = getUsername();
+        if (username.length > 0) {
+          navigate(`/${username}`);
+        }
       }
     })
     .catch((_err) => {
@@ -72,16 +81,41 @@ const RegisterPage = (args: RegisterPageDataType) => {
       >
         <Formik
           initialValues={{
+            username: '',
             name: '',
             email: '',
             password: '',
           }}
           validationSchema={yup.object({
+            username: yup
+              .string()
+              .required('required')
+              .min(
+                usernameMinLen,
+                `username must be at least ${usernameMinLen} characters long`
+              ),
+            name: yup
+              .string()
+              .required('required')
+              .min(
+                nameMinLen,
+                `name must be at least ${nameMinLen} characters long`
+              ),
             email: yup
               .string()
-              .email('invalid email address')
-              .required('required'),
-            password: yup.string().required('required'),
+              .required('required')
+              .email('invalid email address'),
+            password: yup
+              .string()
+              .required('required')
+              .min(
+                passwordMinLen,
+                `password must be at least ${passwordMinLen} characters long`
+              )
+              .matches(
+                specialCharacterRegex,
+                'password must contain at least one special character'
+              ),
           })}
           onSubmit={(formData, { setSubmitting, setStatus }) => {
             if (!window.grecaptcha) {
@@ -96,22 +130,30 @@ const RegisterPage = (args: RegisterPageDataType) => {
                 setSubmitting(false);
               };
               try {
+                if (!process.env.GATSBY_RECAPTCHA_SITE_KEY) {
+                  throw new Error('cannot find recaptcha token');
+                }
                 window.grecaptcha
                   .execute(process.env.GATSBY_RECAPTCHA_SITE_KEY, {
                     action: 'register',
                   })
-                  .then(async (_recaptchaToken: string) => {
+                  .then(async (recaptchaToken: string) => {
                     try {
                       const registerRes = await client.mutate<
                         RegisterMutation,
                         RegisterMutationVariables
                       >({
                         mutation: Register,
-                        variables: formData,
+                        variables: {
+                          ...formData,
+                          recaptchaToken,
+                        },
                       });
                       if (registerRes.errors) {
                         throw new Error(registerRes.errors.join(', '));
                       }
+                      setStatus({ success: true });
+                      setSubmitting(false);
                       navigate('/login');
                     } catch (err) {
                       toast(err.message, {
@@ -142,6 +184,32 @@ const RegisterPage = (args: RegisterPageDataType) => {
             isSubmitting,
           }) => (
             <Form>
+              <FormGroup>
+                <Label for="username">Username</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Username"
+                  style={{
+                    marginBottom: '0.5rem',
+                  }}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.username}
+                  invalid={!!(touched.username && errors.username)}
+                  disabled={isSubmitting}
+                />
+                <FormFeedback
+                  style={{
+                    marginBottom: '1rem',
+                  }}
+                  className="feedback"
+                  type="invalid"
+                >
+                  {touched.username && errors.username ? errors.username : ''}
+                </FormFeedback>
+              </FormGroup>
               <FormGroup>
                 <Label for="name">Name</Label>
                 <Input

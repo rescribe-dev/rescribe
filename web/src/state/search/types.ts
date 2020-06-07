@@ -1,4 +1,4 @@
-import { SearchQuery } from '../../lib/generated/datamodel';
+import { SearchQuery, Language } from '../../lib/generated/datamodel';
 import ObjectId from 'bson-objectid';
 
 export interface SearchState {
@@ -11,32 +11,8 @@ export interface SearchState {
   filters: {
     projects: ObjectId[];
     repositories: ObjectId[];
+    languages: Language[];
   };
-}
-
-export interface SetSearchResultsInput {
-  searchResults: SearchQuery;
-}
-export interface SetSearchingInput {
-  searching: boolean;
-}
-export interface SetHasSearchedInput {
-  hasSearched: boolean;
-}
-export interface SetQueryInput {
-  query: string;
-}
-export interface SetPageInput {
-  page: number;
-}
-export interface SetPerpageInput {
-  perpage: number;
-}
-export interface SetProjectsInput {
-  projects: ObjectId[];
-}
-export interface SetRepositoriesInput {
-  repositories: ObjectId[];
 }
 
 export const SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS';
@@ -47,38 +23,44 @@ export const SET_PAGE = 'SET_PAGE';
 export const SET_PERPAGE = 'SET_PERPAGE';
 export const SET_PROJECTS = 'SET_PROJECTS';
 export const SET_REPOSITORIES = 'SET_REPOSITORIES';
+export const SET_LANGUAGES = 'SET_LANGUAGES';
 
 interface SetSearchResultsAction {
   type: typeof SET_SEARCH_RESULTS;
-  payload: SetSearchResultsInput;
+  payload: SearchQuery;
 }
 interface SetSearchingAction {
   type: typeof SET_SEARCHING;
-  payload: SetSearchingInput;
+  payload: boolean;
 }
 interface SetHasSearchedAction {
   type: typeof SET_HAS_SEARCHED;
-  payload: SetHasSearchedInput;
+  payload: boolean;
 }
 interface SetQueryAction {
   type: typeof SET_QUERY;
-  payload: SetQueryInput;
+  payload: string;
 }
 interface SetPageAction {
   type: typeof SET_PAGE;
-  payload: SetPageInput;
+  payload: number;
 }
 interface SetPerpageAction {
   type: typeof SET_PERPAGE;
-  payload: SetPerpageInput;
+  payload: number;
 }
 interface SetProjectsAction {
   type: typeof SET_PROJECTS;
-  payload: SetProjectsInput;
+  payload: ObjectId[];
 }
 interface SetRepositoriesAction {
   type: typeof SET_REPOSITORIES;
-  payload: SetRepositoriesInput;
+  payload: ObjectId[];
+}
+
+interface SetLanguagesAction {
+  type: typeof SET_LANGUAGES;
+  payload: Language[];
 }
 
 export type SearchActionTypes =
@@ -89,4 +71,5 @@ export type SearchActionTypes =
   | SetPageAction
   | SetPerpageAction
   | SetProjectsAction
-  | SetRepositoriesAction;
+  | SetRepositoriesAction
+  | SetLanguagesAction;

@@ -6,13 +6,14 @@ import './index.scss';
 
 import SEO from '../../components/seo';
 import { useDispatch, useSelector } from 'react-redux';
-import { AuthActionTypes, UserType } from '../../state/auth/types';
+import { AuthActionTypes } from '../../state/auth/types';
 import { AppThunkDispatch } from '../../state/thunk';
 import { thunkGetUser } from '../../state/auth/thunks';
 import { RootState } from '../../state';
 import PrivateRoute from '../../components/privateRoute';
 import Layout from '../../layouts';
 import { isSSR } from '../../utils/checkSSR';
+import { UserFieldsFragment } from '../../lib/generated/datamodel';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AccountPageDataType extends PageProps {}
@@ -20,7 +21,7 @@ interface AccountPageDataType extends PageProps {}
 const AccountPage = (args: AccountPageDataType) => {
   const user = isSSR
     ? undefined
-    : useSelector<RootState, UserType | undefined>(
+    : useSelector<RootState, UserFieldsFragment | undefined>(
         (state) => state.authReducer.user
       );
   if (!isSSR && !user) {

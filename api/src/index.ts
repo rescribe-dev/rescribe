@@ -7,6 +7,7 @@ import { initializeGithub } from './utils/github';
 import { configData, initializeConfig } from './utils/config';
 import { initializeAWS } from './utils/aws';
 import { initializeRedis } from './utils/redis';
+import { initializeSendgrid } from './utils/sendgrid';
 
 const runAPI = async (): Promise<void> => {
   await initializeConfig();
@@ -20,6 +21,8 @@ const runAPI = async (): Promise<void> => {
     logger.info('github client initialized');
     await initializeAWS();
     logger.info('aws initialized');
+    await initializeSendgrid();
+    logger.info('sendgrid connection initialized');
     await initializeElastic();
     logger.info('connected to elasticsearch');
     await initializeDB();

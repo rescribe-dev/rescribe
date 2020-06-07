@@ -1,6 +1,6 @@
 import { Link } from 'gatsby';
 import PropTypes from 'prop-types';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import {
   Navbar,
@@ -19,7 +19,6 @@ import {
   FormFeedback,
 } from 'reactstrap';
 import { isLoggedIn } from '../../state/auth/getters';
-import { store } from '../../state/reduxWrapper';
 import { useDispatch, useSelector } from 'react-redux';
 import { navigate, WindowLocation } from '@reach/router';
 import { isSSR } from '../../utils/checkSSR';
@@ -37,26 +36,30 @@ import { toast } from 'react-toastify';
 
 interface HeaderArgs {
   siteTitle: string;
-  location: WindowLocation;
+  location: WindowLocation | string;
 }
 
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
 const Header = (args: HeaderArgs) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-  const [loggedIn, setLoggedIn] = useState(false);
   isLoggedIn()
-    .then((loggedIn) => {
-      setLoggedIn(loggedIn);
+    .then((_loggedIn) => {
+      // user logged in
     })
     .catch((_err) => {
       // handle error
     });
-  // useEffect needs to be top-level (not in if statement)
-  useEffect(() => {
-    // run unsubscribe on unmount
-    return store.subscribe(() => loggedIn);
-  }, []);
+  const loggedIn = isSSR
+    ? undefined
+    : useSelector<RootState, boolean | undefined>(
+        (state) => state.authReducer.loggedIn
+      );
+  const username = isSSR
+    ? undefined
+    : useSelector<RootState, string | undefined>(
+        (state) => state.authReducer.username
+      );
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   let dispatchSearchThunk: AppThunkDispatch<SearchActionTypes>;
   let dispatch: Dispatch<any>;
@@ -68,6 +71,10 @@ const Header = (args: HeaderArgs) => {
   const initialQuery = isSSR
     ? undefined
     : useSelector<RootState, string>((state) => state.searchReducer.query);
+  const pathname =
+    typeof location === 'string'
+      ? location
+      : (args.location as WindowLocation).pathname;
   return (
     <>
       <Navbar color="light" light expand="md">
@@ -77,7 +84,7 @@ const Header = (args: HeaderArgs) => {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
-            {args.location.pathname === '/' ? null : (
+            {pathname === '/' ? null : (
               <Formik
                 initialValues={{
                   query: initialQuery as string,
@@ -86,27 +93,19 @@ const Header = (args: HeaderArgs) => {
                   query: yup.string().required('required'),
                 })}
                 onSubmit={async (formData, { setSubmitting, setStatus }) => {
-                  dispatch(
-                    setQuery({
-                      query: formData.query,
-                    })
-                  );
+                  dispatch(setQuery(formData.query));
                   navigate(getSearchURL());
-                  if (args.location.pathname === '/search') {
-                    dispatchSearchThunk(thunkSearch())
-                      .then(() => {
-                        setStatus({ success: true });
-                      })
-                      .catch((err: Error) => {
-                        setStatus({ success: false });
-                        toast(err.message, {
-                          type: 'error',
-                        });
-                      })
-                      .then(() => {
-                        setSubmitting(false);
+                  if (pathname === '/search') {
+                    try {
+                      await dispatchSearchThunk(thunkSearch());
+                      setStatus({ success: true });
+                    } catch (err) {
+                      setStatus({ success: false });
+                      toast(err.message, {
+                        type: 'error',
                       });
-                    console.log('search in header');
+                    }
+                    setSubmitting(false);
                   } else {
                     setSubmitting(false);
                     setStatus({ success: true });
@@ -169,21 +168,38 @@ const Header = (args: HeaderArgs) => {
                   </NavLink>,
                 ]
               : [
-                  <NavLink key="account" tag={Link} to="/account">
-                    Account
-                  </NavLink>,
                   <UncontrolledDropdown key="dropdown" nav inNavbar>
                     <DropdownToggle key="toggle-options" nav caret>
                       Options
                     </DropdownToggle>
                     <DropdownMenu key="menu" right>
                       <DropdownItem
+                        key="profile"
+                        onClick={(evt: React.MouseEvent) => {
+                          evt.preventDefault();
+                          navigate(`/${username}`);
+                        }}
+                      >
+                        Profile
+                      </DropdownItem>
+                      <DropdownItem
+                        key="settings"
+                        onClick={(evt: React.MouseEvent) => {
+                          evt.preventDefault();
+                          navigate('/account');
+                        }}
+                      >
+                        Settings
+                      </DropdownItem>
+                      <DropdownItem
                         key="logout"
                         onClick={(evt: React.MouseEvent) => {
                           evt.preventDefault();
                           dispatchAuthThunk(thunkLogout())
                             .catch((err: Error) => console.error(err))
-                            .then(() => navigate('/login'));
+                            .then(() => {
+                              // navigate('/login')
+                            });
                         }}
                       >
                         Logout

@@ -5,8 +5,6 @@ import { PageProps } from 'gatsby';
 import './index.scss';
 
 import SEO from '../../components/seo';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../state';
 import ObjectId from 'bson-objectid';
 import { useQuery } from '@apollo/react-hooks';
 import { QueryResult } from '@apollo/react-common';
@@ -24,26 +22,27 @@ import { isSSR } from '../../utils/checkSSR';
 interface ProjectPageDataType extends PageProps {}
 
 const ProjectPage = (args: ProjectPageDataType) => {
-  const project = isSSR
-    ? null
-    : useSelector<RootState, ObjectId | null>((state) => {
-        return state.projectReducer.id
-          ? new ObjectId(state.projectReducer.id)
-          : null;
-      });
-  // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
+  const splitPath = args.location.pathname.split('/project/');
+  let project: ObjectId | undefined = undefined;
+  if (splitPath.length === 2) {
+    const idString = splitPath[1];
+    if (ObjectId.isValid(idString)) {
+      project = new ObjectId(splitPath[1]);
+    }
+  }
 
   const projectQueryRes:
     | QueryResult<RepositoriesQuery, RepositoriesQueryVariables>
-    | undefined = isSSR
-    ? undefined
-    : useQuery<RepositoriesQuery, RepositoriesQueryVariables>(Repositories, {
-        variables: {
-          projects: [project],
-          page: 0,
-          perpage: 1,
-        },
-      });
+    | undefined =
+    isSSR || project === undefined
+      ? undefined
+      : useQuery<RepositoriesQuery, RepositoriesQueryVariables>(Repositories, {
+          variables: {
+            projects: [project],
+            page: 0,
+            perpage: 1,
+          },
+        });
 
   if (projectQueryRes && projectQueryRes.error) {
     toast(projectQueryRes.error.message, {
@@ -86,7 +85,9 @@ const ProjectPage = (args: ProjectPageDataType) => {
               </Table>
             )}
           </Container>
-        ) : null}
+        ) : (
+          <p>cannot find project!</p>
+        )}
       </Layout>
     </PrivateRoute>
   );

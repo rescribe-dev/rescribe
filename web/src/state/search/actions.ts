@@ -1,25 +1,20 @@
 import {
   SearchActionTypes,
   SET_QUERY,
-  SetQueryInput,
-  SetSearchResultsInput,
   SET_SEARCH_RESULTS,
-  SetPageInput,
   SET_PAGE,
-  SetPerpageInput,
   SET_PERPAGE,
-  SetProjectsInput,
   SET_PROJECTS,
-  SetRepositoriesInput,
   SET_REPOSITORIES,
-  SetSearchingInput,
   SET_SEARCHING,
-  SetHasSearchedInput,
   SET_HAS_SEARCHED,
+  SET_LANGUAGES,
 } from './types';
+import { SearchQuery, Language } from '../../lib/generated/datamodel';
+import ObjectId from 'bson-objectid';
 
 export const setSearchResults = (
-  searchResultsInput: SetSearchResultsInput
+  searchResultsInput: SearchQuery
 ): SearchActionTypes => {
   return {
     type: SET_SEARCH_RESULTS,
@@ -27,9 +22,7 @@ export const setSearchResults = (
   };
 };
 
-export const setSearching = (
-  searchingInput: SetSearchingInput
-): SearchActionTypes => {
+export const setSearching = (searchingInput: boolean): SearchActionTypes => {
   return {
     type: SET_SEARCHING,
     payload: searchingInput,
@@ -37,7 +30,7 @@ export const setSearching = (
 };
 
 export const setHasSearched = (
-  hasSearchedInput: SetHasSearchedInput
+  hasSearchedInput: boolean
 ): SearchActionTypes => {
   return {
     type: SET_HAS_SEARCHED,
@@ -45,32 +38,28 @@ export const setHasSearched = (
   };
 };
 
-export const setQuery = (queryInput: SetQueryInput): SearchActionTypes => {
+export const setQuery = (queryInput: string): SearchActionTypes => {
   return {
     type: SET_QUERY,
     payload: queryInput,
   };
 };
 
-export const setPage = (pageInput: SetPageInput): SearchActionTypes => {
+export const setPage = (pageInput: number): SearchActionTypes => {
   return {
     type: SET_PAGE,
     payload: pageInput,
   };
 };
 
-export const setPerpage = (
-  perpageInput: SetPerpageInput
-): SearchActionTypes => {
+export const setPerpage = (perpageInput: number): SearchActionTypes => {
   return {
     type: SET_PERPAGE,
     payload: perpageInput,
   };
 };
 
-export const setProjects = (
-  projectsInput: SetProjectsInput
-): SearchActionTypes => {
+export const setProjects = (projectsInput: ObjectId[]): SearchActionTypes => {
   return {
     type: SET_PROJECTS,
     payload: projectsInput,
@@ -78,10 +67,17 @@ export const setProjects = (
 };
 
 export const setRepositories = (
-  repositoriesInput: SetRepositoriesInput
+  repositoriesInput: ObjectId[]
 ): SearchActionTypes => {
   return {
     type: SET_REPOSITORIES,
     payload: repositoriesInput,
+  };
+};
+
+export const setLanguages = (languagesInput: Language[]): SearchActionTypes => {
+  return {
+    type: SET_LANGUAGES,
+    payload: languagesInput,
   };
 };

@@ -15,7 +15,6 @@ import { SearchResult, ResultType, FileResult, FileLocation, Preview } from '../
 import { ObjectId } from 'mongodb';
 import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLinesArray } from './fileText.resolver';
-import { languageColorMap } from '../schema/structure/language';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { Min } from 'class-validator';
 import { getLogger } from 'log4js';
@@ -23,6 +22,7 @@ import graphqlFields from 'graphql-fields';
 import { hasPagination } from '../utils/pagination';
 import Location from '../schema/antlr/location';
 import { GraphQLResolveInfo } from 'graphql';
+import { languageColorMap } from '../utils/variables';
 
 @ArgsType()
 class SearchArgs extends FilesArgs {

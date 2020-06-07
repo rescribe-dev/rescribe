@@ -38,8 +38,8 @@ const SearchPage = (args: SearchPageDataType) => {
   }
   const foundSearchParams = processSearchParams(args.location.search);
   useEffect(() => {
+    // only run on component mount
     if (args.location.search.length > 0 && foundSearchParams && !searching) {
-      console.log('search');
       dispatchSearchThunk(thunkSearch());
     }
   }, []);

@@ -1,26 +1,31 @@
-import React, { useState } from 'react';
-import { Container, Form, Label, FormGroup } from 'reactstrap';
-import ObjectId from 'bson-objectid';
-import {
-  RepositoriesQuery,
-  RepositoriesQueryVariables,
-  Repositories,
-  ProjectsQuery,
-  ProjectsQueryVariables,
-  Projects,
-} from '../../../lib/generated/datamodel';
-import { client } from '../../../utils/apollo';
+import React, { useState, Dispatch } from 'react';
+import { Container, Form, Label, FormGroup, Button } from 'reactstrap';
 import AsyncSelect from 'react-select/async';
 import { ValueType } from 'react-select';
-import { Dispatch } from 'redux';
+import { setLanguages } from '../../../state/search/actions';
 import { isSSR } from '../../../utils/checkSSR';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../state';
-import { setProjects, setRepositories } from '../../../state/search/actions';
-import { perpageFilters } from '../../../utils/config';
+import UserFilters from '../userFilters';
+import isDebug from '../../../utils/mode';
+import { useQuery } from '@apollo/react-hooks';
+import {
+  LanguageData,
+  LanguagesQuery,
+  LanguagesQueryVariables,
+  Languages,
+  Language,
+} from '../../../lib/generated/datamodel';
+import { capitalizeFirstLetter } from '../../../utils/misc';
+import { navigate } from '@reach/router';
+import { getSearchURL } from '../../../state/search/getters';
+import { toast } from 'react-toastify';
+import { thunkSearch } from '../../../state/search/thunks';
+import { SearchActionTypes } from '../../../state/search/types';
+import { AppThunkDispatch } from '../../../state/thunk';
 
 interface SelectObject {
-  value: ObjectId;
+  value: Language;
   label: string;
 }
 
@@ -28,78 +33,79 @@ interface SelectObject {
 interface FiltersPropsDataType {}
 
 const Filters = (_args: FiltersPropsDataType) => {
-  const [selectedProjects, setSelectedProjects] = useState<SelectObject[]>([]);
-  const projects = isSSR
+  const loggedIn = isSSR
     ? undefined
-    : useSelector<RootState, ObjectId[] | undefined>(
-        (state) => state.searchReducer.filters.projects
+    : useSelector<RootState, boolean | undefined>(
+        (state) => state.authReducer.loggedIn
       );
-  let dispatch: Dispatch<any>;
-  if (!isSSR) {
-    dispatch = useDispatch();
-  }
-  const getProjects = async (inputValue: string): Promise<SelectObject[]> => {
-    const projectData = await client.query<
-      ProjectsQuery,
-      ProjectsQueryVariables
-    >({
-      query: Projects,
-      variables: {
-        page: 0,
-        perpage: perpageFilters.projects,
-      },
-    });
-    if (projectData.data) {
-      return projectData.data.projects
-        .filter((project) => {
-          return project.name.toLowerCase().includes(inputValue.toLowerCase());
-        })
-        .map((project) => {
-          const newSelectItem: SelectObject = {
-            label: project.name,
-            value: new ObjectId(project._id),
-          };
-          return newSelectItem;
-        });
-    } else {
-      throw new Error('cannot find projects data');
-    }
+  // // useEffect needs to be top-level (not in if statement)
+  // useEffect(() => {
+  //   // run unsubscribe on unmount
+  //   return store.subscribe(() => loggedIn);
+  // }, []);
+  const [selectedLanguages, setSelectedLanguages] = useState<SelectObject[]>(
+    []
+  );
+  const alreadySelectedLanguages = isSSR
+    ? undefined
+    : useSelector<RootState, string[] | undefined>(
+        (state) => state.searchReducer.filters.languages
+      );
+  const [languageOptions, setLanguageOptions] = useState<SelectObject[]>([]);
+  const getLabel = (language: LanguageData): string => {
+    return `name: ${language.name}, color: ${language.color}`;
   };
-  const getRepositories = async (
-    inputValue: string
-  ): Promise<SelectObject[]> => {
-    if (!projects) {
-      return [];
-    }
-    const repositoriesData = await client.query<
-      RepositoriesQuery,
-      RepositoriesQueryVariables
-    >({
-      query: Repositories,
-      variables: {
-        projects,
-        page: 0,
-        perpage: perpageFilters.repositories,
-      },
-    });
-    if (repositoriesData.data) {
-      return repositoriesData.data.repositories
-        .filter((repository) => {
-          return repository.name
+  useQuery<LanguagesQuery, LanguagesQueryVariables>(Languages, {
+    variables: {},
+    fetchPolicy: isDebug() ? 'no-cache' : 'cache-first', // disable cache if in debug
+    onCompleted: (data) => {
+      const newLanguageOptions = data.languages;
+      setLanguageOptions(
+        newLanguageOptions.map((language) => {
+          return {
+            label: getLabel(language),
+            value: language.name,
+          };
+        })
+      );
+      if (alreadySelectedLanguages) {
+        setSelectedLanguages(
+          alreadySelectedLanguages.map((name) => {
+            const languageObject = newLanguageOptions.find(
+              (elem) => elem.name === name
+            );
+            const language =
+              Language[capitalizeFirstLetter(name) as keyof typeof Language];
+            if (!languageObject)
+              return {
+                label: name,
+                value: language,
+              };
+            return {
+              label: getLabel(languageObject),
+              value: language,
+            };
+          })
+        );
+      }
+    },
+  });
+  const getLanguages = async (inputValue: string): Promise<SelectObject[]> => {
+    if (!languageOptions) return [];
+    return inputValue.length > 0
+      ? languageOptions.filter((language) => {
+          return language.value
             .toLowerCase()
             .includes(inputValue.toLowerCase());
         })
-        .map((repository) => {
-          const newSelectItem: SelectObject = {
-            label: repository.name,
-            value: new ObjectId(repository._id),
-          };
-          return newSelectItem;
-        });
-    } else {
-      throw new Error('cannot find projects data');
-    }
+      : languageOptions;
   };
+  let dispatch: Dispatch<any>;
+  let dispatchSearchThunk: AppThunkDispatch<SearchActionTypes>;
+  if (!isSSR) {
+    dispatch = useDispatch();
+    dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
+  }
   return (
     <>
       <Container
@@ -110,54 +116,44 @@ const Filters = (_args: FiltersPropsDataType) => {
       >
         <Form key="form">
           <FormGroup>
-            <Label for="repository">Repository</Label>
+            <Label for="languages">Languages</Label>
             <AsyncSelect
-              id="project"
-              name="project"
+              id="languages"
+              name="languages"
               isMulti={true}
-              cacheOptions={false}
-              loadOptions={getProjects}
-              value={selectedProjects}
+              defaultOptions={languageOptions}
+              cacheOptions={true}
+              loadOptions={getLanguages}
+              value={selectedLanguages}
               onChange={(selectedOptions: ValueType<SelectObject>) => {
                 if (!selectedOptions) {
                   selectedOptions = [];
                 }
                 const selected = selectedOptions as SelectObject[];
-                setSelectedProjects(selected);
-                const projects = selected.map((project) => project.value);
-                dispatch(
-                  setProjects({
-                    projects,
-                  })
-                );
-              }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="repository">Repository</Label>
-            <AsyncSelect
-              id="repositories"
-              name="repositories"
-              isMulti={true}
-              cacheOptions={false}
-              isDisabled={selectedProjects.length === 0}
-              loadOptions={getRepositories}
-              onChange={(selectedOptions: ValueType<SelectObject>) => {
-                if (!selectedOptions) {
-                  selectedOptions = [];
-                }
-                const repositories = (selectedOptions as SelectObject[]).map(
-                  (repository) => repository.value
-                );
-                dispatch(
-                  setRepositories({
-                    repositories,
-                  })
-                );
+                setSelectedLanguages(selected);
+                const languages = selected.map((language) => language.value);
+                dispatch(setLanguages(languages));
               }}
             />
           </FormGroup>
         </Form>
+        {loggedIn ? <UserFilters /> : null}
+        <Button
+          type="submit"
+          onClick={async (evt: React.MouseEvent): Promise<void> => {
+            evt.preventDefault();
+            navigate(getSearchURL());
+            try {
+              await dispatchSearchThunk(thunkSearch());
+            } catch (err) {
+              toast(err.message, {
+                type: 'error',
+              });
+            }
+          }}
+        >
+          Submit
+        </Button>
       </Container>
     </>
   );
