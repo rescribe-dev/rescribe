@@ -24,7 +24,15 @@ export const refreshAuth = async (): Promise<void> => {
   store.dispatch(setToken(refreshTokenRes.data.accessToken));
 };
 
-export const isLoggedIn = async () => {
+export const getUsername = (): string => {
+  const state = (store.getState() as RootState).authReducer;
+  if (!state.loggedIn) {
+    return '';
+  }
+  return state.username;
+};
+
+export const isLoggedIn = async (): Promise<boolean> => {
   const state = (store.getState() as RootState).authReducer;
   if (!state.loggedIn) {
     return false;

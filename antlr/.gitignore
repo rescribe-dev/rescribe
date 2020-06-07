@@ -13,6 +13,9 @@ grammars/
 # Compiled class file
 *.class
 
+# ignore classpath file
+.classpath
+
 # Log file
 *.log
 

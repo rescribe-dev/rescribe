@@ -17,7 +17,7 @@ class ProjectArgs {
   @Field(_type => ObjectId, { description: 'project id', nullable: true })
   id?: ObjectId;
 
-  @Field({ description: 'project id', nullable: true })
+  @Field({ description: 'project name', nullable: true })
   name?: string;
 }
 
@@ -54,7 +54,7 @@ class ProjectResolver {
       }
       const mustParams: TermQuery[] = [{
         term: {
-          name: args.name
+          name: args.name.toLowerCase()
         }
       }];
       const projectData = await elasticClient.search({

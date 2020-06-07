@@ -305,6 +305,9 @@ type Mutation {
     email: String
   ): String!
   login(
+    # recaptcha token
+    recaptchaToken: String!
+
     # email
     email: String!
 
@@ -318,8 +321,14 @@ type Mutation {
     email: String
   ): String!
   register(
+    # recaptcha token
+    recaptchaToken: String!
+
     # name
     name: String!
+
+    # username
+    username: String!
 
     # email
     email: String!
@@ -357,6 +366,16 @@ type Mutation {
 
     # branch name
     name: String!
+  ): String!
+  addToMailingList(
+    # recaptcha token
+    recaptchaToken: String!
+
+    # name
+    name: String!
+
+    # email
+    email: String!
   ): String!
   indexFiles(
     # paths
@@ -506,9 +525,25 @@ type ProjectDB {
   _id: ObjectId!
 }
 
+# public user data
+type PublicUser {
+  # name
+  name: String!
+
+  # username
+  username: String!
+
+  # email
+  email: String!
+}
+
 type Query {
   # user data
   user: User!
+  branches(
+    # repository id
+    repository: ObjectId!
+  ): [String!]!
   file(
     # file id
     id: ObjectId!
@@ -580,11 +615,12 @@ type Query {
     maxResultsPerFile: Int
   ): [FileResult!]!
   hello: String!
+  languages: [LanguageData!]!
   project(
     # project id
     id: ObjectId
 
-    # project id
+    # project name
     name: String
   ): Project!
   projects(
@@ -614,6 +650,15 @@ type Query {
     # repository name
     name: String
   ): Repository!
+
+  # public user data
+  publicUser(
+    # project id
+    id: ObjectId
+
+    # project name
+    username: String
+  ): PublicUser!
 }
 
 # repository
@@ -705,13 +750,15 @@ scalar Upload
 
 # user account
 type User {
-  _id: ObjectId!
-
-  # user name
+  # name
   name: String!
 
-  # user email
+  # username
+  username: String!
+
+  # email
   email: String!
+  _id: ObjectId!
 
   # user plan
   plan: String!

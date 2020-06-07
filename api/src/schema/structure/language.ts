@@ -1,9 +1,5 @@
 import { registerEnumType, ObjectType, Field, Int } from 'type-graphql';
-
-export enum Language {
-  java = 'java',
-  javascript = 'javascript',
-}
+import { Language } from '../../utils/variables';
 
 registerEnumType(Language, {
   name: 'Language',
@@ -18,8 +14,3 @@ export class LanguageData {
   @Field(_type => Int, { description: 'associated color' })
   color: number;
 }
-
-export const languageColorMap: {[key: string]: number} = {};
-
-languageColorMap[Language.java] = 0xF0AD4E;
-languageColorMap[Language.javascript] = 0x0275D8; // switch to hex

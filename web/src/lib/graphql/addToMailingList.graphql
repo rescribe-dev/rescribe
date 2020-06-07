@@ -1,0 +1,3 @@
+mutation addToMailingList($recaptchaToken: String!, $name: String!, $email: String!) {
+  addToMailingList(recaptchaToken: $recaptchaToken, name: $name, email: $email)
+}

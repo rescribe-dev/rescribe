@@ -11,7 +11,7 @@ First clone the repository:
 1. `git clone https://github.com/mdigreg2/rescribe`
 2. `cd rescribe`
 
-Then make sure your system time is correct. Otherwise the pings will not work. Make sure node.js and java jdk 8 is installed - you can use [this link](https://github.com/nodesource/distributions) for node and [this](https://openjdk.java.net/install/) for java. Next make sure yarn is installed [from here](https://classic.yarnpkg.com/en/docs/install).
+Then make sure your system time is correct. Otherwise the pings will not work. Make sure node.js and java jdk 8 is installed - you can use [this link](https://github.com/nodesource/distributions) for node and [this](https://openjdk.java.net/install/) for java (`sudo apt-get install -y openjdk-8-jdk`). Next make sure yarn is installed [from here](https://classic.yarnpkg.com/en/docs/install).
 
 Then optionally install git pre-commit hooks (required if developing). These hooks are used for linting files, ensuring code consistency and style guides: `npm install`
 
@@ -79,7 +79,7 @@ To run the cli:
 
 1. in a new terminal: `cd cli`
 2. Download the correct `.rescriberc.yml` file from [the drive](https://drive.google.com/drive/folders/1ZZhFu96jvGxrcdbPJ8U6hYke1cI3M-1b) and name it `.rescriberc.yml`. Place it in the cli folder.
-3. Install krb5 following [these instructions](https://www.npmjs.com/package/krb5), with your package manager. See [this issue](https://github.com/nodegit/nodegit/issues/1134) for more information.
+3. Install krb5 following [these instructions](https://www.npmjs.com/package/krb5), with your package manager. See [this issue](https://github.com/nodegit/nodegit/issues/1134) for more information. `sudo apt-get install build-essential libkrb5-dev`
 4. Install nodegit: `npm i nodegit`
 5. `npm install`
 6. `npm run build`
