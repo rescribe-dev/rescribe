@@ -9,8 +9,9 @@ import {
   SET_REPOSITORIES,
   SET_SEARCHING,
   SET_HAS_SEARCHED,
+  SET_LANGUAGES,
 } from './types';
-import { perpageOptions } from '../../utils/config';
+import { perpageOptions } from '../../utils/variables';
 
 const initialState: SearchState = {
   searchResults: null,
@@ -22,6 +23,7 @@ const initialState: SearchState = {
   filters: {
     projects: [],
     repositories: [],
+    languages: [],
   },
 };
 
@@ -38,34 +40,34 @@ export const searchReducer = (
     case SET_SEARCHING:
       return {
         ...state,
-        ...action.payload,
+        searching: action.payload,
       };
     case SET_HAS_SEARCHED:
       return {
         ...state,
-        ...action.payload,
+        hasSearched: action.payload,
       };
     case SET_QUERY:
       return {
         ...state,
-        ...action.payload,
+        query: action.payload,
       };
     case SET_PAGE:
       return {
         ...state,
-        ...action.payload,
+        page: action.payload,
       };
     case SET_PERPAGE:
       return {
         ...state,
-        ...action.payload,
+        perpage: action.payload,
       };
     case SET_PROJECTS:
       return {
         ...state,
         filters: {
           ...state.filters,
-          ...action.payload,
+          projects: action.payload,
         },
       };
     case SET_REPOSITORIES:
@@ -73,7 +75,15 @@ export const searchReducer = (
         ...state,
         filters: {
           ...state.filters,
-          ...action.payload,
+          repositories: action.payload,
+        },
+      };
+    case SET_LANGUAGES:
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          languages: action.payload,
         },
       };
     default:

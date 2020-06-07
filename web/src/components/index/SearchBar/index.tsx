@@ -40,11 +40,7 @@ const SearchBar = () => {
           setSubmitting(false);
         };
         try {
-          dispatch(
-            setQuery({
-              query: formData.query,
-            })
-          );
+          dispatch(setQuery(formData.query));
           navigate(getSearchURL());
         } catch (err) {
           toast(err.message, {

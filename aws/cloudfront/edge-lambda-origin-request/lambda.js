@@ -11,8 +11,8 @@ const nonIndexFolders = ['/404'];
 
 const routedPaths = [
 	{
-		regex: /^\/project\/\S+$/,
-		value: '/project/index.html'
+		regex: /^\/project\/[^\s\/]+[\/]{0,1}$/, // matches /project/<id></>
+		value: '/project/:projectID/index.html'
 	}
 ]
 

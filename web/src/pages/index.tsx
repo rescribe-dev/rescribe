@@ -7,7 +7,7 @@ import './index.scss';
 import { isSSR } from '../utils/checkSSR';
 import { useQuery } from '@apollo/react-hooks';
 import { HelloQuery, Hello } from '../lib/generated/datamodel';
-import NavCard from '../components/naviagtionCard';
+// import NavCard from '../components/naviagtionCard';
 import { graphql, PageProps } from 'gatsby';
 import { FixedObject } from 'gatsby-image';
 
@@ -25,8 +25,8 @@ const IndexPage = (args: IndexPageProps) => {
   if (!isSSR) {
     console.log(useQuery<HelloQuery | undefined>(Hello).data?.hello);
   }
-  const loremText =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultricies porttitor ullamcorper. Lorem ipsum dolor sit amet, consectetur adipiscing elit';
+  // const loremText =
+  //   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultricies porttitor ullamcorper. Lorem ipsum dolor sit amet, consectetur adipiscing elit';
   return (
     <Layout location={args.location}>
       <SEO title="Rescribe" />
@@ -37,7 +37,7 @@ const IndexPage = (args: IndexPageProps) => {
         }}
       >
         <SearchBar />
-        <NavCard
+        {/*<NavCard
           title="Intuitive search"
           subtitle="optional subtitle"
           image={args.data.file.childImageSharp.fixed}
@@ -60,7 +60,7 @@ const IndexPage = (args: IndexPageProps) => {
           body={loremText}
           linkText="read more"
           linkSlug="/"
-        />
+        />*/}
       </Container>
     </Layout>
   );

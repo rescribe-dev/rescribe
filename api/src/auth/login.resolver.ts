@@ -4,13 +4,18 @@ import { verifyGuest } from './checkAuth';
 import { generateJWTAccess, generateJWTGuest, generateJWTRefresh } from '../utils/jwt';
 import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
-import { authNotificationsTrigger, passwordMinLen, specialCharacterRegex } from './shared';
+import { passwordMinLen, specialCharacterRegex } from '../utils/variables';
+import { authNotificationsTrigger } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
 import User, { UserModel } from '../schema/auth/user';
 import { setRefreshToken } from '../utils/refreshToken';
+import { verifyRecaptcha } from '../utils/recaptcha';
 
 @ArgsType()
 class LoginArgs {
+  @Field(_type => String, { description: 'recaptcha token' })
+  recaptchaToken: string;
+
   @Field(_type => String, { description: 'email' })
   @IsEmail({}, {
     message: 'invalid email provided'
@@ -30,15 +35,18 @@ class LoginArgs {
 @Resolver()
 class LoginResolvers {
   @Mutation(_returns => String)
-  async login(@PubSub() pubSub: PubSubEngine, @Args() { email, password }: LoginArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+  async login(@PubSub() pubSub: PubSubEngine, @Args() args: LoginArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+    if (!(await verifyRecaptcha(args.recaptchaToken))) {
+      throw new Error('invalid recaptcha token');
+    }
     const userRes = await UserModel.findOne({
-      email
+      email: args.email
     });
     if (!userRes) {
-      throw new Error(`cannot find user with email ${email}`);
+      throw new Error(`cannot find user with email ${args.email}`);
     }
     const user = userRes as User;
-    if (!await bcrypt.compare(password, user.password)) {
+    if (!await bcrypt.compare(args.password, user.password)) {
       throw new Error('password is invalid');
     }
     const token = await generateJWTAccess(user);

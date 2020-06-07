@@ -4,7 +4,7 @@ import '../../storybook/global';
 // @ts-ignore
 import markdown from './README.md';
 
-export const Header = () => <HeaderComponent />;
+export const Header = () => <HeaderComponent location={'/'} />;
 
 export default {
   title: 'Header',

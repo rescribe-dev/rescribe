@@ -1,4 +1,7 @@
 import path from 'path';
+import { config } from 'dotenv';
+
+config();
 
 /* eslint @typescript-eslint/camelcase: 0 */
 /* eslint @typescript-eslint/no-unused-vars: 0 */
@@ -70,6 +73,12 @@ export default {
     {
       resolve: 'gatsby-plugin-create-client-paths',
       options: { prefixes: [] },
+    },
+    {
+      resolve: 'gatsby-plugin-canonical-urls',
+      options: {
+        siteUrl: process.env.GATSBY_SITE_URL,
+      },
     },
     // see https://github.com/jlengstorf/gatsby-hasura-realtime-app
     // `gatsby-source-graphql`,

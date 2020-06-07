@@ -19,3 +19,13 @@ body {
 .grecaptcha-badge {
   visibility: hidden;
 }
+
+/* get footer to stick to the bottom */
+.main-wrapper {
+  display: flex;
+  min-height: 120vh;
+  flex-direction: column;
+}
+.content {
+  flex: 1;
+}

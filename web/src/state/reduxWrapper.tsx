@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore, persistReducer } from 'redux-persist';
-import { createBlacklistFilter } from 'redux-persist-transform-filter';
+import { createWhitelistFilter } from 'redux-persist-transform-filter';
 import storage from 'redux-persist/lib/storage';
 import rootReducer from '.';
 import thunk from 'redux-thunk';
@@ -26,7 +26,9 @@ const persistedReducer = persistReducer(
   {
     key: 'rescribe',
     storage,
-    transforms: [createBlacklistFilter('authReducer', ['authToken'])],
+    transforms: [
+      createWhitelistFilter('authReducer', ['loggedIn', 'username']),
+    ],
     blacklist: ['searchReducer'],
   },
   rootReducer

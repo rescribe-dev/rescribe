@@ -20,8 +20,8 @@ import './index.scss';
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';
 import { initializeApolloClient } from '../../utils/apollo';
-import { isLoggedIn } from '../../state/auth/getters';
-import { thunkLogin, thunkLogout } from '../../state/auth/thunks';
+import { isLoggedIn, getUsername } from '../../state/auth/getters';
+import { thunkLogin, thunkLogout, thunkGetUser } from '../../state/auth/thunks';
 import { useDispatch } from 'react-redux';
 import { AuthActionTypes } from '../../state/auth/types';
 import { AppThunkDispatch } from '../../state/thunk';
@@ -70,12 +70,15 @@ const LoginPage = (args: LoginPageDataType) => {
     dispatch = useDispatch();
   }
   isLoggedIn()
-    .then((loggedIn) => {
+    .then(async (loggedIn) => {
       if (token === undefined && loggedIn) {
-        if (redirect !== undefined) {
-          navigate(redirect);
-        } else {
-          navigate('/account');
+        const username = getUsername();
+        if (username.length > 0) {
+          if (redirect !== undefined) {
+            navigate(redirect);
+          } else {
+            navigate(`/${username}`);
+          }
         }
       }
     })
@@ -116,18 +119,27 @@ const LoginPage = (args: LoginPageDataType) => {
                 setSubmitting(false);
               };
               try {
+                if (!process.env.GATSBY_RECAPTCHA_SITE_KEY) {
+                  throw new Error('cannot find recaptcha token');
+                }
                 window.grecaptcha
                   .execute(process.env.GATSBY_RECAPTCHA_SITE_KEY, {
                     action: 'login',
                   })
-                  .then(async (_recaptchaToken: string) => {
+                  .then(async (recaptchaToken: string) => {
                     if (token !== undefined) {
                       dispatch(setToken(token));
                       await initializeApolloClient();
                     }
                     try {
-                      await dispatchAuthThunk(thunkLogin(formData));
+                      await dispatchAuthThunk(
+                        thunkLogin({
+                          ...formData,
+                          recaptchaToken,
+                        })
+                      );
                       await initializeApolloClient();
+                      await dispatchAuthThunk(thunkGetUser());
                       if (redirect !== undefined) {
                         navigate(redirect);
                       } else {
@@ -140,7 +152,10 @@ const LoginPage = (args: LoginPageDataType) => {
                             type: 'success',
                           });
                         }
-                        navigate('/account');
+                        const username = getUsername();
+                        if (username.length > 0) {
+                          navigate(`/${username}`);
+                        }
                       }
                     } catch (err) {
                       toast(err.message, {

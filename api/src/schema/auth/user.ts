@@ -25,19 +25,26 @@ registerEnumType(UserType, {
   description: 'user type',
 });
 
-@ObjectType({description: 'user account'})
-@modelOptions({ schemaOptions: { collection: 'users' } })
-export default class User {
-  @Field()
-  readonly _id: ObjectId;
-
-  @Field({ description: 'user name' })
+@ObjectType({description: 'public user data'})
+export class PublicUser {
+  @Field({ description: 'name' })
   @Property({ required: true })
   name: string;
 
-  @Field({ description: 'user email' })
+  @Field({ description: 'username' })
+  @Property({ required: true })
+  username: string;
+
+  @Field({ description: 'email' })
   @Property({ required: true })
   email: string;
+}
+
+@ObjectType({description: 'user account'})
+@modelOptions({ schemaOptions: { collection: 'users' } })
+export default class User extends PublicUser {
+  @Field()
+  readonly _id: ObjectId;
 
   @Field({ description: 'user plan' })
   @Property({ required: true })

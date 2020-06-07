@@ -1,10 +1,15 @@
+fragment userFields on User {
+  name
+  username
+  email
+  plan
+  _id
+  type
+}
+
 
 query user {
   user {
-    name
-    email
-    plan
-    _id
-    type
+    ...userFields
   }
 }

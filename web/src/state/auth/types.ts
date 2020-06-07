@@ -1,26 +1,19 @@
+import { UserFieldsFragment } from '../../lib/generated/datamodel';
+
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
 export const SET_TOKEN = 'SET_TOKEN';
 export const SET_USER = 'SET_USER';
 
-export interface UserType {
-  _id: string;
-  name: string;
-  email: string;
-  plan: string;
-  type: string;
-}
-
 export interface Login {
-  email: string;
   authToken: string;
   loggedIn: boolean;
 }
 
 export interface AuthState {
   authToken: string;
-  email: string;
-  user: UserType | undefined;
+  username: string;
+  user: UserFieldsFragment | undefined;
   loggedIn: boolean;
 }
 
@@ -41,7 +34,7 @@ interface SetTokenAction {
 
 interface SetUserAction {
   type: typeof SET_USER;
-  payload: UserType;
+  payload: UserFieldsFragment;
 }
 
 export type AuthActionTypes =

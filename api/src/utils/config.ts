@@ -27,6 +27,9 @@ interface ConfigType {
   DISABLE_CACHE: boolean;
   ENABLE_INITIALIZATION: boolean;
   INITIALIZATION_KEY: string;
+  SENDGRID_API_KEY: string;
+  SENDGRID_MAILING_LIST_ID: string;
+  RECAPTCHA_SECRET: string;
 }
 
 export const configData: ConfigType = {
@@ -52,7 +55,10 @@ export const configData: ConfigType = {
   AWS_REGION: 'us-east-1',
   DISABLE_CACHE: false,
   ENABLE_INITIALIZATION: false,
-  INITIALIZATION_KEY: ''
+  INITIALIZATION_KEY: '',
+  SENDGRID_API_KEY: '',
+  SENDGRID_MAILING_LIST_ID: '',
+  RECAPTCHA_SECRET: ''
 };
 
 const addToConfig = (conf: any, allString: boolean): void => {

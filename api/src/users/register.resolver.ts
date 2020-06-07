@@ -1,17 +1,28 @@
 import bcrypt from 'bcrypt';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
-import { nameMinLen, passwordMinLen, specialCharacterRegex, accountExists, saltRounds } from './shared';
+import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds, usernameMinLen } from '../utils/variables';
+import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID } from 'mongodb';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';
+import { verifyRecaptcha } from '../utils/recaptcha';
 
 @ArgsType()
 class RegisterArgs {
+  @Field(_type => String, { description: 'recaptcha token' })
+  recaptchaToken: string;
+
   @Field(_type => String, { description: 'name' })
   @MinLength(nameMinLen, {
     message: `name must contain at least ${nameMinLen} characters`
   })
   name: string;
+
+  @Field(_type => String, { description: 'username' })
+  @MinLength(usernameMinLen, {
+    message: `username must contain at least ${usernameMinLen} characters`
+  })
+  username: string;
 
   @Field(_type => String, { description: 'email' })
   @IsEmail({}, {
@@ -32,15 +43,22 @@ class RegisterArgs {
 @Resolver()
 class RegisterResolver {
   @Mutation(_returns => String)
-  async register(@Args() { name, email, password }: RegisterArgs): Promise<string> {
-    if (await accountExists(email)) {
+  async register(@Args() args: RegisterArgs): Promise<string> {
+    if (!(await verifyRecaptcha(args.recaptchaToken))) {
+      throw new Error('invalid recaptcha token');
+    }
+    if (await accountExistsEmail(args.email)) {
       throw new Error('user with email already registered');
     }
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    if (await accountExistsUsername(args.username)) {
+      throw new Error('user with username already exists');
+    }
+    const hashedPassword = await bcrypt.hash(args.password, saltRounds);
     const newUser: User = {
       _id: new ObjectID(),
-      name: name,
-      email: email,
+      name: args.name,
+      username: args.username,
+      email: args.email,
       password: hashedPassword,
       plan: Plan.free,
       type: UserType.user,
