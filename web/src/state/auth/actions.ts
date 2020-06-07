@@ -5,8 +5,8 @@ import {
   Login,
   SET_TOKEN,
   SET_USER,
-  User,
 } from './types';
+import { UserFieldsFragment } from '../../lib/generated/datamodel';
 
 export const login = (auth: Login): AuthActionTypes => {
   return {
@@ -29,7 +29,7 @@ export const setToken = (token: string): AuthActionTypes => {
   };
 };
 
-export const setUser = (user: User): AuthActionTypes => {
+export const setUser = (user: UserFieldsFragment): AuthActionTypes => {
   return {
     type: SET_USER,
     payload: user,

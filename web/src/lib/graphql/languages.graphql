@@ -1,0 +1,10 @@
+fragment languageFields on LanguageData {
+  name
+  color
+}
+
+query languages {
+  languages {
+    ...languageFields
+  }
+}

@@ -9,7 +9,7 @@ import {
 
 const initialState: AuthState = {
   authToken: '',
-  email: '',
+  username: '',
   user: undefined,
   loggedIn: false,
 };
@@ -35,6 +35,7 @@ export const authReducer = (
       return {
         ...state,
         user: action.payload,
+        username: action.payload.username,
       };
     default:
       return state;

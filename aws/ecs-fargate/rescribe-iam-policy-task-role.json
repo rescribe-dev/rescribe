@@ -12,7 +12,10 @@
     {
       "Effect": "Allow",
       "Action": "s3:*",
-      "Resource": "arn:aws:s3:::rescribe-repositories"
+      "Resource": [
+        "arn:aws:s3:::rescribe-repositories",
+        "arn:aws:s3:::rescribe-repositories/*"
+      ]
     }
   ]
 }

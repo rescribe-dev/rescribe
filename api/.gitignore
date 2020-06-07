@@ -7,7 +7,7 @@ yarn-error.log*
 .nyc_output
 lib
 lib_test
-.env
+
 # ignore swap files
 *.swp
 

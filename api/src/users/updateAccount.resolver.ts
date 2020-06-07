@@ -4,8 +4,8 @@ import bcrypt from 'bcrypt';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches, IsOptional } from 'class-validator';
-import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from './shared';
-import { verifyLoggedIn } from './checkAuth';
+import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from '../utils/variables';
+import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 
 @ArgsType()
@@ -42,7 +42,7 @@ interface UserUpdateData {
 }
 
 @Resolver()
-class RegisterResolver {
+class UpdateAccountResolver {
   @Mutation(_returns => String)
   async updateAccount(@Args() { name, email, password }: UpdateArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
@@ -66,4 +66,4 @@ class RegisterResolver {
   }
 }
 
-export default RegisterResolver;
+export default UpdateAccountResolver;

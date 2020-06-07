@@ -1,7 +1,6 @@
 import { AppThunkAction } from '../thunk';
 import { client } from '../../utils/apollo';
 import { login, setUser, logout } from './actions';
-import { setProject } from '../project/actions';
 import {
   Logout,
   LogoutMutation,
@@ -12,8 +11,8 @@ import {
   User,
   UserQuery,
   UserQueryVariables,
+  UserFieldsFragment,
 } from '../../lib/generated/datamodel';
-import { UserType } from './types';
 
 const checkAuth = async (args: LoginMutationVariables): Promise<string> => {
   const apolloRes = await client.mutate<LoginMutation, LoginMutationVariables>({
@@ -59,19 +58,14 @@ export const thunkLogout = (): AppThunkAction<Promise<void>> => async (
   dispatch
 ) => {
   await runLogout();
-  dispatch(
-    setProject({
-      name: '',
-      id: null,
-    })
-  );
   dispatch(logout());
 };
 
-const getUser = async (): Promise<UserType> => {
+const getUser = async (): Promise<UserFieldsFragment> => {
   const apolloRes = await client.query<UserQuery, UserQueryVariables>({
     query: User,
     variables: {},
+    fetchPolicy: 'no-cache', // disable cache
   });
   if (apolloRes.data) {
     return apolloRes.data.user;

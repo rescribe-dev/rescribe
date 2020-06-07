@@ -1,14 +1,12 @@
-import { navigate, PageProps } from 'gatsby';
+import { navigate } from 'gatsby';
 import { isLoggedIn } from '../state/auth/getters';
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 
-interface Input extends PageProps {
-  component: (args: PageProps) => JSX.Element;
+interface PrivateRouteData {
+  children?: ReactNode;
 }
 
-const PrivateRoute = (args: Input) => {
-  const pageArgs: PageProps = args;
-  const childComponent = args.component(pageArgs);
+const PrivateRoute = (args: PrivateRouteData) => {
   const [isLoading, setLoading] = useState(true);
   isLoggedIn()
     .then((loggedIn) => {
@@ -21,7 +19,7 @@ const PrivateRoute = (args: Input) => {
     .catch((_err) => {
       navigate('/login');
     });
-  return <>{isLoading ? null : childComponent}</>;
+  return <>{isLoading ? null : args.children}</>;
 };
 
 export default PrivateRoute;

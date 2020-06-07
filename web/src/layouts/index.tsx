@@ -7,8 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useStaticQuery, graphql } from 'gatsby';
 
 import Header from '../components/header';
+import Footer from '../components/footer';
+
 import './index.scss';
-import { Container } from 'reactstrap';
+import { WindowLocation } from '@reach/router';
 
 toast.configure({
   autoClose: 4000,
@@ -23,6 +25,7 @@ const Fonts = Loadable(() => import('../components/fontloader'));
 
 interface LayoutArgs {
   children: any;
+  location: WindowLocation;
 }
 
 interface IndexLayoutProps {
@@ -46,17 +49,20 @@ const Layout = (args: LayoutArgs) => {
 
   return (
     <>
-      <Header siteTitle={data.site.siteMetadata.title} />
       <Helmet>
         <script
           src={`https://www.google.com/recaptcha/api.js?render=${process.env.GATSBY_RECAPTCHA_SITE_KEY}`}
         ></script>
       </Helmet>
       <Fonts />
-      <main>{args.children}</main>
-      <Container>
-        <footer>© {new Date().getFullYear()}, Rescribe</footer>
-      </Container>
+      <div className="main-wrapper">
+        <Header
+          siteTitle={data.site.siteMetadata.title}
+          location={args.location}
+        />
+        <main className="content">{args.children}</main>
+        <Footer />
+      </div>
     </>
   );
 };
