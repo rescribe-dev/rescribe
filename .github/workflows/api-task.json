@@ -58,6 +58,10 @@
           "name": "GITHUB_PRIVATE_KEY"
         },
         {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5",
+          "name": "INITIALIZATION_KEY"
+        },
+        {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:JWT_SECRET-VVDIzd",
           "name": "JWT_SECRET"
         },
@@ -70,8 +74,12 @@
           "name": "REDIS_PORT"
         },
         {
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5",
-          "name": "INITIALIZATION_KEY"
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_ID-CLvNj6",
+          "name": "SENDGRID_MAILING_LIST_ID"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:RECAPTCHA_SECRET-tc1ajA",
+          "name": "RECAPTCHA_SECRET"
         }
       ],
       "dockerSecurityOptions": null,
