@@ -17,6 +17,7 @@ import {
 import PrivateRoute from '../../components/privateRoute';
 import Layout from '../../layouts';
 import { isSSR } from '../../utils/checkSSR';
+import '../styles';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ProjectPageDataType extends PageProps {}
@@ -55,10 +56,7 @@ const ProjectPage = (args: ProjectPageDataType) => {
         <SEO title="Project" />
         {project ? (
           <Container
-            style={{
-              marginTop: '3rem',
-              marginBottom: '5rem',
-            }}
+            className='default-container'
           >
             <div>{project.toHexString()}</div>
             {!projectQueryRes || projectQueryRes.loading ? (

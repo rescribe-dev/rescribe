@@ -17,6 +17,7 @@ import {
   PublicUserQueryVariables,
 } from '../../lib/generated/datamodel';
 import { useQuery } from '@apollo/react-hooks';
+import 'index.scss';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface UserPageDataType extends PageProps {}
@@ -56,10 +57,7 @@ const UserPage = (args: UserPageDataType) => {
       <Layout location={args.location}>
         <SEO title={user ? user.username : 'User'} />
         <Container
-          style={{
-            marginTop: '3rem',
-            marginBottom: '5rem',
-          }}
+          className='default-container'
         >
           <div>
             {user === undefined ? (
