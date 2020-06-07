@@ -27,6 +27,8 @@ jobs:
           GATSBY_API_URL: api.rescribe.dev
           GATSBY_USE_SECURE: "true"
           GATSBY_RECAPTCHA_SITE_KEY: ${{ secrets.GATSBY_RECAPTCHA_SITE_KEY }}
+          GATSBY_SITE_URL: https://rescribe.dev
+          GATSBY_MODE: production
       - name: copy dist
         run: cp -r web/dist .github/build-frontend/dist
       - name: upload
