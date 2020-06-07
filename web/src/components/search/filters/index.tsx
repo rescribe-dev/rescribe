@@ -55,41 +55,43 @@ const Filters = (_args: FiltersPropsDataType) => {
   const getLabel = (language: LanguageData): string => {
     return `name: ${language.name}, color: ${language.color}`;
   };
-  useQuery<LanguagesQuery, LanguagesQueryVariables>(Languages, {
-    variables: {},
-    fetchPolicy: isDebug() ? 'no-cache' : 'cache-first', // disable cache if in debug
-    onCompleted: (data) => {
-      const newLanguageOptions = data.languages;
-      setLanguageOptions(
-        newLanguageOptions.map((language) => {
-          return {
-            label: getLabel(language),
-            value: language.name,
-          };
-        })
-      );
-      if (alreadySelectedLanguages) {
-        setSelectedLanguages(
-          alreadySelectedLanguages.map((name) => {
-            const languageObject = newLanguageOptions.find(
-              (elem) => elem.name === name
-            );
-            const language =
-              Language[capitalizeFirstLetter(name) as keyof typeof Language];
-            if (!languageObject)
-              return {
-                label: name,
-                value: language,
-              };
+  if (!isSSR) {
+    useQuery<LanguagesQuery, LanguagesQueryVariables>(Languages, {
+      variables: {},
+      fetchPolicy: isDebug() ? 'no-cache' : 'cache-first', // disable cache if in debug
+      onCompleted: (data) => {
+        const newLanguageOptions = data.languages;
+        setLanguageOptions(
+          newLanguageOptions.map((language) => {
             return {
-              label: getLabel(languageObject),
-              value: language,
+              label: getLabel(language),
+              value: language.name,
             };
           })
         );
-      }
-    },
-  });
+        if (alreadySelectedLanguages) {
+          setSelectedLanguages(
+            alreadySelectedLanguages.map((name) => {
+              const languageObject = newLanguageOptions.find(
+                (elem) => elem.name === name
+              );
+              const language =
+                Language[capitalizeFirstLetter(name) as keyof typeof Language];
+              if (!languageObject)
+                return {
+                  label: name,
+                  value: language,
+                };
+              return {
+                label: getLabel(languageObject),
+                value: language,
+              };
+            })
+          );
+        }
+      },
+    });
+  }
   const getLanguages = async (inputValue: string): Promise<SelectObject[]> => {
     if (!languageOptions) return [];
     return inputValue.length > 0
