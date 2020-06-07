@@ -1,0 +1,6 @@
+query files($repositories: [ObjectId!]!, $perpage: Int!, $page: Int!) {
+    files(repositories: $repositories, perpage: $perpage, page: $page) {
+        _id
+        name
+    }
+}
