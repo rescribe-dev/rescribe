@@ -6,6 +6,9 @@ interface PrivateRouteData {
   children?: ReactNode;
 }
 
+// TODO - try to fix order of hooks problem that occurs intermittently
+// login -> account page -> logout: error should appear in browser console
+
 const PrivateRoute = (args: PrivateRouteData) => {
   const [isLoading, setLoading] = useState(true);
   isLoggedIn()

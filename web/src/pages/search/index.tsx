@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { css } from '@emotion/core';
-import { Container } from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 import { PageProps } from 'gatsby';
 
 import './index.scss';
@@ -18,6 +18,7 @@ import { processSearchParams } from '../../state/search/helpers';
 import { SearchActionTypes } from '../../state/search/types';
 import { AppThunkDispatch } from '../../state/thunk';
 import { thunkSearch } from '../../state/search/thunks';
+import { FiSliders } from 'react-icons/fi';
 
 const loaderCSS = css`
   display: block;
@@ -53,56 +54,93 @@ const SearchPage = (args: SearchPageDataType) => {
     : useSelector<RootState, boolean>(
         (state) => state.searchReducer.hasSearched
       );
+  const [showFilters, setShowFilters] = useState(true);
   return (
     <Layout location={args.location}>
       <SEO title="Search" />
       <Container
+        fluid="xl"
         style={{
           marginTop: '3rem',
           marginBottom: '5rem',
+          marginLeft: '5rem',
+          marginRight: '5rem',
         }}
       >
-        <Filters />
-        {searching ? (
-          <BeatLoader
-            css={loaderCSS}
-            size={10}
-            color={'red'}
-            loading={searching}
-          />
-        ) : !searchResult || searchResult.search.length === 0 ? (
-          <>
-            {hasSearched ? (
-              <p>no results found</p>
+        <Row>
+          <Col
+            xs={3}
+            style={{
+              borderRight: '1px solid rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            <button
+              onClick={async (evt: React.MouseEvent): Promise<void> => {
+                evt.preventDefault();
+                setShowFilters(!showFilters);
+              }}
+              className="button-link"
+            >
+              <FiSliders /> Filters
+            </button>
+          </Col>
+          <Col>{/* showing 1-40 of 1200 results */}</Col>
+        </Row>
+        <Row>
+          {!showFilters ? null : (
+            <Col
+              xs={3}
+              style={{
+                borderRight: '1px solid rgba(0, 0, 0, 0.2)',
+                paddingRight: 0,
+              }}
+            >
+              <Filters />
+            </Col>
+          )}
+          <Col>
+            {searching ? (
+              <BeatLoader
+                css={loaderCSS}
+                size={10}
+                color={'red'}
+                loading={searching}
+              />
+            ) : !searchResult || searchResult.search.length === 0 ? (
+              <>
+                {hasSearched ? (
+                  <p>no results found</p>
+                ) : (
+                  <p>try searching for something</p>
+                )}
+              </>
             ) : (
-              <p>try searching for something</p>
+              <Container>
+                {searchResult.search.map((file) => {
+                  const fileResults = [...file.results];
+                  if (file.fileResult && file.fileResult.results.length > 0) {
+                    const names = file.fileResult.results
+                      .map((resultData) => resultData.name)
+                      .join(', ');
+                    const type = file.fileResult.results[0].type;
+                    fileResults.unshift({
+                      name: names,
+                      type,
+                      preview: file.fileResult.preview,
+                    });
+                  }
+                  return (
+                    <FileResultComponent
+                      key={`file-${file._id}`}
+                      file={file}
+                      previewSearchResults={fileResults}
+                    />
+                  );
+                })}
+              </Container>
             )}
-          </>
-        ) : (
-          <Container>
-            {searchResult.search.map((file) => {
-              const fileResults = [...file.results];
-              if (file.fileResult && file.fileResult.results.length > 0) {
-                const names = file.fileResult.results
-                  .map((resultData) => resultData.name)
-                  .join(', ');
-                const type = file.fileResult.results[0].type;
-                fileResults.unshift({
-                  name: names,
-                  type,
-                  preview: file.fileResult.preview,
-                });
-              }
-              return (
-                <FileResultComponent
-                  key={`file-${file._id}`}
-                  file={file}
-                  previewSearchResults={fileResults}
-                />
-              );
-            })}
-          </Container>
-        )}
+          </Col>
+        </Row>
       </Container>
     </Layout>
   );
