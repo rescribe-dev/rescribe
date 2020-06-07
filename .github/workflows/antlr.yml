@@ -64,4 +64,5 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: rescribe-api
           cluster: fargate
-          wait-for-service-stability: true
+          # wait until service is stable
+          wait-for-service-stability: false
