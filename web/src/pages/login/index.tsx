@@ -107,7 +107,7 @@ const LoginPage = (args: LoginPageDataType) => {
             password: yup.string().required('required'),
           })}
           onSubmit={(formData, { setSubmitting, setStatus }) => {
-            if (!window.grecaptcha) {
+            if (!window || !window.grecaptcha) {
               toast('cannot find recaptcha', {
                 type: 'error',
               });

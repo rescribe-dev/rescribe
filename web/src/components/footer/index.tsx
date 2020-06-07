@@ -52,7 +52,7 @@ const Footer = () => {
               .email('Email is invalid'),
           })}
           onSubmit={(formData, { setSubmitting, setStatus }) => {
-            if (!window.grecaptcha) {
+            if (!window || !window.grecaptcha) {
               toast('cannot find recaptcha', {
                 type: 'error',
               });
