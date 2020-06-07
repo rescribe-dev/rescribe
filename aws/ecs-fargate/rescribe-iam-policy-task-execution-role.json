@@ -18,16 +18,18 @@
         "kms:Decrypt"
       ],
       "Resource": [
-        "arn:aws:secretsmanager:us-east-1:259559535892:secret:JWT_SECRET-VVDIzd",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:ANTLR_URI-2nN5iS",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:DB_CONNECTION_URI-OSzAkX",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:ELASTICSEARCH_URI-N3iCXK",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_APP_ID-9CB2CN",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_PRIVATE_KEY-4RJ18P",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:JWT_SECRET-VVDIzd",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_HOST-46AZHQ",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PORT-nnUVpT",
-        "arn:aws:secretsmanager:us-east-1:259559535892:secret:ANTLR_URI-2nN5iS",
-        "arn:aws:secretsmanager:us-east-1:259559535892:secret:REDIS_PASSWORD-9Sj0QF",
-        "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5"
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_API_KEY-RarumD",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_ID-CLvNj6",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:RECAPTCHA_SECRET-tc1ajA"
       ]
     },
     {

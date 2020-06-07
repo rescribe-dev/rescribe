@@ -74,6 +74,10 @@
           "name": "REDIS_PORT"
         },
         {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_API_KEY-RarumD",
+          "name": "SENDGRID_API_KEY"
+        },
+        {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_ID-CLvNj6",
           "name": "SENDGRID_MAILING_LIST_ID"
         },
