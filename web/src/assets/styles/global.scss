@@ -8,3 +8,18 @@ a.link-no-style {
   }
   color: #303030;
 }
+
+/* button without styling */
+.button-link {
+  display: inline-block;
+  position: relative;
+  background-color: transparent;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  font: inherit;
+}
+
+body {
+  font-family: "Noto Sans";
+}

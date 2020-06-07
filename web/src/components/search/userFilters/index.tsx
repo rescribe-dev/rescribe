@@ -128,7 +128,11 @@ const UserFilters = (_args: UserFiltersPropsDataType) => {
         }}
       >
         <Form key="form">
-          <FormGroup>
+          <FormGroup
+            style={{
+              width: '100%',
+            }}
+          >
             <Label for="projects">Project(s)</Label>
             <AsyncSelect
               id="projects"
@@ -152,7 +156,11 @@ const UserFilters = (_args: UserFiltersPropsDataType) => {
               }}
             />
           </FormGroup>
-          <FormGroup>
+          <FormGroup
+            style={{
+              width: '100%',
+            }}
+          >
             <Label for="repositories">Repositories</Label>
             <AsyncSelect
               id="repositories"

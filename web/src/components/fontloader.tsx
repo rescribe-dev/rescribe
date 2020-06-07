@@ -1,17 +1,13 @@
 import React from 'react';
 import WebFont from 'webfontloader';
 
-class FontLoader extends React.Component {
-  componentDidMount() {
-    WebFont.load({
-      google: {
-        families: ['Montserrat'],
-      },
-    });
-  }
-  render() {
-    return <></>;
-  }
-}
+const FontLoader = () => {
+  WebFont.load({
+    google: {
+      families: ['Noto+Sans', 'Inconsolata'],
+    },
+  });
+  return <></>;
+};
 
 export default FontLoader;

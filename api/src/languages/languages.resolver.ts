@@ -7,7 +7,7 @@ class LanguagesResolver {
   @Query(_returns => [LanguageData])
   languages(): LanguageData[] {
     const allValues = Object.values(Language);
-    return allValues.splice(0, allValues.length / 2).map(language => ({
+    return allValues.map(language => ({
       color: languageColorMap[language],
       name: language
     }));

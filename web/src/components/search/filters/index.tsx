@@ -1,5 +1,13 @@
 import React, { useState, Dispatch } from 'react';
-import { Container, Form, Label, FormGroup, Button } from 'reactstrap';
+import {
+  Container,
+  Form,
+  Label,
+  FormGroup,
+  Button,
+  Row,
+  Col,
+} from 'reactstrap';
 import AsyncSelect from 'react-select/async';
 import { ValueType } from 'react-select';
 import { setLanguages } from '../../../state/search/actions';
@@ -112,50 +120,77 @@ const Filters = (_args: FiltersPropsDataType) => {
     <>
       <Container
         style={{
-          marginTop: '3rem',
-          marginBottom: '5rem',
+          marginTop: '1rem',
+          marginBottom: 0,
+          padding: 0,
+          marginRight: 0,
         }}
       >
-        <Form key="form">
-          <FormGroup>
-            <Label for="languages">Languages</Label>
-            <AsyncSelect
-              id="languages"
-              name="languages"
-              isMulti={true}
-              defaultOptions={languageOptions}
-              cacheOptions={true}
-              loadOptions={getLanguages}
-              value={selectedLanguages}
-              onChange={(selectedOptions: ValueType<SelectObject>) => {
-                if (!selectedOptions) {
-                  selectedOptions = [];
+        <hr />
+        <Row style={{}}>
+          <Col>
+            <Form key="form">
+              <FormGroup
+                style={{
+                  marginRight: '0.5rem',
+                }}
+              >
+                <Label for="languages">Languages</Label>
+                <AsyncSelect
+                  id="languages"
+                  name="languages"
+                  isMulti={true}
+                  defaultOptions={languageOptions}
+                  cacheOptions={true}
+                  loadOptions={getLanguages}
+                  value={selectedLanguages}
+                  onChange={(selectedOptions: ValueType<SelectObject>) => {
+                    if (!selectedOptions) {
+                      selectedOptions = [];
+                    }
+                    const selected = selectedOptions as SelectObject[];
+                    setSelectedLanguages(selected);
+                    const languages = selected.map(
+                      (language) => language.value
+                    );
+                    dispatch(setLanguages(languages));
+                  }}
+                />
+              </FormGroup>
+            </Form>
+          </Col>
+        </Row>
+        <hr />
+        {!loggedIn ? null : (
+          <>
+            <Row>
+              <Col>
+                <UserFilters />
+              </Col>
+            </Row>
+            <hr />
+          </>
+        )}
+        <Row>
+          <Col>
+            <Button
+              type="submit"
+              onClick={async (evt: React.MouseEvent): Promise<void> => {
+                evt.preventDefault();
+                navigate(getSearchURL());
+                try {
+                  await dispatchSearchThunk(thunkSearch());
+                } catch (err) {
+                  toast(err.message, {
+                    type: 'error',
+                  });
                 }
-                const selected = selectedOptions as SelectObject[];
-                setSelectedLanguages(selected);
-                const languages = selected.map((language) => language.value);
-                dispatch(setLanguages(languages));
               }}
-            />
-          </FormGroup>
-        </Form>
-        {loggedIn ? <UserFilters /> : null}
-        <Button
-          type="submit"
-          onClick={async (evt: React.MouseEvent): Promise<void> => {
-            evt.preventDefault();
-            navigate(getSearchURL());
-            try {
-              await dispatchSearchThunk(thunkSearch());
-            } catch (err) {
-              toast(err.message, {
-                type: 'error',
-              });
-            }
-          }}
-        >
-          Submit
-        </Button>
+            >
+              Submit
+            </Button>
+          </Col>
+        </Row>
       </Container>
     </>
   );
