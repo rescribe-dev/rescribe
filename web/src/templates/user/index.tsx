@@ -3,7 +3,7 @@ import { Container } from 'reactstrap';
 import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
-
+import '../../assets/styles/global.scss';
 import SEO from '../../components/seo';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state';
@@ -17,7 +17,6 @@ import {
   PublicUserQueryVariables,
 } from '../../lib/generated/datamodel';
 import { useQuery } from '@apollo/react-hooks';
-import 'index.scss';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface UserPageDataType extends PageProps {}
@@ -56,9 +55,7 @@ const UserPage = (args: UserPageDataType) => {
     <>
       <Layout location={args.location}>
         <SEO title={user ? user.username : 'User'} />
-        <Container
-          className='default-container'
-        >
+        <Container className="default-container">
           <div>
             {user === undefined ? (
               <div>loading</div>

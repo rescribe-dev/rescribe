@@ -23,3 +23,39 @@ a.link-no-style {
 body {
   font-family: "Noto Sans";
 }
+
+.default-container {
+  margin-top: 3rem;
+  margin-bottom: 5rem
+}
+
+.search-page-container {
+  margin-top: 3rem;
+  margin-bottom: 5rem;
+  margin-left: 5rem;
+  margin-right: 5rem;
+}
+
+.filters-component-container {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  padding: 0;
+  margin-right: 0;
+}
+
+.search-page-col-div {
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.search-page-row-div {
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  padding-right: 0;
+}
+
+.form-input {
+  margin-bottom: 0.5rem;
+}
+
+.form-feedback {
+  margin-bottom: 1rem;
+}

@@ -10,6 +10,7 @@ import { HelloQuery, Hello } from '../lib/generated/datamodel';
 // import NavCard from '../components/naviagtionCard';
 import { graphql, PageProps } from 'gatsby';
 import { FixedObject } from 'gatsby-image';
+import '../assets/styles/global.scss';
 
 interface IndexPageProps extends PageProps {
   data: {
@@ -31,10 +32,7 @@ const IndexPage = (args: IndexPageProps) => {
     <Layout location={args.location}>
       <SEO title="Rescribe" />
       <Container
-        style={{
-          marginTop: '3rem',
-          marginBottom: '5rem',
-        }}
+        className="default-container"
       >
         <SearchBar />
         {/*<NavCard

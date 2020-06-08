@@ -119,12 +119,7 @@ const Filters = (_args: FiltersPropsDataType) => {
   return (
     <>
       <Container
-        style={{
-          marginTop: '1rem',
-          marginBottom: 0,
-          padding: 0,
-          marginRight: 0,
-        }}
+        className='filters-component-container'
       >
         <hr />
         <Row style={{}}>

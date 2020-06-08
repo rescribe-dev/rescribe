@@ -3,6 +3,7 @@ import { Container, Table } from 'reactstrap';
 import { PageProps } from 'gatsby';
 
 import './index.scss';
+import '../../assets/styles/global.scss';
 
 import SEO from '../../components/seo';
 import ObjectId from 'bson-objectid';
@@ -17,7 +18,6 @@ import {
 import PrivateRoute from '../../components/privateRoute';
 import Layout from '../../layouts';
 import { isSSR } from '../../utils/checkSSR';
-import '../styles';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ProjectPageDataType extends PageProps {}
@@ -55,9 +55,7 @@ const ProjectPage = (args: ProjectPageDataType) => {
       <Layout location={args.location}>
         <SEO title="Project" />
         {project ? (
-          <Container
-            className='default-container'
-          >
+          <Container className="default-container">
             <div>{project.toHexString()}</div>
             {!projectQueryRes || projectQueryRes.loading ? (
               <p>loading...</p>

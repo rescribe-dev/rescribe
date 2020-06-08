@@ -14,6 +14,7 @@ import {
 } from 'reactstrap';
 
 import './index.scss';
+import '../../assets/styles/global.scss';
 import { css } from '@emotion/core';
 import { toast } from 'react-toastify';
 import { client } from '../../utils/apollo';
@@ -129,9 +130,7 @@ const Footer = () => {
                       type="text"
                       placeholder="Name"
                       autoComplete="name"
-                      style={{
-                        marginBottom: '0.5rem',
-                      }}
+                      className='form-input'
                       onChange={handleChange}
                       onBlur={handleBlur}
                       value={values.name}
@@ -157,9 +156,7 @@ const Footer = () => {
                       type="email"
                       placeholder="Email"
                       autoComplete="username"
-                      style={{
-                        marginBottom: '0.5rem',
-                      }}
+                      className='form-input'
                       onChange={handleChange}
                       onBlur={handleBlur}
                       value={values.email}
