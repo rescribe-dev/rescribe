@@ -122,10 +122,7 @@ const UserFilters = (_args: UserFiltersPropsDataType) => {
   return (
     <>
       <Container
-        style={{
-          marginTop: '3rem',
-          marginBottom: '5rem',
-        }}
+        className='default-container'
       >
         <Form key="form">
           <FormGroup

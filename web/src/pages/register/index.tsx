@@ -16,6 +16,7 @@ import BeatLoader from 'react-spinners/BeatLoader';
 import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
+import '../../assets/styles/global.scss';
 
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';
@@ -74,10 +75,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
     <Layout location={args.location}>
       <SEO title="Login" />
       <Container
-        style={{
-          marginTop: '3rem',
-          marginBottom: '5rem',
-        }}
+        className='default-container'
       >
         <Formik
           initialValues={{
@@ -191,9 +189,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   name="username"
                   type="text"
                   placeholder="Username"
-                  style={{
-                    marginBottom: '0.5rem',
-                  }}
+                  className='form-input'
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.username}
@@ -217,9 +213,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   name="name"
                   type="text"
                   placeholder="Name"
-                  style={{
-                    marginBottom: '0.5rem',
-                  }}
+                  className='form-input'
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.name}
@@ -243,9 +237,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   name="email"
                   type="email"
                   placeholder="Email"
-                  style={{
-                    marginBottom: '0.5rem',
-                  }}
+                  className='form-input'
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.email}
@@ -275,9 +267,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                       handleSubmit();
                     }
                   }}
-                  style={{
-                    marginBottom: '0.5rem',
-                  }}
+                  className='form-input'
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.password}

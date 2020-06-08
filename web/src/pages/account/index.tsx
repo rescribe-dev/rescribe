@@ -3,6 +3,7 @@ import { Container } from 'reactstrap';
 import { PageProps } from 'gatsby';
 
 import './index.scss';
+import '../../assets/styles/global.scss';
 
 import SEO from '../../components/seo';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,10 +36,7 @@ const AccountPage = (args: AccountPageDataType) => {
       <Layout location={args.location}>
         <SEO title="Account" />
         <Container
-          style={{
-            marginTop: '3rem',
-            marginBottom: '5rem',
-          }}
+          className='default-container'
         >
           <div>
             {user === undefined ? (

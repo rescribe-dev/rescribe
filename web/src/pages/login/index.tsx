@@ -16,6 +16,7 @@ import BeatLoader from 'react-spinners/BeatLoader';
 import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
+import '../../assets/styles/global.scss';
 
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';
@@ -89,10 +90,7 @@ const LoginPage = (args: LoginPageDataType) => {
     <Layout location={args.location}>
       <SEO title="Login" />
       <Container
-        style={{
-          marginTop: '3rem',
-          marginBottom: '5rem',
-        }}
+        className='default-container'
       >
         <Formik
           initialValues={{
@@ -194,9 +192,7 @@ const LoginPage = (args: LoginPageDataType) => {
                   type="email"
                   placeholder="Email"
                   autoComplete="username"
-                  style={{
-                    marginBottom: '0.5rem',
-                  }}
+                  className='form-input'
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.email}
@@ -227,9 +223,7 @@ const LoginPage = (args: LoginPageDataType) => {
                       handleSubmit();
                     }
                   }}
-                  style={{
-                    marginBottom: '0.5rem',
-                  }}
+                  className='form-input'
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.password}
