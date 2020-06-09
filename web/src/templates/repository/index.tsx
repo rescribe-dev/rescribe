@@ -3,7 +3,6 @@ import { Container, Table } from 'reactstrap';
 import { PageProps } from 'gatsby';
 
 import './index.scss';
-import '../../assets/styles/global.scss';
 
 import SEO from '../../components/seo';
 import ObjectId from 'bson-objectid';

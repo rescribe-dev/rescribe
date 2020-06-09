@@ -121,9 +121,7 @@ const UserFilters = (_args: UserFiltersPropsDataType) => {
   };
   return (
     <>
-      <Container
-        className='default-container'
-      >
+      <Container className="default-container">
         <Form key="form">
           <FormGroup
             style={{

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './style.scss';
+import './index.scss';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
@@ -60,10 +60,27 @@ const SearchBar = () => {
         isSubmitting,
       }) => (
         <>
-          <Form className="search-bar-wrapper">
-            <FormGroup>
+          <Form
+            style={{
+              display: 'flex',
+              width: '100%',
+            }}
+          >
+            <FormGroup
+              style={{
+                margin: 0,
+                width: '100%',
+                marginRight: '1rem',
+              }}
+            >
               <Input
-                className="search-text-field"
+                style={{
+                  borderColor: '#CCCCCC',
+                  fontSize: '0.9em',
+                  fontWeight: 600,
+                  borderRadius: '0.25rem',
+                  width: '100%',
+                }}
                 id="query"
                 name="query"
                 type="text"
@@ -78,14 +95,22 @@ const SearchBar = () => {
                 style={{
                   marginBottom: '1rem',
                 }}
-                className="feedback"
                 type="invalid"
               >
                 {touched.query && errors.query ? errors.query : ''}
               </FormFeedback>
             </FormGroup>
             <Button
-              className="search-button"
+              style={{
+                color: '#fff',
+                backgroundColor: 'var(--pastel-red)',
+                borderColor: 'var(--pastel-red)',
+                fontSize: '0.9em',
+                fontWeight: 600,
+                borderRadius: '0.25rem',
+                minWidth: '80px',
+                height: 'calc(1.5em + 0.75rem + 2px)',
+              }}
               type="submit"
               onClick={(evt: React.MouseEvent) => {
                 evt.preventDefault();

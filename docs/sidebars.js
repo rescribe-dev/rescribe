@@ -11,6 +11,7 @@ module.exports = {
       'deployment/index',
       'deployment/github',
       'deployment/aws',
+      'deployment/netlify',
       'deployment/docker',
       'deployment/vscode',
     ],
