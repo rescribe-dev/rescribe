@@ -118,9 +118,7 @@ const Filters = (_args: FiltersPropsDataType) => {
   }
   return (
     <>
-      <Container
-        className='filters-component-container'
-      >
+      <Container className="filters-component-container">
         <hr />
         <Row style={{}}>
           <Col>

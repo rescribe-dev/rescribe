@@ -3,7 +3,6 @@ import { Container } from 'reactstrap';
 import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
-import '../../assets/styles/global.scss';
 import SEO from '../../components/seo';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state';

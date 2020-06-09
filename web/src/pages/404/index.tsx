@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, PageProps } from 'gatsby';
 
 import './index.scss';
-import '../../assets/styles/global.scss';
 
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';

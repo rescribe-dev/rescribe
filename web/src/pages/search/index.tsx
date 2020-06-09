@@ -5,7 +5,6 @@ import { Container, Row, Col } from 'reactstrap';
 import { PageProps } from 'gatsby';
 
 import './index.scss';
-import '../../assets/styles/global.scss';
 
 import SEO from '../../components/seo';
 import { SearchQuery } from '../../lib/generated/datamodel';
@@ -59,15 +58,9 @@ const SearchPage = (args: SearchPageDataType) => {
   return (
     <Layout location={args.location}>
       <SEO title="Search" />
-      <Container
-        fluid="xl"
-        className='search-page-container'
-      >
+      <Container fluid="xl" className="search-page-container">
         <Row>
-          <Col
-            xs={3}
-            className='search-page-col-div'
-          >
+          <Col xs={3} className="search-page-col-div">
             <button
               onClick={async (evt: React.MouseEvent): Promise<void> => {
                 evt.preventDefault();
@@ -82,10 +75,7 @@ const SearchPage = (args: SearchPageDataType) => {
         </Row>
         <Row>
           {!showFilters ? null : (
-            <Col
-              xs={3}
-              className='search-page-row-div'
-            >
+            <Col xs={3} className="search-page-row-div">
               <Filters />
             </Col>
           )}

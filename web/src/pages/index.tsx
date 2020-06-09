@@ -10,7 +10,7 @@ import { HelloQuery, Hello } from '../lib/generated/datamodel';
 // import NavCard from '../components/naviagtionCard';
 import { graphql, PageProps } from 'gatsby';
 import { FixedObject } from 'gatsby-image';
-import '../assets/styles/global.scss';
+import Newsletter from '../components/index/Newsletter';
 
 interface IndexPageProps extends PageProps {
   data: {
@@ -31,35 +31,34 @@ const IndexPage = (args: IndexPageProps) => {
   return (
     <Layout location={args.location}>
       <SEO title="Rescribe" />
-      <Container
-        className="default-container"
-      >
+      <Container className="default-container">
         <SearchBar />
         {/*<NavCard
-          title="Intuitive search"
-          subtitle="optional subtitle"
-          image={args.data.file.childImageSharp.fixed}
-          body={loremText}
-          linkText="read more"
-          linkSlug="/"
-        />
-        <NavCard
-          title="Write Better Code"
-          subtitle="optional subtitle"
-          image={args.data.file.childImageSharp.fixed}
-          body={loremText}
-          linkText="read more"
-          linkSlug="/"
-        />
-        <NavCard
-          title="Extendable"
-          subtitle="optional subtitle"
-          image={args.data.file.childImageSharp.fixed}
-          body={loremText}
-          linkText="read more"
-          linkSlug="/"
-        />*/}
+            title="Intuitive search"
+            subtitle="optional subtitle"
+            image={args.data.file.childImageSharp.fixed}
+            body={loremText}
+            linkText="read more"
+            linkSlug="/"
+          />
+          <NavCard
+            title="Write Better Code"
+            subtitle="optional subtitle"
+            image={args.data.file.childImageSharp.fixed}
+            body={loremText}
+            linkText="read more"
+            linkSlug="/"
+          />
+          <NavCard
+            title="Extendable"
+            subtitle="optional subtitle"
+            image={args.data.file.childImageSharp.fixed}
+            body={loremText}
+            linkText="read more"
+            linkSlug="/"
+          />*/}
       </Container>
+      <Newsletter />
     </Layout>
   );
 };

@@ -34,6 +34,8 @@ import { SearchActionTypes } from '../../state/search/types';
 import { thunkSearch } from '../../state/search/thunks';
 import { toast } from 'react-toastify';
 
+import './index.scss';
+
 interface HeaderArgs {
   siteTitle: string;
   location: WindowLocation | string;
@@ -77,137 +79,166 @@ const Header = (args: HeaderArgs) => {
       : (args.location as WindowLocation).pathname;
   return (
     <>
-      <Navbar color="light" light expand="md">
+      <Navbar light expand="md">
         <NavbarBrand tag={Link} to="/">
           {args.siteTitle}
         </NavbarBrand>
+        {pathname === '/' ? null : (
+          <Formik
+            initialValues={{
+              query: initialQuery as string,
+            }}
+            validationSchema={yup.object({
+              query: yup.string().required('required'),
+            })}
+            onSubmit={async (formData, { setSubmitting, setStatus }) => {
+              dispatch(setQuery(formData.query));
+              navigate(getSearchURL());
+              if (pathname === '/search') {
+                try {
+                  await dispatchSearchThunk(thunkSearch());
+                  setStatus({ success: true });
+                } catch (err) {
+                  setStatus({ success: false });
+                  toast(err.message, {
+                    type: 'error',
+                  });
+                }
+                setSubmitting(false);
+              } else {
+                setSubmitting(false);
+                setStatus({ success: true });
+              }
+            }}
+          >
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              isSubmitting,
+            }) => (
+              <>
+                <Form
+                  inline
+                  style={{
+                    marginBottom: 0,
+                  }}
+                >
+                  <FormGroup
+                    style={{
+                      marginBottom: 0,
+                    }}
+                  >
+                    <Input
+                      id="query"
+                      name="query"
+                      type="text"
+                      placeholder="search term"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.query}
+                      invalid={!!(touched.query && errors.query)}
+                      disabled={isSubmitting}
+                      style={{
+                        minWidth: '6rem',
+                      }}
+                      onKeyDown={(evt: React.KeyboardEvent) => {
+                        if (evt.key === 'Enter') {
+                          evt.preventDefault();
+                          handleSubmit();
+                        }
+                      }}
+                    />
+                    <FormFeedback className="feedback" type="invalid">
+                      {touched.query && errors.query ? errors.query : ''}
+                    </FormFeedback>
+                  </FormGroup>
+                </Form>
+              </>
+            )}
+          </Formik>
+        )}
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
-          <Nav className="mr-auto" navbar>
-            {pathname === '/' ? null : (
-              <Formik
-                initialValues={{
-                  query: initialQuery as string,
-                }}
-                validationSchema={yup.object({
-                  query: yup.string().required('required'),
-                })}
-                onSubmit={async (formData, { setSubmitting, setStatus }) => {
-                  dispatch(setQuery(formData.query));
-                  navigate(getSearchURL());
-                  if (pathname === '/search') {
-                    try {
-                      await dispatchSearchThunk(thunkSearch());
-                      setStatus({ success: true });
-                    } catch (err) {
-                      setStatus({ success: false });
-                      toast(err.message, {
-                        type: 'error',
-                      });
-                    }
-                    setSubmitting(false);
-                  } else {
-                    setSubmitting(false);
-                    setStatus({ success: true });
-                  }
-                }}
-              >
-                {({
-                  values,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  isSubmitting,
-                }) => (
-                  <>
-                    <Form
-                      style={{
-                        margin: 0,
-                      }}
-                    >
-                      <FormGroup
-                        style={{
-                          margin: 0,
-                        }}
-                      >
-                        <Input
-                          id="query"
-                          name="query"
-                          type="text"
-                          placeholder="search term"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.query}
-                          invalid={!!(touched.query && errors.query)}
-                          disabled={isSubmitting}
-                          onKeyDown={(evt: React.KeyboardEvent) => {
-                            if (evt.key === 'Enter') {
-                              evt.preventDefault();
-                              handleSubmit();
-                            }
-                          }}
-                        />
-                        <FormFeedback className="feedback" type="invalid">
-                          {touched.query && errors.query ? errors.query : ''}
-                        </FormFeedback>
-                      </FormGroup>
-                    </Form>
-                  </>
-                )}
-              </Formik>
-            )}
-            {!loggedIn
-              ? [
-                  <NavLink key="register" tag={Link} to="/register">
+          <Nav navbar className="mr-auto">
+            <NavLink className="navbar-link" tag={Link} to="/">
+              How It Works
+            </NavLink>
+            <NavLink className="navbar-link" tag={Link} to="/">
+              Pricing
+            </NavLink>
+            <NavLink className="navbar-link" tag={Link} to="/search">
+              Explore
+            </NavLink>
+            {loggedIn
+              ? null
+              : [
+                  <NavLink
+                    className="navbar-link"
+                    key="register"
+                    tag={Link}
+                    to="/register"
+                  >
                     Register
                   </NavLink>,
-                  <NavLink key="login" tag={Link} to="/login">
+                  <NavLink
+                    className="navbar-link"
+                    key="login"
+                    tag={Link}
+                    to="/login"
+                  >
                     Login
                   </NavLink>,
-                ]
-              : [
-                  <UncontrolledDropdown key="dropdown" nav inNavbar>
-                    <DropdownToggle key="toggle-options" nav caret>
-                      Options
-                    </DropdownToggle>
-                    <DropdownMenu key="menu" right>
-                      <DropdownItem
-                        key="profile"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          navigate(`/${username}`);
-                        }}
-                      >
-                        Profile
-                      </DropdownItem>
-                      <DropdownItem
-                        key="settings"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          navigate('/account');
-                        }}
-                      >
-                        Settings
-                      </DropdownItem>
-                      <DropdownItem
-                        key="logout"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          dispatchAuthThunk(thunkLogout())
-                            .catch((err: Error) => console.error(err))
-                            .then(() => {
-                              // navigate('/login')
-                            });
-                        }}
-                      >
-                        Logout
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </UncontrolledDropdown>,
                 ]}
           </Nav>
+          {!loggedIn ? null : (
+            <UncontrolledDropdown inNavbar>
+              <DropdownToggle
+                className="navbar-text"
+                key="toggle-options"
+                nav
+                caret
+              >
+                Options
+              </DropdownToggle>
+              <DropdownMenu key="menu" right>
+                <DropdownItem
+                  key="profile"
+                  onClick={(evt: React.MouseEvent) => {
+                    evt.preventDefault();
+                    navigate(`/${username}`);
+                  }}
+                >
+                  Profile
+                </DropdownItem>
+                <DropdownItem
+                  key="settings"
+                  onClick={(evt: React.MouseEvent) => {
+                    evt.preventDefault();
+                    navigate('/account');
+                  }}
+                >
+                  Settings
+                </DropdownItem>
+                <DropdownItem
+                  key="logout"
+                  onClick={(evt: React.MouseEvent) => {
+                    evt.preventDefault();
+                    dispatchAuthThunk(thunkLogout())
+                      .catch((err: Error) => console.error(err))
+                      .then(() => {
+                        // navigate('/login')
+                      });
+                  }}
+                >
+                  Logout
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          )}
         </Collapse>
       </Navbar>
     </>

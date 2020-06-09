@@ -16,7 +16,6 @@ import BeatLoader from 'react-spinners/BeatLoader';
 import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
-import '../../assets/styles/global.scss';
 
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';
@@ -74,15 +73,14 @@ const RegisterPage = (args: RegisterPageDataType) => {
   return (
     <Layout location={args.location}>
       <SEO title="Login" />
-      <Container
-        className='default-container'
-      >
+      <Container className="input-container">
         <Formik
           initialValues={{
             username: '',
             name: '',
             email: '',
             password: '',
+            confirmedPassword: '',
           }}
           validationSchema={yup.object({
             username: yup
@@ -114,6 +112,16 @@ const RegisterPage = (args: RegisterPageDataType) => {
                 specialCharacterRegex,
                 'password must contain at least one special character'
               ),
+            confirmedPassword: yup.string().when('password', {
+              is: (val) => val && val.length > 0,
+              then: yup
+                .string()
+                .oneOf(
+                  [yup.ref('password')],
+                  'Both passwords need to be the same'
+                )
+                .required(),
+            }), // https://github.com/jaredpalmer/formik/issues/90
           })}
           onSubmit={(formData, { setSubmitting, setStatus }) => {
             if (!window || !window.grecaptcha) {
@@ -189,7 +197,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   name="username"
                   type="text"
                   placeholder="Username"
-                  className='form-input'
+                  className="form-input"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.username}
@@ -213,7 +221,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   name="name"
                   type="text"
                   placeholder="Name"
-                  className='form-input'
+                  className="form-input"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.name}
@@ -237,7 +245,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   name="email"
                   type="email"
                   placeholder="Email"
-                  className='form-input'
+                  className="form-input"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.email}
@@ -261,13 +269,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   name="password"
                   type="password"
                   placeholder="Password"
-                  onKeyDown={(evt: React.KeyboardEvent) => {
-                    if (evt.key === 'Enter') {
-                      evt.preventDefault();
-                      handleSubmit();
-                    }
-                  }}
-                  className='form-input'
+                  className="form-input"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.password}
@@ -282,6 +284,40 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   type="invalid"
                 >
                   {touched.password && errors.password ? errors.password : ''}
+                </FormFeedback>
+              </FormGroup>
+              <FormGroup>
+                <Label for="confirmedPassword">Confirm Password</Label>
+                <Input
+                  id="confirmedPassword"
+                  name="confirmedPassword"
+                  type="password"
+                  placeholder="Confirm Password"
+                  onKeyDown={(evt: React.KeyboardEvent) => {
+                    if (evt.key === 'Enter') {
+                      evt.preventDefault();
+                      handleSubmit();
+                    }
+                  }}
+                  className="form-input"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.confirmedPassword}
+                  invalid={
+                    !!(touched.confirmedPassword && errors.confirmedPassword)
+                  }
+                  disabled={isSubmitting}
+                />
+                <FormFeedback
+                  style={{
+                    marginBottom: '1rem',
+                  }}
+                  className="feedback"
+                  type="invalid"
+                >
+                  {touched.confirmedPassword && errors.confirmedPassword
+                    ? errors.confirmedPassword
+                    : ''}
                 </FormFeedback>
               </FormGroup>
               <Button

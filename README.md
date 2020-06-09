@@ -6,6 +6,8 @@
 
 ![License](https://img.shields.io/badge/License-CC--BY--NC--SA--4.0-green)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/63eb1e80-d14d-4410-a514-4e39f9598710/deploy-status)](https://app.netlify.com/sites/rescribe/deploys)
+
 ![Upload Docs](https://github.com/mdigreg2/rescribe/workflows/Upload%20Docs/badge.svg)
 ![Upload Website](https://github.com/mdigreg2/rescribe/workflows/Upload%20Website/badge.svg)
 ![Upload Api](https://github.com/mdigreg2/rescribe/workflows/Upload%20Api/badge.svg)
