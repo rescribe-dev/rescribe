@@ -443,6 +443,13 @@ type Mutation {
     # public access level
     publicAccess: AccessLevel!
   ): String!
+  usernameExists(
+    # recaptcha token
+    recaptchaToken: String!
+
+    # username
+    username: String!
+  ): Boolean!
 }
 
 # class
@@ -616,6 +623,10 @@ type Query {
   ): [FileResult!]!
   hello: String!
   languages: [LanguageData!]!
+  projectNameExists(
+    # repository name
+    name: String!
+  ): Boolean!
   project(
     # project id
     id: ObjectId
