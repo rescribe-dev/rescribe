@@ -21,6 +21,62 @@ class ProjectArgs {
   name?: string;
 }
 
+export const getProject = async (args: ProjectArgs, userID: ObjectId): Promise<Project> => {
+  const user = await UserModel.findById(userID);
+  if (!user) {
+    throw new Error('cannot find user data');
+  }
+  let project: Project;
+  if (args.id) {
+    const projectData = await elasticClient.get({
+      id: args.id.toHexString(),
+      index: projectIndexName
+    });
+    project = {
+      ...projectData.body._source as Project,
+      _id: new ObjectId(projectData.body._id as string)
+    };
+  } else if (args.name) {
+    const shouldParams: TermQuery[] = [];
+    for (const project of user.projects) {
+      shouldParams.push({
+        term: {
+          _id: project._id.toHexString()
+        }
+      });
+    }
+    const mustParams: TermQuery[] = [{
+      term: {
+        name: args.name.toLowerCase()
+      }
+    }];
+    const projectData = await elasticClient.search({
+      index: projectIndexName,
+      body: {
+        query: {
+          bool: {
+            should: shouldParams,
+            must: mustParams
+          }
+        }
+      }
+    });
+    if (projectData.body.hits.hits.length === 0) {
+      throw new Error('could not find project');
+    }
+    project = {
+      ...projectData.body.hits.hits[0]._source as Project,
+      _id: new ObjectId(projectData.body.hits.hits[0]._id as string)
+    };
+  } else {
+    throw new Error('user must supply name or id');
+  }
+  if (!(await checkProjectAccess(user, project as ProjectDB, AccessLevel.view))) {
+    throw new Error('user not authorized to view project');
+  }
+  return project;
+};
+
 @Resolver()
 class ProjectResolver {
   @Query(_returns => Project)
@@ -29,59 +85,7 @@ class ProjectResolver {
       throw new Error('user not logged in');
     }
     const userID = new ObjectId(ctx.auth.id);
-    const user = await UserModel.findById(userID);
-    if (!user) {
-      throw new Error('cannot find user data');
-    }
-    let project: Project;
-    if (args.id) {
-      const projectData = await elasticClient.get({
-        id: args.id.toHexString(),
-        index: projectIndexName
-      });
-      project = {
-        ...projectData.body._source as Project,
-        _id: new ObjectId(projectData.body._id as string)
-      };
-    } else if (args.name) {
-      const shouldParams: TermQuery[] = [];
-      for (const project of user.projects) {
-        shouldParams.push({
-          term: {
-            _id: project._id.toHexString()
-          }
-        });
-      }
-      const mustParams: TermQuery[] = [{
-        term: {
-          name: args.name.toLowerCase()
-        }
-      }];
-      const projectData = await elasticClient.search({
-        index: projectIndexName,
-        body: {
-          query: {
-            bool: {
-              should: shouldParams,
-              must: mustParams
-            }
-          }
-        }
-      });
-      if (projectData.body.hits.hits.length === 0) {
-        throw new Error('could not find project');
-      }
-      project = {
-        ...projectData.body.hits.hits[0]._source as Project,
-        _id: new ObjectId(projectData.body.hits.hits[0]._id as string)
-      };
-    } else {
-      throw new Error('user must supply name or id');
-    }
-    if (!(await checkProjectAccess(user, project as ProjectDB, AccessLevel.view))) {
-      throw new Error('user not authorized to view project');
-    }
-    return project;
+    return await getProject(args, userID);
   }
 }
 

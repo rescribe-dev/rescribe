@@ -7,9 +7,15 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import Access, { AccessLevel, AccessType } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
+import { countProjects } from './projectNameExists.resolver';
+import { Matches } from 'class-validator';
+import { validProjectName } from '../utils/variables';
 @ArgsType()
 class AddProjectArgs {
   @Field(_type => String, { description: 'project name' })
+  @Matches(validProjectName, {
+    message: 'invalid characters provided for project name'
+  })
   name: string;
 }
 
@@ -20,9 +26,12 @@ class AddProjectResolver {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
+    const userID = new ObjectId(ctx.auth.id);
+    if ((await countProjects(userID, args.name)) > 0) {
+      throw new Error('project already exists');
+    }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
-    const userID = new ObjectId(ctx.auth.id);
     const baseProject: BaseProject = {
       name: args.name,
       repositories: [],

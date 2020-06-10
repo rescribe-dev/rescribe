@@ -4,9 +4,9 @@ import { resolve } from 'path';
 const createPages: GatsbyNode['createPages'] = async ({ actions }) => {
   const { createPage } = actions;
   createPage({
-    path: '/project/:projectName',
+    path: '/:username/projects/:projectName',
     component: resolve('src/templates/project/index.tsx'),
-    matchPath: '/project/:projectName',
+    matchPath: '/:username/projects/:projectName',
     context: {}, // optional
   });
   createPage({
