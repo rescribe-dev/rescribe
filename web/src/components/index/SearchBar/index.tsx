@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { FormGroup, Input, FormFeedback, Button } from 'reactstrap';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { css } from '@emotion/core';
-import { navigate } from '@reach/router';
+import { navigate } from 'gatsby';
 import { getSearchURL } from '../../../state/search/getters';
 import { useDispatch } from 'react-redux';
 import { isSSR } from '../../../utils/checkSSR';
@@ -116,6 +116,7 @@ const SearchBar = () => {
                 evt.preventDefault();
                 handleSubmit();
               }}
+              disabled={isSubmitting}
             >
               Go
             </Button>

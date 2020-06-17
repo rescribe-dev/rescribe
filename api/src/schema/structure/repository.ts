@@ -7,7 +7,7 @@ import Access, { AccessLevel } from '../auth/access';
 export class BaseRepository {
   @Field({description : 'name'})
   @Property({required: true})
-  name:string;
+  name: string;
 
   @Field({ description: 'branches' })
   @Property({required: true})

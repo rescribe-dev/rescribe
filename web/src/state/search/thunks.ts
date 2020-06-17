@@ -8,9 +8,13 @@ import {
 import { store } from '../reduxWrapper';
 import { RootState } from '..';
 import { setSearchResults, setSearching, setHasSearched } from './actions';
+import { queryMinLength } from '../../utils/variables';
 
 const search = async (): Promise<SearchQuery> => {
   const state = (store.getState() as RootState).searchReducer;
+  if (state.query.length < queryMinLength) {
+    throw new Error('no query provided');
+  }
   const variables: SearchQueryVariables = {
     query: state.query,
     page: state.page,

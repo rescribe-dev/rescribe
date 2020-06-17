@@ -1,0 +1,3 @@
+mutation addProject($name: String!) {
+  addProject(name: $name)
+}

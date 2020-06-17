@@ -9,10 +9,17 @@ import Access, { AccessLevel, AccessType } from '../schema/auth/access';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
+import { Matches, IsNotIn } from 'class-validator';
+import { countRepositories } from './repositoryNameExists.resolver';
+import { validRepositoryName, blacklistedRepositoryNames } from '../utils/variables';
 
 @ArgsType()
 class AddRepositoryArgs {
   @Field(_type => String, { description: 'repository name' })
+  @IsNotIn(blacklistedRepositoryNames, { message: 'repository name is in blacklist' })
+  @Matches(validRepositoryName, {
+    message: 'invalid characters provided for repository name'
+  })
   name: string;
   @Field(_type => ObjectId, { description: 'project' })
   project: ObjectId;
@@ -34,6 +41,9 @@ class AddRepositoryResolver {
     }
     if (!(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project');
+    }
+    if ((await countRepositories(user, args.name)) > 0) {
+      throw new Error('repository already exists');
     }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
