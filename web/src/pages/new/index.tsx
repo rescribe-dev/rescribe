@@ -25,6 +25,7 @@ import {
   validProjectName,
   validRepositoryName,
   perpageFilters,
+  blacklistedRepositoryNames,
 } from '../../utils/variables';
 import PrivateRoute from '../../components/privateRoute';
 import ObjectID from 'bson-objectid';
@@ -65,6 +66,11 @@ interface SelectTypeObject {
   label: string;
 }
 
+interface SelectPublicAccessObject {
+  value: AccessLevel;
+  label: string;
+}
+
 interface SelectOwnerObject {
   value: string;
   label: string;
@@ -79,7 +85,6 @@ interface SelectProjectObject {
 interface NewPageDataType extends PageProps {}
 
 const NewPage = (args: NewPageDataType) => {
-  const defaultPublicAccessLevel = AccessLevel.View;
   const projectType: SelectTypeObject = {
     value: 'project',
     label: 'Project',
@@ -90,6 +95,21 @@ const NewPage = (args: NewPageDataType) => {
   };
   const typeOptions: SelectTypeObject[] = [projectType, repositoryType];
   let defaultType = projectType;
+
+  const publicAccessType: SelectPublicAccessObject = {
+    label: 'public',
+    value: AccessLevel.View,
+  };
+  const privateAccessType: SelectPublicAccessObject = {
+    label: 'private',
+    value: AccessLevel.None,
+  };
+  const publicAccessOptions: SelectPublicAccessObject[] = [
+    publicAccessType,
+    privateAccessType,
+  ];
+  const defaultPublicAccessLevel = publicAccessType;
+
   let defaultProjectName: string | undefined = undefined;
   if (args.location.search.length > 0) {
     const searchParams = new URLSearchParams(args.location.search);
@@ -198,6 +218,7 @@ const NewPage = (args: NewPageDataType) => {
                   type: defaultType.value,
                   owner: defaultOwner ? defaultOwner.value : undefined,
                   project: defaultProject,
+                  publicAccessLevel: defaultPublicAccessLevel,
                   name: '',
                 }}
                 validationSchema={yup.object({
@@ -206,6 +227,12 @@ const NewPage = (args: NewPageDataType) => {
                   project: yup.object().when('type', {
                     is: repositoryType.value,
                     then: yup.object().required('project is required'),
+                  }),
+                  publicAccessLevel: yup.string().when('type', {
+                    is: repositoryType.value,
+                    then: yup
+                      .string()
+                      .required('public access level is required'),
                   }),
                   name: yup
                     .string()
@@ -218,6 +245,15 @@ const NewPage = (args: NewPageDataType) => {
                       otherwise: yup.string().matches(validRepositoryName, {
                         message: 'invalid repository name',
                       }),
+                    })
+                    .when('type', {
+                      is: repositoryType.value,
+                      then: yup
+                        .string()
+                        .notOneOf(
+                          blacklistedRepositoryNames,
+                          'blacklisted repository name'
+                        ),
                     })
                     .when('type', {
                       is: projectType.value,
@@ -292,7 +328,6 @@ const NewPage = (args: NewPageDataType) => {
                     setSubmitting(false);
                   };
                   try {
-                    console.log(formData);
                     if (formData.type === projectType.value) {
                       const createProjectRes = await client.mutate<
                         AddProjectMutation,
@@ -307,6 +342,9 @@ const NewPage = (args: NewPageDataType) => {
                         throw new Error(createProjectRes.errors.join(', '));
                       }
                     } else if (formData.type === repositoryType.value) {
+                      if (!formData.project) {
+                        throw new Error('no project selected');
+                      }
                       const createRepositoryRes = await client.mutate<
                         AddRepositoryMutation,
                         AddRepositoryMutationVariables
@@ -315,7 +353,7 @@ const NewPage = (args: NewPageDataType) => {
                         variables: {
                           name: formData.name,
                           project: formData.project,
-                          publicAccess: defaultPublicAccessLevel,
+                          publicAccess: formData.publicAccessLevel.value,
                         },
                       });
                       if (createRepositoryRes.errors) {
@@ -324,18 +362,23 @@ const NewPage = (args: NewPageDataType) => {
                     } else {
                       throw new Error('invalid new type provided');
                     }
-                    setStatus({ success: true });
-                    switch (formData.type) {
-                      case projectType.value:
-                        navigate(`/${username}/projects/${formData.name}`);
-                        break;
-                      case repositoryType.value:
-                        navigate(`/${username}/${formData.name}`);
-                        break;
-                      default:
-                        break;
-                    }
-                    setSubmitting(false);
+                    await new Promise<void>((resolve) =>
+                      setTimeout(() => {
+                        setStatus({ success: true });
+                        switch (formData.type) {
+                          case projectType.value:
+                            navigate(`/${username}/projects/${formData.name}`);
+                            break;
+                          case repositoryType.value:
+                            navigate(`/${username}/${formData.name}`);
+                            break;
+                          default:
+                            break;
+                        }
+                        setSubmitting(false);
+                        resolve();
+                      }, 1000)
+                    ); // wait for creation before routing
                   } catch (err) {
                     toast(err.message, {
                       type: 'error',
@@ -459,62 +502,132 @@ const NewPage = (args: NewPageDataType) => {
                     {values.type === projectType.value ? (
                       <></>
                     ) : (
-                      <FormGroup>
-                        <Label for="type">Project</Label>
-                        <AsyncSelect
-                          id="project"
-                          name="project"
-                          isMulti={false}
-                          defaultOptions={defaultProjectOptions}
-                          cacheOptions={true}
-                          loadOptions={getProjects}
-                          value={selectedProject}
-                          onChange={(
-                            selectedOption: ValueType<SelectProjectObject>
-                          ) => {
-                            if (!selectedOption) {
-                              selectedOption = null;
+                      <>
+                        <FormGroup>
+                          <Label for="type">Project</Label>
+                          <AsyncSelect
+                            id="project"
+                            name="project"
+                            isMulti={false}
+                            defaultOptions={defaultProjectOptions}
+                            cacheOptions={true}
+                            loadOptions={getProjects}
+                            value={selectedProject}
+                            onChange={(
+                              selectedOption: ValueType<SelectProjectObject>
+                            ) => {
+                              if (!selectedOption) {
+                                selectedOption = null;
+                              }
+                              const selected = selectedOption as SelectProjectObject;
+                              setSelectedProject(selected);
+                              setFieldValue('project', selected.value);
+                            }}
+                            onBlur={(evt) => {
+                              handleBlur(evt);
+                              setTouched({
+                                ...touched,
+                                project: true,
+                              });
+                            }}
+                            className={
+                              touched.project && errors.project
+                                ? 'is-invalid'
+                                : ''
                             }
-                            const selected = selectedOption as SelectProjectObject;
-                            setSelectedProject(selected);
-                            setFieldValue('project', selected.value);
-                          }}
-                          onBlur={(evt) => {
-                            handleBlur(evt);
-                            setTouched({
-                              ...touched,
-                              project: true,
-                            });
-                          }}
-                          className={
-                            touched.project && errors.project
-                              ? 'is-invalid'
-                              : ''
-                          }
-                          styles={{
-                            control: (styles) => ({
-                              ...styles,
-                              borderColor:
-                                touched.project && errors.project
-                                  ? 'red'
-                                  : styles.borderColor,
-                            }),
-                          }}
-                          invalid={!!(touched.project && errors.project)}
-                          disabled={isSubmitting}
-                        />
-                        <FormFeedback
-                          style={{
-                            marginBottom: '1rem',
-                          }}
-                          className="feedback"
-                          type="invalid"
-                        >
-                          {touched.project && errors.project
-                            ? errors.project
-                            : ''}
-                        </FormFeedback>
-                      </FormGroup>
+                            styles={{
+                              control: (styles) => ({
+                                ...styles,
+                                borderColor:
+                                  touched.project && errors.project
+                                    ? 'red'
+                                    : styles.borderColor,
+                              }),
+                            }}
+                            invalid={!!(touched.project && errors.project)}
+                            disabled={isSubmitting}
+                          />
+                          <FormFeedback
+                            style={{
+                              marginBottom: '1rem',
+                            }}
+                            className="feedback"
+                            type="invalid"
+                          >
+                            {touched.project && errors.project
+                              ? errors.project
+                              : ''}
+                          </FormFeedback>
+                        </FormGroup>
+                        <FormGroup>
+                          <Label for="publicAccessLevel">Public Access</Label>
+                          <Select
+                            id="publicAccessLevel"
+                            name="publicAccessLevel"
+                            isMulti={false}
+                            options={publicAccessOptions}
+                            cacheOptions={true}
+                            defaultValue={defaultPublicAccessLevel}
+                            onChange={(
+                              selectedOption: ValueType<
+                                SelectPublicAccessObject
+                              >
+                            ) => {
+                              if (!selectedOption) {
+                                selectedOption = null;
+                              }
+                              const selected = selectedOption as SelectPublicAccessObject;
+                              setFieldValue(
+                                'publicAccessLevel',
+                                selected.value
+                              );
+                            }}
+                            onBlur={(evt) => {
+                              handleBlur(evt);
+                              setTouched({
+                                ...touched,
+                                // @ts-ignore
+                                publicAccessLevel: true,
+                              });
+                            }}
+                            className={
+                              touched.publicAccessLevel &&
+                              errors.publicAccessLevel
+                                ? 'is-invalid'
+                                : ''
+                            }
+                            styles={{
+                              control: (styles) => ({
+                                ...styles,
+                                borderColor:
+                                  touched.publicAccessLevel &&
+                                  errors.publicAccessLevel
+                                    ? 'red'
+                                    : styles.borderColor,
+                              }),
+                            }}
+                            invalid={
+                              !!(
+                                touched.publicAccessLevel &&
+                                errors.publicAccessLevel
+                              )
+                            }
+                            disabled={isSubmitting}
+                          />
+                          <FormFeedback
+                            style={{
+                              marginBottom: '1rem',
+                            }}
+                            className="feedback"
+                            type="invalid"
+                          >
+                            {touched.publicAccessLevel &&
+                            errors.publicAccessLevel
+                              ? errors.publicAccessLevel
+                              : ''}
+                          </FormFeedback>
+                        </FormGroup>
+                      </>
                     )}
                     <FormGroup>
                       <Label for="name">Name</Label>
@@ -546,6 +659,7 @@ const NewPage = (args: NewPageDataType) => {
                         evt.preventDefault();
                         handleSubmit();
                       }}
+                      disabled={isSubmitting}
                     >
                       Submit
                     </Button>

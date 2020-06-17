@@ -9,14 +9,14 @@ import Access, { AccessLevel, AccessType } from '../schema/auth/access';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
-import { NotEquals, Matches } from 'class-validator';
+import { Matches, IsNotIn } from 'class-validator';
 import { countRepositories } from './repositoryNameExists.resolver';
-import { validRepositoryName } from '../utils/variables';
+import { validRepositoryName, blacklistedRepositoryNames } from '../utils/variables';
 
 @ArgsType()
 class AddRepositoryArgs {
   @Field(_type => String, { description: 'repository name' })
-  @NotEquals('projects', { message: 'repository name cannot be projects' })
+  @IsNotIn(blacklistedRepositoryNames, { message: 'repository name is in blacklist' })
   @Matches(validRepositoryName, {
     message: 'invalid characters provided for repository name'
   })

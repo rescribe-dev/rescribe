@@ -10,6 +10,12 @@ const createPages: GatsbyNode['createPages'] = async ({ actions }) => {
     context: {}, // optional
   });
   createPage({
+    path: '/:username/projects',
+    component: resolve('src/templates/projects/index.tsx'),
+    matchPath: '/:username/projects',
+    context: {}, // optional
+  });
+  createPage({
     path: '/:username/projects/:projectName',
     component: resolve('src/templates/project/index.tsx'),
     matchPath: '/:username/projects/:projectName',

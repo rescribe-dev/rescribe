@@ -9,13 +9,12 @@ import User, { UserModel } from '../schema/auth/user';
 import { elasticClient } from '../elastic/init';
 import { TermQuery } from '../elastic/types';
 import { RequestParams } from '@elastic/elasticsearch';
-import { NotEquals, Matches } from 'class-validator';
+import { Matches } from 'class-validator';
 import { validRepositoryName } from '../utils/variables';
 
 @ArgsType()
 class RepositoryExistsArgs {
   @Field({ description: 'repository name' })
-  @NotEquals('projects', { message: 'repository name cannot be projects' })
   @Matches(validRepositoryName, {
     message: 'invalid characters provided for repository name'
   })

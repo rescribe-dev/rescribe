@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Container, Table } from 'reactstrap';
-import { PageProps } from 'gatsby';
+import { Container, Table, Button } from 'reactstrap';
+import { PageProps, Link, navigate } from 'gatsby';
 
 import './index.scss';
 
@@ -21,6 +21,8 @@ import Layout from '../../layouts';
 import { isSSR } from '../../utils/checkSSR';
 import { ApolloQueryResult } from 'apollo-client';
 import { client } from '../../utils/apollo';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ProjectPageDataType extends PageProps {}
@@ -28,12 +30,15 @@ interface ProjectPageDataType extends PageProps {}
 const ProjectPage = (args: ProjectPageDataType) => {
   const splitPath = args.location.pathname.split('/');
   let projectName: string | undefined = undefined;
-  if (splitPath.length >= 3) {
-    projectName = splitPath[2];
+  if (splitPath.length >= 4) {
+    projectName = splitPath[3];
   }
   const [repositoriesData, setRepositoriesData] = useState<
     ApolloQueryResult<RepositoriesQuery> | undefined
   >(undefined);
+  const username = isSSR
+    ? undefined
+    : useSelector<RootState, string>((state) => state.authReducer.username);
   const projectQueryRes:
     | QueryResult<ProjectQuery, ProjectQueryVariables>
     | undefined =
@@ -82,7 +87,7 @@ const ProjectPage = (args: ProjectPageDataType) => {
             ) : (
               <>
                 {repositoriesData.data.repositories.length === 0 ? (
-                  <p>no files in project {projectName}</p>
+                  <p>no repositories in project {projectName}</p>
                 ) : (
                   <Table>
                     <thead>
@@ -91,21 +96,28 @@ const ProjectPage = (args: ProjectPageDataType) => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        {/*<th scope="row">1</th> */}
-                        {repositoriesData.data.repositories.map(
-                          (repository) => {
-                            return (
-                              <th scope="row" key={repository._id}>
+                      {repositoriesData.data.repositories.map((repository) => {
+                        return (
+                          <tr key={repository._id}>
+                            <td>
+                              <Link to={`/${username}/${repository.name}`}>
                                 {repository.name}
-                              </th>
-                            );
-                          }
-                        )}
-                      </tr>
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </Table>
                 )}
+                <Button
+                  onClick={(evt) => {
+                    evt.preventDefault();
+                    navigate(`/new?type=repository&project=${projectName}`);
+                  }}
+                >
+                  New Repository
+                </Button>
               </>
             )}
           </Container>

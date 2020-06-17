@@ -209,6 +209,7 @@ const Newsletter = () => {
                 evt.preventDefault();
                 handleSubmit();
               }}
+              disabled={isSubmitting}
             >
               Submit
             </Button>
