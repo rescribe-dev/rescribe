@@ -1,6 +1,10 @@
+fragment fileDataFields on File {
+  _id
+  name
+}
+
 query files($repositories: [ObjectId!]!, $perpage: Int!, $page: Int!) {
-    files(repositories: $repositories, perpage: $perpage, page: $page) {
-        _id
-        name
-    }
+  files(repositories: $repositories, perpage: $perpage, page: $page) {
+    ...fileDataFields
+  }
 }

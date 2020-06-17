@@ -10,17 +10,11 @@ import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess } from './auth';
 import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
-import { getLogger } from 'log4js';
-
-const logger = getLogger();
 
 @ArgsType()
 class RepositoryArgs {
   @Field(_type => ObjectId, { description: 'repository id', nullable: true })
   id?: ObjectId;
-
-  @Field(_type => ObjectId, { description: 'project id', nullable: true })
-  project?: ObjectId;
 
   @Field({ description: 'repository name', nullable: true })
   name?: string;
@@ -48,23 +42,18 @@ class RepositoryResolver {
         ...repositoryData.body._source as Repository,
         _id: new ObjectId(repositoryData.body._id as string)
       };
-    } else if (args.name && args.project) {
+    } else if (args.name) {
       const shouldParams: TermQuery[] = [];
-      for (const project of user.projects) {
+      for (const repository of user.repositories) {
         shouldParams.push({
           term: {
-            project: project._id.toHexString()
+            _id: repository._id.toHexString()
           }
         });
       }
-      logger.info(args.name);
       const mustParams: TermQuery[] = [{
         term: {
           name: args.name.toLowerCase()
-        }
-      }, {
-        term: {
-          project: args.project.toHexString()
         }
       }];
       const repositoryData = await elasticClient.search({

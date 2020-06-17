@@ -624,7 +624,7 @@ type Query {
   hello: String!
   languages: [LanguageData!]!
   projectNameExists(
-    # repository name
+    # project name
     name: String!
   ): Boolean!
   project(
@@ -641,6 +641,10 @@ type Query {
     # number per page
     perpage: Int
   ): [Project!]!
+  repositoryNameExists(
+    # repository name
+    name: String!
+  ): Boolean!
   repositories(
     # project id
     projects: [ObjectId!]
@@ -654,9 +658,6 @@ type Query {
   repository(
     # repository id
     id: ObjectId
-
-    # project id
-    project: ObjectId
 
     # repository name
     name: String
