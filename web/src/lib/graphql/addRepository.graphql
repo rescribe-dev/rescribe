@@ -1,0 +1,3 @@
+mutation addRepository($name: String!, $project: ObjectId!, $publicAccess: AccessLevel!) {
+  addRepository(name: $name, project: $project, publicAccess: $publicAccess)
+}

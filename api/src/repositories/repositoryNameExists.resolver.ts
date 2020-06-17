@@ -76,7 +76,7 @@ export const countRepositories = async (user: User, name?: string): Promise<numb
 @Resolver()
 class RepositoryNameExistsResolver {
   @Query(_returns => Boolean)
-  async projectNameExists(@Args() args: RepositoryExistsArgs, @Ctx() ctx: GraphQLContext): Promise<boolean> {
+  async repositoryNameExists(@Args() args: RepositoryExistsArgs, @Ctx() ctx: GraphQLContext): Promise<boolean> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }

@@ -17,7 +17,7 @@ interface ArgProps {
   title: string;
 }
 
-function SEO(args: ArgProps) {
+const SEO = (args: ArgProps): JSX.Element => {
   const { site } = useStaticQuery(
     graphql`
       query {
@@ -40,6 +40,7 @@ function SEO(args: ArgProps) {
       }}
       title={args.title}
       titleTemplate={`%s | ${site.siteMetadata.title}`}
+      noscript={[<p key="noscript-message">Enable javascript to view page.</p>]}
       meta={[
         {
           name: 'description',
@@ -76,7 +77,7 @@ function SEO(args: ArgProps) {
       ].concat(args.meta)}
     />
   );
-}
+};
 
 SEO.defaultProps = {
   lang: 'en',

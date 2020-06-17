@@ -1,0 +1,3 @@
+query projectNameExists($name: String!) {
+  projectNameExists(name: $name)
+}

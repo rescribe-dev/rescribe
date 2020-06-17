@@ -61,7 +61,7 @@ export default {
         name: 'Rescribe',
         short_name: 'rescribe',
         start_url: '/',
-        background_color: '#ffffffc9',
+        background_color: '#a2466c',
         theme_color: '#a2466c',
         display: 'standalone',
         icon: 'src/assets/images/icon.png',
