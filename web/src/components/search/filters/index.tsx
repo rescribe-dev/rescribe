@@ -25,7 +25,7 @@ import {
   Language,
 } from '../../../lib/generated/datamodel';
 import { capitalizeFirstLetter } from '../../../utils/misc';
-import { navigate } from '@reach/router';
+import { navigate } from 'gatsby';
 import { getSearchURL } from '../../../state/search/getters';
 import { toast } from 'react-toastify';
 import { thunkSearch } from '../../../state/search/thunks';

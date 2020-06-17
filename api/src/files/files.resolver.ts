@@ -19,11 +19,11 @@ import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../utils/checkAccess';
+import { queryMinLength } from '../utils/variables';
 
 const logger = getLogger();
 
 const maxPerPage = 20;
-const queryMinLength = 3;
 const projectsMaxLength = 5;
 const repositoriesMaxLength = 5;
 const branchesMaxLength = 5;
