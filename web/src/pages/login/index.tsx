@@ -243,6 +243,7 @@ const LoginPage = (args: LoginPageDataType) => {
                   evt.preventDefault();
                   handleSubmit();
                 }}
+                disabled={isSubmitting}
               >
                 Submit
               </Button>

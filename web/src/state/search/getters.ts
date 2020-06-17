@@ -3,6 +3,11 @@ import { RootState } from '..';
 import { searchParamKeys } from '../../utils/variables';
 import { isSSR } from '../../utils/checkSSR';
 
+export const getQuery = (): string => {
+  const state = (store.getState() as RootState).searchReducer;
+  return state.query;
+};
+
 export const getSearchURL = (): string => {
   if (isSSR || !window) {
     return '';
@@ -19,5 +24,5 @@ export const getSearchURL = (): string => {
       state.filters.languages.join(',')
     );
   }
-  return searchURL.toString();
+  return searchURL.pathname + searchURL.search;
 };

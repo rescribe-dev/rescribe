@@ -30,6 +30,12 @@ const loaderCSS = css`
   border-color: red;
 `;
 
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
+
 const Newsletter = () => {
   return (
     <Container
@@ -203,6 +209,7 @@ const Newsletter = () => {
                 evt.preventDefault();
                 handleSubmit();
               }}
+              disabled={isSubmitting}
             >
               Submit
             </Button>

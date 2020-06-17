@@ -326,6 +326,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                   evt.preventDefault();
                   handleSubmit();
                 }}
+                disabled={isSubmitting}
               >
                 Submit
               </Button>

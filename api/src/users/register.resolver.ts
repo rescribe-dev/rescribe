@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
-import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds, usernameMinLen } from '../utils/variables';
+import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from '../utils/variables';
 import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID } from 'mongodb';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';
@@ -19,9 +19,6 @@ class RegisterArgs {
   name: string;
 
   @Field(_type => String, { description: 'username' })
-  @MinLength(usernameMinLen, {
-    message: `username must contain at least ${usernameMinLen} characters`
-  })
   username: string;
 
   @Field(_type => String, { description: 'email' })

@@ -1,0 +1,3 @@
+query repositoryNameExists($name: String!) {
+  repositoryNameExists(name: $name)
+}
