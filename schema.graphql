@@ -562,6 +562,9 @@ type Query {
     # only user files
     onlyUser: Boolean
 
+    # file path
+    path: String
+
     # projects
     projects: [ObjectId!]
 
@@ -570,6 +573,9 @@ type Query {
 
     # file id
     file: ObjectId
+
+    # file name
+    name: String
 
     # branches
     branches: [String!]
@@ -600,6 +606,9 @@ type Query {
     # only user files
     onlyUser: Boolean
 
+    # file path
+    path: String
+
     # projects
     projects: [ObjectId!]
 
@@ -608,6 +617,9 @@ type Query {
 
     # file id
     file: ObjectId
+
+    # file name
+    name: String
 
     # branches
     branches: [String!]

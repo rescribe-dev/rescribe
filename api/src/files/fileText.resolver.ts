@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
-import { FileModel, StorageType, FileDB } from '../schema/structure/file';
+import { FileModel, FileDB } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
 import { UserModel } from '../schema/auth/user';
 import { GraphQLContext } from '../utils/context';
@@ -66,29 +66,19 @@ export const getLines = (content: string, location: Location): string[] => {
 
 interface RedisKey {
   fileKey: string;
-  location: StorageType;
 }
 
 export const getText = async (file: FileDB, branch: string, args: Location): Promise<string[]> => {
   const fileKey = getFileKey(file.repository, branch, file.path);
   const redisKeyObject: RedisKey = {
-    fileKey,
-    location: file.location
+    fileKey
   };
   const redisKey = JSON.stringify(redisKeyObject);
   const redisData = await cache.get(redisKey);
   if (redisData && !configData.DISABLE_CACHE) {
     return getLines(redisData, args);
   }
-  let content: string;
-  if (!file.saveContent) {
-    throw new Error('content not stored in cloud');
-  }
-  if ([StorageType.github, StorageType.local].includes(file.location)) {
-    content = await getS3FileData(fileKey);
-  } else {
-    throw new Error('invalid storage location');
-  }
+  const content = await getS3FileData(fileKey);
   await cache.set(redisKey, content, 'ex', redisExpireSeconds);
   return getLines(content, args);
 };
