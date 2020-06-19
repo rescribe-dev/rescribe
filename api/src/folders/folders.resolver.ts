@@ -328,8 +328,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     post_tags: ['']
   };
   for (const nestedField of nestedFields) {
-    // TODO - tweak this to get it faster - boosting alternatives
-    // use boost to make certain fields weighted higher than others
     const currentQuery: object = args.query ? {
       multi_match: {
         query: args.query
@@ -396,9 +394,9 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
 };
 
 @Resolver()
-class FilesResolver {
+class FoldersResolver {
   @Query(_returns => [File])
-  async files(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<File[]> {
+  async folders(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<File[]> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
@@ -422,4 +420,4 @@ class FilesResolver {
   }
 }
 
-export default FilesResolver;
+export default FoldersResolver;

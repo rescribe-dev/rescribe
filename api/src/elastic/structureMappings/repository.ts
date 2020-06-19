@@ -11,6 +11,9 @@ const repositoryMappings = {
   name: {
     type: 'text'
   },
+  folder: {
+    type: 'keyword'
+  },
   public: {
     type: 'keyword'
   },

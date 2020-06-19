@@ -1,10 +1,9 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, UpdateType, SaveElasticElement, saveToElastic } from './shared';
+import { indexFile, UpdateType, SaveElasticElement, saveToElastic, getFilePath } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
-import { StorageType } from '../schema/structure/file';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { RepositoryModel } from '../schema/structure/repository';
@@ -28,9 +27,6 @@ class IndexFilesArgs {
 
   @Field(_type => String, { description: 'branch' })
   branch: string;
-
-  @Field({ description: 'branch', defaultValue: false })
-  saveContent: boolean;
 }
 
 @Resolver()
@@ -78,14 +74,12 @@ class IndexFilesResolver {
           const content = buffer.toString('utf8');
           try {
             elasticElements.push(await indexFile({
-              saveContent: args.saveContent,
               action: UpdateType.add,
               file: undefined,
-              location: StorageType.local,
               project: args.project,
               repository: args.repository,
               branch: args.branch,
-              path,
+              path: getFilePath(path),
               fileName: file.filename,
               content,
               public: repository.public

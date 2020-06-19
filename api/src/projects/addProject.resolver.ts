@@ -35,10 +35,10 @@ class AddProjectResolver {
     const baseProject: BaseProject = {
       name: args.name,
       repositories: [],
-    };
-    const elasticProject: Project = {
       created: currentTime,
       updated: currentTime,
+    };
+    const elasticProject: Project = {
       ...baseProject
     };
     await elasticClient.index({

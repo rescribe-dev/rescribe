@@ -6,6 +6,7 @@ export const passwordMinLen = 6;
 export const nameMinLen = 3;
 export const queryMinLength = 3;
 
+export const defaultRepositoryImage = 'https://example.com/image.jpg';
 export const saltRounds = 10;
 
 // supported languages:

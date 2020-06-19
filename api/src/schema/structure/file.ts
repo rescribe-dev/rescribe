@@ -1,18 +1,8 @@
-import { ObjectType, Field, registerEnumType, Int } from 'type-graphql';
+import { ObjectType, Field, Int } from 'type-graphql';
 import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import AntlrFile from '../antlr/file';
 import { AccessLevel } from '../auth/access';
-
-export enum StorageType {
-  local = 'local',
-  github = 'github',
-}
-
-registerEnumType(StorageType, {
-  name: 'StorageType',
-  description: 'storage type',
-});
 
 @modelOptions({ schemaOptions: { collection: 'files' } })
 export class FileDB {
@@ -26,14 +16,18 @@ export class FileDB {
   branches: string[];
   @Property({ required: true })
   public: AccessLevel;
+  @Property({ required: false })
+  folder?: ObjectId;
   @Property({ required: true })
   fileLength: number;
   @Property({ required: true })
   path: string;
   @Property({ required: true })
-  location: StorageType;
-  @Property({ required: true })
-  saveContent: boolean;
+  name: string;
+  @Field({ description: 'date created' })
+  created: number;
+  @Field({ description: 'date updated' })
+  updated: number;
 }
 
 export const FileModel = getModelForClass(FileDB);
@@ -53,10 +47,10 @@ export default class File extends AntlrFile {
   numBranches: number;
   @Field(_type => AccessLevel, { description: 'public access level' })
   public: AccessLevel;
+  @Field({ description: 'folder', nullable: true })
+  folder?: ObjectId;
   @Field({ description: 'path' })
   path: string;
-  @Field({ description: 'storage location' })
-  location: StorageType;
   @Field({ description: 'date created' })
   created: number;
   @Field({ description: 'date updated' })

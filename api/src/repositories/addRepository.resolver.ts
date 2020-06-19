@@ -11,7 +11,8 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { Matches, IsNotIn } from 'class-validator';
 import { countRepositories } from './repositoryNameExists.resolver';
-import { validRepositoryName, blacklistedRepositoryNames } from '../utils/variables';
+import { validRepositoryName, blacklistedRepositoryNames, defaultRepositoryImage } from '../utils/variables';
+import { createFolder, baseFolderName, baseFolderPath } from '../folders/shared';
 
 @ArgsType()
 class AddRepositoryArgs {
@@ -47,17 +48,25 @@ class AddRepositoryResolver {
     }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
+    const folderID = await createFolder({
+      name: baseFolderName,
+      path: baseFolderPath,
+      project: args.project,
+      public: args.publicAccess,
+      repository: id
+    });
     const baseRepository: BaseRepository = {
       name: args.name,
       owner: userID,
       branches: [],
       project: args.project,
       public: args.publicAccess,
-    };
-    const elasticRepository: Repository = {
+      image: defaultRepositoryImage,
+      folder: folderID,
       created: currentTime,
       updated: currentTime,
-      numBranches: 0,
+    };
+    const elasticRepository: Repository = {
       ...baseRepository
     };
     await elasticClient.index({
@@ -72,7 +81,7 @@ class AddRepositoryResolver {
         repositories: id
       }
     });
-    const newAccess :Access = {
+    const newAccess: Access = {
       _id: id,
       level: AccessLevel.owner,
       type: AccessType.user
@@ -86,8 +95,7 @@ class AddRepositoryResolver {
     });
     const dbRepository: RepositoryDB = {
       ...baseRepository,
-      _id: id,
-      image: ''
+      _id: id
     };
     await new RepositoryModel(dbRepository).save();
     return `indexed repository with id ${id.toHexString()}`;

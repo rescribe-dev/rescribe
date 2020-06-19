@@ -8,6 +8,7 @@ import projectMappings from './structureMappings/project';
 import repositoryMappings from './structureMappings/repository';
 import fileMappings from './antlrMappings/file';
 import { IndicesPutMapping } from '@elastic/elasticsearch/api/requestParams';
+import folderMappings from './structureMappings/folder';
 
 const logger = getLogger();
 
@@ -54,6 +55,7 @@ const initializeMapping = async (indexName: string, indexSettings: object, index
 
 export const initializeMappings = async (): Promise<void> => {
   await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType);
+  await initializeMapping(settings.folderIndexName, settings.folderIndexSettings, folderMappings, settings.folderType);
   await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
   await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
 };

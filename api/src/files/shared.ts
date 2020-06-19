@@ -2,7 +2,7 @@ import { getLogger } from 'log4js';
 import { elasticClient } from '../elastic/init';
 import { processFile } from '../utils/antlrBridge';
 import { fileIndexName } from '../elastic/settings';
-import File, { FileModel, FileDB, StorageType } from '../schema/structure/file';
+import File, { FileModel, FileDB, } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { AccessLevel } from '../schema/auth/access';
@@ -15,10 +15,8 @@ export enum UpdateType {
 }
 
 export interface FileIndexArgs {
-  saveContent: boolean;
   action: UpdateType;
   file: FileDB | undefined;
-  location: StorageType;
   project: ObjectId;
   repository: ObjectId;
   branch: string;
@@ -32,7 +30,12 @@ export interface SaveElasticElement {
   id: ObjectId;
   data: object;
   action: UpdateType;
+  index: string;
 }
+
+export const getFilePath = (path: string): string => {
+  return path.substring(0, path.lastIndexOf('/') + 1);
+};
 
 export const saveToElastic = async (elements: SaveElasticElement[]): Promise<void> => {
   let indexBody: object[] = [];
@@ -41,14 +44,14 @@ export const saveToElastic = async (elements: SaveElasticElement[]): Promise<voi
     if (element.action === UpdateType.add) {
       indexBody.push([{
         index: {
-          _index: fileIndexName,
+          _index: element.index,
           _id: element.id.toHexString()
         }
       }, element.data]);
     } else if (element.action === UpdateType.update) {
       indexBody.push([{
         update: {
-          _index: fileIndexName,
+          _index: element.index,
           _id: element.id.toHexString()
         }
       }, element.data]);
@@ -91,10 +94,11 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
       repository: args.repository,
       branches: [args.branch],
       path: args.path,
-      location: args.location,
+      name: args.fileName,
       fileLength,
       public: args.public,
-      saveContent: args.saveContent
+      created: currentTime,
+      updated: currentTime,
     };
     const elasticContent: File = {
       ...fileData,
@@ -105,7 +109,6 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
       numBranches: 1,
       created: currentTime,
       updated: currentTime,
-      location: args.location,
       path: args.path,
       public: args.public,
       fileLength
@@ -116,13 +119,11 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
       id
     };
     await new FileModel(newFileDB).save();
-    if (args.saveContent) {
-      await s3Client.upload({
-        Bucket: fileBucket,
-        Key: getFileKey(args.repository, args.branch, args.path),
-        Body: args.content
-      }).promise();
-    }
+    await s3Client.upload({
+      Bucket: fileBucket,
+      Key: getFileKey(args.repository, args.branch, args.path),
+      Body: args.content
+    }).promise();
   } else if (args.action === UpdateType.update) {
     const elasticContent: object = {
       ...fileData,
@@ -139,13 +140,11 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
     }, {
       fileLength,
     });
-    if (args.file?.saveContent) {
-      await s3Client.upload({
-        Bucket: fileBucket,
-        Key: getFileKey(args.repository, args.branch, args.path),
-        Body: args.content
-      }).promise();
-    }
+    await s3Client.upload({
+      Bucket: fileBucket,
+      Key: getFileKey(args.repository, args.branch, args.path),
+      Body: args.content
+    }).promise();
   } else {
     throw new Error(`invalid action ${args.action} provided`);
   }

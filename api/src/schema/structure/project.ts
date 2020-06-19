@@ -8,9 +8,18 @@ export class BaseProject {
   @Field({ description: 'name' })
   @Property({ required: true })
   name: string;
+
   @Field(_type => [ObjectId], { description: 'repositories' })
   @Property({ required: true })
   repositories: ObjectId[];
+
+  @Field({ description: 'date created' })
+  @Property({ required: true })
+  created: number;
+
+  @Field({ description: 'date updated' })
+  @Property({ required: true })
+  updated: number;
 }
 
 // elastic & graphql
@@ -18,10 +27,6 @@ export class BaseProject {
 export class Project extends BaseProject {
   @Field()
   readonly _id?: ObjectId;
-  @Field({ description: 'date created' })
-  created: number;
-  @Field({ description: 'date updated' })
-  updated: number;
 }
 
 // database

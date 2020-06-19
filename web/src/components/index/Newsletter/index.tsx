@@ -41,7 +41,7 @@ const Newsletter = () => {
     <Container
       fluid
       style={{
-        marginTop: '30rem',
+        marginTop: '40rem',
         backgroundColor: 'var(--deep-blue)',
         padding: '2rem',
       }}
@@ -55,7 +55,7 @@ const Newsletter = () => {
         <p>
           Sign up for our newsletter.
           <br />
-          Stay up to date on the latest reScribe developments.
+          Stay up to date on the latest rescribe developments.
         </p>
       </div>
       <Formik

@@ -199,32 +199,35 @@ const Header = (args: HeaderArgs) => {
                   <NavLink className="navbar-link" tag={Link} to="/search">
                     Explore
                   </NavLink>
-                  {loggedIn ? (
-                    <>
-                      <NavLink
-                        className="navbar-link"
-                        tag={Link}
-                        to={`/${username}/projects`}
-                      >
-                        Projects
-                      </NavLink>
-                    </>
-                  ) : (
-                    <>
-                      <NavLink
-                        className="navbar-link"
-                        tag={Link}
-                        to="/register"
-                      >
-                        Register
-                      </NavLink>
-                      ,
-                      <NavLink className="navbar-link" tag={Link} to="/login">
-                        Login
-                      </NavLink>
-                      ,
-                    </>
-                  )}
+                  {loggedIn
+                    ? [
+                        <NavLink
+                          className="navbar-link"
+                          tag={Link}
+                          to={`/${username}/projects`}
+                          key="projecs"
+                        >
+                          Projects
+                        </NavLink>,
+                      ]
+                    : [
+                        <NavLink
+                          className="navbar-link"
+                          tag={Link}
+                          to="/register"
+                          key="register"
+                        >
+                          Register
+                        </NavLink>,
+                        <NavLink
+                          className="navbar-link"
+                          tag={Link}
+                          to="/login"
+                          key="login"
+                        >
+                          Login
+                        </NavLink>,
+                      ]}
                 </Nav>
                 {!loggedIn ? null : (
                   <UncontrolledDropdown inNavbar>
