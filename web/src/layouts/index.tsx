@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Loadable from '@loadable/component';
-import Helmet from 'react-helmet';
+import Fonts from '../components/fontloader';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useStaticQuery, graphql } from 'gatsby';
@@ -20,8 +19,6 @@ toast.configure({
   pauseOnFocusLoss: false,
   pauseOnHover: true,
 });
-
-const Fonts = Loadable(() => import('../components/fontloader'));
 
 interface LayoutArgs {
   children: any;
@@ -49,11 +46,6 @@ const Layout = (args: LayoutArgs) => {
 
   return (
     <>
-      <Helmet>
-        <script
-          src={`https://www.google.com/recaptcha/api.js?render=${process.env.GATSBY_RECAPTCHA_SITE_KEY}`}
-        ></script>
-      </Helmet>
       <Fonts />
       <div className="main-wrapper">
         <Header

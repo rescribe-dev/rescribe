@@ -53,6 +53,7 @@ const ProjectPage = (args: ProjectPageDataType) => {
             toast(err.message, {
               type: 'error',
             });
+            navigate('/404');
           },
           onCompleted: async (data) => {
             setRepositoriesData(
