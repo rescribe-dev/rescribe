@@ -35,7 +35,6 @@ import {
   nameMinLen,
   passwordMinLen,
   specialCharacterRegex,
-  usernameMinLen,
 } from '../../utils/variables';
 
 const loaderCSS = css`
@@ -83,13 +82,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
             confirmedPassword: '',
           }}
           validationSchema={yup.object({
-            username: yup
-              .string()
-              .required('required')
-              .min(
-                usernameMinLen,
-                `username must be at least ${usernameMinLen} characters long`
-              ),
+            username: yup.string().required('required'),
             name: yup
               .string()
               .required('required')
