@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int } from 'type-graphql';
+import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import Access, { AccessLevel } from '../auth/access';
@@ -9,7 +9,7 @@ export class BaseRepository {
   @Property({required: true})
   name: string;
 
-  @Field({ description: 'branches' })
+  @Field({ description: 'owner' })
   @Property({required: true})
   owner: ObjectId;
 
@@ -24,27 +24,41 @@ export class BaseRepository {
   @Field(_type => [Access], { description: 'public access level' })
   @Property({ required: true })
   public: AccessLevel;
+
+  @Property({ required: false })
+  @Field({ description: 'repository image' })
+  image: string;
+
+  @Field({ description: 'base folder containing files' })
+  @Property({required: true})
+  folder: ObjectId;
+
+  @Field({ description: 'date created' })
+  @Property({required: true})
+  created: number;
+
+  @Field({ description: 'date updated' })
+  @Property({required: true})
+  updated: number;
+
+  // TODO - potentially add num files / num lines of code aggregates
 }
 
+// elastic
 @ObjectType({ description: 'repository' })
 export class Repository extends BaseRepository {
   @Field()
   readonly _id?: ObjectId;
-  @Field({ description: 'date created' })
-  created: number;
-  @Field({ description: 'date updated' })
-  updated: number;
-  @Field(_type => Int, { description: 'number of branches' })
-  numBranches: number;
+
+  nameSearch: string;
 }
+
+// database
 @ObjectType({ description: 'repository db' })
 @modelOptions({schemaOptions: {collection: 'repositories'}})
 export class RepositoryDB extends BaseRepository {
   @Field()
   readonly _id: ObjectId;
-  @Property({ required: false })
-  @Field({ description: 'repository image' })
-  image: string;
 }
 
 export const RepositoryModel = getModelForClass(RepositoryDB);

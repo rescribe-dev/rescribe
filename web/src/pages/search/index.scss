@@ -1,1 +1,9 @@
 // custom styles
+
+@media only screen and (max-width: 600px) {
+  #filterColumn {
+    position: absolute;
+    z-index: 1;
+    background-color: #ffffff;
+  }
+}

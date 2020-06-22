@@ -5,8 +5,8 @@ import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/auth/user';
-import { indexFile, UpdateType, SaveElasticElement, saveToElastic } from './shared';
-import { StorageType, FileModel } from '../schema/structure/file';
+import { indexFile, UpdateType, SaveElasticElement, saveToElastic, getFilePath } from './shared';
+import { FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
@@ -136,14 +136,12 @@ class IndexGithubResolver {
       }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       elasticElements.push(await indexFile({
-        saveContent: false,
         action: UpdateType.add,
         file: undefined,
-        location: StorageType.github,
         project: projectID,
         repository: repositoryID,
         branch,
-        path: filePath,
+        path: getFilePath(filePath),
         fileName: getFileName(filePath),
         public: repository?.public as AccessLevel,
         content
@@ -163,10 +161,8 @@ class IndexGithubResolver {
       }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       elasticElements.push(await indexFile({
-        saveContent: false,
         action: UpdateType.update,
         file,
-        location: StorageType.github,
         project: projectID,
         repository: repositoryID,
         branch,
@@ -196,6 +192,7 @@ class IndexGithubResolver {
         elasticElements.push({
           action: UpdateType.update,
           id: file._id,
+          index: fileIndexName,
           data: {
             script: {
               source: `

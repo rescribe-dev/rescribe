@@ -6,6 +6,17 @@ import User from '../schema/auth/user';
 import { ProjectDB } from '../schema/structure/project';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
 
+export const checkRepositoryPublic = async (repository: ObjectId | RepositoryDB, accessLevel: AccessLevel): Promise<boolean> => {
+  if (repository instanceof ObjectId) {
+    const repositoryData = await RepositoryModel.findById(repository);
+    if (!repositoryData) {
+      throw new Error(`cannot find repository ${repository.toHexString()}`);
+    }
+    repository = repositoryData;
+  }
+  return checkAccessLevel(repository.public, accessLevel);
+};
+
 export const checkRepositoryAccess = async (user: User, project: ObjectId | ProjectDB, repository: ObjectId | RepositoryDB, accessLevel: AccessLevel): Promise<boolean> => {
   if (repository instanceof ObjectId) {
     const repositoryData = await RepositoryModel.findById(repository);

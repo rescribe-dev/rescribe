@@ -352,7 +352,7 @@ const NewPage = (args: NewPageDataType) => {
                         mutation: AddRepository,
                         variables: {
                           name: formData.name,
-                          project: formData.project,
+                          project: formData.project.value,
                           publicAccess: formData.publicAccessLevel.value,
                         },
                       });
@@ -380,6 +380,7 @@ const NewPage = (args: NewPageDataType) => {
                       }, 1000)
                     ); // wait for creation before routing
                   } catch (err) {
+                    console.error(JSON.stringify(err));
                     toast(err.message, {
                       type: 'error',
                     });

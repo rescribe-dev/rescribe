@@ -1,4 +1,14 @@
-import { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/auth/user';
+
+export const getUser = async (username: string): Promise<User> => {
+  const user = await UserModel.findOne({
+    username
+  });
+  if (!user) {
+    throw new Error(`cannot find user with username ${username}`);
+  }
+  return user;
+};
 
 export const accountExistsEmail = async (email: string): Promise<boolean> => {
   return await UserModel.countDocuments({

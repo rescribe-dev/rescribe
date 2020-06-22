@@ -14,6 +14,13 @@ export const repositoryIndexSettings = {
   number_of_replicas: 0
 };
 
+export const folderType = 'folder';
+export const folderIndexName = 'folders';
+export const folderIndexSettings = {
+  number_of_shards: 1,
+  number_of_replicas: 0
+};
+
 export const fileType = 'file';
 export const fileIndexName = 'files';
 // the min_gram determines the minimum search query length, otherwise you get no results

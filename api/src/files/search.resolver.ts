@@ -177,7 +177,7 @@ class SearchResolver {
       return results;
     }
 
-    // preprocessing:
+    // preprocessing the postprocessing:
 
     const fileData: { [key: string]: string[] } = {};
     const locationData: { [key: string]: FileLocation } = {};

@@ -28,6 +28,9 @@ const search = async (): Promise<SearchQuery> => {
       variables.projects = state.filters.projects;
     }
   }
+  if (state.filters.languages.length > 0) {
+    variables.languages = state.filters.languages;
+  }
   const queryRes = await client.query<SearchQuery, SearchQueryVariables>({
     query: Search,
     variables,

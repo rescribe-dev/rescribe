@@ -10,8 +10,9 @@ import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { Matches, IsNotIn } from 'class-validator';
-import { countRepositories } from './repositoryNameExists.resolver';
-import { validRepositoryName, blacklistedRepositoryNames } from '../utils/variables';
+import { countRepositoriesUserAccess } from './repositoryNameExists.resolver';
+import { validRepositoryName, blacklistedRepositoryNames, defaultRepositoryImage } from '../utils/variables';
+import { createFolder, baseFolderName, baseFolderPath } from '../folders/shared';
 
 @ArgsType()
 class AddRepositoryArgs {
@@ -42,23 +43,32 @@ class AddRepositoryResolver {
     if (!(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project');
     }
-    if ((await countRepositories(user, args.name)) > 0) {
+    if ((await countRepositoriesUserAccess(user, args.name)) > 0) {
       throw new Error('repository already exists');
     }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
+    const folderID = await createFolder({
+      name: baseFolderName,
+      path: baseFolderPath,
+      project: args.project,
+      public: args.publicAccess,
+      repository: id
+    });
     const baseRepository: BaseRepository = {
       name: args.name,
       owner: userID,
       branches: [],
       project: args.project,
       public: args.publicAccess,
-    };
-    const elasticRepository: Repository = {
+      image: defaultRepositoryImage,
+      folder: folderID,
       created: currentTime,
       updated: currentTime,
-      numBranches: 0,
-      ...baseRepository
+    };
+    const elasticRepository: Repository = {
+      ...baseRepository,
+      nameSearch: args.name
     };
     await elasticClient.index({
       id: id.toHexString(),
@@ -72,7 +82,7 @@ class AddRepositoryResolver {
         repositories: id
       }
     });
-    const newAccess :Access = {
+    const newAccess: Access = {
       _id: id,
       level: AccessLevel.owner,
       type: AccessType.user
@@ -86,8 +96,7 @@ class AddRepositoryResolver {
     });
     const dbRepository: RepositoryDB = {
       ...baseRepository,
-      _id: id,
-      image: ''
+      _id: id
     };
     await new RepositoryModel(dbRepository).save();
     return `indexed repository with id ${id.toHexString()}`;
