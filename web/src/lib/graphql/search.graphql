@@ -46,6 +46,7 @@ query search(
   $query: String!
   $projects: [ObjectId!]
   $repositories: [ObjectId!]
+  $languages: [Language!]
   $perpage: Int!
   $page: Int!
   $maxResultsPerFile: Int
@@ -54,6 +55,7 @@ query search(
     query: $query
     projects: $projects
     repositories: $repositories
+    languages: $languages
     perpage: $perpage
     page: $page,
     maxResultsPerFile: $maxResultsPerFile

@@ -1,11 +1,14 @@
 const projectMappings = {
-  repositories: {
+  owner: {
     type: 'keyword'
   },
   name: {
+    type: 'keyword'
+  },
+  nameSearch: {
     type: 'text'
   },
-  public: {
+  repositories: {
     type: 'keyword'
   },
   created: {

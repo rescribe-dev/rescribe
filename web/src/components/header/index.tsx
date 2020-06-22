@@ -1,6 +1,6 @@
 import { Link, navigate } from 'gatsby';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as yup from 'yup';
 import {
   Navbar,
@@ -23,22 +23,23 @@ import {
 } from 'reactstrap';
 import { isLoggedIn } from '../../state/auth/getters';
 import { useDispatch, useSelector } from 'react-redux';
-import { WindowLocation } from '@reach/router';
+import { WindowLocation, createHistory, HistorySource } from '@reach/router';
 import { isSSR } from '../../utils/checkSSR';
 import { AppThunkDispatch } from '../../state/thunk';
 import { AuthActionTypes } from '../../state/auth/types';
 import { thunkLogout } from '../../state/auth/thunks';
-import { Formik } from 'formik';
+import { Formik, FormikValues } from 'formik';
 import { Dispatch } from 'redux';
 import { RootState } from '../../state';
 import { setQuery } from '../../state/search/actions';
-import { getSearchURL } from '../../state/search/getters';
+import { getSearchURL, getQuery } from '../../state/search/getters';
 import { SearchActionTypes } from '../../state/search/types';
 import { thunkSearch } from '../../state/search/thunks';
 import { toast } from 'react-toastify';
 
 import './index.scss';
 import { queryMinLength } from '../../utils/variables';
+import sleep from '../../utils/sleep';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -74,13 +75,30 @@ const Header = (args: HeaderArgs) => {
     dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
     dispatch = useDispatch();
   }
-  const initialQuery = isSSR
-    ? undefined
-    : useSelector<RootState, string>((state) => state.searchReducer.query);
   const pathname =
     typeof location === 'string'
       ? location
       : (args.location as WindowLocation).pathname;
+
+  const formRef = useRef<FormikValues>();
+  useEffect(() => {
+    // only run on component mount
+    // on back button push run search again
+    // hack to get typescript working:
+    const history = createHistory((window as unknown) as HistorySource);
+    return history.listen(async (listener) => {
+      // wait for react to update state
+      await sleep(50);
+      if (
+        listener.location.pathname === '/search' &&
+        formRef &&
+        formRef.current
+      ) {
+        formRef.current.setFieldValue('query', getQuery());
+      }
+    });
+  }, []);
+
   return (
     <>
       <Navbar light expand="md">
@@ -96,8 +114,9 @@ const Header = (args: HeaderArgs) => {
             {pathname === '/' ? null : (
               <Col sm={{ size: 3 }}>
                 <Formik
+                  innerRef={(formRef as unknown) as (instance: any) => void}
                   initialValues={{
-                    query: initialQuery as string,
+                    query: getQuery(),
                   }}
                   validationSchema={yup.object({
                     query: yup
@@ -107,11 +126,12 @@ const Header = (args: HeaderArgs) => {
                   })}
                   onSubmit={async (formData, { setSubmitting, setStatus }) => {
                     dispatch(setQuery(formData.query));
-                    navigate(getSearchURL());
+                    await navigate(getSearchURL());
                     if (pathname === '/search') {
+                      // hack to allow for react state to update before search
+                      await sleep(50);
                       try {
                         await dispatchSearchThunk(thunkSearch());
-                        setStatus({ success: true });
                       } catch (err) {
                         setStatus({ success: false });
                         toast(err.message, {
@@ -126,9 +146,9 @@ const Header = (args: HeaderArgs) => {
                   }}
                 >
                   {({
-                    values,
                     errors,
                     touched,
+                    values,
                     handleChange,
                     handleBlur,
                     handleSubmit,
@@ -153,10 +173,7 @@ const Header = (args: HeaderArgs) => {
                             type="text"
                             placeholder="search term"
                             onChange={handleChange}
-                            onBlur={(evt) => {
-                              handleBlur(evt);
-                              handleSubmit();
-                            }}
+                            onBlur={handleBlur}
                             value={values.query}
                             invalid={!!(touched.query && errors.query)}
                             disabled={isSubmitting}
@@ -199,32 +216,35 @@ const Header = (args: HeaderArgs) => {
                   <NavLink className="navbar-link" tag={Link} to="/search">
                     Explore
                   </NavLink>
-                  {loggedIn ? (
-                    <>
-                      <NavLink
-                        className="navbar-link"
-                        tag={Link}
-                        to={`/${username}/projects`}
-                      >
-                        Projects
-                      </NavLink>
-                    </>
-                  ) : (
-                    <>
-                      <NavLink
-                        className="navbar-link"
-                        tag={Link}
-                        to="/register"
-                      >
-                        Register
-                      </NavLink>
-                      ,
-                      <NavLink className="navbar-link" tag={Link} to="/login">
-                        Login
-                      </NavLink>
-                      ,
-                    </>
-                  )}
+                  {loggedIn
+                    ? [
+                        <NavLink
+                          className="navbar-link"
+                          tag={Link}
+                          to={username ? `/${username}/projects` : '#'}
+                          key="projecs"
+                        >
+                          Projects
+                        </NavLink>,
+                      ]
+                    : [
+                        <NavLink
+                          className="navbar-link"
+                          tag={Link}
+                          to="/register"
+                          key="register"
+                        >
+                          Register
+                        </NavLink>,
+                        <NavLink
+                          className="navbar-link"
+                          tag={Link}
+                          to="/login"
+                          key="login"
+                        >
+                          Login
+                        </NavLink>,
+                      ]}
                 </Nav>
                 {!loggedIn ? null : (
                   <UncontrolledDropdown inNavbar>

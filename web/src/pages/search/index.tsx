@@ -19,6 +19,9 @@ import { SearchActionTypes } from '../../state/search/types';
 import { AppThunkDispatch } from '../../state/thunk';
 import { thunkSearch } from '../../state/search/thunks';
 import { FiSliders } from 'react-icons/fi';
+import { createHistory, HistorySource } from '@reach/router';
+import sleep from '../../utils/sleep';
+import { toast } from 'react-toastify';
 
 const loaderCSS = css`
   display: block;
@@ -37,12 +40,32 @@ const SearchPage = (args: SearchPageDataType) => {
   if (!isSSR) {
     dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
   }
-  const foundSearchParams = processSearchParams(args.location.search);
+  let foundSearchParams = processSearchParams(args.location.search);
   useEffect(() => {
     // only run on component mount
     if (args.location.search.length > 0 && foundSearchParams && !searching) {
       dispatchSearchThunk(thunkSearch());
     }
+    // on back button push run search again
+    // hack to get typescript working:
+    const history = createHistory((window as unknown) as HistorySource);
+    return history.listen(async (listener) => {
+      foundSearchParams = processSearchParams(args.location.search);
+      await sleep(50);
+      if (
+        foundSearchParams &&
+        listener.action === 'POP' &&
+        listener.location.pathname === '/search'
+      ) {
+        try {
+          await dispatchSearchThunk(thunkSearch());
+        } catch (err) {
+          toast(err.message, {
+            type: 'error',
+          });
+        }
+      }
+    });
   }, []);
   const searchResult = isSSR
     ? undefined
@@ -55,12 +78,25 @@ const SearchPage = (args: SearchPageDataType) => {
         (state) => state.searchReducer.hasSearched
       );
   const [showFilters, setShowFilters] = useState(true);
+  const minFilterWidth = '12rem';
   return (
     <Layout location={args.location}>
       <SEO title="Search" />
-      <Container fluid="xl" className="search-page-container">
+      <Container
+        fluid="xl"
+        style={{
+          marginTop: '2rem',
+        }}
+      >
         <Row>
-          <Col xs={3} className="search-page-col-div">
+          <Col
+            xs={3}
+            style={{
+              minWidth: minFilterWidth,
+              paddingBottom: '1rem',
+              borderRight: '1px solid rgba(0, 0, 0, 0.2)',
+            }}
+          >
             <button
               onClick={async (evt: React.MouseEvent): Promise<void> => {
                 evt.preventDefault();
@@ -75,51 +111,65 @@ const SearchPage = (args: SearchPageDataType) => {
         </Row>
         <Row>
           {!showFilters ? null : (
-            <Col xs={3} className="search-page-row-div">
+            <Col
+              xs={3}
+              id="filterColumn"
+              style={{
+                minWidth: minFilterWidth,
+                borderRight: '1px solid rgba(0, 0, 0, 0.2)',
+                paddingRight: 0,
+              }}
+            >
               <Filters />
             </Col>
           )}
           <Col>
-            {searching ? (
-              <BeatLoader
-                css={loaderCSS}
-                size={10}
-                color={'red'}
-                loading={searching}
-              />
-            ) : !searchResult || searchResult.search.length === 0 ? (
-              <>
-                {hasSearched ? (
-                  <p>no results found</p>
-                ) : (
-                  <p>try searching for something</p>
-                )}
-              </>
-            ) : (
-              <Container>
-                {searchResult.search.map((file) => {
-                  const fileResults = [...file.results];
-                  if (file.fileResult && file.fileResult.results.length > 0) {
-                    const names = file.fileResult.results
-                      .map((resultData) => resultData.name)
-                      .join(', ');
-                    const type = file.fileResult.results[0].type;
-                    fileResults.unshift({
-                      name: names,
-                      type,
-                      preview: file.fileResult.preview,
-                    });
-                  }
-                  return (
-                    <FileResultComponent
-                      key={`file-${file._id}`}
-                      file={file}
-                      previewSearchResults={fileResults}
-                    />
-                  );
-                })}
-              </Container>
-            )}
+            <Container
+              style={{
+                marginTop: '2rem',
+              }}
+            >
+              {searching ? (
+                <BeatLoader
+                  css={loaderCSS}
+                  size={10}
+                  color={'red'}
+                  loading={searching}
+                />
+              ) : !searchResult || searchResult.search.length === 0 ? (
+                <>
+                  {hasSearched ? (
+                    <p>no results found</p>
+                  ) : (
+                    <p>try searching for something</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  {searchResult.search.map((file) => {
+                    const fileResults = [...file.results];
+                    if (file.fileResult && file.fileResult.results.length > 0) {
+                      const names = file.fileResult.results
+                        .map((resultData) => resultData.name)
+                        .join(', ');
+                      const type = file.fileResult.results[0].type;
+                      fileResults.unshift({
+                        name: names,
+                        type,
+                        preview: file.fileResult.preview,
+                      });
+                    }
+                    return (
+                      <FileResultComponent
+                        key={`file-${file._id}`}
+                        file={file}
+                        previewSearchResults={fileResults}
+                      />
+                    );
+                  })}
+                </>
+              )}
+            </Container>
           </Col>
         </Row>
       </Container>

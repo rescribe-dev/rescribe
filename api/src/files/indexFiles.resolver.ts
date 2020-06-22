@@ -1,16 +1,17 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, UpdateType, SaveElasticElement, saveToElastic } from './shared';
+import { indexFile, UpdateType, SaveElasticElement, saveToElastic, getFilePath } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
-import { StorageType } from '../schema/structure/file';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { RepositoryModel } from '../schema/structure/repository';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
+import { getUser } from '../users/shared';
+import { addBranchUtil } from '../branches/addBranch.resolver';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -20,17 +21,17 @@ class IndexFilesArgs {
   @Field(() => [GraphQLUpload], { description: 'files' })
   files: Promise<FileUpload>[];
 
-  @Field(_type => ObjectId, { description: 'project id' })
-  project: ObjectId;
+  @Field({ description: 'repository name' })
+  repository: string;
 
-  @Field(_type => ObjectId, { description: 'repo name' })
-  repository: ObjectId;
+  @Field({ description: 'repository owner' })
+  owner: string;
 
   @Field(_type => String, { description: 'branch' })
   branch: string;
 
-  @Field({ description: 'branch', defaultValue: false })
-  saveContent: boolean;
+  @Field({ description: 'create branch automatically', defaultValue: false })
+  autoCreateBranch: boolean;
 }
 
 @Resolver()
@@ -40,10 +41,18 @@ class IndexFilesResolver {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
-    const repository = await RepositoryModel.findById(args.repository);
+    const owner = await getUser(args.owner);
+    const repository = await RepositoryModel.findOne({
+      name: args.repository,
+      owner: owner._id
+    });
     if (!repository) {
-      throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
+      throw new Error(`cannot find repository ${args.repository}`);
     }
+    if (!repository.id) {
+      throw new Error('repository does not have id');
+    }
+    const repositoryID = new ObjectId(repository.id);
     const userID = new ObjectId(ctx.auth.id);
     const user = await UserModel.findById(userID);
     if (!user) {
@@ -53,7 +62,13 @@ class IndexFilesResolver {
       throw new Error('user does not have edit permissions for project or repository');
     }
     if (!repository.branches.includes(args.branch)) {
-      throw new Error(`repository does not contain branch ${args.branch}`);
+      if (!args.autoCreateBranch) {
+        throw new Error(`repository does not contain branch ${args.branch}`);
+      }
+      await addBranchUtil({
+        name: args.branch,
+        repository: repositoryID
+      });
     }
     const elasticElements: SaveElasticElement[] = [];
     return new Promise(async (resolve, reject) => {
@@ -78,14 +93,12 @@ class IndexFilesResolver {
           const content = buffer.toString('utf8');
           try {
             elasticElements.push(await indexFile({
-              saveContent: args.saveContent,
               action: UpdateType.add,
               file: undefined,
-              location: StorageType.local,
-              project: args.project,
-              repository: args.repository,
+              project: repository.project,
+              repository: repositoryID,
               branch: args.branch,
-              path,
+              path: getFilePath(path),
               fileName: file.filename,
               content,
               public: repository.public

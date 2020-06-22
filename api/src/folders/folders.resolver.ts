@@ -19,7 +19,7 @@ import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../utils/checkAccess';
-import { queryMinLength, Language } from '../utils/variables';
+import { queryMinLength } from '../utils/variables';
 
 const logger = getLogger();
 
@@ -41,9 +41,6 @@ export class FilesArgs {
 
   @Field({ description: 'file path', nullable: true })
   path?: string;
-
-  @Field(_type => [Language], { description: 'programming languages', nullable: true })
-  languages?: Language[];
 
   @ArrayMaxSize(projectsMaxLength, {
     message: `can only select up to ${projectsMaxLength} projects to filter from`
@@ -155,7 +152,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   const oneFile = args.file !== undefined || args.name;
   if (oneFile) {
     let file: FileDB | null;
-    if (args.name && args.branches && args.repositories && args.path) {
+    if (args.name && args.branches && args.repositories) {
       file = await FileModel.findOne({
         name: args.name,
         path: args.path,
@@ -181,7 +178,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         throw new Error('user does not have access to repository');
       }
     }
-    if (args.name && args.branches && args.repositories && args.path) {
+    if (args.name && args.branches && args.repositories) {
       filterMustParams.concat([{
         term: {
           name: args.name
@@ -211,9 +208,10 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       });
     }
   }
-
-  const projectFilters: TermQuery[] = [];
-  if (!oneFile && args.projects && args.projects.length > 0) {
+  if (args.projects && args.projects.length > 0) {
+    if (oneFile) {
+      throw new Error('file cannot be defined with projects');
+    }
     if (!user) {
       throw new Error('user must be logged in to filter on projects');
     }
@@ -224,16 +222,17 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       if (!(await checkProjectAccess(user, project, AccessLevel.view))) {
         throw new Error('user does not have access to project');
       }
-      projectFilters.push({
+      filterShouldParams.push({
         term: {
           project: projectID.toHexString()
         }
       });
     }
   }
-
-  const repositoryFilters: TermQuery[] = [];
-  if (!oneFile && args.repositories && args.repositories.length > 0) {
+  if (args.repositories && args.repositories.length > 0) {
+    if (oneFile) {
+      throw new Error('file cannot be defined with repositories');
+    }
     hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
       await getSaveDatastore(repositoryID, repositoryData, DatastoreType.repository);
@@ -249,7 +248,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           throw new Error('user does not have access to repository');
         }
       }
-      repositoryFilters.push({
+      filterShouldParams.push({
         term: {
           repository: repositoryID.toHexString()
         }
@@ -257,7 +256,10 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     }
   }
 
-  if (!oneFile && args.path) {
+  if (args.path) {
+    if (oneFile) {
+      throw new Error('path cannot be defined with single file search');
+    }
     filterMustParams.push({
       term: {
         path: args.path
@@ -265,19 +267,10 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     });
   }
 
-  const languageFilters: TermQuery[] = [];
-  if (!oneFile && args.languages && args.languages.length > 0) {
-    logger.info(args.languages);
-    for (const language of args.languages) {
-      languageFilters.push({
-        term: {
-          language
-        }
-      });
+  if (args.branches && args.branches.length > 0) {
+    if (oneFile) {
+      throw new Error('banches cannot be defined with single file search');
     }
-  }
-
-  if (!oneFile && args.branches && args.branches.length > 0) {
     hasStructureFilter = true;
     for (const branch of args.branches) {
       filterShouldParams.push({
@@ -335,8 +328,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     post_tags: ['']
   };
   for (const nestedField of nestedFields) {
-    // TODO - tweak this to get it faster - boosting alternatives
-    // use boost to make certain fields weighted higher than others
     const currentQuery: object = args.query ? {
       multi_match: {
         query: args.query
@@ -371,40 +362,17 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     body: {
       query: {
         bool: {
-          must: [ // must adds to score
-            { // holds the query itself
-              bool: {
-                should: mustShouldParams
-              }
-            }
-          ],
-          filter: [ // filter is ignored from score
-            { // can match to any of should - holds permissions right now
-              bool: {
-                should: filterShouldParams
-              }
-            }, // needs to match all in must
-            { // holds single file and / or path
-              bool: {
-                must: filterMustParams
-              }
-            }, // single category match for individuals
-            { // holds language filters
-              bool: {
-                should: languageFilters
-              }
+          must: {
+            bool: {
+              should: mustShouldParams
             },
-            { // holds project filters
-              bool: {
-                should: projectFilters
-              }
+          },
+          filter: {
+            bool: {
+              should: filterShouldParams,
+              must: filterMustParams
             },
-            { // holds repository filters
-              bool: {
-                should: repositoryFilters
-              }
-            }
-          ]
+          }
         }
       }, // https://discuss.elastic.co/t/providing-weight-to-individual-fields/63081/3
       //https://stackoverflow.com/questions/39150946/highlight-in-elasticsearch
@@ -426,9 +394,9 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
 };
 
 @Resolver()
-class FilesResolver {
+class FoldersResolver {
   @Query(_returns => [File])
-  async files(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<File[]> {
+  async folders(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<File[]> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
@@ -452,4 +420,4 @@ class FilesResolver {
   }
 }
 
-export default FilesResolver;
+export default FoldersResolver;

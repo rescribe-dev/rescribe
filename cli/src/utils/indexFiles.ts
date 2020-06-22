@@ -9,8 +9,7 @@ import { print } from 'graphql/language/printer';
 import { GraphQLError } from 'graphql';
 import axios from 'axios';
 import { IndexFiles, IndexFilesMutationVariables } from '../lib/generated/datamodel';
-import { cacheData, configData } from './config';
-import { ObjectId } from 'mongodb';
+import { cacheData } from './config';
 
 const logger = getLogger();
 
@@ -25,10 +24,10 @@ const indexFilesSubset = async (paths: string[], files: Buffer[], branch: string
   const variables: IndexFilesMutationVariables = {
     files: paths.map(() => null),
     paths: paths,
-    project: new ObjectId(cacheData.project),
-    repository: new ObjectId(cacheData.repository),
+    repository: cacheData.repository,
+    owner: cacheData.repositoryOwner,
     branch,
-    saveContent: configData.saveCloud
+    autoCreateBranch: true
   };
   form.append('operations', JSON.stringify({
     query: print(IndexFiles),

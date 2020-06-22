@@ -2,9 +2,16 @@ import { getLogger } from 'log4js';
 import { Arguments } from 'yargs';
 import { websiteURL, apolloClient, initializeApolloClient } from '../utils/api';
 import { writeError } from '../utils/logger';
-import { setAuthToken } from '../utils/authToken';
+import { setAuthToken, setUsername } from '../utils/authToken';
 import { configData } from '../utils/config';
-import { LoginGuest, LoginGuestMutationVariables, LoginGuestMutation, AuthNotifications, AuthNotificationsSubscriptionVariables, AuthNotificationsSubscription } from '../lib/generated/datamodel';
+import {
+  LoginGuest,
+  LoginGuestMutationVariables,
+  LoginGuestMutation,
+  AuthNotifications,
+  AuthNotificationsSubscriptionVariables,
+  AuthNotificationsSubscription
+} from '../lib/generated/datamodel';
 
 const logger = getLogger();
 
@@ -41,7 +48,7 @@ export default async (_args: Arguments): Promise<void> => {
         query: AuthNotifications,
         variables: {}
       }).subscribe({
-        next: res => {
+        next: async (res): Promise<void> => {
           if (!res.data) {
             writeError('no data found in response');
           } else if (res.data.authNotifications) {
@@ -50,9 +57,13 @@ export default async (_args: Arguments): Promise<void> => {
             }
             closeLoginSubscription();
             console.log('successfully logged in!');
-            setAuthToken(res.data.authNotifications.token)
-              .then(resolve)
-              .catch(reject);
+            try {
+              await setAuthToken(res.data.authNotifications.token);
+              await setUsername();
+            } catch(err) {
+              reject(err);
+            }
+            resolve();
           }
         },
         error: (err: Error) => {

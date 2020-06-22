@@ -35,7 +35,7 @@ export const searchReducer = (
     case SET_SEARCH_RESULTS:
       return {
         ...state,
-        ...action.payload,
+        searchResults: action.payload,
       };
     case SET_SEARCHING:
       return {

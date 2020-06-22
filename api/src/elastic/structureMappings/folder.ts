@@ -1,27 +1,27 @@
-const repositoryMappings = {
-  owner: {
-    type: 'keyword'
-  },
+const folderMappings = {
   name: {
-    type: 'keyword'
-  },
-  nameSearch: {
     type: 'text'
   },
-  project: {
-    type: 'keyword'
+  path: {
+    type: 'text'
   },
   branches: {
     type: 'keyword'
   },
-  numBranches: {
-    type: 'integer'
+  project: {
+    type: 'keyword'
   },
-  folder: {
+  repository: {
+    type: 'keyword'
+  },
+  parent: {
     type: 'keyword'
   },
   public: {
     type: 'keyword'
+  },
+  numBranches: {
+    type: 'integer'
   },
   created: {
     type: 'date',
@@ -33,4 +33,4 @@ const repositoryMappings = {
   }
 };
 
-export default repositoryMappings;
+export default folderMappings;

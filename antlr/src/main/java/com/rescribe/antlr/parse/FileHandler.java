@@ -6,8 +6,6 @@ import com.rescribe.antlr.gen.java.JavaLexer;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.javascript.JavaScriptLexer;
 import com.rescribe.antlr.gen.javascript.JavaScriptParser;
-import com.rescribe.antlr.gen.python3.Python3Lexer;
-import com.rescribe.antlr.gen.python3.Python3Parser;
 import com.rescribe.antlr.parse.exceptions.UnsupportedFileException;
 import com.rescribe.antlr.parse.listeners.*;
 import com.rescribe.antlr.parse.schema.File;
@@ -60,6 +58,8 @@ public class FileHandler {
         }
       case "py":
         {
+          throw new IllegalArgumentException("python not supported yet");
+          /*
           Python3Lexer lexer = new Python3Lexer(CharStreams.fromString(input.getContent()));
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           Python3Parser parser = new Python3Parser(tokens);
@@ -68,6 +68,7 @@ public class FileHandler {
           walker.walk(p3dl, tree);
           listener = p3dl;
           break;
+          */
         }
       case "js":
         {
