@@ -211,6 +211,8 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       });
     }
   }
+
+  const projectFilters: TermQuery[] = [];
   if (!oneFile && args.projects && args.projects.length > 0) {
     if (!user) {
       throw new Error('user must be logged in to filter on projects');
@@ -222,13 +224,15 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       if (!(await checkProjectAccess(user, project, AccessLevel.view))) {
         throw new Error('user does not have access to project');
       }
-      filterShouldParams.push({
+      projectFilters.push({
         term: {
           project: projectID.toHexString()
         }
       });
     }
   }
+
+  const repositoryFilters: TermQuery[] = [];
   if (!oneFile && args.repositories && args.repositories.length > 0) {
     hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
@@ -245,7 +249,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           throw new Error('user does not have access to repository');
         }
       }
-      filterShouldParams.push({
+      repositoryFilters.push({
         term: {
           repository: repositoryID.toHexString()
         }
@@ -388,6 +392,16 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
             { // holds language filters
               bool: {
                 should: languageFilters
+              }
+            },
+            { // holds project filters
+              bool: {
+                should: projectFilters
+              }
+            },
+            { // holds repository filters
+              bool: {
+                should: repositoryFilters
               }
             }
           ]
