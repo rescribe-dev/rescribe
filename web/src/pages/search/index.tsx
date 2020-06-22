@@ -19,6 +19,9 @@ import { SearchActionTypes } from '../../state/search/types';
 import { AppThunkDispatch } from '../../state/thunk';
 import { thunkSearch } from '../../state/search/thunks';
 import { FiSliders } from 'react-icons/fi';
+import { createHistory, HistorySource } from '@reach/router';
+import sleep from '../../utils/sleep';
+import { toast } from 'react-toastify';
 
 const loaderCSS = css`
   display: block;
@@ -37,12 +40,32 @@ const SearchPage = (args: SearchPageDataType) => {
   if (!isSSR) {
     dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
   }
-  const foundSearchParams = processSearchParams(args.location.search);
+  let foundSearchParams = processSearchParams(args.location.search);
   useEffect(() => {
     // only run on component mount
     if (args.location.search.length > 0 && foundSearchParams && !searching) {
       dispatchSearchThunk(thunkSearch());
     }
+    // on back button push run search again
+    // hack to get typescript working:
+    const history = createHistory((window as unknown) as HistorySource);
+    return history.listen(async (listener) => {
+      foundSearchParams = processSearchParams(args.location.search);
+      await sleep(50);
+      if (
+        foundSearchParams &&
+        listener.action === 'POP' &&
+        listener.location.pathname === '/search'
+      ) {
+        try {
+          await dispatchSearchThunk(thunkSearch());
+        } catch (err) {
+          toast(err.message, {
+            type: 'error',
+          });
+        }
+      }
+    });
   }, []);
   const searchResult = isSSR
     ? undefined
