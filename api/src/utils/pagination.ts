@@ -11,13 +11,13 @@ export const checkPaginationArgs = (args: PageArgs): void => {
   }
 };
 
+export const hasPagination = (args: PageArgs): boolean => {
+  return (args.perpage !== undefined) && (args.page !== undefined);
+};
+
 export const setPaginationArgs = (args: PageArgs, searchParams: RequestParams.Search): void => {
-  if (args.perpage && args.page) {
+  if (hasPagination(args)) {
     searchParams.from = args.page;
     searchParams.size = args.perpage;
   }
-};
-
-export const hasPagination = (args: PageArgs): boolean => {
-  return (args.perpage !== undefined) && (args.page !== undefined);
 };

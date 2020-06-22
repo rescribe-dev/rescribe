@@ -19,7 +19,7 @@ import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../utils/checkAccess';
-import { queryMinLength } from '../utils/variables';
+import { queryMinLength, Language } from '../utils/variables';
 
 const logger = getLogger();
 
@@ -41,6 +41,9 @@ export class FilesArgs {
 
   @Field({ description: 'file path', nullable: true })
   path?: string;
+
+  @Field(_type => [Language], { description: 'programming languages', nullable: true })
+  languages?: Language[];
 
   @ArrayMaxSize(projectsMaxLength, {
     message: `can only select up to ${projectsMaxLength} projects to filter from`
@@ -152,7 +155,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   const oneFile = args.file !== undefined || args.name;
   if (oneFile) {
     let file: FileDB | null;
-    if (args.name && args.branches && args.repositories) {
+    if (args.name && args.branches && args.repositories && args.path) {
       file = await FileModel.findOne({
         name: args.name,
         path: args.path,
@@ -178,7 +181,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         throw new Error('user does not have access to repository');
       }
     }
-    if (args.name && args.branches && args.repositories) {
+    if (args.name && args.branches && args.repositories && args.path) {
       filterMustParams.concat([{
         term: {
           name: args.name
@@ -208,10 +211,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       });
     }
   }
-  if (args.projects && args.projects.length > 0) {
-    if (oneFile) {
-      throw new Error('file cannot be defined with projects');
-    }
+  if (!oneFile && args.projects && args.projects.length > 0) {
     if (!user) {
       throw new Error('user must be logged in to filter on projects');
     }
@@ -229,10 +229,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       });
     }
   }
-  if (args.repositories && args.repositories.length > 0) {
-    if (oneFile) {
-      throw new Error('file cannot be defined with repositories');
-    }
+  if (!oneFile && args.repositories && args.repositories.length > 0) {
     hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
       await getSaveDatastore(repositoryID, repositoryData, DatastoreType.repository);
@@ -256,10 +253,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     }
   }
 
-  if (args.path) {
-    if (oneFile) {
-      throw new Error('path cannot be defined with single file search');
-    }
+  if (!oneFile && args.path) {
     filterMustParams.push({
       term: {
         path: args.path
@@ -267,10 +261,19 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     });
   }
 
-  if (args.branches && args.branches.length > 0) {
-    if (oneFile) {
-      throw new Error('banches cannot be defined with single file search');
+  const languageFilters: TermQuery[] = [];
+  if (!oneFile && args.languages && args.languages.length > 0) {
+    logger.info(args.languages);
+    for (const language of args.languages) {
+      languageFilters.push({
+        term: {
+          language
+        }
+      });
     }
+  }
+
+  if (!oneFile && args.branches && args.branches.length > 0) {
     hasStructureFilter = true;
     for (const branch of args.branches) {
       filterShouldParams.push({
@@ -364,17 +367,30 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     body: {
       query: {
         bool: {
-          must: {
-            bool: {
-              should: mustShouldParams
-            },
-          },
-          filter: {
-            bool: {
-              should: filterShouldParams,
-              must: filterMustParams
-            },
-          }
+          must: [ // must adds to score
+            { // holds the query itself
+              bool: {
+                should: mustShouldParams
+              }
+            }
+          ],
+          filter: [ // filter is ignored from score
+            { // can match to any of should - holds permissions right now
+              bool: {
+                should: filterShouldParams
+              }
+            }, // needs to match all in must
+            { // holds single file and / or path
+              bool: {
+                must: filterMustParams
+              }
+            }, // single category match for individuals
+            { // holds language filters
+              bool: {
+                should: languageFilters
+              }
+            }
+          ]
         }
       }, // https://discuss.elastic.co/t/providing-weight-to-individual-fields/63081/3
       //https://stackoverflow.com/questions/39150946/highlight-in-elasticsearch

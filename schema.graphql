@@ -693,6 +693,9 @@ type Query {
     # file path
     path: String
 
+    # programming languages
+    languages: [Language!]
+
     # projects
     projects: [ObjectId!]
 
@@ -736,6 +739,9 @@ type Query {
 
     # file path
     path: String
+
+    # programming languages
+    languages: [Language!]
 
     # projects
     projects: [ObjectId!]
