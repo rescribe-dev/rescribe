@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Table, Row, Col } from 'reactstrap';
-import { PageProps } from 'gatsby';
+import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
 
@@ -60,6 +60,7 @@ const RepositoryPage = (args: RepositoryPageDataType) => {
             toast(err.message, {
               type: 'error',
             });
+            navigate('/404');
           },
         });
   return (
