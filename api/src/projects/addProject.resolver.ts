@@ -7,7 +7,7 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import Access, { AccessLevel, AccessType } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
-import { countProjects } from './projectNameExists.resolver';
+import { countProjectsUserAccess } from './projectNameExists.resolver';
 import { Matches } from 'class-validator';
 import { validProjectName } from '../utils/variables';
 @ArgsType()
@@ -27,7 +27,7 @@ class AddProjectResolver {
       throw new Error('user not logged in');
     }
     const userID = new ObjectId(ctx.auth.id);
-    if ((await countProjects(userID, args.name)) > 0) {
+    if ((await countProjectsUserAccess(userID, args.name)) > 0) {
       throw new Error('project already exists');
     }
     const id = new ObjectId();
@@ -35,11 +35,13 @@ class AddProjectResolver {
     const baseProject: BaseProject = {
       name: args.name,
       repositories: [],
+      owner: userID,
       created: currentTime,
       updated: currentTime,
     };
     const elasticProject: Project = {
-      ...baseProject
+      ...baseProject,
+      nameSearch: args.name
     };
     await elasticClient.index({
       id: id.toHexString(),

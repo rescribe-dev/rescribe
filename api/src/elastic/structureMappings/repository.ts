@@ -1,4 +1,13 @@
 const repositoryMappings = {
+  owner: {
+    type: 'keyword'
+  },
+  name: {
+    type: 'keyword'
+  },
+  nameSearch: {
+    type: 'text'
+  },
   project: {
     type: 'keyword'
   },
@@ -7,9 +16,6 @@ const repositoryMappings = {
   },
   numBranches: {
     type: 'integer'
-  },
-  name: {
-    type: 'text'
   },
   folder: {
     type: 'keyword'

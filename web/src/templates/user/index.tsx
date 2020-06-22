@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container } from 'reactstrap';
 import { PageProps, navigate } from 'gatsby';
 
@@ -15,7 +15,7 @@ import {
   PublicUserFieldsFragment,
   PublicUserQueryVariables,
 } from '../../lib/generated/datamodel';
-import { useQuery } from '@apollo/react-hooks';
+import { client } from '../../utils/apollo';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface UserPageDataType extends PageProps {}
@@ -31,25 +31,27 @@ const UserPage = (args: UserPageDataType) => {
     : useSelector<RootState, UserFieldsFragment | undefined>(
         (state) => state.authReducer.user
       );
-  let user: PublicUserFieldsFragment | undefined;
-  if (currentUser && username === currentUser.username) {
-    user = currentUser as PublicUserFieldsFragment;
-  } else if (!isSSR) {
-    const publicUserRes = useQuery<
-      PublicUserQuery | undefined,
-      PublicUserQueryVariables
-    >(PublicUser, {
-      variables: {
-        username: username as string,
-      },
-      fetchPolicy: 'no-cache', // disable cache
-    });
-    if (publicUserRes.error) {
-      navigate('/404');
-    } else if (publicUserRes.data) {
-      user = publicUserRes.data.publicUser;
+  const [user, setUser] = useState<PublicUserFieldsFragment | undefined>(
+    undefined
+  );
+  useEffect(() => {
+    if (currentUser && username === currentUser.username) {
+      console.log('set current user');
+      setUser(currentUser as PublicUserFieldsFragment);
+    } else if (!isSSR) {
+      console.log('get user');
+      client
+        .query<PublicUserQuery | undefined, PublicUserQueryVariables>({
+          query: PublicUser,
+          variables: {
+            username: username as string,
+          },
+          fetchPolicy: 'no-cache', // disable cache
+        })
+        .then((res) => setUser(res.data?.publicUser))
+        .catch((_err: Error) => navigate('/404'));
     }
-  }
+  }, []);
   return (
     <>
       <Layout location={args.location}>

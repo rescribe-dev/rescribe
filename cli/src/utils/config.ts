@@ -3,7 +3,7 @@ import { cosmiconfig } from 'cosmiconfig';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import { promisify } from 'util';
-import { isLoggedIn, setAuthToken } from './authToken';
+import { isLoggedIn, setAuthToken, setUsername } from './authToken';
 
 const exists = promisify(fs.exists);
 const writeFile = promisify(fs.writeFile);
@@ -17,7 +17,7 @@ interface ConfigType {
   websiteURL: string;
   useSecure: boolean;
   authToken: string;
-  saveCloud: boolean;
+  username: string;
   cacheFilePath: string;
 }
 
@@ -27,20 +27,22 @@ export const configData: ConfigType = {
   websiteURL: 'localhost:8000',
   useSecure: false,
   authToken: '',
-  saveCloud: false,
+  username: '',
   cacheFilePath: `.${appName}.cache.yml`
 };
 
 interface CacheType {
   authToken: string;
-  project: string;
+  username: string;
   repository: string;
+  repositoryOwner: string;
 }
 
 export const cacheData: CacheType = {
   authToken: '',
-  project: '',
+  username: '',
   repository: '',
+  repositoryOwner: ''
 };
 
 export const writeCache = async (): Promise<void> => {
@@ -52,13 +54,16 @@ const readCache = async (): Promise<void> => {
     const file = await readFile(configData.cacheFilePath, 'utf8');
     const cache: CacheType | undefined = yaml.safeLoad(file);
     if (cache) {
-      cacheData.project = cache.project;
       cacheData.repository = cache.repository;
-      if (configData.authToken.length === 0 && isLoggedIn(cache.authToken)) {
+      cacheData.repositoryOwner = cache.repositoryOwner;
+      if (isLoggedIn(cache.authToken)) {
         configData.authToken = cache.authToken;
         cacheData.authToken = cache.authToken;
+        configData.username = cache.username;
+        cacheData.username = cache.username;
       } else {
-        setAuthToken('');
+        await setAuthToken('');
+        await setUsername('');
       }
     } else {
       await writeCache();

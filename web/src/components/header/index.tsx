@@ -204,7 +204,7 @@ const Header = (args: HeaderArgs) => {
                         <NavLink
                           className="navbar-link"
                           tag={Link}
-                          to={`/${username}/projects`}
+                          to={username ? `/${username}/projects` : '#'}
                           key="projecs"
                         >
                           Projects

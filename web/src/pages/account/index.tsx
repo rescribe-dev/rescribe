@@ -14,6 +14,7 @@ import PrivateRoute from '../../components/privateRoute';
 import Layout from '../../layouts';
 import { isSSR } from '../../utils/checkSSR';
 import { UserFieldsFragment } from '../../lib/generated/datamodel';
+import { isLoggedIn } from '../../state/auth/getters';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AccountPageDataType extends PageProps {}
@@ -24,11 +25,13 @@ const AccountPage = (args: AccountPageDataType) => {
     : useSelector<RootState, UserFieldsFragment | undefined>(
         (state) => state.authReducer.user
       );
-  if (!isSSR && !user) {
+  if (!isSSR) {
     const dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
-    dispatchAuthThunk(thunkGetUser()).catch((err: Error) =>
-      console.error(err.message)
-    );
+    if (!user && isLoggedIn()) {
+      dispatchAuthThunk(thunkGetUser()).catch((err: Error) =>
+        console.error(err.message)
+      );
+    }
   }
   return (
     <PrivateRoute>

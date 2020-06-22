@@ -1,11 +1,9 @@
 const folderMappings = {
   name: {
-    type: 'text',
-    analyzer: 'trigrams'
+    type: 'text'
   },
   path: {
-    type: 'text',
-    analyzer: 'trigrams'
+    type: 'text'
   },
   branches: {
     type: 'keyword'

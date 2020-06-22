@@ -6,6 +6,7 @@ import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
 import glob from 'glob';
+import { isLoggedIn } from '../utils/authToken';
 
 const exists = promisify(fs.exists);
 
@@ -15,8 +16,11 @@ interface Args {
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
-  if (cacheData.project.length === 0 || cacheData.repository.length === 0) {
-    throw new Error('project and repository need to be set with <set-project>');
+  if (cacheData.repositoryOwner.length === 0 || cacheData.repository.length === 0) {
+    throw new Error('owner and repository need to be set with <set-repository>');
+  }
+  if (!isLoggedIn(cacheData.authToken)) {
+    throw new Error('user must be logged in to index files');
   }
   const files: Buffer[] = [];
   const paths: string[] = [];
@@ -46,6 +50,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
   if (notFound.length > 0) {
     throw new Error(`cannot find files ${notFound.join(', ')}`);
   }
+  console.log('start indexing');
   await indexFiles(paths, files, args.branch);
   console.log('done indexing files');
 };

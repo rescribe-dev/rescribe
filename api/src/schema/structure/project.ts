@@ -13,6 +13,10 @@ export class BaseProject {
   @Property({ required: true })
   repositories: ObjectId[];
 
+  @Field({ description: 'owner' })
+  @Property({ required: true })
+  owner: ObjectId;
+
   @Field({ description: 'date created' })
   @Property({ required: true })
   created: number;
@@ -27,6 +31,8 @@ export class BaseProject {
 export class Project extends BaseProject {
   @Field()
   readonly _id?: ObjectId;
+
+  nameSearch: string;
 }
 
 // database

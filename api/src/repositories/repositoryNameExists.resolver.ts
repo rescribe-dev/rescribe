@@ -11,6 +11,8 @@ import { TermQuery } from '../elastic/types';
 import { RequestParams } from '@elastic/elasticsearch';
 import { Matches } from 'class-validator';
 import { validRepositoryName } from '../utils/variables';
+import { RepositoryModel } from '../schema/structure/repository';
+import { getUser } from '../users/shared';
 
 @ArgsType()
 class RepositoryExistsArgs {
@@ -19,13 +21,16 @@ class RepositoryExistsArgs {
     message: 'invalid characters provided for repository name'
   })
   name: string;
+
+  @Field({ description: 'repository owner', nullable: true })
+  owner?: string;
 }
 
 interface CountResponse {
   count: number;
 }
 
-export const countRepositories = async (user: User, name?: string): Promise<number> => {
+export const countRepositoriesUserAccess = async (user: User, name?: string): Promise<number> => {
   const shouldParams: TermQuery[] = [];
   if (user.repositories.length === 0 && user.projects.length === 0) {
     return 0;
@@ -72,19 +77,31 @@ export const countRepositories = async (user: User, name?: string): Promise<numb
   return countData.count;
 };
 
+export const countRepositories = async (owner: ObjectId, name?: string): Promise<number> => {
+  return await RepositoryModel.count({
+    owner,
+    name
+  });
+};
+
 @Resolver()
 class RepositoryNameExistsResolver {
   @Query(_returns => Boolean)
   async repositoryNameExists(@Args() args: RepositoryExistsArgs, @Ctx() ctx: GraphQLContext): Promise<boolean> {
-    if (!verifyLoggedIn(ctx) || !ctx.auth) {
-      throw new Error('user not logged in');
+    if (!args.owner) {
+      if (!verifyLoggedIn(ctx) || !ctx.auth) {
+        throw new Error('user not logged in');
+      }
+      const userID = new ObjectId(ctx.auth.id);
+      const user = await UserModel.findById(userID);
+      if (!user) {
+        throw new Error('cannot find user');
+      }
+      return (await countRepositoriesUserAccess(user, args.name)) > 0;
+    } else {
+      const ownerData = await getUser(args.owner);
+      return (await countRepositories(ownerData._id, args.name)) > 0;
     }
-    const userID = new ObjectId(ctx.auth.id);
-    const user = await UserModel.findById(userID);
-    if (!user) {
-      throw new Error('cannot find user');
-    }
-    return (await countRepositories(user, args.name)) > 0;
   }
 }
 

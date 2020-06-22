@@ -192,6 +192,7 @@ class IndexGithubResolver {
         elasticElements.push({
           action: UpdateType.update,
           id: file._id,
+          index: fileIndexName,
           data: {
             script: {
               source: `

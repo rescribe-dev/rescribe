@@ -10,7 +10,7 @@ import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { Matches, IsNotIn } from 'class-validator';
-import { countRepositories } from './repositoryNameExists.resolver';
+import { countRepositoriesUserAccess } from './repositoryNameExists.resolver';
 import { validRepositoryName, blacklistedRepositoryNames, defaultRepositoryImage } from '../utils/variables';
 import { createFolder, baseFolderName, baseFolderPath } from '../folders/shared';
 
@@ -43,7 +43,7 @@ class AddRepositoryResolver {
     if (!(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project');
     }
-    if ((await countRepositories(user, args.name)) > 0) {
+    if ((await countRepositoriesUserAccess(user, args.name)) > 0) {
       throw new Error('repository already exists');
     }
     const id = new ObjectId();
@@ -67,7 +67,8 @@ class AddRepositoryResolver {
       updated: currentTime,
     };
     const elasticRepository: Repository = {
-      ...baseRepository
+      ...baseRepository,
+      nameSearch: args.name
     };
     await elasticClient.index({
       id: id.toHexString(),
