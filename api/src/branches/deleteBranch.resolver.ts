@@ -32,7 +32,6 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> =>
       script: {
         source: `
           ctx._source.branches.remove(params.branch);
-          ctx._source.numBranches--;
           ctx._source.updated = params.currentTime;
         `,
         lang: 'painless',

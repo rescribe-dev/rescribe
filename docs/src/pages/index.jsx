@@ -61,7 +61,7 @@ const Home = () => {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted
               )}
-              to={useBaseUrl('docs/index')}
+              to={useBaseUrl('docs/getting_started/index')}
             >
               Get Started
             </Link>

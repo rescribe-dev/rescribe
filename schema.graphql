@@ -61,6 +61,36 @@ type AuthNotification {
   token: String!
 }
 
+# base folder
+type BaseFolder {
+  # name
+  name: String!
+
+  # path
+  path: String!
+
+  # branches
+  branches: [String!]!
+
+  # project
+  project: ObjectId!
+
+  # repository
+  repository: ObjectId!
+
+  # parent folder or repository
+  parent: ObjectId!
+
+  # public access level
+  public: [Access!]!
+
+  # date created
+  created: Float!
+
+  # date updated
+  updated: Float!
+}
+
 # base project
 type BaseProject {
   # name
@@ -68,6 +98,15 @@ type BaseProject {
 
   # repositories
   repositories: [ObjectId!]!
+
+  # owner
+  owner: ObjectId!
+
+  # date created
+  created: Float!
+
+  # date updated
+  updated: Float!
 }
 
 # base repository
@@ -75,7 +114,7 @@ type BaseRepository {
   # name
   name: String!
 
-  # branches
+  # owner
   owner: ObjectId!
 
   # branches
@@ -86,6 +125,18 @@ type BaseRepository {
 
   # public access level
   public: [Access!]!
+
+  # repository image
+  image: String!
+
+  # base folder containing files
+  folder: ObjectId!
+
+  # date created
+  created: Float!
+
+  # date updated
+  updated: Float!
 }
 
 # class
@@ -174,8 +225,8 @@ type File {
   # public access level
   public: AccessLevel!
 
-  # storage location
-  location: String!
+  # folder
+  folder: ObjectId
 
   # date created
   created: Float!
@@ -236,6 +287,71 @@ type FileSearchResult {
 
   # file preview
   preview: Preview!
+}
+
+# folder
+type Folder {
+  # name
+  name: String!
+
+  # path
+  path: String!
+
+  # branches
+  branches: [String!]!
+
+  # project
+  project: ObjectId!
+
+  # repository
+  repository: ObjectId!
+
+  # parent folder or repository
+  parent: ObjectId!
+
+  # public access level
+  public: [Access!]!
+
+  # date created
+  created: Float!
+
+  # date updated
+  updated: Float!
+  _id: ObjectId!
+
+  # number of branches
+  numBranches: Int!
+}
+
+# folder db
+type FolderDB {
+  # name
+  name: String!
+
+  # path
+  path: String!
+
+  # branches
+  branches: [String!]!
+
+  # project
+  project: ObjectId!
+
+  # repository
+  repository: ObjectId!
+
+  # parent folder or repository
+  parent: ObjectId!
+
+  # public access level
+  public: [Access!]!
+
+  # date created
+  created: Float!
+
+  # date updated
+  updated: Float!
+  _id: ObjectId!
 }
 
 # baseline function
@@ -384,17 +500,17 @@ type Mutation {
     # files
     files: [Upload!]!
 
-    # project id
-    project: ObjectId!
+    # repository name
+    repository: String!
 
-    # repo name
-    repository: ObjectId!
+    # repository owner
+    owner: String!
 
     # branch
     branch: String!
 
-    # branch
-    saveContent: Boolean = false
+    # create branch automatically
+    autoCreateBranch: Boolean = false
   ): String!
   indexGithub(
     # github repository id
@@ -513,13 +629,16 @@ type Project {
 
   # repositories
   repositories: [ObjectId!]!
-  _id: ObjectId!
+
+  # owner
+  owner: ObjectId!
 
   # date created
   created: Float!
 
   # date updated
   updated: Float!
+  _id: ObjectId!
 }
 
 # project database
@@ -529,6 +648,15 @@ type ProjectDB {
 
   # repositories
   repositories: [ObjectId!]!
+
+  # owner
+  owner: ObjectId!
+
+  # date created
+  created: Float!
+
+  # date updated
+  updated: Float!
   _id: ObjectId!
 }
 
@@ -633,11 +761,45 @@ type Query {
     # end line
     maxResultsPerFile: Int
   ): [FileResult!]!
+  folders(
+    # query
+    query: String
+
+    # only user files
+    onlyUser: Boolean
+
+    # file path
+    path: String
+
+    # projects
+    projects: [ObjectId!]
+
+    # repositories
+    repositories: [ObjectId!]
+
+    # file id
+    file: ObjectId
+
+    # file name
+    name: String
+
+    # branches
+    branches: [String!]
+
+    # page number
+    page: Int
+
+    # number per page
+    perpage: Int
+  ): [File!]!
   hello: String!
   languages: [LanguageData!]!
   projectNameExists(
     # project name
     name: String!
+
+    # repository owner
+    owner: String
   ): Boolean!
   project(
     # project id
@@ -656,6 +818,9 @@ type Query {
   repositoryNameExists(
     # repository name
     name: String!
+
+    # repository owner
+    owner: String
   ): Boolean!
   repositories(
     # project id
@@ -690,7 +855,7 @@ type Repository {
   # name
   name: String!
 
-  # branches
+  # owner
   owner: ObjectId!
 
   # branches
@@ -701,16 +866,19 @@ type Repository {
 
   # public access level
   public: [Access!]!
-  _id: ObjectId!
+
+  # repository image
+  image: String!
+
+  # base folder containing files
+  folder: ObjectId!
 
   # date created
   created: Float!
 
   # date updated
   updated: Float!
-
-  # number of branches
-  numBranches: Int!
+  _id: ObjectId!
 }
 
 # repository db
@@ -718,7 +886,7 @@ type RepositoryDB {
   # name
   name: String!
 
-  # branches
+  # owner
   owner: ObjectId!
 
   # branches
@@ -729,10 +897,19 @@ type RepositoryDB {
 
   # public access level
   public: [Access!]!
-  _id: ObjectId!
 
   # repository image
   image: String!
+
+  # base folder containing files
+  folder: ObjectId!
+
+  # date created
+  created: Float!
+
+  # date updated
+  updated: Float!
+  _id: ObjectId!
 }
 
 # result type

@@ -1,5 +1,0 @@
-query project($name: String!) {
-  project(name: $name) {
-    _id
-  }
-}

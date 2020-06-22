@@ -10,6 +10,8 @@ import { elasticClient } from '../elastic/init';
 import { TermQuery } from '../elastic/types';
 import { Matches } from 'class-validator';
 import { validProjectName } from '../utils/variables';
+import { getUser } from '../users/shared';
+import { ProjectModel } from '../schema/structure/project';
 
 @ArgsType()
 class ProjectExistsArgs {
@@ -18,13 +20,22 @@ class ProjectExistsArgs {
     message: 'invalid characters provided for project name'
   })
   name: string;
+
+  @Field({ description: 'repository owner', nullable: true })
+  owner?: string;
 }
 
 interface CountResponse {
   count: number;
 }
 
-export const countProjects = async (userID: ObjectId, name?: string): Promise<number> => {
+/**
+ * count the projects a user has access to
+ * 
+ * @param {ObjectId} userID given user
+ * @param {string} name optional name to match project to
+ */
+export const countProjectsUserAccess = async (userID: ObjectId, name?: string): Promise<number> => {
   const user = await UserModel.findById(userID);
   if (!user) {
     throw new Error('cannot find user data');
@@ -60,15 +71,33 @@ export const countProjects = async (userID: ObjectId, name?: string): Promise<nu
   return countData.count;
 };
 
+/**
+ * count projects owned by user
+ * 
+ * @param {ObjectId} owner user id
+ * @param {string} name optional project name
+ */
+export const countProjects = async (owner: ObjectId, name?: string): Promise<number> => {
+  return ProjectModel.count({
+    name,
+    owner
+  });
+};
+
 @Resolver()
 class ProjectNameExistsResolver {
   @Query(_returns => Boolean)
   async projectNameExists(@Args() args: ProjectExistsArgs, @Ctx() ctx: GraphQLContext): Promise<boolean> {
-    if (!verifyLoggedIn(ctx) || !ctx.auth) {
-      throw new Error('user not logged in');
+    if (!args.owner) {
+      if (!verifyLoggedIn(ctx) || !ctx.auth) {
+        throw new Error('user not logged in');
+      }
+      const userID = new ObjectId(ctx.auth.id);
+      return (await countProjectsUserAccess(userID, args.name)) > 0;
+    } else {
+      const ownerData = await getUser(args.owner);
+      return (await countProjects(ownerData._id, args.name)) > 0;
     }
-    const userID = new ObjectId(ctx.auth.id);
-    return (await countProjects(userID, args.name)) > 0;
   }
 }
 

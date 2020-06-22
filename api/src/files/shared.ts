@@ -59,7 +59,12 @@ export const saveToElastic = async (elements: SaveElasticElement[]): Promise<voi
   }
   indexBody = indexBody.flat();
   updateBody = updateBody.flat();
+  logger.info('start index');
+  // eslint-disable-next-line no-console
+  console.log('test123');
   if (indexBody.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log(indexBody);
     await elasticClient.bulk({
       refresh: 'true',
       body: indexBody
@@ -71,6 +76,7 @@ export const saveToElastic = async (elements: SaveElasticElement[]): Promise<voi
       body: updateBody
     });
   }
+  logger.info('end index');
 };
 
 export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement> => {
@@ -116,6 +122,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
     elasticElement = {
       action: args.action,
       data: elasticContent,
+      index: fileIndexName,
       id
     };
     await new FileModel(newFileDB).save();
@@ -133,6 +140,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
     elasticElement = {
       action: args.action,
       data: elasticContent,
+      index: fileIndexName,
       id
     };
     await FileModel.updateOne({
@@ -149,5 +157,6 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
     throw new Error(`invalid action ${args.action} provided`);
   }
   logger.info(`${args.action}ed file ${id.toHexString()}`);
+  // create additional elements for folder (if it wasn't already added)
   return elasticElement;
 };

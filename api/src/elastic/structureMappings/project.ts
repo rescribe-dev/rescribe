@@ -1,9 +1,15 @@
 const projectMappings = {
-  repositories: {
+  owner: {
     type: 'keyword'
   },
   name: {
+    type: 'keyword'
+  },
+  nameSearch: {
     type: 'text'
+  },
+  repositories: {
+    type: 'keyword'
   },
   created: {
     type: 'date',

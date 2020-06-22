@@ -23,12 +23,10 @@ export const addBranchUtil = async (args: AddBranchArgs): Promise<void> => {
     index: repositoryIndexName,
     id: args.repository.toHexString(),
     body: {
-      script: {
+      script: { // first update
         source: `
-          // first update
-          if(!ctx._source.branches.contains(params.branch)) {
+          if (!ctx._source.branches.contains(params.branch)) {
             ctx._source.branches.add(params.branch);
-            ctx._source.numBranches++;
             ctx._source.updated = params.currentTime;
           }
         `,
@@ -45,7 +43,7 @@ export const addBranchUtil = async (args: AddBranchArgs): Promise<void> => {
     body: {
       script: {
         source: `
-          if(!ctx._source.branches.contains(params.branch)) {
+          if (!ctx._source.branches.contains(params.branch)) {
             ctx._source.branches.add(params.branch);
             ctx._source.numBranches++;
             ctx._source.updated = params.currentTime;

@@ -9,7 +9,7 @@ import indexBranch from './actions/indexBranch';
 import login, { closeLoginSubscription } from './actions/login';
 import { appName } from './utils/config';
 import getUser from './actions/getUser';
-import setProject from './actions/setProject';
+import setRepository from './actions/setRepository';
 
 const errorHandler = (error: Error): void => {
   console.error(chalk.red(error.message));
@@ -51,8 +51,8 @@ export const startCLI = async (): Promise<void> => {
       describe: 'output debug'
     });
   yargs
-    .command('set-project <project> <repository>', 'set current project and repository', {}, actionRunner(setProject))
-    .example('$0 set-project my-project master', 'set current project and repository to my-master and master');
+    .command('set-repository <owner/repository | repository>', 'set current repository', {}, actionRunner(setRepository))
+    .example('$0 set-repository user/repo', 'set current repository to "repo" owned by "user"');
   yargs
     .command('index-files <branch> <files>', 'index files in repository', {}, actionRunner(indexFiles))
     .example('$0 index-files master "test.js"', 'index test.js on master branch');
