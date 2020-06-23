@@ -205,14 +205,14 @@ class SearchResolver {
       // get file data
 
       if (!(fileID.toHexString() in locationData)) {
-        if (!(currentFile.repository in repositoryData)) {
+        if (!(currentFile.repository.toHexString() in repositoryData)) {
           const repository = await RepositoryModel.findById(currentFile.repository);
           if (!repository) {
             throw new Error(`cannot find repository ${currentFile.repository}`);
           }
-          repositoryData[currentFile.repository] = repository;
+          repositoryData[currentFile.repository.toHexString()] = repository;
         }
-        const repository = repositoryData[currentFile.repository];
+        const repository = repositoryData[currentFile.repository.toHexString()];
         if (!(repository.owner.toHexString() in userData)) {
           const currentUser = await UserModel.findById(repository.owner);
           if (!currentUser) {

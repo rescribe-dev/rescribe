@@ -1,13 +1,13 @@
-import { getLogger } from 'log4js';
-import { elasticClient } from '../elastic/init';
 import { processFile } from '../utils/antlrBridge';
 import { fileIndexName } from '../elastic/settings';
-import File, { FileModel, FileDB, } from '../schema/structure/file';
+import File, { FileDB, BaseFileElastic, } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { AccessLevel } from '../schema/auth/access';
-
-const logger = getLogger();
+import { SaveElasticElement } from '../utils/elastic';
+import AntlrFile from '../schema/antlr/file';
+import { WriteMongoElement } from '../utils/mongo';
+import checkFileExtension from '../languages/checkFileExtension';
 
 export enum UpdateType {
   add = 'add',
@@ -24,72 +24,38 @@ export interface FileIndexArgs {
   fileName: string;
   content: string;
   public: AccessLevel;
-}
-
-export interface SaveElasticElement {
-  id: ObjectId;
-  data: object;
-  action: UpdateType;
-  index: string;
+  isBinary: boolean;
+  folderElasticWrites: { [key: string]: SaveElasticElement };
+  fileElasticWrites: SaveElasticElement[];
+  folderWrites: WriteMongoElement[];
+  fileWrites: WriteMongoElement[];
 }
 
 export const getFilePath = (path: string): string => {
-  return path.substring(0, path.lastIndexOf('/') + 1);
-};
-
-export const saveToElastic = async (elements: SaveElasticElement[]): Promise<void> => {
-  let indexBody: object[] = [];
-  let updateBody: object[] = [];
-  for (const element of elements) {
-    if (element.action === UpdateType.add) {
-      indexBody.push([{
-        index: {
-          _index: element.index,
-          _id: element.id.toHexString()
-        }
-      }, element.data]);
-    } else if (element.action === UpdateType.update) {
-      indexBody.push([{
-        update: {
-          _index: element.index,
-          _id: element.id.toHexString()
-        }
-      }, element.data]);
+  let filePath = path.substring(0, path.lastIndexOf('/') + 1);
+  if (filePath.length > 0) {
+    if (filePath[0] !== '/') {
+      filePath = `/${filePath}`;
     }
+    return filePath;
   }
-  indexBody = indexBody.flat();
-  updateBody = updateBody.flat();
-  logger.info('start index');
-  // eslint-disable-next-line no-console
-  console.log('test123');
-  if (indexBody.length > 0) {
-    // eslint-disable-next-line no-console
-    console.log(indexBody);
-    await elasticClient.bulk({
-      refresh: 'true',
-      body: indexBody
-    });
-  }
-  if (updateBody.length > 0) {
-    await elasticClient.bulk({
-      refresh: 'true',
-      body: updateBody
-    });
-  }
-  logger.info('end index');
+  return '/';
 };
 
-export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement> => {
+export const indexFile = async (args: FileIndexArgs): Promise<void> => {
   if (args.action === UpdateType.update && !args.file) {
     throw new Error('file is required for update');
   }
   const id = args.action === UpdateType.add ? new ObjectId() : args.file?._id as ObjectId;
-  const fileData = await processFile({
-    id,
-    fileName: args.fileName,
-    content: args.content,
-    path: args.path
-  });
+  let fileData: AntlrFile | undefined = undefined;
+  if (!args.isBinary && checkFileExtension(args.fileName)) {
+    fileData = await processFile({
+      id,
+      fileName: args.fileName,
+      content: args.content,
+      path: args.path
+    });
+  }
   let elasticElement: SaveElasticElement;
   const currentTime = new Date().getTime();
   const fileLength = args.content.split('\n').length - 1;
@@ -106,11 +72,10 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
       created: currentTime,
       updated: currentTime,
     };
-    const elasticContent: File = {
-      ...fileData,
-      _id: undefined,
-      project: args.project.toHexString(),
-      repository: args.repository.toHexString(),
+    const baseElasticContent: BaseFileElastic = {
+      name: args.fileName,
+      project: args.project,
+      repository: args.repository,
       branches: [args.branch],
       numBranches: 1,
       created: currentTime,
@@ -119,34 +84,57 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
       public: args.public,
       fileLength
     };
+    let elasticContent: File | BaseFileElastic;
+    if (args.isBinary) {
+      elasticContent = baseElasticContent;
+    } else {
+      const fileElasticContent: File = {
+        ...baseElasticContent,
+        ...(fileData as AntlrFile),
+        _id: undefined
+      };
+      elasticContent = fileElasticContent;
+    }
     elasticElement = {
       action: args.action,
       data: elasticContent,
       index: fileIndexName,
       id
     };
-    await new FileModel(newFileDB).save();
+    args.fileWrites.push({
+      data: newFileDB
+    });
     await s3Client.upload({
       Bucket: fileBucket,
       Key: getFileKey(args.repository, args.branch, args.path),
       Body: args.content
     }).promise();
   } else if (args.action === UpdateType.update) {
-    const elasticContent: object = {
-      ...fileData,
-      _id: undefined,
-      updated: currentTime,
-    };
+    let elasticContent: object;
+    if (args.isBinary) {
+      elasticContent = {
+        _id: undefined,
+        updated: currentTime,
+        fileLength,
+      };
+    } else {
+      elasticContent = {
+        ...fileData,
+        _id: undefined,
+        updated: currentTime,
+        fileLength,
+      };
+    }
     elasticElement = {
       action: args.action,
       data: elasticContent,
       index: fileIndexName,
       id
     };
-    await FileModel.updateOne({
-      _id: id
-    }, {
-      fileLength,
+    args.fileWrites.push({
+      data: {
+        fileLength,
+      }
     });
     await s3Client.upload({
       Bucket: fileBucket,
@@ -156,7 +144,6 @@ export const indexFile = async (args: FileIndexArgs): Promise<SaveElasticElement
   } else {
     throw new Error(`invalid action ${args.action} provided`);
   }
-  logger.info(`${args.action}ed file ${id.toHexString()}`);
+  args.fileElasticWrites.push(elasticElement);
   // create additional elements for folder (if it wasn't already added)
-  return elasticElement;
 };

@@ -22,7 +22,7 @@ const actionRunner = (fn: (args: yargs.Arguments<GlobalArgs & any>) => Promise<v
       beforeAction(args);
       await fn(args);
       process.exit(0);
-    } catch(err) {
+    } catch (err) {
       errorHandler(err as Error);
       process.exit(1);
     }
@@ -41,7 +41,7 @@ export const startCLI = async (): Promise<void> => {
     .usage('Usage: $0 <command> [options]')
     .help('h')
     .alias('h', 'help')
-    .epilog('© 2020 🚀');
+    .epilog(`© Rescribe ${new Date().getFullYear()} 🚀`);
   yargs
     .option('d', {
       type: 'boolean',
@@ -51,17 +51,45 @@ export const startCLI = async (): Promise<void> => {
       describe: 'output debug'
     });
   yargs
-    .command('set-repository <owner/repository | repository>', 'set current repository', {}, actionRunner(setRepository))
-    .example('$0 set-repository user/repo', 'set current repository to "repo" owned by "user"');
+    .command('set-repository <owner/repository | repository>', 'set current repository', conf => {
+      return conf
+        .example('$0 set-repository user/repo', 'set current repository to "repo" owned by "user"');
+    }, actionRunner(setRepository));
   yargs
-    .command('index-files <branch> <files>', 'index files in repository', {}, actionRunner(indexFiles))
-    .example('$0 index-files master "test.js"', 'index test.js on master branch');
+    .command('index-files <branch> <files>', 'index files in repository', conf => {
+      return conf
+        .option('i', {
+          type: 'boolean',
+          default: false,
+          nargs: 1,
+          alias: 'include-path',
+          describe: 'include given path'
+        })
+        .example('$0 index-files master "src/test.js" -i true',
+          'index test.js on master branch, including the given path (/src)');
+    }, actionRunner(indexFiles));
   yargs
-    .command('get-branch [path]', 'get current branch in repository', {}, actionRunner(getBranch))
-    .example('$0 get-branch ..', 'get branch of parent folder');
+    .command('get-branch [path]', 'get current branch in repository', conf => {
+      return conf
+        .example('$0 get-branch ..', 'get branch of parent folder');
+    }, actionRunner(getBranch));
   yargs
-    .command('index-branch <branch> [path]', 'index branch in repository', {}, actionRunner(indexBranch))
-    .example('$0 index-branch master .', 'index master branch of current git repo');
+    .command('index-branch', 'index branch in repository', conf => {
+      return conf
+        .option('b', {
+          type: 'string',
+          nargs: 1,
+          alias: 'branch',
+          describe: 'branch name to index'
+        })
+        .option('p', {
+          type: 'string',
+          nargs: 1,
+          alias: 'path',
+          describe: 'path to git repo'
+        })
+        .example('$0 index-branch master .', 'index master branch of current git repo');
+    }, actionRunner(indexBranch));
   yargs.command('login', 'login to service', {}, actionRunner(login));
   yargs.command('get-user', 'get user data', {}, actionRunner(getUser));
   // yargs

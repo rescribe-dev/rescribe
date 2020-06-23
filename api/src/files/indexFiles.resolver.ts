@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, UpdateType, SaveElasticElement, saveToElastic, getFilePath } from './shared';
+import { indexFile, UpdateType, getFilePath } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -12,6 +12,10 @@ import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { getUser } from '../users/shared';
 import { addBranchUtil } from '../branches/addBranch.resolver';
+import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
+import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
+import { FileModel } from '../schema/structure/file';
+import { FolderModel } from '../schema/structure/folder';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -70,7 +74,10 @@ class IndexFilesResolver {
         repository: repositoryID
       });
     }
-    const elasticElements: SaveElasticElement[] = [];
+    const fileElasticWrites: SaveElasticElement[] = [];
+    const folderElasticWrites: { [key: string]: SaveElasticElement } = {};
+    const fileWrites: WriteMongoElement[] = [];
+    const folderWrites: WriteMongoElement[] = [];
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
@@ -86,13 +93,10 @@ class IndexFilesResolver {
         readStream.on('error', reject);
         readStream.on('end', async () => {
           const buffer = Buffer.concat(data);
-          if (await isBinaryFile(buffer)) {
-            reject(new Error(`file ${file.filename} is binary`));
-            return;
-          }
+          const isBinary = await isBinaryFile(buffer);
           const content = buffer.toString('utf8');
           try {
-            elasticElements.push(await indexFile({
+            await indexFile({
               action: UpdateType.add,
               file: undefined,
               project: repository.project,
@@ -100,12 +104,24 @@ class IndexFilesResolver {
               branch: args.branch,
               path: getFilePath(path),
               fileName: file.filename,
+              public: repository.public,
               content,
-              public: repository.public
-            }));
+              isBinary,
+              fileElasticWrites,
+              fileWrites,
+              folderElasticWrites,
+              folderWrites
+            });
             numIndexed++;
             if (numIndexed === args.files.length) {
-              await saveToElastic(elasticElements);
+              await bulkSaveToElastic(fileElasticWrites);
+              const folderElasticWritesArray: SaveElasticElement[] = [];
+              for (const path in folderElasticWrites) {
+                folderElasticWritesArray.push(folderElasticWrites[path]);
+              }
+              await bulkSaveToElastic(folderElasticWritesArray);
+              await bulkSaveToMongo(fileWrites, FileModel);
+              await bulkSaveToMongo(folderWrites, FolderModel);
               resolve('done indexing files');
             }
           } catch (err) {
