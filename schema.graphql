@@ -211,10 +211,10 @@ type File {
   fileLength: Int!
 
   # project id
-  project: String!
+  project: ObjectId!
 
   # repository id
-  repository: String!
+  repository: ObjectId!
 
   # branches
   branches: [String!]!
@@ -730,6 +730,7 @@ type Query {
     # end line
     end: Int!
   ): [String!]!
+  supportedExtensions: [String!]!
   search(
     # query
     query: String

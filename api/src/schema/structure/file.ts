@@ -4,55 +4,91 @@ import { ObjectId } from 'mongodb';
 import AntlrFile from '../antlr/file';
 import { AccessLevel } from '../auth/access';
 
-@modelOptions({ schemaOptions: { collection: 'files' } })
-export class FileDB {
-  @Field()
-  readonly _id: ObjectId;
+class BaseFile {
   @Property({ required: true })
-  project: ObjectId;
-  @Property({ required: true })
-  repository: ObjectId;
-  @Property({ required: true })
-  branches: string[];
-  @Property({ required: true })
-  public: AccessLevel;
-  @Property({ required: false })
-  folder?: ObjectId;
-  @Property({ required: true })
-  fileLength: number;
-  @Property({ required: true })
-  path: string;
-  @Property({ required: true })
+  @Field({ description: 'file name' })
   name: string;
+
+  @Property({ required: true })
+  @Field({ description: 'project id' })
+  project: ObjectId;
+
+  @Property({ required: true })
+  @Field({ description: 'repository id' })
+  repository: ObjectId;
+
+  @Property({ required: true })
+  @Field(_type => Int, { description: 'number of lines in file' })
+  fileLength: number;
+
+  @Property({ required: true })
+  @Field(_type => [String], { description: 'branches' })
+  branches: string[];
+
+  @Property({ required: true })
+  @Field(_type => AccessLevel, { description: 'public access level' })
+  public: AccessLevel;
+
+  @Property({ required: false })
+  @Field({ description: 'folder', nullable: true })
+  folder?: ObjectId;
+
+  @Property({ required: true })
+  @Field({ description: 'path' })
+  path: string;
+
+  @Property({ required: true })
   @Field({ description: 'date created' })
   created: number;
+
+  @Property({ required: true })
   @Field({ description: 'date updated' })
   updated: number;
 }
 
+@modelOptions({ schemaOptions: { collection: 'files' } })
+export class FileDB extends BaseFile {
+  @Field()
+  readonly _id: ObjectId;
+}
+
 export const FileModel = getModelForClass(FileDB);
+
+export class BaseFileElastic extends BaseFile {
+  @Field(_type => Int, { description: 'number of branches' })
+  numBranches: number;
+}
 
 // input / result from elastic
 @ObjectType({ description: 'file' })
-export default class File extends AntlrFile {
+export default class File extends AntlrFile implements BaseFileElastic {
   @Field(_type => Int, { description: 'number of lines in file' })
   fileLength: number;
+
   @Field({ description: 'project id' })
-  project: string;
+  project: ObjectId;
+
   @Field({ description: 'repository id' })
-  repository: string;
+  repository: ObjectId;
+
   @Field(_type => [String], { description: 'branches' })
   branches: string[];
+
   @Field(_type => Int, { description: 'number of branches' })
   numBranches: number;
+
   @Field(_type => AccessLevel, { description: 'public access level' })
   public: AccessLevel;
+
   @Field({ description: 'folder', nullable: true })
   folder?: ObjectId;
+
   @Field({ description: 'path' })
   path: string;
+
   @Field({ description: 'date created' })
   created: number;
+
   @Field({ description: 'date updated' })
   updated: number;
 }
