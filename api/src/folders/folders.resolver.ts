@@ -173,8 +173,8 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       await getSaveDatastore(file.repository, repositoryData, DatastoreType.repository);
       const repository = repositoryData[file.repository.toHexString()];
       await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-      const project = projectData[repository.project.toHexString()];
-      if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
+      // const project = projectData[repository.project.toHexString()];
+      if (!(await checkRepositoryAccess(user, repository, AccessLevel.view))) {
         throw new Error('user does not have access to repository');
       }
     }
@@ -243,8 +243,8 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         throw new Error(`user must be logged in to access file ${args.file?.toHexString()}`);
       } else {
         await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-        const project = projectData[repository.project.toHexString()];
-        if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
+        // const project = projectData[repository.project.toHexString()];
+        if (!(await checkRepositoryAccess(user, repository, AccessLevel.view))) {
           throw new Error('user does not have access to repository');
         }
       }

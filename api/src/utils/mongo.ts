@@ -1,37 +1,46 @@
-import { FileDB, FileModel } from '../schema/structure/file';
-import { FolderDB, FolderModel } from '../schema/structure/folder';
+import { FileModel } from '../schema/structure/file';
+import { FolderModel } from '../schema/structure/folder';
+import { ObjectId } from 'mongodb';
+import { UpdateType } from '../files/shared';
 
-type supportedTypes = typeof FolderDB | typeof FileDB;
+type models = typeof FolderModel | typeof FileModel;
 
 export interface WriteMongoElement {
   data: object;
+  id?: ObjectId;
+  action: UpdateType;
 }
 
-interface UpsertElement {
-  updateOne: {
-    update: object;
-    upsert: boolean;
+export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: models): Promise<void> => {
+  if (elements.length === 0) {
+    return;
   }
-}
-
-export const bulkSaveToMongo = async (elements: WriteMongoElement[], type: supportedTypes): Promise<void> => {
-  const operations: UpsertElement[] = [];
+  const operations: object[] = [];
   for (const element of elements) {
-    operations.push({
-      updateOne: {
-        update: element.data,
-        upsert: true
-      }
-    });
+    switch (element.action) {
+      case UpdateType.add:
+        operations.push({
+          insertOne: {
+            document: element.data
+          }
+        });
+        break;
+      case UpdateType.update:
+        if (!element.id) {
+          throw new Error('id is not defined for element update');
+        }
+        operations.push({
+          updateOne: {
+            filter: {
+              _id: element.id
+            },
+            update: element.data
+          }
+        });
+        break;
+      default:
+        break;
+    }
   }
-  switch (type) {
-    case FolderDB:
-      await FolderModel.bulkWrite(operations);
-      break;
-    case FileDB:
-      await FileModel.bulkWrite(operations);
-      break;
-    default:
-      throw new Error('mongo bulk save type not supported');
-  }
+  await model.bulkWrite(operations);
 };

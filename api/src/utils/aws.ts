@@ -10,8 +10,8 @@ export const s3Client = new AWS.S3();
 
 export let fileBucket: string;
 
-export const getFileKey = (repository: ObjectId, branch: string, path: string): string => {
-  return `${repository.toHexString()}/${branch}/${path}`;
+export const getFileKey = (repository: ObjectId, branch: string, path: string, fileName: string): string => {
+  return `${repository.toHexString()}/${branch}/${path}${fileName}`;
 };
 
 export const getS3FileData = async (fileKey: string): Promise<string> => {

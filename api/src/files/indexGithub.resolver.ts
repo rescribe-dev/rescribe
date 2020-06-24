@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/auth/user';
-import { indexFile, UpdateType, getFilePath } from './shared';
+import { indexFile, UpdateType, getFilePath, saveChanges, FileWriteData } from './shared';
 import { FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
@@ -16,9 +16,8 @@ import { deleteFileUtil } from './deleteFile.resolver';
 import { ProjectModel } from '../schema/structure/project';
 import { fileIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
-import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
-import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
-import { FolderModel } from '../schema/structure/folder';
+import { SaveElasticElement } from '../utils/elastic';
+import { WriteMongoElement } from '../utils/mongo';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
@@ -135,9 +134,8 @@ class IndexGithubResolver {
       });
     }
     const fileElasticWrites: SaveElasticElement[] = [];
-    const folderElasticWrites: { [key: string]: SaveElasticElement } = {};
-    const fileWrites: WriteMongoElement[] = [];
-    const folderWrites: WriteMongoElement[] = [];
+    const fileMongoWrites: WriteMongoElement[] = [];
+    const fileWrites: FileWriteData[] = [];
     // as a stopgap use the configuration file to check for this stuff
     for (const filePath of args.added) {
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
@@ -153,9 +151,8 @@ class IndexGithubResolver {
         content: content.text,
         isBinary: content.isBinary,
         fileElasticWrites,
-        folderElasticWrites,
-        fileWrites,
-        folderWrites
+        fileMongoWrites,
+        fileWrites
       });
     }
     for (const filePath of args.modified) {
@@ -183,9 +180,8 @@ class IndexGithubResolver {
         content: content.text,
         isBinary: content.isBinary,
         fileElasticWrites,
-        folderElasticWrites,
-        fileWrites,
-        folderWrites
+        fileMongoWrites,
+        fileWrites
       });
     }
     const deleteIDs: ObjectId[] = [];
@@ -203,7 +199,7 @@ class IndexGithubResolver {
       }
       if (file.branches.length === 1) {
         deleteIDs.push(file._id);
-        await deleteFileUtil(file, branch);
+        await deleteFileUtil(file, branch, false);
       } else {
         fileElasticWrites.push({
           action: UpdateType.update,
@@ -226,14 +222,12 @@ class IndexGithubResolver {
         });
       }
     }
-    await bulkSaveToElastic(fileElasticWrites);
-    const folderElasticWritesArray: SaveElasticElement[] = [];
-    for (const path in folderElasticWrites) {
-      folderElasticWritesArray.push(folderElasticWrites[path]);
-    }
-    await bulkSaveToElastic(folderElasticWritesArray);
-    await bulkSaveToMongo(fileWrites, FileModel);
-    await bulkSaveToMongo(folderWrites, FolderModel);
+    await saveChanges({
+      repositoryID,
+      fileElasticWrites,
+      fileMongoWrites,
+      fileWrites
+    });
     if (deleteIDs.length > 0) {
       const deleteFilesBody = deleteIDs.flatMap(id => {
         return [{

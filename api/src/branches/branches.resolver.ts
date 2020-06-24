@@ -42,7 +42,7 @@ class BranchesResolver {
       image: '', // can leave empty as not necessary to check user access
       _id: repository._id as ObjectId
     };
-    if (!(await checkRepositoryAccess(user, repository.project, repositoryDBType, AccessLevel.view))) {
+    if (!(await checkRepositoryAccess(user, repositoryDBType, AccessLevel.view))) {
       throw new Error('user not authorized to view project');
     }
     return repository.branches;

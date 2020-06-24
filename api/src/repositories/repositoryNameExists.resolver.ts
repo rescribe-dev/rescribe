@@ -11,7 +11,7 @@ import { TermQuery } from '../elastic/types';
 import { RequestParams } from '@elastic/elasticsearch';
 import { Matches } from 'class-validator';
 import { validRepositoryName } from '../utils/variables';
-import { RepositoryModel } from '../schema/structure/repository';
+import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { getUser } from '../users/shared';
 
 @ArgsType()
@@ -29,6 +29,21 @@ class RepositoryExistsArgs {
 interface CountResponse {
   count: number;
 }
+
+export const getRepositoryByOwner = async (repositoryName: string, owner: string | ObjectId): Promise<RepositoryDB> => {
+  if (!(owner instanceof ObjectId)) {
+    const ownerData = await getUser(owner);
+    owner = ownerData._id;
+  }
+  const repository = await RepositoryModel.findOne({
+    name: repositoryName,
+    owner
+  });
+  if (!repository) {
+    throw new Error(`cannot find repository with name ${repositoryName} and owner ${owner}`);
+  }
+  return repository;
+};
 
 export const countRepositoriesUserAccess = async (user: User, name?: string): Promise<number> => {
   const shouldParams: TermQuery[] = [];
