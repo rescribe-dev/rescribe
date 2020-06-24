@@ -1,34 +1,25 @@
 import { processFile } from '../utils/antlrBridge';
-import { fileIndexName } from '../elastic/settings';
-import File, { FileDB, BaseFileElastic, } from '../schema/structure/file';
+import { fileIndexName, folderIndexName } from '../elastic/settings';
+import File, { FileDB, BaseFileElastic, FileModel, } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { AccessLevel } from '../schema/auth/access';
-import { SaveElasticElement } from '../utils/elastic';
+import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
 import AntlrFile from '../schema/antlr/file';
-import { WriteMongoElement } from '../utils/mongo';
+import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
 import checkFileExtension from '../languages/checkFileExtension';
+import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/folder';
+import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../folders/shared';
+import { getFolder } from '../folders/folder.resolver';
 
 export enum UpdateType {
   add = 'add',
   update = 'update'
 }
 
-export interface FileIndexArgs {
-  action: UpdateType;
-  file: FileDB | undefined;
-  project: ObjectId;
-  repository: ObjectId;
-  branch: string;
-  path: string;
-  fileName: string;
-  content: string;
-  public: AccessLevel;
-  isBinary: boolean;
-  folderElasticWrites: { [key: string]: SaveElasticElement };
-  fileElasticWrites: SaveElasticElement[];
-  folderWrites: WriteMongoElement[];
-  fileWrites: WriteMongoElement[];
+export interface FileWriteData {
+  elastic: SaveElasticElement;
+  mongo: WriteMongoElement;
 }
 
 export const getFilePath = (path: string): string => {
@@ -41,6 +32,116 @@ export const getFilePath = (path: string): string => {
   }
   return '/';
 };
+
+interface CreateFoldersArgs {
+  fileWriteData: FileWriteData[];
+  repositoryID: ObjectId;
+}
+
+interface CreateFoldersRes {
+  folderElasticWrites: SaveElasticElement[];
+  folderWrites: WriteMongoElement[];
+}
+
+export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFoldersRes> => {
+  const folderElasticWrites: SaveElasticElement[] = [];
+  const folderWrites: WriteMongoElement[] = [];
+  const baseFolder: FolderDB = await getFolder({
+    repositoryID: args.repositoryID,
+    path: baseFolderPath,
+    name: baseFolderName
+  });
+  const savedFolderData: { [key: string]: FolderDB } = {};
+  savedFolderData[baseFolderPath + baseFolderName] = baseFolder;
+  for (const fileWrite of args.fileWriteData) {
+    const fileData = fileWrite.mongo.data as FileDB;
+    const fullFilePath = fileData.path + fileData.name;
+    let lastFolder = baseFolder;
+    for (const folderPathData of getParentFolderPaths(fullFilePath)) {
+      const fullCurrentFolderPath = folderPathData.path + folderPathData.name;
+      if (fullCurrentFolderPath in savedFolderData) {
+        lastFolder = savedFolderData[fullCurrentFolderPath];
+      } else {
+        try {
+          const folderData = await getFolder({
+            repositoryID: args.repositoryID,
+            ...folderPathData
+          });
+          savedFolderData[fullCurrentFolderPath] = folderData;
+          lastFolder = folderData;
+          continue;
+        } catch (_err) {
+          // folder does not exist. add it
+        }
+        const folderID = new ObjectId();
+        const baseFolderData: BaseFolder = {
+          ...fileData,
+          ...folderPathData,
+          parent: lastFolder._id
+        };
+        // get parent folders at the end
+        const elasticFolder: Folder = {
+          ...baseFolderData,
+          _id: undefined,
+          numBranches: baseFolderData.branches.length
+        };
+        folderElasticWrites.push({
+          action: UpdateType.add,
+          data: elasticFolder,
+          id: folderID,
+          index: folderIndexName
+        });
+        const folderDataDB: FolderDB = {
+          ...baseFolderData,
+          _id: folderID
+        };
+        folderWrites.push({
+          data: folderDataDB,
+          action: UpdateType.add
+        });
+      }
+    }
+  }
+  return {
+    folderElasticWrites,
+    folderWrites
+  };
+};
+
+interface SaveChangesArgs {
+  fileWrites: FileWriteData[];
+  fileElasticWrites: SaveElasticElement[];
+  fileMongoWrites: WriteMongoElement[];
+  repositoryID: ObjectId;
+}
+
+export const saveChanges = async (args: SaveChangesArgs): Promise<void> => {
+  // create folders should only be run on add
+  const folderData = await createFolders({
+    fileWriteData: args.fileWrites,
+    repositoryID: args.repositoryID
+  });
+  await bulkSaveToMongo(folderData.folderWrites, FolderModel);
+  await bulkSaveToElastic(folderData.folderElasticWrites);
+  await bulkSaveToMongo(args.fileMongoWrites, FileModel);
+  await bulkSaveToElastic(args.fileElasticWrites);
+};
+
+export interface FileIndexArgs {
+  action: UpdateType;
+  file: FileDB | undefined;
+  project: ObjectId;
+  repository: ObjectId;
+  branch: string;
+  path: string;
+  fileName: string;
+  content: string;
+  public: AccessLevel;
+  isBinary: boolean;
+  fileElasticWrites: SaveElasticElement[];
+  fileMongoWrites: WriteMongoElement[];
+  fileWrites: FileWriteData[];
+}
 
 export const indexFile = async (args: FileIndexArgs): Promise<void> => {
   if (args.action === UpdateType.update && !args.file) {
@@ -101,14 +202,21 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
       index: fileIndexName,
       id
     };
-    args.fileWrites.push({
-      data: newFileDB
-    });
+    const writeMongoElement: WriteMongoElement = {
+      data: newFileDB,
+      action: UpdateType.add,
+      id: newFileDB._id
+    };
+    args.fileMongoWrites.push(writeMongoElement);
     await s3Client.upload({
       Bucket: fileBucket,
-      Key: getFileKey(args.repository, args.branch, args.path),
+      Key: getFileKey(args.repository, args.branch, args.path, args.fileName),
       Body: args.content
     }).promise();
+    args.fileWrites.push({
+      elastic: elasticElement,
+      mongo: writeMongoElement
+    });
   } else if (args.action === UpdateType.update) {
     let elasticContent: object;
     if (args.isBinary) {
@@ -123,7 +231,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
         _id: undefined,
         updated: currentTime,
         fileLength,
-      };
+      } as File;
     }
     elasticElement = {
       action: args.action,
@@ -131,19 +239,20 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
       index: fileIndexName,
       id
     };
-    args.fileWrites.push({
+    args.fileMongoWrites.push({
+      action: UpdateType.update,
+      id,
       data: {
         fileLength,
       }
     });
     await s3Client.upload({
       Bucket: fileBucket,
-      Key: getFileKey(args.repository, args.branch, args.path),
+      Key: getFileKey(args.repository, args.branch, args.path, args.fileName),
       Body: args.content
     }).promise();
   } else {
     throw new Error(`invalid action ${args.action} provided`);
   }
   args.fileElasticWrites.push(elasticElement);
-  // create additional elements for folder (if it wasn't already added)
 };

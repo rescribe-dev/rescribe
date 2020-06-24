@@ -18,14 +18,18 @@ class DeleteFileArgs {
   branch: string;
 }
 
-export const deleteFileUtil = async (file: FileDB, branch: string): Promise<void> => {
+export const deleteFileUtil = async (file: FileDB, branch: string, checkFolder: boolean): Promise<void> => {
+  // TODO - replace with bulk request for deleting a bunch of files & folders
   await FileModel.deleteOne({
     _id: file._id
   });
   await s3Client.deleteObject({
     Bucket: fileBucket,
-    Key: getFileKey(file.repository, branch, file.path),
+    Key: getFileKey(file.repository, branch, file.path, file.name),
   }).promise();
+  if (checkFolder) {
+    // TODO - delete parent folder if there are no files remaining
+  }
 };
 
 @Resolver()
@@ -44,7 +48,7 @@ class DeleteFileResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!(await checkRepositoryAccess(user, file.project, file.repository, AccessLevel.edit))) {
+    if (!(await checkRepositoryAccess(user, file.repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     if (!file.branches.includes(args.branch)) {
@@ -76,7 +80,7 @@ class DeleteFileResolver {
         }
       });
     }
-    await deleteFileUtil(file, args.branch);
+    await deleteFileUtil(file, args.branch, true);
     return `deleted file with id: ${args.id}`;
   }
 }

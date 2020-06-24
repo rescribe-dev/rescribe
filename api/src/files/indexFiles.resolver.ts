@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, UpdateType, getFilePath } from './shared';
+import { indexFile, UpdateType, getFilePath, saveChanges, FileWriteData } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -12,10 +12,8 @@ import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { getUser } from '../users/shared';
 import { addBranchUtil } from '../branches/addBranch.resolver';
-import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
-import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
-import { FileModel } from '../schema/structure/file';
-import { FolderModel } from '../schema/structure/folder';
+import { SaveElasticElement } from '../utils/elastic';
+import { WriteMongoElement } from '../utils/mongo';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -62,7 +60,7 @@ class IndexFilesResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.edit))) {
+    if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     if (!repository.branches.includes(args.branch)) {
@@ -75,9 +73,8 @@ class IndexFilesResolver {
       });
     }
     const fileElasticWrites: SaveElasticElement[] = [];
-    const folderElasticWrites: { [key: string]: SaveElasticElement } = {};
-    const fileWrites: WriteMongoElement[] = [];
-    const folderWrites: WriteMongoElement[] = [];
+    const fileMongoWrites: WriteMongoElement[] = [];
+    const fileWrites: FileWriteData[] = [];
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
@@ -108,20 +105,17 @@ class IndexFilesResolver {
               content,
               isBinary,
               fileElasticWrites,
-              fileWrites,
-              folderElasticWrites,
-              folderWrites
+              fileMongoWrites,
+              fileWrites
             });
             numIndexed++;
             if (numIndexed === args.files.length) {
-              await bulkSaveToElastic(fileElasticWrites);
-              const folderElasticWritesArray: SaveElasticElement[] = [];
-              for (const path in folderElasticWrites) {
-                folderElasticWritesArray.push(folderElasticWrites[path]);
-              }
-              await bulkSaveToElastic(folderElasticWritesArray);
-              await bulkSaveToMongo(fileWrites, FileModel);
-              await bulkSaveToMongo(folderWrites, FolderModel);
+              await saveChanges({
+                repositoryID,
+                fileElasticWrites,
+                fileMongoWrites,
+                fileWrites
+              });
               resolve('done indexing files');
             }
           } catch (err) {

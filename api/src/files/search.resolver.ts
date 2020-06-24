@@ -201,6 +201,7 @@ class SearchResolver {
         ...hit._source as File,
         _id: new ObjectId(hit._id as string),
       };
+      currentFile.repository = new ObjectId(currentFile.repository);
 
       // get file data
 
@@ -257,7 +258,7 @@ class SearchResolver {
                   break;
                 }
               }
-              resultCount = 1;
+              resultCount = 0;
               const preview: Preview = {
                 startPreviewLineNumber: -1,
                 endPreviewLineNumber: -1,
@@ -292,6 +293,10 @@ class SearchResolver {
                 continue;
             }
             currentFileResult.fileResult.results.push(currentResult);
+            resultCount++;
+            if (args.maxResultsPerFile === resultCount) {
+              break;
+            }
           }
         }
         if (paginateResults && resultIndex - 1 >= resultEndIndex) {

@@ -153,6 +153,9 @@ const RegisterPage = (args: RegisterPageDataType) => {
                       }
                       setStatus({ success: true });
                       setSubmitting(false);
+                      toast('Success, you are all set', {
+                        type: 'success',
+                      });
                       navigate('/login');
                     } catch (err) {
                       toast(err.message, {
@@ -208,7 +211,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                 </FormFeedback>
               </FormGroup>
               <FormGroup>
-                <Label for="name">Name</Label>
+                <Label for="name">Full Name</Label>
                 <Input
                   id="name"
                   name="name"

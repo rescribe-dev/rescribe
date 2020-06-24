@@ -69,7 +69,7 @@ interface RedisKey {
 }
 
 export const getText = async (file: FileDB, branch: string, args: Location): Promise<string[]> => {
-  const fileKey = getFileKey(file.repository, branch, file.path);
+  const fileKey = getFileKey(file.repository, branch, file.path, file.name);
   const redisKeyObject: RedisKey = {
     fileKey
   };
@@ -98,7 +98,7 @@ class FileText {
     if (!user) {
       throw new Error(`user ${args.id.toHexString()} cannot be found`);
     }
-    if (!(await checkRepositoryAccess(user, file.project, file.repository, AccessLevel.view))) {
+    if (!(await checkRepositoryAccess(user, file.repository, AccessLevel.view))) {
       throw new Error('user not authorized to view file');
     }
     if (!file.branches.includes(args.branch)) {

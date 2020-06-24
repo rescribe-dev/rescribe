@@ -234,7 +234,7 @@ const Header = (args: HeaderArgs) => {
                           to="/register"
                           key="register"
                         >
-                          Register
+                          Sign Up
                         </NavLink>,
                         <NavLink
                           className="navbar-link"
@@ -249,7 +249,7 @@ const Header = (args: HeaderArgs) => {
                 {!loggedIn ? null : (
                   <UncontrolledDropdown inNavbar>
                     <DropdownToggle className="navbar-text" nav caret>
-                      Options
+                      Account
                     </DropdownToggle>
                     <DropdownMenu key="menu" right>
                       <DropdownItem

@@ -731,6 +731,32 @@ type Query {
     end: Int!
   ): [String!]!
   supportedExtensions: [String!]!
+  repositoryNameExists(
+    # repository name
+    name: String!
+
+    # repository owner
+    owner: String
+  ): Boolean!
+  folder(
+    # folder id
+    id: ObjectId
+
+    # folder name
+    name: String
+
+    # folder path
+    path: String
+
+    # repository id
+    repositoryID: ObjectId
+
+    # repository name
+    repository: String
+
+    # owner name
+    owner: String
+  ): FolderDB!
   search(
     # query
     query: String
@@ -768,6 +794,16 @@ type Query {
     # end line
     maxResultsPerFile: Int
   ): [FileResult!]!
+  folderExists(
+    # repository name
+    repositoryName: String!
+
+    # folder path
+    path: String!
+
+    # repository owner
+    owner: String
+  ): Boolean!
   folders(
     # query
     query: String
@@ -822,13 +858,6 @@ type Query {
     # number per page
     perpage: Int
   ): [Project!]!
-  repositoryNameExists(
-    # repository name
-    name: String!
-
-    # repository owner
-    owner: String
-  ): Boolean!
   repositories(
     # project id
     projects: [ObjectId!]

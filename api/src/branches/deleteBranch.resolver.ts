@@ -109,7 +109,7 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> =>
     if (!file) {
       throw new Error(`cannot find file with id ${fileID.toHexString()}`);
     }
-    await deleteFileUtil(file, args.name);
+    await deleteFileUtil(file, args.name, true);
   }
 };
 
@@ -129,7 +129,7 @@ class DeleteBranchResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.edit))) {
+    if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     if (!repository.branches.includes(args.name)) {
