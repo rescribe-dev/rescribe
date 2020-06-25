@@ -9,6 +9,9 @@ import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
+import { countFiles } from '../folders/countFiles.resolver';
+import { deleteFolderUtil } from '../folders/deleteFolder.resolver';
+import { FolderModel } from '../schema/structure/folder';
 
 @ArgsType()
 class DeleteFileArgs {
@@ -18,17 +21,52 @@ class DeleteFileArgs {
   branch: string;
 }
 
-export const deleteFileUtil = async (file: FileDB, branch: string, checkFolder: boolean): Promise<void> => {
-  // TODO - replace with bulk request for deleting a bunch of files & folders
+export const deleteFileUtil = async (file: FileDB, branch: string): Promise<void> => {
+  if (!file.branches.includes(branch)) {
+    throw new Error(`file is not in branch ${branch}`);
+  }
+  if (file.branches.length === 1) {
+    await elasticClient.delete({
+      index: fileIndexName,
+      id: file._id.toHexString()
+    });
+  } else {
+    const currentTime = new Date().getTime();
+    await elasticClient.update({
+      index: fileIndexName,
+      id: file._id.toHexString(),
+      body: {
+        script: {
+          source: `
+            ctx._source.branches.remove(params.branch);
+            ctx._source.numBranches--;
+            ctx._source.updated = params.currentTime;
+          `,
+          lang: 'painless',
+          params: {
+            branch,
+            currentTime
+          }
+        }
+      }
+    });
+  }
   await FileModel.deleteOne({
     _id: file._id
   });
   await s3Client.deleteObject({
     Bucket: fileBucket,
-    Key: getFileKey(file.repository, branch, file.path, file.name),
+    Key: getFileKey(file.repository, file._id),
   }).promise();
-  if (checkFolder) {
-    // TODO - delete parent folder if there are no files remaining
+  if (file.folder) {
+    if ((await countFiles(file.repository, file.folder, branch)) === 0) {
+      const folder = await FolderModel.findById(file.folder);
+      if (!folder) {
+        throw new Error(`cannot find folder with id ${file.folder.toHexString()}`);
+      }
+      // do not delete folder recursively
+      await deleteFolderUtil(folder, branch);
+    }
   }
 };
 
@@ -51,36 +89,7 @@ class DeleteFileResolver {
     if (!(await checkRepositoryAccess(user, file.repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
-    if (!file.branches.includes(args.branch)) {
-      throw new Error(`file is not in branch ${args.branch}`);
-    }
-    if (file.branches.length === 1) {
-      await elasticClient.delete({
-        index: fileIndexName,
-        id: file._id.toHexString()
-      });
-    } else {
-      const currentTime = new Date().getTime();
-      await elasticClient.update({
-        index: fileIndexName,
-        id: file._id.toHexString(),
-        body: {
-          script: {
-            source: `
-              ctx._source.branches.remove(params.branch);
-              ctx._source.numBranches--;
-              ctx._source.updated = params.currentTime;
-            `,
-            lang: 'painless',
-            params: {
-              branch: args.branch,
-              currentTime
-            }
-          }
-        }
-      });
-    }
-    await deleteFileUtil(file, args.branch, true);
+    await deleteFileUtil(file, args.branch);
     return `deleted file with id: ${args.id}`;
   }
 }

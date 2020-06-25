@@ -111,6 +111,7 @@ class IndexFilesResolver {
             numIndexed++;
             if (numIndexed === args.files.length) {
               await saveChanges({
+                branch: args.branch,
                 repositoryID,
                 fileElasticWrites,
                 fileMongoWrites,

@@ -6,9 +6,10 @@ import { UpdateType } from '../files/shared';
 type models = typeof FolderModel | typeof FileModel;
 
 export interface WriteMongoElement {
-  data: object;
+  data?: object;
   id?: ObjectId;
   action: UpdateType;
+  filter?: object;
 }
 
 export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: models): Promise<void> => {
@@ -17,8 +18,12 @@ export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: mode
   }
   const operations: object[] = [];
   for (const element of elements) {
+    let filter: object;
     switch (element.action) {
       case UpdateType.add:
+        if (!element.data) {
+          throw new Error('no data provided for element add');
+        }
         operations.push({
           insertOne: {
             document: element.data
@@ -26,15 +31,38 @@ export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: mode
         });
         break;
       case UpdateType.update:
-        if (!element.id) {
+        if (!element.data) {
+          throw new Error('no data provided for element update');
+        }
+        if (element.filter) {
+          filter = element.filter;
+        } else if (!element.id) {
           throw new Error('id is not defined for element update');
+        } else {
+          filter = {
+            _id: element.id
+          };
         }
         operations.push({
           updateOne: {
-            filter: {
-              _id: element.id
-            },
+            filter,
             update: element.data
+          }
+        });
+        break;
+      case UpdateType.delete:
+        if (element.filter) {
+          filter = element.filter;
+        } else if (!element.id) {
+          throw new Error('id is not defined for element deletion');
+        } else {
+          filter = {
+            _id: element.id
+          };
+        }
+        operations.push({
+          deleteOne: {
+            filter
           }
         });
         break;

@@ -10,6 +10,10 @@ class BaseFile {
   name: string;
 
   @Property({ required: true })
+  @Field({ description: 'sha-1 hash' })
+  hash: string;
+
+  @Property({ required: true })
   @Field({ description: 'project id' })
   project: ObjectId;
 
@@ -62,6 +66,9 @@ export class BaseFileElastic extends BaseFile {
 // input / result from elastic
 @ObjectType({ description: 'file' })
 export default class File extends AntlrFile implements BaseFileElastic {
+  @Field({ description: 'sha-1 hash' })
+  hash: string;
+
   @Field(_type => Int, { description: 'number of lines in file' })
   fileLength: number;
 

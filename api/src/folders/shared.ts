@@ -81,15 +81,15 @@ export const createFolder = async (args: CreateFolderArgsType): Promise<ObjectId
     ...baseFolder,
     numBranches: 0
   };
-  await elasticClient.index({
-    id: id.toHexString(),
-    index: folderIndexName,
-    body: elasticFolder
-  });
   const dbFolder: FolderDB = {
     ...baseFolder,
     _id: id
   };
   await new FolderModel(dbFolder).save();
+  await elasticClient.index({
+    id: id.toHexString(),
+    index: folderIndexName,
+    body: elasticFolder
+  });
   return id;
 };

@@ -12,12 +12,10 @@ import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
 import checkFileExtension from '../languages/checkFileExtension';
-import { deleteFileUtil } from './deleteFile.resolver';
 import { ProjectModel } from '../schema/structure/project';
-import { fileIndexName } from '../elastic/settings';
-import { elasticClient } from '../elastic/init';
 import { SaveElasticElement } from '../utils/elastic';
 import { WriteMongoElement } from '../utils/mongo';
+import { deleteFilesUtil } from './deleteFiles.resolver';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
@@ -184,64 +182,21 @@ class IndexGithubResolver {
         fileWrites
       });
     }
-    const deleteIDs: ObjectId[] = [];
-    const currentTime = new Date().getTime();
+    const deletePaths: string[] = [];
     for (const filePath of args.removed) {
       if (!checkFileExtension(filePath)) {
         continue;
       }
-      const file = await FileModel.findOne({
-        path: filePath,
-        repository: repositoryID
-      });
-      if (!file) {
-        continue;
-      }
-      if (file.branches.length === 1) {
-        deleteIDs.push(file._id);
-        await deleteFileUtil(file, branch, false);
-      } else {
-        fileElasticWrites.push({
-          action: UpdateType.update,
-          id: file._id,
-          index: fileIndexName,
-          data: {
-            script: {
-              source: `
-                ctx._source.branches.remove(params.branch);
-                ctx._source.numBranches--;
-                ctx._source.updated = params.currentTime;
-              `,
-              lang: 'painless',
-              params: {
-                branch,
-                currentTime
-              }
-            },
-          }
-        });
-      }
+      deletePaths.push(filePath);
     }
+    await deleteFilesUtil(repositoryID, branch, deletePaths);
     await saveChanges({
+      branch,
       repositoryID,
       fileElasticWrites,
       fileMongoWrites,
       fileWrites
     });
-    if (deleteIDs.length > 0) {
-      const deleteFilesBody = deleteIDs.flatMap(id => {
-        return [{
-          delete: {
-            _id: id,
-            _index: fileIndexName
-          }
-        }];
-      });
-      await elasticClient.bulk({ 
-        refresh: 'true', 
-        body: deleteFilesBody
-      });
-    }
     return `successfully processed repo ${args.repositoryName}`;
   }
 }

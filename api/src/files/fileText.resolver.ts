@@ -68,8 +68,8 @@ interface RedisKey {
   fileKey: string;
 }
 
-export const getText = async (file: FileDB, branch: string, args: Location): Promise<string[]> => {
-  const fileKey = getFileKey(file.repository, branch, file.path, file.name);
+export const getText = async (file: FileDB, args: Location): Promise<string[]> => {
+  const fileKey = getFileKey(file.repository, file._id);
   const redisKeyObject: RedisKey = {
     fileKey
   };
@@ -104,7 +104,7 @@ class FileText {
     if (!file.branches.includes(args.branch)) {
       throw new Error(`branch ${args.branch} not found for file ${args.id.toHexString()}`);
     }
-    return await getText(file, args.branch, args);
+    return await getText(file, args);
   }
 }
 
