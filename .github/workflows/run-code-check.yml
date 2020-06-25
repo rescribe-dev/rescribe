@@ -1,0 +1,14 @@
+name: Code Check
+on:
+  pull_request
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # checks out a copy of the repo
+      - uses: actions/checkout@master
+      - name: run precommit
+        run: |
+          ./precommit.sh
+      - name: finish
+        run: echo "finished!"
