@@ -1,5 +1,5 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { repositoryIndexName } from '../elastic/settings';
+import { repositoryIndexName, fileIndexName, folderIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
@@ -10,6 +10,12 @@ import { checkRepositoryAccess } from './auth';
 import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { deleteBranchUtil } from '../branches/deleteBranch.resolver';
+import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
+import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
+import { FileModel } from '../schema/structure/file';
+import { UpdateType } from '../files/shared';
+import { s3Client, fileBucket, getFileKey } from '../utils/aws';
+import { FolderModel } from '../schema/structure/folder';
 
 @ArgsType()
 class DeleteRepositoryArgs {
@@ -18,6 +24,58 @@ class DeleteRepositoryArgs {
 }
 
 const logger = getLogger();
+
+export const deleteAllFilesUtil = async (repository: ObjectId): Promise<void> => {
+  // also deletes base folder
+  // only called when deleting the repository
+  const bulkUpdateFileElasticData: SaveElasticElement[] = [];
+  const bulkUpdateFileMongoData: WriteMongoElement[] = [];
+  const allFileData = await FileModel.find({
+    repository
+  });
+  for (const fileData of allFileData) {
+    bulkUpdateFileElasticData.push({
+      action: UpdateType.delete,
+      id: fileData._id,
+      index: fileIndexName
+    });
+    bulkUpdateFileMongoData.push({
+      action: UpdateType.delete,
+      filter: {
+        _id: fileData._id,
+        repository
+      }
+    });
+    await s3Client.deleteObject({
+      Bucket: fileBucket,
+      Key: getFileKey(repository, fileData._id)
+    }).promise();
+  }
+  await bulkSaveToMongo(bulkUpdateFileMongoData, FolderModel);
+  await bulkSaveToElastic(bulkUpdateFileElasticData);
+
+  const bulkUpdateFolderElasticData: SaveElasticElement[] = [];
+  const bulkUpdateFolderMongoData: WriteMongoElement[] = [];
+  const allFolderData = await FolderModel.find({
+    repository
+  });
+  for (const folderData of allFolderData) {
+    bulkUpdateFolderElasticData.push({
+      action: UpdateType.delete,
+      id: folderData._id,
+      index: folderIndexName
+    });
+    bulkUpdateFolderMongoData.push({
+      action: UpdateType.delete,
+      filter: {
+        _id: folderData._id,
+        repository
+      }
+    });
+  }
+  await bulkSaveToMongo(bulkUpdateFolderMongoData, FolderModel);
+  await bulkSaveToElastic(bulkUpdateFolderElasticData);
+};
 
 export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: ObjectId, repository: RepositoryDB): Promise<void> => {
   const deleteElasticResult = await elasticClient.delete({
@@ -37,11 +95,12 @@ export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: O
       }
     }
   });
+  await deleteAllFilesUtil(args.id);
   for (const branch of repository.branches) {
     await deleteBranchUtil({
       name: branch,
       repository: repository._id
-    });
+    }, false);
   }
 };
 

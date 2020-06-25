@@ -6,10 +6,9 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
-import { deleteFileUtil } from '../files/deleteFile.resolver';
-import { FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
 import { repositoryIndexName, fileIndexName } from '../elastic/settings';
+import { deleteFilesUtil } from '../files/deleteFiles.resolver';
 
 @ArgsType()
 class DeleteBranchArgs {
@@ -23,7 +22,7 @@ interface FileHit {
   _id: string;
 }
 
-export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> => {
+export const deleteBranchUtil = async (args: DeleteBranchArgs, deleteFiles: boolean): Promise<void> => {
   const currentTime = new Date().getTime();
   await elasticClient.update({
     index: repositoryIndexName,
@@ -104,12 +103,8 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs): Promise<void> =>
       branches: args.name
     }
   });
-  for (const fileID of deleteIDs) {
-    const file = await FileModel.findById(fileID);
-    if (!file) {
-      throw new Error(`cannot find file with id ${fileID.toHexString()}`);
-    }
-    await deleteFileUtil(file, args.name, true);
+  if (deleteFiles) {
+    await deleteFilesUtil(args.repository, args.name);
   }
 };
 
@@ -135,7 +130,7 @@ class DeleteBranchResolver {
     if (!repository.branches.includes(args.name)) {
       throw new Error(`cannot find branch with name ${args.name} on repository`);
     }
-    await deleteBranchUtil(args);
+    await deleteBranchUtil(args, true);
     return `deleted branch ${args.name}`;
   }
 }

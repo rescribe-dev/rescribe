@@ -11,10 +11,21 @@ import checkFileExtension from '../languages/checkFileExtension';
 import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/folder';
 import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../folders/shared';
 import { getFolder } from '../folders/folder.resolver';
+import { createHash } from 'crypto';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
+
+const hashAlgorithm = 'sha256';
+
+const getHash = (input: string): string => {
+  return createHash(hashAlgorithm).update(input).digest('hex');
+};
 
 export enum UpdateType {
   add = 'add',
-  update = 'update'
+  update = 'update',
+  delete = 'delete'
 }
 
 export interface FileWriteData {
@@ -36,6 +47,7 @@ export const getFilePath = (path: string): string => {
 interface CreateFoldersArgs {
   fileWriteData: FileWriteData[];
   repositoryID: ObjectId;
+  branch: string;
 }
 
 interface CreateFoldersRes {
@@ -67,6 +79,16 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFold
             repositoryID: args.repositoryID,
             ...folderPathData
           });
+          if (!folderData.branches.includes(args.branch)) {
+            FolderModel.updateOne({
+              _id: folderData._id
+            }, {
+              $addToSet: {
+                branches: args.branch
+              }
+            });
+          }
+          folderData.branches.push(args.branch);
           savedFolderData[fullCurrentFolderPath] = folderData;
           lastFolder = folderData;
           continue;
@@ -113,13 +135,15 @@ interface SaveChangesArgs {
   fileElasticWrites: SaveElasticElement[];
   fileMongoWrites: WriteMongoElement[];
   repositoryID: ObjectId;
+  branch: string;
 }
 
 export const saveChanges = async (args: SaveChangesArgs): Promise<void> => {
   // create folders should only be run on add
   const folderData = await createFolders({
     fileWriteData: args.fileWrites,
-    repositoryID: args.repositoryID
+    repositoryID: args.repositoryID,
+    branch: args.branch
   });
   await bulkSaveToMongo(folderData.folderWrites, FolderModel);
   await bulkSaveToElastic(folderData.folderElasticWrites);
@@ -157,12 +181,56 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
       path: args.path
     });
   }
-  let elasticElement: SaveElasticElement;
   const currentTime = new Date().getTime();
   const fileLength = args.content.split('\n').length - 1;
-  if (args.action === UpdateType.add) {
+  // TODO - check if file is the same as a file that is already there
+  // if it is, point to it somehow
+  const hash = getHash(args.content);
+  // database request for all of the files with the same name within the repo
+  const sameFile = await FileModel.findOne({
+    hash,
+    name: args.fileName,
+    path: args.path
+  });
+  if (sameFile) {
+    if (sameFile.branches.includes(args.branch)) {
+      logger.info('file already exists in current branch');
+      return;
+    }
+    const elasticContent: object = {
+      script: {
+        source: `
+          ctx._source.numBranches++;
+          ctx._source.branches.add(params.branch);
+          ctx._source.updated = params.currentTime;
+        `,
+        lang: 'painless',
+        params: {
+          branch: args.branch,
+          currentTime
+        }
+      }
+    };
+    args.fileElasticWrites.push({
+      action: UpdateType.update,
+      data: elasticContent,
+      index: fileIndexName,
+      id
+    });
+    args.fileMongoWrites.push({
+      action: UpdateType.update,
+      id,
+      data: {
+        updated: currentTime,
+        $add: {
+          branches: args.branch
+        }
+      }
+    });
+  } else if (args.action === UpdateType.add) {
     const newFileDB: FileDB = {
       _id: id,
+      hash,
       project: args.project,
       repository: args.repository,
       branches: [args.branch],
@@ -175,6 +243,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
     };
     const baseElasticContent: BaseFileElastic = {
       name: args.fileName,
+      hash,
       project: args.project,
       repository: args.repository,
       branches: [args.branch],
@@ -196,12 +265,13 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
       };
       elasticContent = fileElasticContent;
     }
-    elasticElement = {
+    const elasticElement: SaveElasticElement = {
       action: args.action,
       data: elasticContent,
       index: fileIndexName,
       id
     };
+    args.fileElasticWrites.push(elasticElement);
     const writeMongoElement: WriteMongoElement = {
       data: newFileDB,
       action: UpdateType.add,
@@ -210,7 +280,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
     args.fileMongoWrites.push(writeMongoElement);
     await s3Client.upload({
       Bucket: fileBucket,
-      Key: getFileKey(args.repository, args.branch, args.path, args.fileName),
+      Key: getFileKey(args.repository, id),
       Body: args.content
     }).promise();
     args.fileWrites.push({
@@ -233,12 +303,12 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
         fileLength,
       } as File;
     }
-    elasticElement = {
+    args.fileElasticWrites.push({
       action: args.action,
       data: elasticContent,
       index: fileIndexName,
       id
-    };
+    });
     args.fileMongoWrites.push({
       action: UpdateType.update,
       id,
@@ -248,11 +318,10 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
     });
     await s3Client.upload({
       Bucket: fileBucket,
-      Key: getFileKey(args.repository, args.branch, args.path, args.fileName),
+      Key: getFileKey(args.repository, id),
       Body: args.content
     }).promise();
   } else {
     throw new Error(`invalid action ${args.action} provided`);
   }
-  args.fileElasticWrites.push(elasticElement);
 };

@@ -127,7 +127,7 @@ const getPreview = async (fileData: { [key: string]: string[] }, fileID: ObjectI
     }
     const startTime2 = new Date();
     try {
-      fileData[fileID.toHexString()] = await getText(file, file.branches[0], {
+      fileData[fileID.toHexString()] = await getText(file, {
         start: 1, // start at line 1
         end: file.fileLength
       });

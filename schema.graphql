@@ -207,6 +207,9 @@ type File {
   # language type
   language: [Language!]!
 
+  # sha-1 hash
+  hash: String!
+
   # number of lines in file
   fileLength: Int!
 
@@ -493,6 +496,13 @@ type Mutation {
     # email
     email: String!
   ): String!
+  deleteFolder(
+    # folder id
+    id: ObjectId!
+
+    # branch name
+    branch: String!
+  ): String!
   indexFiles(
     # paths
     paths: [String!]!
@@ -679,6 +689,43 @@ type Query {
     # repository id
     repository: ObjectId!
   ): [String!]!
+  supportedExtensions: [String!]!
+  repositoryNameExists(
+    # repository name
+    name: String!
+
+    # repository owner
+    owner: String
+  ): Boolean!
+  folder(
+    # folder id
+    id: ObjectId
+
+    # folder name
+    name: String
+
+    # folder path
+    path: String
+
+    # repository id
+    repositoryID: ObjectId
+
+    # repository name
+    repository: String
+
+    # owner name
+    owner: String
+  ): FolderDB!
+  filesInFolder(
+    # repository
+    repository: ObjectId!
+
+    # folder
+    folder: ObjectId!
+
+    # branch
+    branch: String!
+  ): Int!
   file(
     # file id
     id: ObjectId!
@@ -730,33 +777,6 @@ type Query {
     # end line
     end: Int!
   ): [String!]!
-  supportedExtensions: [String!]!
-  repositoryNameExists(
-    # repository name
-    name: String!
-
-    # repository owner
-    owner: String
-  ): Boolean!
-  folder(
-    # folder id
-    id: ObjectId
-
-    # folder name
-    name: String
-
-    # folder path
-    path: String
-
-    # repository id
-    repositoryID: ObjectId
-
-    # repository name
-    repository: String
-
-    # owner name
-    owner: String
-  ): FolderDB!
   search(
     # query
     query: String
@@ -808,33 +828,15 @@ type Query {
     # query
     query: String
 
-    # only user files
-    onlyUser: Boolean
-
-    # file path
-    path: String
-
-    # projects
-    projects: [ObjectId!]
-
-    # repositories
-    repositories: [ObjectId!]
-
-    # file id
-    file: ObjectId
-
     # file name
     name: String
-
-    # branches
-    branches: [String!]
 
     # page number
     page: Int
 
     # number per page
     perpage: Int
-  ): [File!]!
+  ): [Folder!]!
   hello: String!
   languages: [LanguageData!]!
   projectNameExists(

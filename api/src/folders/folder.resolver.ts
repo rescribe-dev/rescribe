@@ -5,6 +5,10 @@ import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { FolderDB, FolderModel } from '../schema/structure/folder';
 import { getRepositoryByOwner } from '../repositories/repositoryNameExists.resolver';
+import { verifyLoggedIn } from '../auth/checkAuth';
+import { UserModel } from '../schema/auth/user';
+import { checkRepositoryAccess, checkRepositoryPublic } from '../repositories/auth';
+import { AccessLevel } from '../schema/auth/access';
 
 @ArgsType()
 class FolderArgs {
@@ -35,7 +39,7 @@ export const getFolder = async (args: FolderArgs): Promise<FolderDB> => {
     }
     return folder;
   }
-  if (args.name && args.path && (args.repositoryID || (args.repository && args.owner))) {
+  if (args.name !== undefined && args.path !== undefined && (args.repositoryID || (args.repository && args.owner))) {
     if (args.repositoryID) {
       const folder = await FolderModel.findOne({
         repository: args.repositoryID,
@@ -69,9 +73,26 @@ export const getFolder = async (args: FolderArgs): Promise<FolderDB> => {
 @Resolver()
 class FolderResolver {
   @Query(_returns => FolderDB)
-  async folder(@Args() args: FolderArgs, @Ctx() _ctx: GraphQLContext): Promise<FolderDB> {
-    // TODO - add necessary authentication
-    return await getFolder(args);
+  async folder(@Args() args: FolderArgs, @Ctx() ctx: GraphQLContext): Promise<FolderDB> {
+    const folder = await getFolder(args);
+    if (!folder) {
+      throw new Error('cannot find folder');
+    }
+    if (await checkRepositoryPublic(folder.repository, AccessLevel.view)) {
+      return folder;
+    } else if (verifyLoggedIn(ctx) && ctx.auth) {
+      const userID = new ObjectId(ctx.auth.id);
+      const user = await UserModel.findById(userID);
+      if (!user) {
+        throw new Error('cannot find user data');
+      }
+      if (!(await checkRepositoryAccess(user, new ObjectId(folder.repository), AccessLevel.view))) {
+        throw new Error('user not authorized to view folder');
+      }
+      return folder;
+    } else {
+      throw new Error('user must be logged in to get private folder');
+    }
   }
 }
 
