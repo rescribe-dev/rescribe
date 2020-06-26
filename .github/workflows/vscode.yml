@@ -18,7 +18,6 @@ jobs:
           node-version: 12.x
       - name: install dependencies
         run: |
-          npm install -g vsce
           cd vscode
           yarn install
           cd -
