@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import File, { FileModel, FileDB } from '../schema/structure/file';
@@ -141,7 +139,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   }
   const filterShouldParams: TermQuery[] = [];
   const filterMustParams: TermQuery[] = [];
-  const mustShouldParams: object[] = [];
+  const mustShouldParams: Record<string, unknown>[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
@@ -176,8 +174,8 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       await getSaveDatastore(file.repository, repositoryData, DatastoreType.repository);
       const repository = repositoryData[file.repository.toHexString()];
       await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-      const project = projectData[repository.project.toHexString()];
-      if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
+      // const project = projectData[repository.project.toHexString()];
+      if (!(await checkRepositoryAccess(user, repository, AccessLevel.view))) {
         throw new Error('user does not have access to repository');
       }
     }
@@ -244,8 +242,8 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         throw new Error(`user must be logged in to access file ${args.file?.toHexString()}`);
       } else {
         await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-        const project = projectData[repository.project.toHexString()];
-        if (!(await checkRepositoryAccess(user, project, repository, AccessLevel.view))) {
+        // const project = projectData[repository.project.toHexString()];
+        if (!(await checkRepositoryAccess(user, repository, AccessLevel.view))) {
           throw new Error('user does not have access to repository');
         }
       }
@@ -327,7 +325,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       });
     }
   }
-  const highlight: object = {
+  const highlight: Record<string, unknown> = {
     fields: {
       '*': {}
     },
@@ -337,7 +335,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   for (const nestedField of nestedFields) {
     // TODO - tweak this to get it faster - boosting alternatives
     // use boost to make certain fields weighted higher than others
-    const currentQuery: object = args.query ? {
+    const currentQuery: Record<string, unknown> = args.query ? {
       multi_match: {
         query: args.query
       }
@@ -354,7 +352,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       }
     });
   }
-  const fieldsQuery: object = args.query ? {
+  const fieldsQuery: Record<string, unknown> = args.query ? {
     multi_match: {
       query: args.query,
       fields: mainFields
@@ -419,6 +417,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   if (!oneFile) {
     setPaginationArgs(args, searchParams);
   }
+  logger.info(JSON.stringify(searchParams, null, 2));
   const startTime = new Date();
   const elasticFileData = await elasticClient.search(searchParams);
   logger.info(`search function time: ${new Date().getTime() - startTime.getTime()}`);

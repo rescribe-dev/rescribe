@@ -11,5 +11,6 @@
   ],
   "extensions.ignoreRecommendations": true,
   "files.autoSave": "off",
-  "debug.allowBreakpointsEverywhere": true
+  "debug.allowBreakpointsEverywhere": true,
+  "python.pythonPath": "/usr/bin/python3"
 }

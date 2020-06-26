@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
 import { elasticClient } from './init';
@@ -12,7 +10,7 @@ import folderMappings from './structureMappings/folder';
 
 const logger = getLogger();
 
-const initializeMapping = async (indexName: string, indexSettings: object, indexMappings: object, indexType: string): Promise<void> => {
+const initializeMapping = async (indexName: string, indexSettings: Record<string, unknown>, indexMappings: Record<string, unknown>, indexType: string): Promise<void> => {
   const deleteRes = await elasticClient.indices.delete({
     index: indexName,
     ignore_unavailable: true

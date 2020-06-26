@@ -13,16 +13,18 @@ check_changes() {
   fi
 }
 
+force_run_command="-f"
+
 node_paths=("api/" "github-app/" "cli/" "web/" "vscode/" ".github/build-frontend/" "docs/")
 
 for path in "${node_paths[@]}"
 do
-  if check_changes "$path"; then
+  if [ "$1" = "$force_run_command" ] || check_changes "$path" ; then
     npm run precommit --prefix $path
   fi
 done
 
-if check_changes "antlr/"; then
+if [ "$1" = "$force_run_command" ] || check_changes "antlr/"; then
   cd antlr && ./precommit.sh && cd -
 fi
 

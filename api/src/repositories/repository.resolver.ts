@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { Repository, RepositoryDB } from '../schema/structure/repository';
@@ -82,7 +81,7 @@ class RepositoryResolver {
       image: '',
       _id: repository._id as ObjectId
     };
-    if (!(await checkRepositoryAccess(user, repository.project, repositoryDBType, AccessLevel.view))) {
+    if (!(await checkRepositoryAccess(user, repositoryDBType, AccessLevel.view))) {
       throw new Error('user not authorized to view repository');
     }
     return repository;

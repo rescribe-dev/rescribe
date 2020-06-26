@@ -6,15 +6,17 @@ import { RepositoryNameExists, RepositoryNameExistsQuery, RepositoryNameExistsQu
 
 const logger = getLogger();
 
+const ownerRepositoryKey = 'owner/repository';
+
 interface Args {
-  repositoryOwner: string;
+  'owner/repository': string;
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
-  if (args.repositoryOwner.length === 0) {
+  if (args[ownerRepositoryKey].length === 0) {
     throw new Error('no repository and/or owner provided');
   }
-  const repoOwnerSplit = args.repositoryOwner.split('/');
+  const repoOwnerSplit = args[ownerRepositoryKey].split('/');
   let owner: string;
   let repository: string;
   if (repoOwnerSplit.length === 2) {
@@ -22,8 +24,9 @@ export default async (args: Arguments<Args>): Promise<void> => {
     repository = repoOwnerSplit[1];
   } else {
     owner = cacheData.username;
-    repository = args.repositoryOwner;
+    repository = args[ownerRepositoryKey];
   }
+  const name = repository;
   const repoQueryVars: RepositoryNameExistsQueryVariables = {
     name,
     owner

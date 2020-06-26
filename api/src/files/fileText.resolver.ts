@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { FileModel, FileDB } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
@@ -68,8 +66,8 @@ interface RedisKey {
   fileKey: string;
 }
 
-export const getText = async (file: FileDB, branch: string, args: Location): Promise<string[]> => {
-  const fileKey = getFileKey(file.repository, branch, file.path);
+export const getText = async (file: FileDB, args: Location): Promise<string[]> => {
+  const fileKey = getFileKey(file.repository, file._id);
   const redisKeyObject: RedisKey = {
     fileKey
   };
@@ -98,13 +96,13 @@ class FileText {
     if (!user) {
       throw new Error(`user ${args.id.toHexString()} cannot be found`);
     }
-    if (!(await checkRepositoryAccess(user, file.project, file.repository, AccessLevel.view))) {
+    if (!(await checkRepositoryAccess(user, file.repository, AccessLevel.view))) {
       throw new Error('user not authorized to view file');
     }
     if (!file.branches.includes(args.branch)) {
       throw new Error(`branch ${args.branch} not found for file ${args.id.toHexString()}`);
     }
-    return await getText(file, args.branch, args);
+    return await getText(file, args);
   }
 }
 

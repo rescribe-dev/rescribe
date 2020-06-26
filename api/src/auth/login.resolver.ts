@@ -50,9 +50,9 @@ class LoginResolvers {
       throw new Error('password is invalid');
     }
     const token = await generateJWTAccess(user);
-    if (verifyGuest(ctx)) {
+    if (verifyGuest(ctx) && ctx.auth) {
       const notification: AuthNotificationPayload = {
-        id: ctx.auth?.id as string,
+        id: ctx.auth.id as string,
         token
       };
       await pubSub.publish(authNotificationsTrigger, notification);

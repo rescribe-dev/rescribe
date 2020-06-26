@@ -9,7 +9,7 @@ import Access, { AccessLevel, AccessType } from '../schema/auth/access';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
-import { Matches, IsNotIn } from 'class-validator';
+import { Matches, IsNotIn, MinLength } from 'class-validator';
 import { countRepositoriesUserAccess } from './repositoryNameExists.resolver';
 import { validRepositoryName, blacklistedRepositoryNames, defaultRepositoryImage } from '../utils/variables';
 import { createFolder, baseFolderName, baseFolderPath } from '../folders/shared';
@@ -17,6 +17,9 @@ import { createFolder, baseFolderName, baseFolderPath } from '../folders/shared'
 @ArgsType()
 class AddRepositoryArgs {
   @Field(_type => String, { description: 'repository name' })
+  @MinLength(1, {
+    message: 'repository name length must be greater than 0'
+  })
   @IsNotIn(blacklistedRepositoryNames, { message: 'repository name is in blacklist' })
   @Matches(validRepositoryName, {
     message: 'invalid characters provided for repository name'
@@ -66,6 +69,13 @@ class AddRepositoryResolver {
       created: currentTime,
       updated: currentTime,
     };
+    await ProjectModel.updateOne({
+      _id: args.project
+    }, {
+      $addToSet: {
+        repositories: id
+      }
+    });
     const elasticRepository: Repository = {
       ...baseRepository,
       nameSearch: args.name
@@ -74,13 +84,6 @@ class AddRepositoryResolver {
       id: id.toHexString(),
       index: repositoryIndexName,
       body: elasticRepository
-    });
-    await ProjectModel.updateOne({
-      _id: args.project
-    }, {
-      $addToSet: {
-        repositories: id
-      }
     });
     const newAccess: Access = {
       _id: id,

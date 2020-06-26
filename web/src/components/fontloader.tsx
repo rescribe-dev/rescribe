@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+// this uses window
 import WebFont from 'webfontloader';
 
-const FontLoader = () => {
-  WebFont.load({
-    google: {
-      families: ['Noto+Sans', 'Inconsolata'],
-    },
+const FontLoader = (): JSX.Element => {
+  useEffect(() => {
+    WebFont.load({
+      google: {
+        families: ['Noto+Sans', 'Inconsolata'],
+      },
+    });
   });
   return <></>;
 };

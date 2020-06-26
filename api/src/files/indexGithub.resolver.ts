@@ -5,18 +5,17 @@ import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/auth/user';
-import { indexFile, UpdateType, SaveElasticElement, saveToElastic, getFilePath } from './shared';
+import { indexFile, UpdateType, getFilePath, saveChanges, FileWriteData } from './shared';
 import { FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
-import checkFileExtension from '../utils/checkFileExtension';
-import { deleteFileUtil } from './deleteFile.resolver';
-import { AccessLevel } from '../schema/auth/access';
+import checkFileExtension from '../languages/checkFileExtension';
 import { ProjectModel } from '../schema/structure/project';
-import { fileIndexName } from '../elastic/settings';
-import { elasticClient } from '../elastic/init';
+import { SaveElasticElement } from '../utils/elastic';
+import { WriteMongoElement } from '../utils/mongo';
+import { deleteFilesUtil } from './deleteFiles.resolver';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
@@ -63,7 +62,10 @@ let githubConfig: GithubConfiguration | undefined = undefined;
 
 const getConfigurationData = async (githubClient: graphql, args: GithubIndexArgs): Promise<void> => {
   const content = await getGithubFile(githubClient, args.ref, githubConfigFilePath, args.repositoryName, args.repositoryOwner);
-  githubConfig = yaml.safeLoad(content);
+  if (content.isBinary) {
+    throw new Error('configuration file is binary');
+  }
+  githubConfig = yaml.safeLoad(content.text) as GithubConfiguration | undefined;
   if (!githubConfig) {
     throw new Error('valid configuration file not found');
   }
@@ -120,6 +122,7 @@ class IndexGithubResolver {
       repositoryID = repository._id;
       projectID = repository.project;
     }
+    if (!repository) return 'repository invalid';
     const branch = args.ref;
     if (!repository.branches.includes(branch)) {
       // create branch here
@@ -128,14 +131,13 @@ class IndexGithubResolver {
         repository: repositoryID
       });
     }
-    const elasticElements: SaveElasticElement[] = [];
+    const fileElasticWrites: SaveElasticElement[] = [];
+    const fileMongoWrites: WriteMongoElement[] = [];
+    const fileWrites: FileWriteData[] = [];
     // as a stopgap use the configuration file to check for this stuff
     for (const filePath of args.added) {
-      if (!checkFileExtension(filePath)) {
-        continue;
-      }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
-      elasticElements.push(await indexFile({
+      await indexFile({
         action: UpdateType.add,
         file: undefined,
         project: projectID,
@@ -143,9 +145,13 @@ class IndexGithubResolver {
         branch,
         path: getFilePath(filePath),
         fileName: getFileName(filePath),
-        public: repository?.public as AccessLevel,
-        content
-      }));
+        public: repository.public,
+        content: content.text,
+        isBinary: content.isBinary,
+        fileElasticWrites,
+        fileMongoWrites,
+        fileWrites
+      });
     }
     for (const filePath of args.modified) {
       if (!checkFileExtension(filePath)) {
@@ -160,7 +166,7 @@ class IndexGithubResolver {
         continue;
       }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
-      elasticElements.push(await indexFile({
+      await indexFile({
         action: UpdateType.update,
         file,
         project: projectID,
@@ -168,63 +174,29 @@ class IndexGithubResolver {
         branch,
         path: filePath,
         fileName: getFileName(filePath),
-        public: repository?.public as AccessLevel,
-        content
-      }));
+        public: repository.public,
+        content: content.text,
+        isBinary: content.isBinary,
+        fileElasticWrites,
+        fileMongoWrites,
+        fileWrites
+      });
     }
-    const deleteIDs: ObjectId[] = [];
-    const currentTime = new Date().getTime();
+    const deletePaths: string[] = [];
     for (const filePath of args.removed) {
       if (!checkFileExtension(filePath)) {
         continue;
       }
-      const file = await FileModel.findOne({
-        path: filePath,
-        repository: repositoryID
-      });
-      if (!file) {
-        continue;
-      }
-      if (file.branches.length === 1) {
-        deleteIDs.push(file._id);
-        await deleteFileUtil(file, branch);
-      } else {
-        elasticElements.push({
-          action: UpdateType.update,
-          id: file._id,
-          index: fileIndexName,
-          data: {
-            script: {
-              source: `
-                ctx._source.branches.remove(params.branch);
-                ctx._source.numBranches--;
-                ctx._source.updated = params.currentTime;
-              `,
-              lang: 'painless',
-              params: {
-                branch,
-                currentTime
-              }
-            },
-          }
-        });
-      }
+      deletePaths.push(filePath);
     }
-    await saveToElastic(elasticElements);
-    if (deleteIDs.length > 0) {
-      const deleteFilesBody = deleteIDs.flatMap(id => {
-        return [{
-          delete: {
-            _id: id,
-            _index: fileIndexName
-          }
-        }];
-      });
-      await elasticClient.bulk({ 
-        refresh: 'true', 
-        body: deleteFilesBody
-      });
-    }
+    await deleteFilesUtil(repositoryID, branch, deletePaths);
+    await saveChanges({
+      branch,
+      repositoryID,
+      fileElasticWrites,
+      fileMongoWrites,
+      fileWrites
+    });
     return `successfully processed repo ${args.repositoryName}`;
   }
 }

@@ -21,7 +21,7 @@ interface BlogArgs {
   };
 }
 
-const BlogPost = (args: BlogArgs) => {
+const BlogPost = (args: BlogArgs): JSX.Element => {
   const postData = args.data.blogPost.data as BlogData;
   return (
     <div id="blogpost">

@@ -1,7 +1,6 @@
 import { createReadStream, statSync, readdirSync } from 'fs';
 import { extname, resolve } from 'path';
 import AWS from 'aws-sdk';
-// @ts-ignore
 import { createBrotliCompress, createGzip } from 'zlib';
 import mime from 'mime-types';
 import { config } from 'dotenv';

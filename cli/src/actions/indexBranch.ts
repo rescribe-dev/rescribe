@@ -14,7 +14,7 @@ enum OPEN_FLAG {
 
 interface Args {
   path?: string;
-  branch: string;
+  branch?: string;
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
@@ -28,8 +28,10 @@ export default async (args: Arguments<Args>): Promise<void> => {
     args.path = '.';
   }
   const repo = await Git.Repository.openExt(args.path, OPEN_FLAG.OPEN_FROM_ENV, '/');
-  const branchName = (await repo.getBranch(args.branch)).name();
-  const commit = await repo.getBranchCommit(args.branch);
+  const branchName = args.branch ?
+    (await repo.getBranch(args.branch)).name()
+    : (await repo.getCurrentBranch()).name();
+  const commit = await repo.getBranchCommit(branchName);
   const tree = await commit.getTree();
   const walker = tree.walk();
   return new Promise(async (resolve, reject) => {
@@ -41,13 +43,13 @@ export default async (args: Arguments<Args>): Promise<void> => {
         await indexFiles(paths, files, branchName);
         console.log('done indexing files');
         resolve();
-      } catch(err) {
+      } catch (err) {
         reject(err as Error);
       }
     };
     walker.on('entry', async (entry: TreeEntry) => {
       const filePath = entry.path();
-      paths.push(filePath);
+      paths.push(`/${filePath}`);
       const file = await entry.getBlob();
       if (file.isBinary()) {
         reject(new Error(`file ${filePath} is binary`));

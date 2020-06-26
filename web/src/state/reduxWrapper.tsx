@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-const loadDevTools = () =>
+const loadDevTools = (): any =>
   process.env.NODE_ENV === 'development' && window && window.devToolsExtension
     ? window.__REDUX_DEVTOOLS_EXTENSION__ &&
       window.__REDUX_DEVTOOLS_EXTENSION__()
@@ -41,7 +41,7 @@ export const store = createStore(
 
 const persistor = persistStore(store as any);
 
-export const WrapRedux = (element: any) => (
+export const WrapRedux = (element: JSX.Element): JSX.Element => (
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       {element}

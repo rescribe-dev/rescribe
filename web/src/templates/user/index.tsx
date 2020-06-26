@@ -20,7 +20,7 @@ import { client } from '../../utils/apollo';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface UserPageDataType extends PageProps {}
 
-const UserPage = (args: UserPageDataType) => {
+const UserPage = (args: UserPageDataType): JSX.Element => {
   const splitPath = args.location.pathname.split('/');
   let username: string | undefined = undefined;
   if (splitPath.length === 2) {
