@@ -4,5 +4,5 @@ set -e
 
 rm -rf dist *.vsix
 mkdir dist
-vsce package
+npx vsce package --yarn
 mv *.vsix dist/
