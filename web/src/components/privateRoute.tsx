@@ -9,7 +9,7 @@ interface PrivateRouteData {
 // TODO - try to fix order of hooks problem that occurs intermittently
 // login -> account page -> logout: error should appear in browser console
 
-const PrivateRoute = (args: PrivateRouteData) => {
+const PrivateRoute = (args: PrivateRouteData): JSX.Element => {
   const [isLoading, setLoading] = useState(true);
   isLoggedIn()
     .then((loggedIn) => {

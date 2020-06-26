@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { FileModel, FileDB } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';

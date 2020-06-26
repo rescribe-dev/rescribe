@@ -5,7 +5,7 @@ import HttpStatus from 'http-status-codes';
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { appID, webhookSecret, privateKey } from './config';
 
-const lowerCaseKeys = (obj: object): object =>
+const lowerCaseKeys = (obj: Record<string, unknown>): Record<string, unknown> =>
   Object.keys(obj).reduce((accumulator, key) =>
     Object.assign(accumulator, { [key.toLocaleLowerCase()]: obj[key] }), {});
 
@@ -56,7 +56,7 @@ const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewa
     try {
       await probot.receive({
         id: '',
-        name: e,
+        name: e as string,
         payload: event.body
       });
       return {

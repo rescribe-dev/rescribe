@@ -2,7 +2,7 @@ import React from 'react';
 import WebFont from 'webfontloader';
 import { isSSR } from '../utils/checkSSR';
 
-const FontLoader = () => {
+const FontLoader: React.FunctionComponent = () => {
   if (!isSSR) {
     WebFont.load({
       google: {

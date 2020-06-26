@@ -79,7 +79,9 @@ export interface SearchResultCardArgs {
   language: Language;
 }
 
-export const SearchResultComponent = (args: SearchResultCardArgs) => {
+export const SearchResultComponent = (
+  args: SearchResultCardArgs
+): JSX.Element => {
   if (!args.preview) {
     return <div>no preview content</div>;
   }

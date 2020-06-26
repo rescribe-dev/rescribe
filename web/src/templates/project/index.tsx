@@ -27,7 +27,7 @@ import { RootState } from '../../state';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ProjectPageDataType extends PageProps {}
 
-const ProjectPage = (args: ProjectPageDataType) => {
+const ProjectPage = (args: ProjectPageDataType): JSX.Element => {
   const splitPath = args.location.pathname.split('/');
   let projectName: string | undefined = undefined;
   if (splitPath.length >= 4) {

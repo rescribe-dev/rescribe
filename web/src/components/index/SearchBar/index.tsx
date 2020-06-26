@@ -20,7 +20,7 @@ const loaderCSS = css`
   border-color: red;
 `;
 
-const SearchBar = () => {
+const SearchBar = (): JSX.Element => {
   let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatch = useDispatch();

@@ -27,7 +27,7 @@ interface SelectObject {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface UserFiltersPropsDataType {}
 
-const UserFilters = (_args: UserFiltersPropsDataType) => {
+const UserFilters = (_args: UserFiltersPropsDataType): JSX.Element => {
   const [selectedProjects, setSelectedProjects] = useState<SelectObject[]>([]);
   const [selectedRepositories, setSelectedRepositories] = useState<
     SelectObject[]

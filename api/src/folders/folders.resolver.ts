@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import { Min, Max, MinLength } from 'class-validator';

@@ -22,7 +22,7 @@ interface IndexPageProps extends PageProps {
   };
 }
 
-const IndexPage = (args: IndexPageProps) => {
+const IndexPage = (args: IndexPageProps): JSX.Element => {
   if (!isSSR) {
     console.log(useQuery<HelloQuery | undefined>(Hello).data?.hello);
   }

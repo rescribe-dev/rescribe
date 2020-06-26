@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import File, { FileModel, FileDB } from '../schema/structure/file';
@@ -141,7 +139,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   }
   const filterShouldParams: TermQuery[] = [];
   const filterMustParams: TermQuery[] = [];
-  const mustShouldParams: object[] = [];
+  const mustShouldParams: Record<string, unknown>[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
@@ -327,7 +325,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       });
     }
   }
-  const highlight: object = {
+  const highlight: Record<string, unknown> = {
     fields: {
       '*': {}
     },
@@ -337,7 +335,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   for (const nestedField of nestedFields) {
     // TODO - tweak this to get it faster - boosting alternatives
     // use boost to make certain fields weighted higher than others
-    const currentQuery: object = args.query ? {
+    const currentQuery: Record<string, unknown> = args.query ? {
       multi_match: {
         query: args.query
       }
@@ -354,7 +352,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       }
     });
   }
-  const fieldsQuery: object = args.query ? {
+  const fieldsQuery: Record<string, unknown> = args.query ? {
     multi_match: {
       query: args.query,
       fields: mainFields

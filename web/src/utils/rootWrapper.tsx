@@ -1,6 +1,10 @@
 import { WrapApollo } from './apollo';
 import { WrapRedux } from '../state/reduxWrapper';
 
-export const wrapRootElement = ({ element }: any) => {
+interface input {
+  element: JSX.Element;
+}
+
+export const wrapRootElement = ({ element }: input): JSX.Element => {
   return WrapRedux(WrapApollo(element));
 };

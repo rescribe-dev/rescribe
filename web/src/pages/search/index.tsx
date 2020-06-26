@@ -32,7 +32,7 @@ const loaderCSS = css`
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface SearchPageDataType extends PageProps {}
 
-const SearchPage = (args: SearchPageDataType) => {
+const SearchPage = (args: SearchPageDataType): JSX.Element => {
   const searching = isSSR
     ? undefined
     : useSelector<RootState, boolean>((state) => state.searchReducer.searching);

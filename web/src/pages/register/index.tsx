@@ -52,7 +52,7 @@ declare global {
   }
 }
 
-const RegisterPage = (args: RegisterPageDataType) => {
+const RegisterPage = (args: RegisterPageDataType): JSX.Element => {
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();

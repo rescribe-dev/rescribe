@@ -66,7 +66,7 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFold
   const savedFolderData: { [key: string]: FolderDB } = {};
   savedFolderData[baseFolderPath + baseFolderName] = baseFolder;
   for (const fileWrite of args.fileWriteData) {
-    const fileData = fileWrite.mongo.data as FileDB;
+    const fileData = fileWrite.mongo.data as unknown as FileDB;
     const fullFilePath = fileData.path + fileData.name;
     let lastFolder = baseFolder;
     for (const folderPathData of getParentFolderPaths(fullFilePath)) {
@@ -118,7 +118,7 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFold
           _id: folderID
         };
         folderWrites.push({
-          data: folderDataDB,
+          data: folderDataDB as unknown as Record<string, unknown>,
           action: UpdateType.add
         });
       }
@@ -197,7 +197,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
       logger.info('file already exists in current branch');
       return;
     }
-    const elasticContent: object = {
+    const elasticContent: Record<string, unknown> = {
       script: {
         source: `
           ctx._source.numBranches++;
@@ -273,7 +273,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
     };
     args.fileElasticWrites.push(elasticElement);
     const writeMongoElement: WriteMongoElement = {
-      data: newFileDB,
+      data: newFileDB as unknown as Record<string, unknown>,
       action: UpdateType.add,
       id: newFileDB._id
     };
@@ -288,7 +288,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
       mongo: writeMongoElement
     });
   } else if (args.action === UpdateType.update) {
-    let elasticContent: object;
+    let elasticContent: Record<string, unknown>;
     if (args.isBinary) {
       elasticContent = {
         _id: undefined,
@@ -301,7 +301,7 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
         _id: undefined,
         updated: currentTime,
         fileLength,
-      } as File;
+      };
     }
     args.fileElasticWrites.push({
       action: args.action,

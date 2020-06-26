@@ -15,7 +15,7 @@ toast.configure({
   autoClose: 4000,
   draggable: false,
   newestOnTop: true,
-  position: toast.POSITION.TOP_RIGHT,
+  position: 'top-right',
   pauseOnFocusLoss: false,
   pauseOnHover: true,
 });
@@ -33,7 +33,7 @@ interface IndexLayoutProps {
   };
 }
 
-const Layout = (args: LayoutArgs) => {
+const Layout = (args: LayoutArgs): JSX.Element => {
   const data: IndexLayoutProps = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 export const projectType = 'project';
 export const projectIndexName = 'projects';
 export const projectIndexSettings = {
