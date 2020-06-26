@@ -6,7 +6,6 @@ import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphq
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/auth/user';
 import { indexFile, WriteType, getFilePath, saveChanges, FileWriteData, Aggregates } from './shared';
-import { FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
@@ -142,7 +141,6 @@ class IndexGithubResolver {
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       await indexFile({
         action: WriteType.add,
-        file: undefined,
         project: projectID,
         repository: repositoryID,
         branch,
@@ -158,18 +156,9 @@ class IndexGithubResolver {
       });
     }
     for (const filePath of args.modified) {
-      const file = await FileModel.findOne({
-        path: filePath,
-        branch,
-        repository: repositoryID
-      });
-      if (!file) {
-        continue;
-      }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       await indexFile({
         action: WriteType.update,
-        file,
         project: projectID,
         repository: repositoryID,
         branch,
