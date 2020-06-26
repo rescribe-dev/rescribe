@@ -155,7 +155,6 @@ export interface Aggregates {
 
 export interface FileIndexArgs {
   action: WriteType;
-  file: FileDB | undefined;
   project: ObjectId;
   repository: ObjectId;
   branch: string;
@@ -409,11 +408,14 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
   if (![WriteType.add, WriteType.update].includes(args.action)) {
     throw new Error('invalid update type provided');
   }
-  if (args.action === WriteType.update && !args.file) {
-    throw new Error('file is required for update');
-  }
-  const id = args.file === undefined ? new ObjectId() : args.file._id as ObjectId;
   let fileData: AntlrFile | undefined = undefined;
+  // database request for all of the files with the same name within the repo
+  const currentFile = await FileModel.findOne({
+    repository: args.repository,
+    name: args.fileName,
+    path: args.path
+  });
+  let id = currentFile ? currentFile._id : new ObjectId();
   // TODO - add file content to elastic if not binary
   const hasAntlrData = !args.isBinary && checkFileExtension(args.fileName);
   if (hasAntlrData) {
@@ -429,14 +431,9 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
   // check if file is the same as a file that is already there
   // if it is, point to it
   const hash = getHash(args.content);
-  // database request for all of the files with the same name within the repo
-  const currentFile = await FileModel.findOne({
-    repository: args.repository,
-    name: args.fileName,
-    path: args.path
-  });
-  
+
   if (currentFile) {
+    id = currentFile._id;
     // file already exists in location
     if (currentFile.hash === hash) {
       if (currentFile.branches.includes(args.branch)) {
@@ -501,8 +498,8 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
     // run add
     await indexFileAdd({
       ...args,
-      hasAntlrData,
       id,
+      hasAntlrData,
       hash,
       fileLength,
       currentTime,
