@@ -5,7 +5,7 @@ set -e
 
 cd ..
 
-node_paths=("." "api/" "github-app/" "cli/" "web/" "vscode/" ".github/build-frontend/" "docs/")
+node_paths=("." "api/" "github-app/" "web/" "vscode/" ".github/build-frontend/" "docs/")
 
 for path in "${node_paths[@]}"
 do
@@ -22,4 +22,6 @@ done
 
 cd scripts
 
+# additional install scripts
+./install_cli.sh
 ./install_antlr.sh
