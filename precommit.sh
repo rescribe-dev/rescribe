@@ -24,7 +24,7 @@ do
   fi
 done
 
-if check_changes "antlr/"; then
+if [ "$1" = "$force_run_command" ] || check_changes "antlr/"; then
   cd antlr && ./precommit.sh && cd -
 fi
 
