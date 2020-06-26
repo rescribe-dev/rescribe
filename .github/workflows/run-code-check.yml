@@ -9,6 +9,6 @@ jobs:
       - uses: actions/checkout@master
       - name: run precommit
         run: |
-          ./precommit.sh
+          ./precommit.sh -f
       - name: finish
         run: echo "finished!"

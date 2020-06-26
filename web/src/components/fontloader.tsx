@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+// this uses window
 import WebFont from 'webfontloader';
-import { isSSR } from '../utils/checkSSR';
 
-const FontLoader: React.FunctionComponent = () => {
-  if (!isSSR) {
+const FontLoader = (): JSX.Element => {
+  useEffect(() => {
     WebFont.load({
       google: {
         families: ['Noto+Sans', 'Inconsolata'],
       },
     });
-  }
+  });
   return <></>;
 };
 
