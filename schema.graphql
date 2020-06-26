@@ -137,6 +137,12 @@ type BaseRepository {
 
   # date updated
   updated: Float!
+
+  # number of lines of code
+  linesOfCode: Int!
+
+  # number of files
+  numberOfFiles: Int!
 }
 
 # class
@@ -496,13 +502,6 @@ type Mutation {
     # email
     email: String!
   ): String!
-  deleteFolder(
-    # folder id
-    id: ObjectId!
-
-    # branch name
-    branch: String!
-  ): String!
   indexFiles(
     # paths
     paths: [String!]!
@@ -546,6 +545,47 @@ type Mutation {
 
     # github installation id
     installationID: Int!
+  ): String!
+  addFolder(
+    # folder name
+    name: String!
+
+    # folder path
+    path: String!
+
+    # branch name
+    branch: String!
+
+    # repository id
+    repositoryID: ObjectId
+
+    # repository name
+    repository: String
+
+    # owner name
+    owner: String
+  ): String!
+  deleteFolder(
+    # folder id
+    id: ObjectId
+
+    # folder name
+    name: String
+
+    # folder path
+    path: String
+
+    # repository id
+    repositoryID: ObjectId
+
+    # repository name
+    repository: String
+
+    # owner name
+    owner: String
+
+    # branch name
+    branch: String!
   ): String!
   addProject(
     # project name
@@ -916,6 +956,12 @@ type Repository {
 
   # date updated
   updated: Float!
+
+  # number of lines of code
+  linesOfCode: Int!
+
+  # number of files
+  numberOfFiles: Int!
   _id: ObjectId!
 }
 
@@ -947,6 +993,12 @@ type RepositoryDB {
 
   # date updated
   updated: Float!
+
+  # number of lines of code
+  linesOfCode: Int!
+
+  # number of files
+  numberOfFiles: Int!
   _id: ObjectId!
 }
 

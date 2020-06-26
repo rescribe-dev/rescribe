@@ -5,6 +5,5 @@ node_modules/
 .ipynb_checkpoints
 .env
 demoCode/
-debug/demoCode/
 # ignore swap files
 *.swp

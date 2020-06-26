@@ -1,13 +1,7 @@
-import { BaseFolder, Folder, FolderDB, FolderModel } from '../schema/structure/folder';
-import { ObjectId } from 'mongodb';
-import { AccessLevel } from '../schema/auth/access';
-import { elasticClient } from '../elastic/init';
-import { folderIndexName } from '../elastic/settings';
-
 export const baseFolderName = '';
 export const baseFolderPath = '';
 
-interface FolderData {
+export interface FolderData {
   name: string;
   path: string;
 }
@@ -43,53 +37,23 @@ export const getParentFolderPath = (filePath: string): FolderData => {
   };
 };
 
-export const getParentFolderPaths = (filePath: string): FolderData[] => {
+export const getParentFolderPaths = (filePath: string, reversed?: boolean): FolderData[] => {
+  if (reversed === undefined) {
+    reversed = true;
+  }
   let currentFolderPath = filePath;
   const parentFolders: FolderData[] = [];
   while (currentFolderPath.length > 0) {
     const parentFolderData = getParentFolderPath(currentFolderPath);
     currentFolderPath = parentFolderData.path;
-    if (currentFolderPath.length > 0) {
+    // ignore base folder
+    if (currentFolderPath !== baseFolderPath) {
       parentFolders.push(parentFolderData);
     }
   }
-  const orderedFolders = parentFolders.reverse();
-  // remove base folder:
-  orderedFolders.pop();
+  let orderedFolders: FolderData[] = parentFolders;
+  if (reversed) {
+    orderedFolders = parentFolders.reverse();
+  }
   return orderedFolders;
-};
-
-interface CreateFolderArgsType {
-  name: string;
-  path: string;
-  project: ObjectId;
-  repository: ObjectId;
-  public: AccessLevel;
-}
-
-export const createFolder = async (args: CreateFolderArgsType): Promise<ObjectId> => {
-  const currentTime = new Date().getTime();
-  const id = new ObjectId();
-  const baseFolder: BaseFolder = {
-    ...args,
-    branches: [],
-    parent: id,
-    created: currentTime,
-    updated: currentTime
-  };
-  const elasticFolder: Folder = {
-    ...baseFolder,
-    numBranches: 0
-  };
-  const dbFolder: FolderDB = {
-    ...baseFolder,
-    _id: id
-  };
-  await new FolderModel(dbFolder).save();
-  await elasticClient.index({
-    id: id.toHexString(),
-    index: folderIndexName,
-    body: elasticFolder
-  });
-  return id;
 };

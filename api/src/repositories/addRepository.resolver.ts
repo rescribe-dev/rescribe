@@ -12,7 +12,8 @@ import { UserModel } from '../schema/auth/user';
 import { Matches, IsNotIn, MinLength } from 'class-validator';
 import { countRepositoriesUserAccess } from './repositoryNameExists.resolver';
 import { validRepositoryName, blacklistedRepositoryNames, defaultRepositoryImage } from '../utils/variables';
-import { createFolder, baseFolderName, baseFolderPath } from '../folders/shared';
+import { baseFolderName, baseFolderPath } from '../folders/shared';
+import { createFolder } from '../folders/addFolder.resolver';
 
 @ArgsType()
 class AddRepositoryArgs {
@@ -51,12 +52,14 @@ class AddRepositoryResolver {
     }
     const id = new ObjectId();
     const currentTime = new Date().getTime();
-    const folderID = await createFolder({
+    const folder = await createFolder({
       name: baseFolderName,
       path: baseFolderPath,
       project: args.project,
       public: args.publicAccess,
-      repository: id
+      parent: id,
+      repository: id,
+      branches: []
     });
     const baseRepository: BaseRepository = {
       name: args.name,
@@ -65,7 +68,9 @@ class AddRepositoryResolver {
       project: args.project,
       public: args.publicAccess,
       image: defaultRepositoryImage,
-      folder: folderID,
+      linesOfCode: 0,
+      numberOfFiles: 0,
+      folder: folder._id,
       created: currentTime,
       updated: currentTime,
     };
