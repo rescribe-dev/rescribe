@@ -1,4 +1,4 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import Access, { AccessLevel } from '../auth/access';
@@ -41,7 +41,13 @@ export class BaseRepository {
   @Property({required: true})
   updated: number;
 
-  // TODO - potentially add num files / num lines of code aggregates
+  @Field(_type => Int, { description: 'number of lines of code' })
+  @Property({required: true})
+  linesOfCode: number;
+
+  @Field(_type => Int, { description: 'number of files' })
+  @Property({required: true})
+  numberOfFiles: number;
 }
 
 // elastic

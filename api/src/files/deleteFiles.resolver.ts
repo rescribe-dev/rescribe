@@ -1,5 +1,5 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { fileIndexName, folderIndexName } from '../elastic/settings';
+import { fileIndexName, folderIndexName, repositoryIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
@@ -8,11 +8,13 @@ import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
-import { UpdateType } from './shared';
+import { WriteType, Aggregates, FileWriteData, singleBranchRemove } from './shared';
 import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
 import { FileModel, FileDB } from '../schema/structure/file';
 import { FolderModel } from '../schema/structure/folder';
 import { baseFolderName, baseFolderPath } from '../folders/shared';
+import { RepositoryModel } from '../schema/structure/repository';
+import { elasticClient } from '../elastic/init';
 
 @ArgsType()
 class DeleteFilesArgs {
@@ -26,37 +28,54 @@ class DeleteFilesArgs {
   branch: string;
 }
 
-export const deleteFilesUtil = async (repository: ObjectId, branch: string, files?: ObjectId[] | string[] | FileDB[]): Promise<void> => {
+interface DeleteFilesUtilArgs {
+  repository: ObjectId;
+  branch: string;
+  files?: ObjectId[] | string[] | FileDB[];
+  aggregates?: Aggregates;
+  bulkUpdateFileElasticData?: SaveElasticElement[];
+  bulkUpdateFileMongoData?: WriteMongoElement[];
+  bulkUpdateFileWrites?: FileWriteData[];
+}
+
+export const deleteFilesUtil = async (args: DeleteFilesUtilArgs): Promise<void> => {
   // does not delete base folder
-  const bulkUpdateFileElasticData: SaveElasticElement[] = [];
-  const bulkUpdateFileMongoData: WriteMongoElement[] = [];
+  const runBulkUpdateElastic = args.bulkUpdateFileElasticData === undefined;
+  if (!args.bulkUpdateFileElasticData) {
+    args.bulkUpdateFileElasticData = [];
+  }
+  const runBulkUpdateMongo = args.bulkUpdateFileMongoData === undefined;
+  if (!args.bulkUpdateFileMongoData) {
+    args.bulkUpdateFileMongoData = [];
+  }
   const currentTime = new Date().getTime();
   let fileFilter: Record<string, unknown> = {
-    repository,
-    branches: branch
+    repository: args.repository,
+    branches: args.branch
   };
+  // get all file data within scope
   let allFileData: FileDB[] | undefined = undefined;
-  if (files) {
-    if (files.length === 0) return;
-    if (files[0] instanceof ObjectId) {
+  if (args.files) {
+    if (args.files.length === 0) return;
+    if (args.files[0] instanceof ObjectId) {
       // file id
       fileFilter = {
         ...fileFilter,
         _id: {
-          $in: files
+          $in: args.files
         }
       };
-    } else if (files[0] instanceof String) {
+    } else if (args.files[0] instanceof String) {
       // path
       fileFilter = {
         ...fileFilter,
         path: {
-          $in: files
+          $in: args.files
         }
       };
     } else {
       // FileDB
-      allFileData = files as FileDB[];
+      allFileData = args.files as FileDB[];
     }
   }
   if (!allFileData) {
@@ -64,54 +83,50 @@ export const deleteFilesUtil = async (repository: ObjectId, branch: string, file
   }
   for (const fileData of allFileData) {
     if (fileData.branches.length === 1) {
-      bulkUpdateFileElasticData.push({
-        action: UpdateType.delete,
+      // remove file completely
+      const elasticWrite: SaveElasticElement = {
+        action: WriteType.delete,
         id: fileData._id,
         index: fileIndexName
-      });
-      bulkUpdateFileMongoData.push({
-        action: UpdateType.delete,
+      };
+      args.bulkUpdateFileElasticData.push(elasticWrite);
+      const mongoWrite: WriteMongoElement = {
+        action: WriteType.delete,
         filter: {
           _id: fileData._id,
-          repository
+          repository: args.repository
         }
-      });
+      };
+      args.bulkUpdateFileMongoData.push(mongoWrite);
       await s3Client.deleteObject({
         Bucket: fileBucket,
-        Key: getFileKey(repository, fileData._id)
+        Key: getFileKey(args.repository, fileData._id)
       }).promise();
+      if (args.bulkUpdateFileWrites) {
+        args.bulkUpdateFileWrites.push({
+          elastic: elasticWrite,
+          mongo: mongoWrite
+        });
+      }
+      if (args.aggregates) {
+        args.aggregates.linesOfCode -= fileData.fileLength;
+        args.aggregates.numberOfFiles--;
+      }
     } else {
-      bulkUpdateFileElasticData.push({
-        action: UpdateType.update,
-        data: {
-          script: {
-            source: `
-              ctx._source.numBranches--;
-              ctx._source.branches.remove(params.branch);
-              ctx._source.updated = params.currentTime;
-            `,
-            lang: 'painless',
-            params: {
-              branch,
-              repository: repository.toHexString(),
-              currentTime
-            }
-          }
-        },
+      // remove branch from file
+      singleBranchRemove({
         id: fileData._id,
-        index: fileIndexName
-      });
-      bulkUpdateFileMongoData.push({
-        action: UpdateType.delete,
-        filter: {
-          _id: fileData._id,
-          branch,
-          repository
-        }
+        currentTime,
+        aggregates: args.aggregates,
+        branch: args.branch,
+        fileElasticWrites: args.bulkUpdateFileElasticData,
+        fileMongoWrites: args.bulkUpdateFileMongoData,
+        fileWrites: args.bulkUpdateFileWrites
       });
     }
   }
 
+  // get all parent folders
   const parentFolderIDsSet = new Set<ObjectId>();
   for (const fileData of allFileData) {
     if (fileData.name === baseFolderName && fileData.path === baseFolderPath) {
@@ -126,9 +141,9 @@ export const deleteFilesUtil = async (repository: ObjectId, branch: string, file
   for (const parentFolderID of parentFolderIDsSet.values()) {
     const numChildren = await FileModel.count({
       folder: parentFolderID,
-      repository,
+      repository: args.repository,
       branches: {
-        $all: [branch]
+        $all: [args.branch]
       }
     });
     if (numChildren === 1) {
@@ -138,8 +153,9 @@ export const deleteFilesUtil = async (repository: ObjectId, branch: string, file
         throw new Error(`cannot find folder with id ${parentFolderID.toHexString()}`);
       }
       if (folderData.branches.length > 1) {
-        bulkUpdateFolderElasticData.push({
-          action: UpdateType.update,
+        // remove branch from folder
+        const elasticWrite: SaveElasticElement = {
+          action: WriteType.update,
           id: parentFolderID,
           index: folderIndexName,
           data: {
@@ -151,40 +167,81 @@ export const deleteFilesUtil = async (repository: ObjectId, branch: string, file
               `,
               lang: 'painless',
               params: {
-                branch,
-                repository: repository.toHexString(),
+                branch: args.branch,
+                repository: args.repository.toHexString(),
                 currentTime
               }
             }
           }
-        });
-        bulkUpdateFolderMongoData.push({
-          action: UpdateType.update,
+        };
+        bulkUpdateFolderElasticData.push(elasticWrite);
+        const mongoWrite: WriteMongoElement = {
+          action: WriteType.update,
           data: {
             $pull: {
-              branches: branch
+              branches: args.branch
             }
           },
           id: parentFolderID
-        });
+        };
+        bulkUpdateFolderMongoData.push(mongoWrite);
+        if (args.bulkUpdateFileWrites) {
+          args.bulkUpdateFileWrites.push({
+            elastic: elasticWrite,
+            mongo: mongoWrite
+          });
+        }
       } else {
-        bulkUpdateFolderElasticData.push({
-          action: UpdateType.delete,
+        // delete folder because it is now empty
+        const elasticWrite: SaveElasticElement = {
+          action: WriteType.delete,
           id: folderData._id,
           index: folderIndexName
-        });
-        bulkUpdateFolderMongoData.push({
-          action: UpdateType.delete,
+        };
+        bulkUpdateFolderElasticData.push(elasticWrite);
+        const mongoWrite: WriteMongoElement = {
+          action: WriteType.delete,
           filter: {
             _id: folderData._id,
-            repository
+            repository: args.repository
           }
-        });
+        };
+        bulkUpdateFolderMongoData.push(mongoWrite);
+        if (args.bulkUpdateFileWrites) {
+          args.bulkUpdateFileWrites.push({
+            elastic: elasticWrite,
+            mongo: mongoWrite
+          });
+        }
       }
     }
   }
-  await bulkSaveToMongo(bulkUpdateFolderMongoData, FolderModel);
-  await bulkSaveToElastic(bulkUpdateFolderElasticData);
+  if (runBulkUpdateMongo) {
+    await bulkSaveToMongo(bulkUpdateFolderMongoData, FolderModel);
+  }
+  if (runBulkUpdateElastic) {
+    await bulkSaveToElastic(bulkUpdateFolderElasticData);
+  }
+};
+
+export const saveAggregates = async (aggregates: Aggregates, repository: ObjectId): Promise<void> => {
+  const currentTime = new Date().getTime();
+  await elasticClient.update({
+    index: repositoryIndexName,
+    id: repository.toHexString(),
+    body: {
+      currentTime,
+      ...aggregates
+    }
+  });
+  await RepositoryModel.updateOne({
+    _id: repository
+  }, {
+    $set: {
+      currentTime,
+      ...aggregates
+    }
+  });
 };
 
 @Resolver()
@@ -199,10 +256,22 @@ class DeleteFileResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!(await checkRepositoryAccess(user, args.repository, AccessLevel.edit))) {
+    const repository = await RepositoryModel.findById(args.repository);
+    if (!repository) {
+      throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
+    }
+    if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
-    await deleteFilesUtil(args.repository, args.branch, args.files);
+    const aggregates: Aggregates = {
+      linesOfCode: repository.linesOfCode,
+      numberOfFiles: repository.numberOfFiles
+    };
+    await deleteFilesUtil({
+      ...args,
+      aggregates
+    });
+    await saveAggregates(aggregates, repository._id);
     return 'deleted files';
   }
 }

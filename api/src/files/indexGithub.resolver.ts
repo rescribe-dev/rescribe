@@ -5,17 +5,16 @@ import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/auth/user';
-import { indexFile, UpdateType, getFilePath, saveChanges, FileWriteData } from './shared';
+import { indexFile, WriteType, getFilePath, saveChanges, FileWriteData, Aggregates } from './shared';
 import { FileModel } from '../schema/structure/file';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
-import checkFileExtension from '../languages/checkFileExtension';
 import { ProjectModel } from '../schema/structure/project';
 import { SaveElasticElement } from '../utils/elastic';
 import { WriteMongoElement } from '../utils/mongo';
-import { deleteFilesUtil } from './deleteFiles.resolver';
+import { deleteFilesUtil, saveAggregates } from './deleteFiles.resolver';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
@@ -98,7 +97,7 @@ class IndexGithubResolver {
     }
     const githubClient = createClient(args.installationID);
     let repository = await RepositoryModel.findOne({
-      githubID: args.githubRepositoryID,
+      githubID: args.githubRepositoryID
     });
     let repositoryID: ObjectId;
     let projectID: ObjectId;
@@ -106,17 +105,17 @@ class IndexGithubResolver {
     if (!repository) {
       try {
         await getConfigurationData(githubClient, args);
-        repositoryID = new ObjectId(githubConfig?.repository);
-        repository = await RepositoryModel.findById(repositoryID);
-        if (!repository) {
-          throw new Error(`cannot find repository with id ${repositoryID.toHexString()}`);
-        }
-        projectID = new ObjectId(githubConfig?.project);
-        if (!(await ProjectModel.findById(projectID))) {
-          throw new Error(`cannot find project with id ${projectID.toHexString()}`);
-        }
       } catch (err) {
-        throw new Error('project & repo not found');
+        throw new Error('project & repo configuration data not found');
+      }
+      repositoryID = new ObjectId(githubConfig?.repository);
+      repository = await RepositoryModel.findById(repositoryID);
+      if (!repository) {
+        throw new Error(`cannot find repository with id ${repositoryID.toHexString()}`);
+      }
+      projectID = new ObjectId(githubConfig?.project);
+      if (!(await ProjectModel.findById(projectID))) {
+        throw new Error(`cannot find project with id ${projectID.toHexString()}`);
       }
     } else {
       repositoryID = repository._id;
@@ -134,11 +133,15 @@ class IndexGithubResolver {
     const fileElasticWrites: SaveElasticElement[] = [];
     const fileMongoWrites: WriteMongoElement[] = [];
     const fileWrites: FileWriteData[] = [];
+    const aggregates: Aggregates = {
+      linesOfCode: repository.linesOfCode,
+      numberOfFiles: repository.numberOfFiles
+    };
     // as a stopgap use the configuration file to check for this stuff
     for (const filePath of args.added) {
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       await indexFile({
-        action: UpdateType.add,
+        action: WriteType.add,
         file: undefined,
         project: projectID,
         repository: repositoryID,
@@ -150,13 +153,11 @@ class IndexGithubResolver {
         isBinary: content.isBinary,
         fileElasticWrites,
         fileMongoWrites,
-        fileWrites
+        fileWrites,
+        aggregates
       });
     }
     for (const filePath of args.modified) {
-      if (!checkFileExtension(filePath)) {
-        continue;
-      }
       const file = await FileModel.findOne({
         path: filePath,
         branch,
@@ -167,7 +168,7 @@ class IndexGithubResolver {
       }
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       await indexFile({
-        action: UpdateType.update,
+        action: WriteType.update,
         file,
         project: projectID,
         repository: repositoryID,
@@ -179,17 +180,23 @@ class IndexGithubResolver {
         isBinary: content.isBinary,
         fileElasticWrites,
         fileMongoWrites,
-        fileWrites
+        fileWrites,
+        aggregates
       });
     }
     const deletePaths: string[] = [];
     for (const filePath of args.removed) {
-      if (!checkFileExtension(filePath)) {
-        continue;
-      }
       deletePaths.push(filePath);
     }
-    await deleteFilesUtil(repositoryID, branch, deletePaths);
+    await deleteFilesUtil({
+      repository: repositoryID,
+      branch,
+      files: deletePaths,
+      aggregates,
+      bulkUpdateFileElasticData: fileElasticWrites,
+      bulkUpdateFileMongoData: fileMongoWrites,
+      bulkUpdateFileWrites: fileWrites
+    });
     await saveChanges({
       branch,
       repositoryID,
@@ -197,6 +204,7 @@ class IndexGithubResolver {
       fileMongoWrites,
       fileWrites
     });
+    await saveAggregates(aggregates, repository._id);
     return `successfully processed repo ${args.repositoryName}`;
   }
 }

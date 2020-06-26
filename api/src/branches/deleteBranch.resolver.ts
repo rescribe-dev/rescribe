@@ -6,9 +6,10 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
-import { RepositoryModel } from '../schema/structure/repository';
-import { repositoryIndexName, fileIndexName } from '../elastic/settings';
+import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
+import { repositoryIndexName } from '../elastic/settings';
 import { deleteFilesUtil } from '../files/deleteFiles.resolver';
+import { Aggregates } from '../files/shared';
 
 @ArgsType()
 class DeleteBranchArgs {
@@ -18,11 +19,16 @@ class DeleteBranchArgs {
   name: string;
 }
 
-interface FileHit {
-  _id: string;
-}
-
-export const deleteBranchUtil = async (args: DeleteBranchArgs, deleteFiles: boolean): Promise<void> => {
+export const deleteBranchUtil = async (args: DeleteBranchArgs, repository: RepositoryDB): Promise<void> => {
+  const aggregates: Aggregates = {
+    linesOfCode: repository.linesOfCode,
+    numberOfFiles: repository.numberOfFiles
+  };
+  await deleteFilesUtil({
+    repository: args.repository,
+    branch: args.name,
+    aggregates
+  });
   const currentTime = new Date().getTime();
   await elasticClient.update({
     index: repositoryIndexName,
@@ -32,80 +38,29 @@ export const deleteBranchUtil = async (args: DeleteBranchArgs, deleteFiles: bool
         source: `
           ctx._source.branches.remove(params.branch);
           ctx._source.updated = params.currentTime;
+          ctx._source.linesOfCode = params.linesOfCode;
+          ctx._source.numberOfFiles = params.numberOfFiles;
         `,
         lang: 'painless',
         params: {
           branch: args.name,
-          currentTime
+          currentTime,
+          ...aggregates
         }
       }
     }
-  });
-  await elasticClient.updateByQuery({
-    index: fileIndexName,
-    body: {
-      script: {
-        source: `
-          ctx._source.branches.remove(params.branch);
-          ctx._source.numBranches--;
-          ctx._source.updated = params.currentTime;
-        `,
-        lang: 'painless',
-        params: {
-          branch: args.name,
-          currentTime
-        }
-      },
-      query: {
-        bool: {
-          filter: [
-            {
-              terms: {
-                repository: args.repository.toHexString()
-              }
-            },
-            {
-              terms: {
-                branches: args.name
-              }
-            }
-          ]
-        }
-      }
-    }
-  });
-  const files = await elasticClient.search({
-    index: fileIndexName,
-    body: {
-      fields: [],
-      match: {
-        numBranches: 0
-      }
-    }
-  });
-  const deleteIDs = (files.body.hits.hits as FileHit[]).map(hit => new ObjectId(hit._id));
-  const deleteFilesBody = deleteIDs.flatMap(id => {
-    return [{
-      delete: {
-        _id: id,
-        _index: fileIndexName
-      }
-    }];
-  });
-  await elasticClient.bulk({ 
-    refresh: 'true', 
-    body: deleteFilesBody
   });
   await RepositoryModel.updateOne({
     _id: args.repository
   }, {
     $pull: {
       branches: args.name
+    },
+    $set: {
+      currentTime,
+      ...aggregates
     }
   });
-  if (deleteFiles) {
-    await deleteFilesUtil(args.repository, args.name);
-  }
 };
 
 @Resolver()
@@ -115,14 +70,14 @@ class DeleteBranchResolver {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
-    const repository = await RepositoryModel.findById(args.repository);
-    if (!repository) {
-      throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
-    }
     const userID = new ObjectId(ctx.auth.id);
     const user = await UserModel.findById(userID);
     if (!user) {
       throw new Error('cannot find user data');
+    }
+    const repository = await RepositoryModel.findById(args.repository);
+    if (!repository) {
+      throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
     }
     if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
@@ -130,7 +85,7 @@ class DeleteBranchResolver {
     if (!repository.branches.includes(args.name)) {
       throw new Error(`cannot find branch with name ${args.name} on repository`);
     }
-    await deleteBranchUtil(args, true);
+    await deleteBranchUtil(args, repository);
     return `deleted branch ${args.name}`;
   }
 }
