@@ -5,7 +5,7 @@ import { axiosClient } from '../../utils/axios';
 import { runLogout } from './thunks';
 import { RootState } from '..';
 
-export const getAuthToken = () => {
+export const getAuthToken = (): string => {
   return (store.getState() as RootState).authReducer.authToken;
 };
 

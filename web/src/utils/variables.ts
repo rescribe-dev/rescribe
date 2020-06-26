@@ -3,7 +3,6 @@ export const perpageOptions: number[] = [5, 10, 15];
 export const specialCharacterRegex = /[!@#$%^&*(),.?":{}|<>]/;
 export const passwordMinLen = 6;
 export const nameMinLen = 3;
-export const usernameMinLen = 5;
 export const validProjectName = /^[A-z0-9-_]+$/;
 export const validRepositoryName = /^[A-z0-9-_]+$/;
 export const blacklistedRepositoryNames = ['projects'];

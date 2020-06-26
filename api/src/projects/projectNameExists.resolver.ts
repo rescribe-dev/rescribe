@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { projectIndexName } from '../elastic/settings';
@@ -34,6 +32,7 @@ interface CountResponse {
  * 
  * @param {ObjectId} userID given user
  * @param {string} name optional name to match project to
+ * @returns {number} count projects
  */
 export const countProjectsUserAccess = async (userID: ObjectId, name?: string): Promise<number> => {
   const user = await UserModel.findById(userID);
@@ -76,6 +75,7 @@ export const countProjectsUserAccess = async (userID: ObjectId, name?: string): 
  * 
  * @param {ObjectId} owner user id
  * @param {string} name optional project name
+ * @returns {number} number
  */
 export const countProjects = async (owner: ObjectId, name?: string): Promise<number> => {
   return ProjectModel.count({

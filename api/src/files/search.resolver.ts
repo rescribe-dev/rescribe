@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, Args, Query, Ctx, Int, ArgsType, Field, Info } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import Class from '../schema/antlr/class';
-import Function from '../schema/antlr/function';
+import FunctionType from '../schema/antlr/function';
 import Variable from '../schema/antlr/variable';
 import Import from '../schema/antlr/import';
 import { FilesArgs, search } from './files.resolver';
@@ -52,44 +50,44 @@ interface DataRes {
   currentObject: NestedObject;
 };
 
-const getData = (currentData: object, type: ResultType): DataRes | null => {
+const getData = (currentData: Record<string, unknown>, type: ResultType): DataRes | null => {
   let currentObject: NestedObject | undefined = undefined;
   let currentClass: Class | undefined = undefined;
-  let currentFunction: Function | undefined = undefined;
+  let currentFunction: FunctionType | undefined = undefined;
   let currentVariable: Variable | undefined = undefined;
   let currentComment: Comment | undefined = undefined;
   let currentImport: Import | undefined = undefined;
   switch (type) {
     case ResultType.class:
-      currentClass = currentData as Class;
+      currentClass = currentData as unknown as Class;
       currentObject = currentClass;
       return {
         name: currentClass.name,
         currentObject
       };
     case ResultType.function:
-      currentFunction = currentData as Function;
+      currentFunction = currentData as unknown as FunctionType;
       currentObject = currentFunction;
       return {
         name: currentFunction.name,
         currentObject
       };
     case ResultType.variable:
-      currentVariable = currentData as Variable;
+      currentVariable = currentData as unknown as Variable;
       currentObject = currentVariable;
       return {
         name: currentVariable.name,
         currentObject
       };
     case ResultType.comment:
-      currentComment = currentData as Comment;
+      currentComment = currentData as unknown as Comment;
       currentObject = currentComment;
       return {
         name: 'comment',
         currentObject
       };
     case ResultType.import:
-      currentImport = currentData as Import;
+      currentImport = currentData as unknown as Import;
       currentObject = currentImport;
       return {
         name: 'import',
@@ -127,7 +125,7 @@ const getPreview = async (fileData: { [key: string]: string[] }, fileID: ObjectI
     }
     const startTime2 = new Date();
     try {
-      fileData[fileID.toHexString()] = await getText(file, file.branches[0], {
+      fileData[fileID.toHexString()] = await getText(file, {
         start: 1, // start at line 1
         end: file.fileLength
       });
@@ -201,18 +199,19 @@ class SearchResolver {
         ...hit._source as File,
         _id: new ObjectId(hit._id as string),
       };
+      currentFile.repository = new ObjectId(currentFile.repository);
 
       // get file data
 
       if (!(fileID.toHexString() in locationData)) {
-        if (!(currentFile.repository in repositoryData)) {
+        if (!(currentFile.repository.toHexString() in repositoryData)) {
           const repository = await RepositoryModel.findById(currentFile.repository);
           if (!repository) {
             throw new Error(`cannot find repository ${currentFile.repository}`);
           }
-          repositoryData[currentFile.repository] = repository;
+          repositoryData[currentFile.repository.toHexString()] = repository;
         }
-        const repository = repositoryData[currentFile.repository];
+        const repository = repositoryData[currentFile.repository.toHexString()];
         if (!(repository.owner.toHexString() in userData)) {
           const currentUser = await UserModel.findById(repository.owner);
           if (!currentUser) {
@@ -257,7 +256,7 @@ class SearchResolver {
                   break;
                 }
               }
-              resultCount = 1;
+              resultCount = 0;
               const preview: Preview = {
                 startPreviewLineNumber: -1,
                 endPreviewLineNumber: -1,
@@ -292,6 +291,10 @@ class SearchResolver {
                 continue;
             }
             currentFileResult.fileResult.results.push(currentResult);
+            resultCount++;
+            if (args.maxResultsPerFile === resultCount) {
+              break;
+            }
           }
         }
         if (paginateResults && resultIndex - 1 >= resultEndIndex) {
@@ -350,7 +353,7 @@ class SearchResolver {
           const currentField = hit.inner_hits[field];
           const currentInnerHit = currentField.hits.hits[currentIndex];
           // now found max field score. iterate over it:
-          const currentData: object = currentInnerHit._source;
+          const currentData: Record<string, unknown> = currentInnerHit._source;
           const currentResult: SearchResult = {
             type: ResultType.name,
             name: '',

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, Query, Ctx, ArgsType, Field, Int, Args } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
 import { projectIndexName } from '../elastic/settings';

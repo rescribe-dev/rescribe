@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, UpdateType, SaveElasticElement, saveToElastic, getFilePath } from './shared';
+import { indexFile, UpdateType, getFilePath, saveChanges, FileWriteData } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -12,6 +12,8 @@ import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { getUser } from '../users/shared';
 import { addBranchUtil } from '../branches/addBranch.resolver';
+import { SaveElasticElement } from '../utils/elastic';
+import { WriteMongoElement } from '../utils/mongo';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -58,7 +60,7 @@ class IndexFilesResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.edit))) {
+    if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project or repository');
     }
     if (!repository.branches.includes(args.branch)) {
@@ -70,7 +72,9 @@ class IndexFilesResolver {
         repository: repositoryID
       });
     }
-    const elasticElements: SaveElasticElement[] = [];
+    const fileElasticWrites: SaveElasticElement[] = [];
+    const fileMongoWrites: WriteMongoElement[] = [];
+    const fileWrites: FileWriteData[] = [];
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
@@ -86,13 +90,10 @@ class IndexFilesResolver {
         readStream.on('error', reject);
         readStream.on('end', async () => {
           const buffer = Buffer.concat(data);
-          if (await isBinaryFile(buffer)) {
-            reject(new Error(`file ${file.filename} is binary`));
-            return;
-          }
+          const isBinary = await isBinaryFile(buffer);
           const content = buffer.toString('utf8');
           try {
-            elasticElements.push(await indexFile({
+            await indexFile({
               action: UpdateType.add,
               file: undefined,
               project: repository.project,
@@ -100,12 +101,22 @@ class IndexFilesResolver {
               branch: args.branch,
               path: getFilePath(path),
               fileName: file.filename,
+              public: repository.public,
               content,
-              public: repository.public
-            }));
+              isBinary,
+              fileElasticWrites,
+              fileMongoWrites,
+              fileWrites
+            });
             numIndexed++;
             if (numIndexed === args.files.length) {
-              await saveToElastic(elasticElements);
+              await saveChanges({
+                branch: args.branch,
+                repositoryID,
+                fileElasticWrites,
+                fileMongoWrites,
+                fileWrites
+              });
               resolve('done indexing files');
             }
           } catch (err) {

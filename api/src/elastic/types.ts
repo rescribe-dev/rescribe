@@ -6,5 +6,5 @@ export interface ElasticProject {
 }
 
 export interface TermQuery {
-  term: object;
+  term: Record<string, unknown>;
 }

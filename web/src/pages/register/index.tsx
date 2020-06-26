@@ -35,7 +35,6 @@ import {
   nameMinLen,
   passwordMinLen,
   specialCharacterRegex,
-  usernameMinLen,
 } from '../../utils/variables';
 
 const loaderCSS = css`
@@ -53,7 +52,7 @@ declare global {
   }
 }
 
-const RegisterPage = (args: RegisterPageDataType) => {
+const RegisterPage = (args: RegisterPageDataType): JSX.Element => {
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
@@ -83,13 +82,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
             confirmedPassword: '',
           }}
           validationSchema={yup.object({
-            username: yup
-              .string()
-              .required('required')
-              .min(
-                usernameMinLen,
-                `username must be at least ${usernameMinLen} characters long`
-              ),
+            username: yup.string().required('required'),
             name: yup
               .string()
               .required('required')
@@ -160,6 +153,9 @@ const RegisterPage = (args: RegisterPageDataType) => {
                       }
                       setStatus({ success: true });
                       setSubmitting(false);
+                      toast('Success, you are all set', {
+                        type: 'success',
+                      });
                       navigate('/login');
                     } catch (err) {
                       toast(err.message, {
@@ -215,7 +211,7 @@ const RegisterPage = (args: RegisterPageDataType) => {
                 </FormFeedback>
               </FormGroup>
               <FormGroup>
-                <Label for="name">Name</Label>
+                <Label for="name">Full Name</Label>
                 <Input
                   id="name"
                   name="name"

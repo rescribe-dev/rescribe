@@ -6,11 +6,11 @@ import Access, { AccessLevel } from '../auth/access';
 @ObjectType({ description : 'base folder' })
 export class BaseFolder {
   @Field({description : 'name'})
-  @Property({required: true})
+  @Property({required: false})
   name: string;
 
   @Field({description : 'path'})
-  @Property({required: true})
+  @Property({required: false})
   path: string;
 
   @Field(_type => [String], { description: 'branches' })

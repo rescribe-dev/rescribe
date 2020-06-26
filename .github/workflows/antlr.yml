@@ -30,11 +30,8 @@ jobs:
       - name: Build antlr
         id: build-antlr
         run: |
-          cd antlr
-          sudo apt-get update -y
-          sudo apt-get install -y antlr4
-          ./predeploy.sh
-          cd -
+          cd scripts
+          ./install_antlr.sh
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:

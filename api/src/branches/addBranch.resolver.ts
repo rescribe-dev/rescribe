@@ -90,7 +90,7 @@ class AddBranchResolver {
     if (repository.branches.includes(args.name)) {
       throw new Error(`repository already has branch named ${args.name}`);
     }
-    if (!(await checkRepositoryAccess(user, repository.project, repository, AccessLevel.admin))) {
+    if (!(await checkRepositoryAccess(user, repository, AccessLevel.admin))) {
       throw new Error('user does not have admin permissions for project or repository');
     }
     await addBranchUtil(args);

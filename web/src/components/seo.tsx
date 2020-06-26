@@ -41,6 +41,13 @@ const SEO = (args: ArgProps): JSX.Element => {
       title={args.title}
       titleTemplate={`%s | ${site.siteMetadata.title}`}
       noscript={[<p key="noscript-message">Enable javascript to view page.</p>]}
+      script={[
+        {
+          src: `https://www.google.com/recaptcha/api.js?render=${process.env.GATSBY_RECAPTCHA_SITE_KEY}`,
+          defer: true,
+        },
+        {},
+      ]}
       meta={[
         {
           name: 'description',

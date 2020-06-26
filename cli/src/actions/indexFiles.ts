@@ -7,12 +7,14 @@ import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
 import glob from 'glob';
 import { isLoggedIn } from '../utils/authToken';
+import { basename, normalize } from 'path';
 
 const exists = promisify(fs.exists);
 
 interface Args {
   files: string;
   branch: string;
+  'include-path': boolean;
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
@@ -37,7 +39,15 @@ export default async (args: Arguments<Args>): Promise<void> => {
       if (await isBinaryFile(buffer, stats.size)) {
         throw new Error(`file "${path}" is binary`);
       }
-      paths.push(path);
+      let cleanPath = args['include-path'] ?
+        // normalize the path
+        normalize(path)
+        // get just the file name
+        : basename(path);
+      if (cleanPath[0] !== '/') {
+        cleanPath = `/${cleanPath}`;
+      }
+      paths.push(cleanPath);
       files.push(buffer);
     }
   }

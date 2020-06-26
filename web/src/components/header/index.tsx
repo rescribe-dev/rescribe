@@ -47,7 +47,7 @@ interface HeaderArgs {
 }
 
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
-const Header = (args: HeaderArgs) => {
+const Header = (args: HeaderArgs): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   isLoggedIn()
@@ -234,7 +234,7 @@ const Header = (args: HeaderArgs) => {
                           to="/register"
                           key="register"
                         >
-                          Register
+                          Sign Up
                         </NavLink>,
                         <NavLink
                           className="navbar-link"
@@ -249,7 +249,7 @@ const Header = (args: HeaderArgs) => {
                 {!loggedIn ? null : (
                   <UncontrolledDropdown inNavbar>
                     <DropdownToggle className="navbar-text" nav caret>
-                      Options
+                      Account
                     </DropdownToggle>
                     <DropdownMenu key="menu" right>
                       <DropdownItem

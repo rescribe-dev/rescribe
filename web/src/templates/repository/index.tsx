@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Table, Row, Col } from 'reactstrap';
-import { PageProps } from 'gatsby';
+import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
 
@@ -25,7 +25,7 @@ import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
 
 type RepositoryPageDataType = PageProps;
 
-const RepositoryPage = (args: RepositoryPageDataType) => {
+const RepositoryPage = (args: RepositoryPageDataType): JSX.Element => {
   const splitPath = args.location.pathname.split('/');
   let repositoryName: string | undefined = undefined;
   if (splitPath.length >= 3) {
@@ -60,6 +60,7 @@ const RepositoryPage = (args: RepositoryPageDataType) => {
             toast(err.message, {
               type: 'error',
             });
+            navigate('/404');
           },
         });
   return (

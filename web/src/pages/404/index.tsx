@@ -6,7 +6,7 @@ import './index.scss';
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';
 
-const NotFoundPage = (args: PageProps) => (
+const NotFoundPage = (args: PageProps): JSX.Element => (
   <Layout location={args.location}>
     <SEO title="404" />
     <h1>NOT FOUND</h1>

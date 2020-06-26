@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Loadable from '@loadable/component';
-import Helmet from 'react-helmet';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useStaticQuery, graphql } from 'gatsby';
+import Loadable from '@loadable/component';
 
 import Header from '../components/header';
 import Footer from '../components/footer';
@@ -12,16 +11,16 @@ import Footer from '../components/footer';
 import './index.scss';
 import { WindowLocation } from '@reach/router';
 
+const Fonts = Loadable(() => import('../components/fontloader'));
+
 toast.configure({
   autoClose: 4000,
   draggable: false,
   newestOnTop: true,
-  position: toast.POSITION.TOP_RIGHT,
+  position: 'top-right',
   pauseOnFocusLoss: false,
   pauseOnHover: true,
 });
-
-const Fonts = Loadable(() => import('../components/fontloader'));
 
 interface LayoutArgs {
   children: any;
@@ -36,7 +35,7 @@ interface IndexLayoutProps {
   };
 }
 
-const Layout = (args: LayoutArgs) => {
+const Layout = (args: LayoutArgs): JSX.Element => {
   const data: IndexLayoutProps = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {
@@ -49,11 +48,6 @@ const Layout = (args: LayoutArgs) => {
 
   return (
     <>
-      <Helmet>
-        <script
-          src={`https://www.google.com/recaptcha/api.js?render=${process.env.GATSBY_RECAPTCHA_SITE_KEY}`}
-        ></script>
-      </Helmet>
       <Fonts />
       <div className="main-wrapper">
         <Header

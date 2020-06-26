@@ -52,7 +52,7 @@ export const writeCache = async (): Promise<void> => {
 const readCache = async (): Promise<void> => {
   if (await exists(configData.cacheFilePath)) {
     const file = await readFile(configData.cacheFilePath, 'utf8');
-    const cache: CacheType | undefined = yaml.safeLoad(file);
+    const cache: CacheType | undefined = yaml.safeLoad(file) as CacheType | undefined;
     if (cache) {
       cacheData.repository = cache.repository;
       cacheData.repositoryOwner = cache.repositoryOwner;

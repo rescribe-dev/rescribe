@@ -1,0 +1,7 @@
+query userData {
+  user {
+    name
+    email
+    plan
+  }
+}

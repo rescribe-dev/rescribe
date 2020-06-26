@@ -78,6 +78,10 @@ export const initializeApolloClient = async (): Promise<void> => {
 
 initializeApolloClient();
 
-export const WrapApollo = (element: any) => {
+interface input {
+  element: JSX.Element;
+}
+
+export const WrapApollo = (element: input): JSX.Element => {
   return <ApolloProvider client={client}>{element}</ApolloProvider>;
 };
