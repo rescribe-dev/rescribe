@@ -19,7 +19,7 @@ import { isLoggedIn } from '../../state/auth/getters';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface AccountPageDataType extends PageProps {}
 
-const AccountPage = (args: AccountPageDataType) => {
+const AccountPage = (args: AccountPageDataType): JSX.Element => {
   const user = isSSR
     ? undefined
     : useSelector<RootState, UserFieldsFragment | undefined>(

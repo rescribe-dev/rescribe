@@ -13,7 +13,7 @@ export interface FileResultCardArgs {
   previewSearchResults: ResultFieldsFragment[];
 }
 
-export const FileResultComponent = (args: FileResultCardArgs) => {
+export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
   return (
     <Card className="search-result-card">
       <CardBody>

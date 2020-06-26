@@ -19,7 +19,7 @@ interface NavCardArgs {
   linkSlug: string;
 }
 
-export const navigationCard = (args: NavCardArgs) => {
+export const navigationCard = (args: NavCardArgs): JSX.Element => {
   const subtitle = args.subtitle ? args.subtitle : '';
   return (
     <div>

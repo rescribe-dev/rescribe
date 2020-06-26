@@ -65,7 +65,7 @@ const getConfigurationData = async (githubClient: graphql, args: GithubIndexArgs
   if (content.isBinary) {
     throw new Error('configuration file is binary');
   }
-  githubConfig = yaml.safeLoad(content.text);
+  githubConfig = yaml.safeLoad(content.text) as GithubConfiguration | undefined;
   if (!githubConfig) {
     throw new Error('valid configuration file not found');
   }

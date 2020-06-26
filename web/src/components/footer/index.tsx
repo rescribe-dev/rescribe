@@ -3,7 +3,7 @@ import { Container } from 'reactstrap';
 
 import './index.scss';
 
-const Footer = () => {
+const Footer = (): JSX.Element => {
   return (
     <footer>
       <Container>

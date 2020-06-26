@@ -19,6 +19,7 @@ module.exports = {
     'plugin:prettier/recommended'
   ],
   rules: {
+    '@typescript-eslint/camelcase': 'off',
     'prettier/prettier': ['error', { 'singleQuote': true }],
     'quotes': [2, 'single', { 'avoidEscape': true }],
     'semi': 'off',
@@ -31,7 +32,6 @@ module.exports = {
     ],
     '@typescript-eslint/no-explicit-any': 'off',
     'no-async-promise-executor': 'off',
-    '@typescript-eslint/class-name-casing': 'warn',
     '@typescript-eslint/semi': 'warn',
     'curly': 'warn',
     'eqeqeq': 'warn',

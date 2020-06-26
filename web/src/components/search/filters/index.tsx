@@ -40,7 +40,7 @@ interface SelectObject {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface FiltersPropsDataType {}
 
-const Filters = (_args: FiltersPropsDataType) => {
+const Filters = (_args: FiltersPropsDataType): JSX.Element => {
   const loggedIn = isSSR
     ? undefined
     : useSelector<RootState, boolean | undefined>(

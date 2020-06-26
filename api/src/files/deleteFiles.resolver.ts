@@ -31,7 +31,7 @@ export const deleteFilesUtil = async (repository: ObjectId, branch: string, file
   const bulkUpdateFileElasticData: SaveElasticElement[] = [];
   const bulkUpdateFileMongoData: WriteMongoElement[] = [];
   const currentTime = new Date().getTime();
-  let fileFilter: object = {
+  let fileFilter: Record<string, unknown> = {
     repository,
     branches: branch
   };

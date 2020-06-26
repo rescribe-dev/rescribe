@@ -36,7 +36,7 @@ declare global {
   }
 }
 
-const Newsletter = () => {
+const Newsletter = (): JSX.Element => {
   return (
     <Container
       fluid

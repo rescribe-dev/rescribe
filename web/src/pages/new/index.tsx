@@ -84,7 +84,7 @@ interface SelectProjectObject {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface NewPageDataType extends PageProps {}
 
-const NewPage = (args: NewPageDataType) => {
+const NewPage = (args: NewPageDataType): JSX.Element => {
   const projectType: SelectTypeObject = {
     value: 'project',
     label: 'Project',

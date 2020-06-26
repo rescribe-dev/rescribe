@@ -47,7 +47,7 @@ interface HeaderArgs {
 }
 
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
-const Header = (args: HeaderArgs) => {
+const Header = (args: HeaderArgs): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   isLoggedIn()

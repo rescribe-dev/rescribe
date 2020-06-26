@@ -23,7 +23,7 @@ import { navigate } from '@reach/router';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ProjectsPageDataType extends PageProps {}
 
-const ProjectsPage = (args: ProjectsPageDataType) => {
+const ProjectsPage = (args: ProjectsPageDataType): JSX.Element => {
   const projectsQueryRes:
     | QueryResult<ProjectsQuery, ProjectsQueryVariables>
     | undefined = isSSR

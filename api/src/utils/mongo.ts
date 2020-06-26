@@ -6,19 +6,19 @@ import { UpdateType } from '../files/shared';
 type models = typeof FolderModel | typeof FileModel;
 
 export interface WriteMongoElement {
-  data?: object;
+  data?: Record<string, unknown>;
   id?: ObjectId;
   action: UpdateType;
-  filter?: object;
+  filter?: Record<string, unknown>;
 }
 
 export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: models): Promise<void> => {
   if (elements.length === 0) {
     return;
   }
-  const operations: object[] = [];
+  const operations: Record<string, unknown>[] = [];
   for (const element of elements) {
-    let filter: object;
+    let filter: Record<string, unknown>;
     switch (element.action) {
       case UpdateType.add:
         if (!element.data) {

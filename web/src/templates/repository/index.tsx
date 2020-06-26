@@ -25,7 +25,7 @@ import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
 
 type RepositoryPageDataType = PageProps;
 
-const RepositoryPage = (args: RepositoryPageDataType) => {
+const RepositoryPage = (args: RepositoryPageDataType): JSX.Element => {
   const splitPath = args.location.pathname.split('/');
   let repositoryName: string | undefined = undefined;
   if (splitPath.length >= 3) {

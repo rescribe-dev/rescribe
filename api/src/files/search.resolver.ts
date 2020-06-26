@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 import { Resolver, Args, Query, Ctx, Int, ArgsType, Field, Info } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import Class from '../schema/antlr/class';
-import Function from '../schema/antlr/function';
+import FunctionType from '../schema/antlr/function';
 import Variable from '../schema/antlr/variable';
 import Import from '../schema/antlr/import';
 import { FilesArgs, search } from './files.resolver';
@@ -52,44 +50,44 @@ interface DataRes {
   currentObject: NestedObject;
 };
 
-const getData = (currentData: object, type: ResultType): DataRes | null => {
+const getData = (currentData: Record<string, unknown>, type: ResultType): DataRes | null => {
   let currentObject: NestedObject | undefined = undefined;
   let currentClass: Class | undefined = undefined;
-  let currentFunction: Function | undefined = undefined;
+  let currentFunction: FunctionType | undefined = undefined;
   let currentVariable: Variable | undefined = undefined;
   let currentComment: Comment | undefined = undefined;
   let currentImport: Import | undefined = undefined;
   switch (type) {
     case ResultType.class:
-      currentClass = currentData as Class;
+      currentClass = currentData as unknown as Class;
       currentObject = currentClass;
       return {
         name: currentClass.name,
         currentObject
       };
     case ResultType.function:
-      currentFunction = currentData as Function;
+      currentFunction = currentData as unknown as FunctionType;
       currentObject = currentFunction;
       return {
         name: currentFunction.name,
         currentObject
       };
     case ResultType.variable:
-      currentVariable = currentData as Variable;
+      currentVariable = currentData as unknown as Variable;
       currentObject = currentVariable;
       return {
         name: currentVariable.name,
         currentObject
       };
     case ResultType.comment:
-      currentComment = currentData as Comment;
+      currentComment = currentData as unknown as Comment;
       currentObject = currentComment;
       return {
         name: 'comment',
         currentObject
       };
     case ResultType.import:
-      currentImport = currentData as Import;
+      currentImport = currentData as unknown as Import;
       currentObject = currentImport;
       return {
         name: 'import',
@@ -355,7 +353,7 @@ class SearchResolver {
           const currentField = hit.inner_hits[field];
           const currentInnerHit = currentField.hits.hits[currentIndex];
           // now found max field score. iterate over it:
-          const currentData: object = currentInnerHit._source;
+          const currentData: Record<string, unknown> = currentInnerHit._source;
           const currentResult: SearchResult = {
             type: ResultType.name,
             name: '',

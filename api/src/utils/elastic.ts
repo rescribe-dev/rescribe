@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 import { UpdateType } from '../files/shared';
 import { ObjectId } from 'mongodb';
 import { getLogger } from 'log4js';

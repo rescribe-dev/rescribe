@@ -1,6 +1,6 @@
 import { ObjectType, Field } from 'type-graphql';
 import Class from './class';
-import Function from './function';
+import FunctionType from './function';
 import Variable from './variable';
 import Comment from './comment';
 import Import from './import';
@@ -20,8 +20,8 @@ export default class AntlrFile {
   path: string;
   @Field(_type => [Class], { description: 'classes' })
   classes: Class[];
-  @Field(_type => [Function], { description: 'functions' })
-  functions: Function[];
+  @Field(_type => [FunctionType], { description: 'functions' })
+  functions: FunctionType[];
   @Field(_type => [Variable], { description: 'variables' })
   variables: Variable[];
   @Field(_type => [Import], { description: 'imports' })

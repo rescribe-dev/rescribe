@@ -44,7 +44,7 @@ declare global {
   }
 }
 
-const LoginPage = (args: LoginPageDataType) => {
+const LoginPage = (args: LoginPageDataType): JSX.Element => {
   let token: string | undefined;
   let redirect: string | undefined;
   let cliLogin = false;
