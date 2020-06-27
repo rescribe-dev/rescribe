@@ -5,7 +5,7 @@ set -e
 
 cd ..
 
-node_paths=("." "api/" "github-app/" "web/" "vscode/" ".github/build-frontend/" "docs/")
+node_paths=("." "api/" "github-app/" "web/" "vscode/" ".github/build-frontend/" "docs/" "status/")
 
 for path in "${node_paths[@]}"
 do
