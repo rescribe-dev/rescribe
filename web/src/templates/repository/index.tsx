@@ -28,8 +28,10 @@ type RepositoryPageDataType = PageProps;
 const RepositoryPage = (args: RepositoryPageDataType): JSX.Element => {
   const splitPath = args.location.pathname.split('/');
   let repositoryName: string | undefined = undefined;
-  if (splitPath.length >= 3) {
+  if (splitPath.length === 3) {
     repositoryName = splitPath[2];
+  } else if (splitPath.length === 4) {
+    repositoryName = splitPath[3];
   }
   const [filesData, setFilesData] = useState<
     ApolloQueryResult<FilesQuery> | undefined

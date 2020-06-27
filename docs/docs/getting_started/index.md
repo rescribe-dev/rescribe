@@ -28,6 +28,14 @@ Optionally run the antlr service, used for processing files that are going to be
 
 View [this guide](https://github.com/com.rescribe.antlr/antlr4/blob/master/doc/getting-started.md) for getting antlr configured if there are any problems.
 
+### nlp
+
+Optionally run the nlp service, used for pre-processing search queries to pass into elasticsearch:
+
+1. `cd nlp`
+2. run `conda env create --file environment.txt` to create conda env from environment file, or `activate ./envs` if the `./envs` folder exists
+3. `python3 src/main.py` starts the service
+
 ### api
 
 First, if you're planning on developing, you should install mongodb locally. There are many examples of how to do it online, and you can even use a docker container. So google it. Then in the env file below, change the value of `DB_CONNECTION_URI` to `mongodb://localhost:27017/?readPreference=primary&ssl=false`.

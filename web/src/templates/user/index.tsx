@@ -25,6 +25,8 @@ const UserPage = (args: UserPageDataType): JSX.Element => {
   let username: string | undefined = undefined;
   if (splitPath.length === 2) {
     username = splitPath[1];
+  } else if (splitPath.length === 3) {
+    username = splitPath[2];
   }
   const currentUser = isSSR
     ? undefined

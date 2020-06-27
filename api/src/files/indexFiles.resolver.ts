@@ -100,7 +100,6 @@ class IndexFilesResolver {
           try {
             await indexFile({
               action: WriteType.add,
-              file: undefined,
               project: repository.project,
               repository: repositoryID,
               branch: args.branch,

@@ -30,8 +30,10 @@ interface ProjectPageDataType extends PageProps {}
 const ProjectPage = (args: ProjectPageDataType): JSX.Element => {
   const splitPath = args.location.pathname.split('/');
   let projectName: string | undefined = undefined;
-  if (splitPath.length >= 4) {
+  if (splitPath.length === 4) {
     projectName = splitPath[3];
+  } else if (splitPath.length === 5) {
+    projectName = splitPath[4];
   }
   const [repositoriesData, setRepositoriesData] = useState<
     ApolloQueryResult<RepositoriesQuery> | undefined
