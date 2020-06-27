@@ -1,7 +1,7 @@
 FROM openjdk:8-jdk-alpine
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY build/libs/*.jar app.jar
 

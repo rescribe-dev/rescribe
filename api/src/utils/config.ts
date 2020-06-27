@@ -9,12 +9,14 @@ interface ConfigType {
   DB_NAME: string;
   WEBSITE_URL: string;
   CONNECT_ANTLR: boolean;
+  CONNECT_NLP: boolean;
   DEBUG: boolean;
   PRODUCTION: boolean;
   JWT_SECRET: string;
   DB_CONNECTION_URI: string;
   ELASTICSEARCH_URI: string;
   ANTLR_URI: string;
+  NLP_URI: string;
   GITHUB_APP_ID: number;
   GITHUB_PRIVATE_KEY: string;
   REDIS_HOST: string;
@@ -38,12 +40,14 @@ export const configData: ConfigType = {
   DB_NAME: 'rescribe',
   WEBSITE_URL: 'https://rescribe.dev',
   CONNECT_ANTLR: true,
+  CONNECT_NLP: true,
   DEBUG: false,
   PRODUCTION: true,
   JWT_SECRET: '',
   DB_CONNECTION_URI: '',
   ELASTICSEARCH_URI: '',
   ANTLR_URI: '',
+  NLP_URI: '',
   GITHUB_APP_ID: 0,
   GITHUB_PRIVATE_KEY: '',
   REDIS_HOST: '',

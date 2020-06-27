@@ -29,6 +29,7 @@ import { AppThunkDispatch } from '../../state/thunk';
 import { AuthActionTypes } from '../../state/auth/types';
 import { thunkLogout } from '../../state/auth/thunks';
 import { Formik, FormikValues } from 'formik';
+import { FormattedMessage } from 'react-intl';
 import { Dispatch } from 'redux';
 import { RootState } from '../../state';
 import { setQuery } from '../../state/search/actions';
@@ -40,6 +41,7 @@ import { toast } from 'react-toastify';
 import './index.scss';
 import { queryMinLength } from '../../utils/variables';
 import sleep from '../../utils/sleep';
+import { capitalizeFirstLetter } from '../../utils/misc';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -208,13 +210,19 @@ const Header = (args: HeaderArgs): JSX.Element => {
               <Collapse isOpen={isOpen} navbar>
                 <Nav navbar className="mr-auto">
                   <NavLink className="navbar-link" tag={Link} to="/">
-                    How It Works
+                    <FormattedMessage id="how it works">
+                      {(message: string) => capitalizeFirstLetter(message)}
+                    </FormattedMessage>
                   </NavLink>
                   <NavLink className="navbar-link" tag={Link} to="/">
-                    Pricing
+                    <FormattedMessage id="pricing">
+                      {(message: string) => capitalizeFirstLetter(message)}
+                    </FormattedMessage>
                   </NavLink>
                   <NavLink className="navbar-link" tag={Link} to="/search">
-                    Explore
+                    <FormattedMessage id="explore">
+                      {(message: string) => capitalizeFirstLetter(message)}
+                    </FormattedMessage>
                   </NavLink>
                   {loggedIn
                     ? [
@@ -224,7 +232,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           to={username ? `/${username}/projects` : '#'}
                           key="projecs"
                         >
-                          Projects
+                          <FormattedMessage id="projects">
+                            {(message: string) =>
+                              capitalizeFirstLetter(message)
+                            }
+                          </FormattedMessage>
                         </NavLink>,
                       ]
                     : [
@@ -234,7 +246,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           to="/register"
                           key="register"
                         >
-                          Sign Up
+                          <FormattedMessage id="sign up">
+                            {(message: string) =>
+                              capitalizeFirstLetter(message)
+                            }
+                          </FormattedMessage>
                         </NavLink>,
                         <NavLink
                           className="navbar-link"
@@ -242,7 +258,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           to="/login"
                           key="login"
                         >
-                          Login
+                          <FormattedMessage id="login">
+                            {(message: string) =>
+                              capitalizeFirstLetter(message)
+                            }
+                          </FormattedMessage>
                         </NavLink>,
                       ]}
                 </Nav>
