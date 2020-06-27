@@ -16,11 +16,16 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          auto-update-conda: true
+          python-version: 3.8
       - name: Install dependencies
         id: install
         run: |
           cd scripts
           ./install.sh
+          cd -
       - name: run precommit
         run: |
           ./precommit.sh -f
