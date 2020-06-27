@@ -25,3 +25,4 @@ cd scripts
 # additional install scripts
 ./install_cli.sh
 ./install_antlr.sh
+./install_nlp.sh

@@ -33,7 +33,7 @@ View [this guide](https://github.com/com.rescribe.antlr/antlr4/blob/master/doc/g
 Optionally run the nlp service, used for pre-processing search queries to pass into elasticsearch:
 
 1. `cd nlp`
-2. run `conda env create --file environment.txt` to create conda env from environment file, or `activate ./envs` if the `./envs` folder exists
+2. run `conda env create --file environment.yml` to create conda env from environment file, or `conda activate rescribe-nlp` if the environment already exists
 3. `python3 src/main.py` starts the service
 
 ### api
