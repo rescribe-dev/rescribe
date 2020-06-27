@@ -23,6 +23,11 @@ done
 cd scripts
 
 # additional install scripts
+
+# local packages
 ./install_cli.sh
 ./install_antlr.sh
 ./install_nlp.sh
+
+# additional installs
+./install_git_secrets.sh
