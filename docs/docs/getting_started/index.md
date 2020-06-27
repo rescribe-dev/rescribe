@@ -13,7 +13,7 @@ First clone the repository:
 
 Then make sure your system time is correct. Otherwise the pings will not work. Make sure node.js and java jdk 8 is installed - you can use [this link](https://github.com/nodesource/distributions) for node and [this](https://openjdk.java.net/install/) for java (`sudo apt-get install -y openjdk-8-jdk`). Next make sure yarn is installed [from here](https://classic.yarnpkg.com/en/docs/install).
 
-Then optionally install git pre-commit hooks (required if developing). These hooks are used for linting files, ensuring code consistency and style guides: `npm install`
+Then optionally install git pre-commit hooks (required if developing). These hooks are used for linting files, ensuring code consistency and style guides. Run `npm install` in the `rescribe/` directory. Install the `git-secrets` secret checker using the script found in `scripts/install_git_secrets.sh`. For windows consult the [README here](https://github.com/awslabs/git-secrets#installing-git-secrets).
 
 ### antlr
 
