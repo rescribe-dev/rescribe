@@ -13,6 +13,28 @@ jobs:
     steps:
       # checks out a copy of the repo
       - uses: actions/checkout@master
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          auto-update-conda: true
+          python-version: 3.8
+      # python pip - cache
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: install dependencies
+        run: |
+          cd scripts
+          ./install_nlp
+          cd -
+      - name: Run precommit
+        id: precommit
+        run: |
+          cd nlp
+          ./precommit.sh
+          cd -
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

@@ -22,6 +22,7 @@ jobs:
 
       # cache
       # node
+      # yarn
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -32,6 +33,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+      # npm
       - uses: actions/cache@v2
         with:
           path: ~/.npm
@@ -40,6 +42,7 @@ jobs:
             ${{ runner.os }}-node-
 
       # java
+      # gradle
       - uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
@@ -48,6 +51,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       # python
+      # pip
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
