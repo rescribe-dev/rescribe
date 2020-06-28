@@ -48,4 +48,4 @@ def start_server(port: int):
     ])
     logger.info(f'Nlp started: http://localhost:{port} 🚀')
     web_logger = cast(Logger, logger)
-    web.run_app(app, host='localhost', port=port, access_log=web_logger)
+    web.run_app(app, port=port, access_log=web_logger)
