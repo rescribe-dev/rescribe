@@ -7,6 +7,7 @@ import express from 'express';
 import depthLimit from 'graphql-depth-limit';
 import HttpStatus from 'http-status-codes';
 import { getLogger } from 'log4js';
+import statusMonitor from 'express-status-monitor';
 import cookieParser from 'cookie-parser';
 import { initializeMappings } from './elastic/configure';
 import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext, getToken } from './utils/context';
@@ -62,6 +63,16 @@ export const initializeServer = async (): Promise<void> => {
     introspection: true
   });
   app.use(server.graphqlPath, compression());
+  // api status monitor page
+  app.use(statusMonitor({
+    path: '/status',
+    healthChecks: [{
+      host: 'localhost',
+      path: '/',
+      port: configData.PORT,
+      protocol: 'http'
+    }]
+  }));
   server.applyMiddleware({
     app,
     path: server.graphqlPath,

@@ -8,6 +8,7 @@ import { configData, initializeConfig } from './utils/config';
 import { initializeAWS } from './utils/aws';
 import { initializeRedis } from './utils/redis';
 import { initializeSendgrid } from './utils/sendgrid';
+import { initializeNLP } from './nlp/nlpBridge';
 
 const runAPI = async (): Promise<void> => {
   await initializeConfig();
@@ -16,6 +17,10 @@ const runAPI = async (): Promise<void> => {
     if (configData.CONNECT_ANTLR) {
       await initializeAntlr();
       logger.info('connected to antlr');
+    }
+    if (configData.CONNECT_NLP) {
+      await initializeNLP();
+      logger.info('connected to nlp');
     }
     initializeGithub();
     logger.info('github client initialized');

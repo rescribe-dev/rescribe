@@ -1,7 +1,7 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { FileModel, FileDB } from '../schema/structure/file';
 import { elasticClient } from '../elastic/init';
-import { fileIndexName } from '../elastic/settings';
+import { fileIndexName, folderIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
@@ -10,8 +10,7 @@ import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { countFiles } from '../folders/countFiles.resolver';
-import { deleteFolderUtil } from '../folders/deleteFolder.resolver';
-import { FolderModel } from '../schema/structure/folder';
+import { FolderModel, FolderDB } from '../schema/structure/folder';
 
 @ArgsType()
 class DeleteFileArgs {
@@ -20,6 +19,49 @@ class DeleteFileArgs {
   @Field(_type => String, { description: 'branch name' })
   branch: string;
 }
+
+export const deleteFolderUtil = async (folder: FolderDB, branch: string): Promise<void> => {
+  // deletes single folder (no children)
+  if (!folder.branches.includes(branch)) {
+    throw new Error(`folder is not in branch ${branch}`);
+  }
+  if (folder.branches.length === 1) {
+    await elasticClient.delete({
+      index: folderIndexName,
+      id: folder._id.toHexString()
+    });
+    await FolderModel.deleteOne({
+      _id: folder._id
+    });
+  } else {
+    const currentTime = new Date().getTime();
+    await elasticClient.update({
+      index: folderIndexName,
+      id: folder._id.toHexString(),
+      body: {
+        script: {
+          source: `
+            ctx._source.branches.remove(params.branch);
+            ctx._source.numBranches--;
+            ctx._source.updated = params.currentTime;
+          `,
+          lang: 'painless',
+          params: {
+            branch,
+            currentTime
+          }
+        }
+      }
+    });
+    await FolderModel.updateOne({
+      _id: folder._id
+    }, {
+      $pull: {
+        branches: branch
+      }
+    });
+  }
+};
 
 export const deleteFileUtil = async (file: FileDB, branch: string): Promise<void> => {
   if (!file.branches.includes(branch)) {

@@ -1,14 +1,14 @@
 import { FileModel } from '../schema/structure/file';
 import { FolderModel } from '../schema/structure/folder';
 import { ObjectId } from 'mongodb';
-import { UpdateType } from '../files/shared';
+import { WriteType } from '../files/shared';
 
 type models = typeof FolderModel | typeof FileModel;
 
 export interface WriteMongoElement {
   data?: Record<string, unknown>;
   id?: ObjectId;
-  action: UpdateType;
+  action: WriteType;
   filter?: Record<string, unknown>;
 }
 
@@ -20,7 +20,7 @@ export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: mode
   for (const element of elements) {
     let filter: Record<string, unknown>;
     switch (element.action) {
-      case UpdateType.add:
+      case WriteType.add:
         if (!element.data) {
           throw new Error('no data provided for element add');
         }
@@ -30,7 +30,7 @@ export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: mode
           }
         });
         break;
-      case UpdateType.update:
+      case WriteType.update:
         if (!element.data) {
           throw new Error('no data provided for element update');
         }
@@ -50,7 +50,7 @@ export const bulkSaveToMongo = async (elements: WriteMongoElement[], model: mode
           }
         });
         break;
-      case UpdateType.delete:
+      case WriteType.delete:
         if (element.filter) {
           filter = element.filter;
         } else if (!element.id) {

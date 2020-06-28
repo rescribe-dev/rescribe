@@ -10,6 +10,10 @@ export default {
     title: 'Rescribe',
     description: 'search engine for code',
     author: 'rescribe',
+    languages: {
+      default: 'en',
+      options: ['en'],
+    },
   },
   plugins: [
     'gatsby-plugin-react-helmet',
@@ -109,6 +113,21 @@ export default {
         // Defers execution of google analytics script after page load
         defer: true,
         // Any additional optional fields
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-webpack-bundle-analyser-v2',
+      options: {
+        analyzerPort: 8001,
+        devMode: false,
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-i18n',
+      options: {
+        langKeyDefault: 'en',
+        useLangKeyLayout: false,
+        prefixDefault: true, // create pages for default language
       },
     },
     // see https://github.com/jlengstorf/gatsby-hasura-realtime-app

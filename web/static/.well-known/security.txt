@@ -1,0 +1,8 @@
+Contact: rescribe-dev@gmail.com
+Preferred-Languages: en
+Canonical: https://rescribe.dev/.well-known/security.txt
+Policy: https://rescribe.dev/security
+Hiring: https://rescribe.dev/jobs
+Encryption: https://rescribe.dev/.well-known/pgp-key.txt
+Acknowledgements: https://rescribe.dev/acknowledgements
+# TODO - add above pages, keybase account and/or pgp key

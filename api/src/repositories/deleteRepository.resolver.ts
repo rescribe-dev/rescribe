@@ -2,18 +2,17 @@ import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
 import { repositoryIndexName, fileIndexName, folderIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
-import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
+import { RepositoryModel } from '../schema/structure/repository';
 import { getLogger } from 'log4js';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { checkRepositoryAccess } from './auth';
 import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
-import { deleteBranchUtil } from '../branches/deleteBranch.resolver';
 import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
 import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
 import { FileModel } from '../schema/structure/file';
-import { UpdateType } from '../files/shared';
+import { WriteType } from '../files/shared';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { FolderModel } from '../schema/structure/folder';
 
@@ -35,12 +34,12 @@ export const deleteAllFilesUtil = async (repository: ObjectId): Promise<void> =>
   });
   for (const fileData of allFileData) {
     bulkUpdateFileElasticData.push({
-      action: UpdateType.delete,
+      action: WriteType.delete,
       id: fileData._id,
       index: fileIndexName
     });
     bulkUpdateFileMongoData.push({
-      action: UpdateType.delete,
+      action: WriteType.delete,
       filter: {
         _id: fileData._id,
         repository
@@ -61,12 +60,12 @@ export const deleteAllFilesUtil = async (repository: ObjectId): Promise<void> =>
   });
   for (const folderData of allFolderData) {
     bulkUpdateFolderElasticData.push({
-      action: UpdateType.delete,
+      action: WriteType.delete,
       id: folderData._id,
       index: folderIndexName
     });
     bulkUpdateFolderMongoData.push({
-      action: UpdateType.delete,
+      action: WriteType.delete,
       filter: {
         _id: folderData._id,
         repository
@@ -77,7 +76,7 @@ export const deleteAllFilesUtil = async (repository: ObjectId): Promise<void> =>
   await bulkSaveToElastic(bulkUpdateFolderElasticData);
 };
 
-export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: ObjectId, repository: RepositoryDB): Promise<void> => {
+export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: ObjectId): Promise<void> => {
   const deleteElasticResult = await elasticClient.delete({
     index: repositoryIndexName,
     id: args.id.toHexString()
@@ -96,12 +95,6 @@ export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: O
     }
   });
   await deleteAllFilesUtil(args.id);
-  for (const branch of repository.branches) {
-    await deleteBranchUtil({
-      name: branch,
-      repository: repository._id
-    }, false);
-  }
 };
 
 @Resolver()
@@ -123,7 +116,7 @@ class DeleteRepositoryResolver {
     if (!(await checkRepositoryAccess(user, repository, AccessLevel.admin))) {
       throw new Error('user does not have admin permissions for project or repository');
     }
-    await deleteRepositoryUtil(args, userID, repository);
+    await deleteRepositoryUtil(args, userID);
     return `deleted repository with id: ${args.id.toHexString()}`;
   }
 }

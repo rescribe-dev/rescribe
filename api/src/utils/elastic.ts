@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import { UpdateType } from '../files/shared';
+import { WriteType } from '../files/shared';
 import { ObjectId } from 'mongodb';
 import { getLogger } from 'log4js';
 import { elasticClient } from '../elastic/init';
@@ -10,14 +10,14 @@ const logger = getLogger();
 export interface SaveElasticElement {
   id: ObjectId;
   data?: object;
-  action: UpdateType;
+  action: WriteType;
   index: string;
 }
 
 export const bulkSaveToElastic = async (elements: SaveElasticElement[]): Promise<void> => {
   let writeBody: object[] = [];
   for (const element of elements) {
-    if (element.action === UpdateType.add) {
+    if (element.action === WriteType.add) {
       if (!element.data) {
         throw new Error('no data provided for elastic add request');
       }
@@ -27,7 +27,7 @@ export const bulkSaveToElastic = async (elements: SaveElasticElement[]): Promise
           _id: element.id.toHexString()
         }
       }, element.data]);
-    } else if (element.action === UpdateType.update) {
+    } else if (element.action === WriteType.update) {
       if (!element.data) {
         throw new Error('no data provided for elastic update request');
       }
@@ -37,7 +37,7 @@ export const bulkSaveToElastic = async (elements: SaveElasticElement[]): Promise
           _id: element.id.toHexString()
         }
       }, element.data]);
-    } else if (element.action === UpdateType.delete) {
+    } else if (element.action === WriteType.delete) {
       writeBody.push([{
         delete: {
           _index: element.index,

@@ -1,7 +1,7 @@
 FROM node:13
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Install app dependencies
 # where available (npm@5+)
@@ -9,7 +9,7 @@ COPY package.json yarn.lock ./
 
 RUN yarn install
 # If you are building your code for production
-# RUN npm ci --only=production
+# --only=production
 
 # Copy app
 COPY lib .

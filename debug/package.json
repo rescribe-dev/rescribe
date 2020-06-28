@@ -1,5 +1,5 @@
 {
-  "name": "antlrdebugsuite",
+  "name": "antlr-debug-suite",
   "version": "1.0.0",
   "description": "This is used to make repeated and quick get and post requests to our antlr server for debugging purposes",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ReScribe",
-  "license": "ISC",
+  "license": "CC-BY-NC-SA-4.0",
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.6",
