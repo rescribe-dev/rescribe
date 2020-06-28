@@ -24,11 +24,10 @@ const link = new HttpLink({
 
 const httpMiddleware = setContext(async (_operation) => {
   try {
-    const loggedIn = await isLoggedIn();
     const authToken = getAuthToken();
     return {
       headers: {
-        authorization: loggedIn ? `Bearer ${authToken}` : null,
+        authorization: authToken.length > 0 ? `Bearer ${authToken}` : null,
       },
     };
   } catch (_err) {

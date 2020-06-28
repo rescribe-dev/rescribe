@@ -13,7 +13,7 @@ import { AccessLevel } from '../schema/auth/access';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { Min, Max, MinLength, ArrayMaxSize, ArrayUnique } from 'class-validator';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
-import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
+import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';

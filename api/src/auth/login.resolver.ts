@@ -46,13 +46,16 @@ class LoginResolvers {
       throw new Error(`cannot find user with email ${args.email}`);
     }
     const user = userRes as User;
+    if (!user.emailVerified) {
+      throw new Error('email is not verified');
+    }
     if (!await bcrypt.compare(args.password, user.password)) {
       throw new Error('password is invalid');
     }
     const token = await generateJWTAccess(user);
-    if (verifyGuest(ctx) && ctx.auth) {
+    if (verifyGuest(ctx) && ctx.auth !== undefined) {
       const notification: AuthNotificationPayload = {
-        id: ctx.auth.id as string,
+        id: ctx.auth.id,
         token
       };
       await pubSub.publish(authNotificationsTrigger, notification);

@@ -5,8 +5,12 @@ export const verifyGuest = (ctx: GraphQLContext): boolean => {
   return ctx.auth !== undefined;
 };
 
-export const verifyLoggedIn = (ctx: GraphQLContext): boolean => {
-  return verifyGuest(ctx) && ctx.auth?.type !== UserType.visitor; // TODO && ctx.auth.emailVerified;
+export const verifyLoggedIn = (ctx: GraphQLContext, checkEmailVerified?: boolean): boolean => {
+  if (checkEmailVerified === undefined) {
+    checkEmailVerified = true;
+  }
+  return verifyGuest(ctx) && ctx.auth !== undefined && ctx.auth.type !== UserType.visitor &&
+    (checkEmailVerified ? ctx.auth.emailVerified : true);
 };
 
 export const verifyAdmin = (ctx: GraphQLContext): boolean => {

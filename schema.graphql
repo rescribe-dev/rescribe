@@ -502,6 +502,19 @@ type Mutation {
     # email
     email: String!
   ): String!
+  sendTestEmail(
+    # email
+    email: String!
+
+    # name
+    name: String!
+
+    # content
+    content: String
+
+    # subject
+    subject: String
+  ): String!
   indexFiles(
     # paths
     paths: [String!]!
@@ -616,6 +629,10 @@ type Mutation {
     # username
     username: String!
   ): Boolean!
+  verifyEmail(
+    # name
+    token: String!
+  ): String!
 }
 
 # class

@@ -3,7 +3,7 @@
     <mj-section>
       <mj-column>
         <mj-text>
-          Hello World! Sent to {{name}}.
+          Hello {{name}}. Please verify your account by clicking <a href="{{verify_url}}">here</a>.
         </mj-text>
       </mj-column>
     </mj-section>

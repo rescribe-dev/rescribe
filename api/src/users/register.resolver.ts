@@ -6,6 +6,10 @@ import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID } from 'mongodb';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';
 import { verifyRecaptcha } from '../utils/recaptcha';
+import { emailTemplateFiles } from '../email/compileEmailTemplates';
+import { sendEmailUtil } from '../email/sendEmail.resolver';
+import { configData } from '../utils/config';
+import { generateJWTVerifyEmail } from '../utils/jwt';
 
 @ArgsType()
 class RegisterArgs {
@@ -66,6 +70,22 @@ class RegisterResolver {
       projects: [],
      repositories: []
     };
+    const emailTemplateData = emailTemplateFiles.verify;
+    const template = emailTemplateData.template;
+    if (!template) {
+      throw new Error('cannot find register email template');
+    }
+    const verify_token = await generateJWTVerifyEmail(newUser._id);
+    const emailData = template({
+      name: newUser.name,
+      verify_url: `${configData.WEBSITE_URL}/login?token=${verify_token}&verify_email=true`
+    });
+    await sendEmailUtil({
+      content: emailData,
+      email: newUser.email,
+      name: newUser.name,
+      subject: emailTemplateData.subject
+    });
     const userCreateRes = await new UserModel(newUser).save();
     return (`created user ${userCreateRes.id}`);
   }
