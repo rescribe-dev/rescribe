@@ -8,6 +8,7 @@ COPY environment.yml .
 RUN conda env create -f environment.yml
 
 # Activate the environment
+RUN source $(conda info --base)/etc/profile.d/conda.sh
 RUN conda activate rescribe-nlp
 
 # Copy app

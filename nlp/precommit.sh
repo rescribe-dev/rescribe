@@ -3,9 +3,7 @@
 # abort on errors
 set -e
 
-conda_base=$(conda info --base)
-
-source $conda_base/etc/profile.d/conda.sh
+source $(conda info --base)/etc/profile.d/conda.sh
 
 conda activate rescribe-nlp
 
