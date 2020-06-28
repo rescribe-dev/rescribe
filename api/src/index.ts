@@ -1,13 +1,13 @@
 import { initializeDB } from './db/connect';
 import { initializeElastic } from './elastic/init';
 import { initializeServer } from './server';
-import { initializeAntlr } from './utils/antlrBridge';
+import { initializeAntlr } from './antlr/antlrBridge';
 import { initializeLogger } from './utils/logger';
 import { initializeGithub } from './utils/github';
 import { configData, initializeConfig } from './utils/config';
 import { initializeAWS } from './utils/aws';
 import { initializeRedis } from './utils/redis';
-import { initializeSendgrid } from './utils/sendgrid';
+import { initializeSendgrid } from './email/sendgrid';
 import { initializeNLP } from './nlp/nlpBridge';
 
 const runAPI = async (): Promise<void> => {

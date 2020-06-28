@@ -11,8 +11,8 @@ import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
 import { ProjectModel } from '../schema/structure/project';
-import { SaveElasticElement } from '../utils/elastic';
-import { WriteMongoElement } from '../utils/mongo';
+import { SaveElasticElement } from '../elastic/elastic';
+import { WriteMongoElement } from '../db/mongo';
 import { deleteFilesUtil, saveAggregates } from './deleteFiles.resolver';
 
 export const githubConfigFilePath = 'rescribe.yml';

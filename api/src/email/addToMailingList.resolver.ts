@@ -3,7 +3,7 @@ import { IsEmail, MinLength } from 'class-validator';
 import { nameMinLen } from '../utils/variables';
 import sendgridClient from '@sendgrid/client';
 import { configData } from '../utils/config';
-import { sendgridAPIVersion } from '../utils/sendgrid';
+import { sendgridAPIVersion } from './sendgrid';
 import { verifyRecaptcha } from '../utils/recaptcha';
 
 @ArgsType()

@@ -1,12 +1,12 @@
-import { processFile } from '../utils/antlrBridge';
+import { processFile } from '../antlr/antlrBridge';
 import { fileIndexName, folderIndexName } from '../elastic/settings';
 import File, { FileDB, BaseFileElastic, FileModel, } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { AccessLevel } from '../schema/auth/access';
-import { SaveElasticElement, bulkSaveToElastic } from '../utils/elastic';
+import { SaveElasticElement, bulkSaveToElastic } from '../elastic/elastic';
 import AntlrFile from '../schema/antlr/file';
-import { WriteMongoElement, bulkSaveToMongo } from '../utils/mongo';
+import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';
 import checkFileExtension from '../languages/checkFileExtension';
 import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/folder';
 import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../folders/shared';
