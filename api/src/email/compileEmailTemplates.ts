@@ -9,7 +9,15 @@ interface TemplateFiles {
     }>;
     subject: string;
   }
-  verify: {
+  verifyEmail: {
+    file: string;
+    template?: HandlebarsTemplateDelegate<{
+      verify_url: string;
+      name: string;
+    }>;
+    subject: string;
+  },
+  verifyEmailNewsletter: {
     file: string;
     template?: HandlebarsTemplateDelegate<{
       verify_url: string;
@@ -20,15 +28,20 @@ interface TemplateFiles {
 }
 
 export const emailTemplateFiles: TemplateFiles = {
-  verify: {
-    file: 'verify.html',
-    template: undefined,
-    subject: 'Verify Email'
-  },
   hello: {
     file: 'hello.html',
     template: undefined,
     subject: 'Hello World!'
+  },
+  verifyEmail: {
+    file: 'verify_email.html',
+    template: undefined,
+    subject: 'Verify Email'
+  },
+  verifyEmailNewsletter: {
+    file: 'verify_email_newsletter.html',
+    template: undefined,
+    subject: 'Verify Email for Newsletter'
   }
 };
 

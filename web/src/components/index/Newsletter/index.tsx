@@ -110,9 +110,12 @@ const Newsletter = (): JSX.Element => {
                       if (addToMailingListRes.errors) {
                         throw new Error(addToMailingListRes.errors.join(', '));
                       }
+                      const message = addToMailingListRes.data
+                        ? addToMailingListRes.data.addToMailingList
+                        : `added ${formData.email} to mailing list`;
                       setStatus({ success: true });
                       setSubmitting(false);
-                      toast(`added ${formData.email} to mailing list`, {
+                      toast(message, {
                         type: 'success',
                       });
                     } catch (err) {
