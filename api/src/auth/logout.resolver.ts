@@ -32,7 +32,7 @@ export class UserResolver {
         throw new Error('user not admin');
       }
     } else {
-      if (!verifyLoggedIn(ctx)) {
+      if (!verifyLoggedIn(ctx, false)) {
         throw new Error('user not logged in');
       }
     }

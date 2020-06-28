@@ -492,6 +492,19 @@ type Mutation {
     # branch name
     name: String!
   ): String!
+  sendTestEmail(
+    # email
+    email: String!
+
+    # name
+    name: String!
+
+    # content
+    content: String
+
+    # subject
+    subject: String
+  ): String!
   addToMailingList(
     # recaptcha token
     recaptchaToken: String!
@@ -616,6 +629,10 @@ type Mutation {
     # username
     username: String!
   ): Boolean!
+  verifyEmail(
+    # name
+    token: String!
+  ): String!
 }
 
 # class

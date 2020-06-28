@@ -153,7 +153,7 @@ const RegisterPage = (args: RegisterPageDataType): JSX.Element => {
                       }
                       setStatus({ success: true });
                       setSubmitting(false);
-                      toast('Success, you are all set', {
+                      toast('Check email for verification', {
                         type: 'success',
                       });
                       navigate('/login');

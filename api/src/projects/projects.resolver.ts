@@ -9,7 +9,7 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { TermQuery } from '../elastic/types';
 import { Min, Max } from 'class-validator';
-import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
+import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
 
 const maxPerPage = 20;
 
