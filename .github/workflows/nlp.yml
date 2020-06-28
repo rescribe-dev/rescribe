@@ -27,7 +27,7 @@ jobs:
       - name: install dependencies
         run: |
           cd scripts
-          ./install_nlp
+          ./install_nlp.sh
           cd -
       - name: Run precommit
         id: precommit
