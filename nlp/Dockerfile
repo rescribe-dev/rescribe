@@ -7,12 +7,10 @@ WORKDIR /app
 COPY environment.yml .
 RUN conda env create -f environment.yml
 
-# Activate the environment
-RUN source $(conda info --base)/etc/profile.d/conda.sh
-RUN conda activate rescribe-nlp
-
 # Copy app
 COPY src .
 
 EXPOSE 8082
-ENTRYPOINT ["python", "main.py"]
+# run environment through conda instead of conda activate
+# see https://pythonspeed.com/articles/activate-conda-dockerfile/
+ENTRYPOINT ["conda", "run", "-n", "rescribe-nlp", "python", "main.py"]
