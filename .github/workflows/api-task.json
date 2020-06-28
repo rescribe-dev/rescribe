@@ -102,6 +102,10 @@
         {
           "containerName": "antlr",
           "condition": "START"
+        },
+        {
+          "containerName": "nlp",
+          "condition": "START"
         }
       ],
       "disableNetworking": null,
