@@ -23,6 +23,7 @@ interface ConfigType {
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
   AWS_S3_BUCKET_FILES: string;
+  AWS_S3_BUCKET_EMAILS: string;
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
   AWS_REGION: string;
@@ -31,6 +32,8 @@ interface ConfigType {
   INITIALIZATION_KEY: string;
   SENDGRID_API_KEY: string;
   SENDGRID_MAILING_LIST_ID: string;
+  NOREPLY_EMAIL: string,
+  NOREPLY_EMAIL_NAME: string,
   RECAPTCHA_SECRET: string;
 }
 
@@ -54,6 +57,7 @@ export const configData: ConfigType = {
   REDIS_PORT: 0,
   REDIS_PASSWORD: '',
   AWS_S3_BUCKET_FILES: 'rescribe-repositories',
+  AWS_S3_BUCKET_EMAILS: 'rescribe-email-templates',
   AWS_ACCESS_KEY_ID: '',
   AWS_SECRET_ACCESS_KEY: '',
   AWS_REGION: 'us-east-1',
@@ -62,6 +66,8 @@ export const configData: ConfigType = {
   INITIALIZATION_KEY: '',
   SENDGRID_API_KEY: '',
   SENDGRID_MAILING_LIST_ID: '',
+  NOREPLY_EMAIL: 'noreply@rescribe.dev',
+  NOREPLY_EMAIL_NAME: 'no reply',
   RECAPTCHA_SECRET: ''
 };
 

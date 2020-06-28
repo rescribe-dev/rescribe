@@ -17,7 +17,7 @@ import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { Min } from 'class-validator';
 import { getLogger } from 'log4js';
 import graphqlFields from 'graphql-fields';
-import { hasPagination } from '../utils/pagination';
+import { hasPagination } from '../elastic/pagination';
 import Location from '../schema/antlr/location';
 import { GraphQLResolveInfo } from 'graphql';
 import { languageColorMap } from '../utils/variables';

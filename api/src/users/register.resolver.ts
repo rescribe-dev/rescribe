@@ -3,9 +3,14 @@ import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
 import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from '../utils/variables';
 import { accountExistsEmail, accountExistsUsername } from './shared';
-import { ObjectID } from 'mongodb';
+import { ObjectID, ObjectId } from 'mongodb';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';
 import { verifyRecaptcha } from '../utils/recaptcha';
+import { emailTemplateFiles } from '../email/compileEmailTemplates';
+import { sendEmailUtil } from '../email/sendEmail.resolver';
+import { configData } from '../utils/config';
+import { VerifyType, getSecret, jwtType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
+import { SignOptions, sign } from 'jsonwebtoken';
 
 @ArgsType()
 class RegisterArgs {
@@ -37,6 +42,40 @@ class RegisterArgs {
   password: string;
 }
 
+export interface VerifyTokenData {
+  id: string;
+  type: VerifyType.verify;
+}
+
+export const generateJWTVerifyEmail = (userID: ObjectId): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    let secret: string;
+    let jwtIssuer: string;
+    try {
+      secret = getSecret(jwtType.LOCAL);
+      jwtIssuer = getJWTIssuer();
+    } catch (err) {
+      reject(err as Error);
+      return;
+    }
+    const authData: VerifyTokenData = {
+      id: userID.toHexString(),
+      type: VerifyType.verify
+    };
+    const signOptions: SignOptions = {
+      issuer: jwtIssuer,
+      expiresIn: verifyJWTExpiration
+    };
+    sign(authData, secret, signOptions, (err, token) => {
+      if (err) {
+        reject(err as Error);
+      } else {
+        resolve(token as string);
+      }
+    });
+  });
+};
+
 @Resolver()
 class RegisterResolver {
   @Mutation(_returns => String)
@@ -66,6 +105,22 @@ class RegisterResolver {
       projects: [],
      repositories: []
     };
+    const emailTemplateData = emailTemplateFiles.verifyEmail;
+    const template = emailTemplateData.template;
+    if (!template) {
+      throw new Error('cannot find register email template');
+    }
+    const verify_token = await generateJWTVerifyEmail(newUser._id);
+    const emailData = template({
+      name: newUser.name,
+      verify_url: `${configData.WEBSITE_URL}/login?token=${verify_token}&verify_email=true`
+    });
+    await sendEmailUtil({
+      content: emailData,
+      email: newUser.email,
+      name: newUser.name,
+      subject: emailTemplateData.subject
+    });
     const userCreateRes = await new UserModel(newUser).save();
     return (`created user ${userCreateRes.id}`);
   }

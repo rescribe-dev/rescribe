@@ -1,4 +1,4 @@
-import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
+import { sign, verify, SignOptions, VerifyOptions } from 'jsonwebtoken';
 import { Request } from 'express';
 import { nanoid } from 'nanoid';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';
@@ -20,8 +20,14 @@ export interface RefreshTokenData {
 
 const accessJWTExpiration = '2h';
 const refreshJWTExpiration = '2h';
+export const verifyJWTExpiration = '1h';
 
-const getSecret = (type: jwtType): string => {
+export enum VerifyType {
+  verify = 'verify',
+  verifyNewsletter = 'verifyNewsletter'
+}
+
+export const getSecret = (type: jwtType): string => {
   let secret: string | undefined;
   switch (type) {
     case jwtType.LOCAL:
@@ -40,7 +46,7 @@ const getSecret = (type: jwtType): string => {
   return secret;
 };
 
-const getJWTIssuer = (): string => {
+export const getJWTIssuer = (): string => {
   const jwtIssuer = configData.JWT_ISSUER;
   if (!jwtIssuer) {
     throw new Error('no jwt issuer found');
@@ -69,7 +75,7 @@ export const generateJWTGuest = (): Promise<string> => {
       issuer: jwtIssuer,
       expiresIn: accessJWTExpiration
     };
-    jwt.sign(authData, secret, signOptions, (err, token) => {
+    sign(authData, secret, signOptions, (err, token) => {
       if (err) {
         reject(err as Error);
       } else {
@@ -104,7 +110,7 @@ export const generateJWTAccess = (user: User): Promise<string> => {
       issuer: jwtIssuer,
       expiresIn: accessJWTExpiration
     };
-    jwt.sign(authData, secret, signOptions, (err, token) => {
+    sign(authData, secret, signOptions, (err, token) => {
       if (err) {
         reject(err as Error);
       } else {
@@ -137,7 +143,7 @@ export const generateJWTRefresh = (user: User): Promise<string> => {
       issuer: jwtIssuer,
       expiresIn: refreshJWTExpiration
     };
-    jwt.sign(authData, secret, signOptions, (err, token) => {
+    sign(authData, secret, signOptions, (err, token) => {
       if (err) {
         reject(err as Error);
       } else {
@@ -166,7 +172,7 @@ export const handleRefreshToken = (req: Request): Promise<string> => {
     const jwtConfig: VerifyOptions = {
       algorithms: ['HS256']
     };
-    jwt.verify(token, secret, jwtConfig, async (err, res: any) => {
+    verify(token, secret, jwtConfig, async (err, res: any) => {
       if (err) {
         reject(err as Error);
       } else {
@@ -206,7 +212,7 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
     } else {
       jwtConfig = {};
     }
-    jwt.verify(token, secret, jwtConfig, (err, res: any) => {
+    verify(token, secret, jwtConfig, (err, res: any) => {
       if (err) {
         reject(err as Error);
       } else {

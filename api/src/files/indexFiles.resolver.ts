@@ -12,8 +12,8 @@ import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { getUser } from '../users/shared';
 import { addBranchUtil } from '../branches/addBranch.resolver';
-import { SaveElasticElement } from '../utils/elastic';
-import { WriteMongoElement } from '../utils/mongo';
+import { SaveElasticElement } from '../elastic/elastic';
+import { WriteMongoElement } from '../db/mongo';
 
 @ArgsType()
 class IndexFilesArgs {

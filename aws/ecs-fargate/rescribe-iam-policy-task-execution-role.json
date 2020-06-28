@@ -46,7 +46,9 @@
       "Action": "s3:*",
       "Resource": [
         "arn:aws:s3:::rescribe-repositories",
-        "arn:aws:s3:::rescribe-repositories/*"
+        "arn:aws:s3:::rescribe-repositories/*",
+        "arn:aws:s3:::rescribe-email-templates",
+        "arn:aws:s3:::rescribe-email-templates/*"
       ]
     }
   ]

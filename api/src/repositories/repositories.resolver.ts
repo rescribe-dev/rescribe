@@ -11,7 +11,7 @@ import { TermQuery } from '../elastic/types';
 import { GraphQLContext } from '../utils/context';
 import { checkProjectAccess } from '../projects/auth';
 import { Min, Max } from 'class-validator';
-import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
+import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
 
 const maxPerPage = 20;
 
