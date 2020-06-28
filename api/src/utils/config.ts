@@ -32,6 +32,8 @@ interface ConfigType {
   INITIALIZATION_KEY: string;
   SENDGRID_API_KEY: string;
   SENDGRID_MAILING_LIST_ID: string;
+  NOREPLY_EMAIL: string,
+  NOREPLY_EMAIL_NAME: string,
   RECAPTCHA_SECRET: string;
 }
 
@@ -64,6 +66,8 @@ export const configData: ConfigType = {
   INITIALIZATION_KEY: '',
   SENDGRID_API_KEY: '',
   SENDGRID_MAILING_LIST_ID: '',
+  NOREPLY_EMAIL: 'noreply@rescribe.dev',
+  NOREPLY_EMAIL_NAME: 'no reply',
   RECAPTCHA_SECRET: ''
 };
 

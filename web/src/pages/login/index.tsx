@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { Formik } from 'formik';
 import { toast } from 'react-toastify';
@@ -19,15 +19,20 @@ import './index.scss';
 
 import Layout from '../../layouts/index';
 import SEO from '../../components/seo';
-import { initializeApolloClient } from '../../utils/apollo';
+import { initializeApolloClient, client } from '../../utils/apollo';
 import { isLoggedIn, getUsername } from '../../state/auth/getters';
 import { thunkLogin, thunkLogout, thunkGetUser } from '../../state/auth/thunks';
 import { useDispatch } from 'react-redux';
 import { AuthActionTypes } from '../../state/auth/types';
 import { AppThunkDispatch } from '../../state/thunk';
-import { setToken } from '../../state/auth/actions';
 import { isSSR } from '../../utils/checkSSR';
 import { Dispatch } from 'redux';
+import {
+  VerifyEmailMutation,
+  VerifyEmailMutationVariables,
+  VerifyEmail,
+} from '../../lib/generated/datamodel';
+import { setToken } from '../../state/auth/actions';
 
 const loaderCSS = css`
   display: block;
@@ -45,46 +50,79 @@ declare global {
 }
 
 const LoginPage = (args: LoginPageDataType): JSX.Element => {
-  let token: string | undefined;
-  let redirect: string | undefined;
-  let cliLogin = false;
-  let vscodeLogin = false;
-  if (args.location.search.length > 0) {
-    const searchParams = new URLSearchParams(args.location.search);
-    if (searchParams.has('token')) {
-      token = searchParams.get('token') as string;
-    }
-    if (searchParams.has('redirect')) {
-      redirect = searchParams.get('redirect') as string;
-    }
-    if (searchParams.has('cli')) {
-      cliLogin = true;
-    } else if (searchParams.has('vscode')) {
-      vscodeLogin = true;
-    }
-  }
+  const [token, setLocalToken] = useState<string | undefined>(undefined);
+  const [redirect, setRedirect] = useState<string | undefined>(undefined);
+  const [cliLogin, setCliLogin] = useState<boolean>(false);
+  const [vscodeLogin, setVSCodeLogin] = useState<boolean>(false);
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
     dispatch = useDispatch();
   }
-  isLoggedIn()
-    .then(async (loggedIn) => {
-      if (token === undefined && loggedIn) {
-        const username = getUsername();
-        if (username.length > 0) {
-          if (redirect !== undefined) {
-            navigate(redirect);
-          } else {
-            navigate(`/${username}`);
+  useEffect(() => {
+    let verifyEmail = false;
+    let localToken: string | undefined = undefined;
+    if (args.location.search.length > 0) {
+      const searchParams = new URLSearchParams(args.location.search);
+      if (searchParams.has('token')) {
+        localToken = searchParams.get('token') as string;
+        setLocalToken(localToken);
+      }
+      if (searchParams.has('redirect')) {
+        setRedirect(searchParams.get('redirect') as string);
+      }
+      if (searchParams.has('verify_email')) {
+        verifyEmail = true;
+      } else if (searchParams.has('cli')) {
+        setCliLogin(true);
+      } else if (searchParams.has('vscode')) {
+        setVSCodeLogin(true);
+      }
+    }
+    if (verifyEmail && localToken !== undefined) {
+      client
+        .mutate<VerifyEmailMutation, VerifyEmailMutationVariables>({
+          mutation: VerifyEmail,
+          variables: {
+            token: localToken,
+          },
+        })
+        .then((res) => {
+          let message = res.data?.verifyEmail;
+          if (!message) {
+            message = 'email successfully verified';
+          }
+          toast(message, {
+            type: 'success',
+          });
+          navigate('/login');
+        })
+        .catch((err) => {
+          toast(err.message, {
+            type: 'error',
+          });
+          return;
+        })
+        .then(() => setLocalToken(undefined));
+    }
+    isLoggedIn()
+      .then(async (loggedIn) => {
+        if (localToken === undefined && loggedIn) {
+          const username = getUsername();
+          if (username.length > 0) {
+            if (redirect !== undefined) {
+              navigate(redirect);
+            } else {
+              navigate(`/${username}`);
+            }
           }
         }
-      }
-    })
-    .catch((_err) => {
-      dispatchAuthThunk(thunkLogout());
-    });
+      })
+      .catch((_err) => {
+        dispatchAuthThunk(thunkLogout());
+      });
+  }, []);
   return (
     <Layout location={args.location}>
       <SEO title="Login" />

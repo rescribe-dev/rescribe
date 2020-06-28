@@ -9,6 +9,7 @@ import { initializeAWS } from './utils/aws';
 import { initializeRedis } from './utils/redis';
 import { initializeSendgrid } from './email/sendgrid';
 import { initializeNLP } from './nlp/nlpBridge';
+import compileEmailTemplates from './email/compileEmailTemplates';
 
 const runAPI = async (): Promise<void> => {
   await initializeConfig();
@@ -28,6 +29,8 @@ const runAPI = async (): Promise<void> => {
     logger.info('aws initialized');
     await initializeSendgrid();
     logger.info('sendgrid connection initialized');
+    await compileEmailTemplates();
+    logger.info('email templates compiled');
     await initializeElastic();
     logger.info('connected to elasticsearch');
     await initializeDB();

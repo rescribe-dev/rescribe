@@ -3,6 +3,7 @@ import { Request } from 'express';
 import { nanoid } from 'nanoid';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';
 import { configData } from './config';
+import { ObjectId } from 'mongodb';
 
 export const enum jwtType { LOCAL, GITHUB }
 
@@ -20,6 +21,7 @@ export interface RefreshTokenData {
 
 const accessJWTExpiration = '2h';
 const refreshJWTExpiration = '2h';
+const verifyJWTExpiration = '1h';
 
 const getSecret = (type: jwtType): string => {
   let secret: string | undefined;
@@ -109,6 +111,69 @@ export const generateJWTAccess = (user: User): Promise<string> => {
         reject(err as Error);
       } else {
         resolve(token as string);
+      }
+    });
+  });
+};
+
+enum VerifyType {
+  verify = 'verify'
+}
+
+interface VerifyTokenData {
+  id: string;
+  type: VerifyType.verify;
+}
+
+export const generateJWTVerifyEmail = (userID: ObjectId): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    let secret: string;
+    let jwtIssuer: string;
+    try {
+      secret = getSecret(jwtType.LOCAL);
+      jwtIssuer = getJWTIssuer();
+    } catch (err) {
+      reject(err as Error);
+      return;
+    }
+    const authData: VerifyTokenData = {
+      id: userID.toHexString(),
+      type: VerifyType.verify
+    };
+    const signOptions: SignOptions = {
+      issuer: jwtIssuer,
+      expiresIn: verifyJWTExpiration
+    };
+    jwt.sign(authData, secret, signOptions, (err, token) => {
+      if (err) {
+        reject(err as Error);
+      } else {
+        resolve(token as string);
+      }
+    });
+  });
+};
+
+export const decodeVerify = (token: string): Promise<VerifyTokenData> => {
+  return new Promise((resolve, reject) => {
+    let secret: string;
+    try {
+      secret = getSecret(jwtType.LOCAL);
+    } catch (err) {
+      reject(err as Error);
+      return;
+    }
+    const jwtConfig: VerifyOptions = {
+      algorithms: ['HS256']
+    };
+    jwt.verify(token, secret, jwtConfig, (err, res: any) => {
+      if (err) {
+        reject(err as Error);
+      } else {
+        const data: VerifyTokenData = {
+          ...res
+        };
+        resolve(data);
       }
     });
   });

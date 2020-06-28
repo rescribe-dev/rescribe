@@ -31,7 +31,7 @@ export const getS3FileData = async (fileKey: string): Promise<string> => {
 };
 
 export const getEmailKey = (templateName: string): string => {
-  return `template/${templateName}`;
+  return `templates/${templateName}`;
 };
 
 export const getS3EmailData = async (emailKey: string): Promise<string> => {
