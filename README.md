@@ -22,4 +22,4 @@
 ![Code Check](https://github.com/rescribe-dev/rescribe/workflows/Code%20Check/badge.svg)
 ![Code Coverage](https://github.com/rescribe-dev/rescribe/workflows/Code%20Coverage/badge.svg)
 
-[![Buy Me A Coffee](https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png)](https://www.buymeacoffee.com/IU2gHt3Qn)
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/IU2gHt3Qn)
