@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
 import HttpStatus from 'http-status-codes';
 import { ProcessFileInput } from './antlrTypes';
 import AntlrFile from '../schema/antlr/file';
@@ -24,18 +24,21 @@ export const processFile = async (inputData: ProcessFileInput): Promise<AntlrFil
   }
 };
 
-export const pingAntlr = (): Promise<boolean> => {
-  return antlrClient.get('/ping').then(res => {
+export const pingAntlr = async (): Promise<boolean> => {
+  try {
+    const res = await antlrClient.get('/ping');
     if (res.status === HttpStatus.OK) {
       return true;
     }
     return false;
-  }).catch((err: AxiosError) => {
-    throw new Error(err.message);
-  });
+  }
+  catch (err) {
+    const axiosError: AxiosError = err;
+    throw new Error(axiosError.message);
+  }
 };
 
-export const initializeAntlr = (): Promise<boolean> => {
+export const initializeAntlr = async (): Promise<boolean> => {
   if (configData.ANTLR_URI.length === 0) {
     throw new Error('cannot find antlr uri');
   }
@@ -51,9 +54,11 @@ export const initializeAntlr = (): Promise<boolean> => {
     },
     timeout: 3000,
   });
-  return pingAntlr().then((res) => {
+  try {
+    const res = await pingAntlr();
     return res;
-  }).catch((err: Error) => {
+  }
+  catch (err) {
     throw new Error(`cannot connect to antlr server: ${err.message}`);
-  });
+  }
 };

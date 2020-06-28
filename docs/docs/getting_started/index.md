@@ -13,7 +13,7 @@ First clone the repository:
 
 Then make sure your system time is correct. Otherwise the pings will not work. Make sure node.js and java jdk 8 is installed - you can use [this link](https://github.com/nodesource/distributions) for node and [this](https://openjdk.java.net/install/) for java (`sudo apt-get install -y openjdk-8-jdk`). Next make sure yarn is installed [from here](https://classic.yarnpkg.com/en/docs/install).
 
-Then optionally install git pre-commit hooks (required if developing). These hooks are used for linting files, ensuring code consistency and style guides: `npm install`
+Then optionally install git pre-commit hooks (required if developing). These hooks are used for linting files, ensuring code consistency and style guides. Run `npm install` in the `rescribe/` directory. Install the `git-secrets` secret checker using the script found in `scripts/install_git_secrets.sh`. For windows consult the [README here](https://github.com/awslabs/git-secrets#installing-git-secrets).
 
 ### antlr
 
@@ -27,6 +27,14 @@ Optionally run the antlr service, used for processing files that are going to be
 6. Install [google java format plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format) and [lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok) in intellij to make life easier
 
 View [this guide](https://github.com/com.rescribe.antlr/antlr4/blob/master/doc/getting-started.md) for getting antlr configured if there are any problems.
+
+### nlp
+
+Optionally run the nlp service, used for pre-processing search queries to pass into elasticsearch:
+
+1. `cd nlp`
+2. run `conda env create --file environment.yml` to create conda env from environment file, or `conda activate rescribe-nlp` if the environment already exists
+3. `python3 src/main.py` starts the service
 
 ### api
 

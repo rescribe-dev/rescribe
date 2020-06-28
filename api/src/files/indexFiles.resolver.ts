@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, UpdateType, getFilePath, saveChanges, FileWriteData } from './shared';
+import { indexFile, WriteType, getFilePath, saveChanges, FileWriteData, Aggregates } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -17,6 +17,7 @@ import { WriteMongoElement } from '../utils/mongo';
 
 @ArgsType()
 class IndexFilesArgs {
+  // all paths MUST be unique, or there will be problems. TODO class validator
   @Field(_type => [String], { description: 'paths' })
   paths: string[];
 
@@ -75,6 +76,10 @@ class IndexFilesResolver {
     const fileElasticWrites: SaveElasticElement[] = [];
     const fileMongoWrites: WriteMongoElement[] = [];
     const fileWrites: FileWriteData[] = [];
+    const aggregates: Aggregates = {
+      linesOfCode: 0,
+      numberOfFiles: 0
+    };
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
@@ -94,8 +99,7 @@ class IndexFilesResolver {
           const content = buffer.toString('utf8');
           try {
             await indexFile({
-              action: UpdateType.add,
-              file: undefined,
+              action: WriteType.add,
               project: repository.project,
               repository: repositoryID,
               branch: args.branch,
@@ -106,7 +110,8 @@ class IndexFilesResolver {
               isBinary,
               fileElasticWrites,
               fileMongoWrites,
-              fileWrites
+              fileWrites,
+              aggregates
             });
             numIndexed++;
             if (numIndexed === args.files.length) {

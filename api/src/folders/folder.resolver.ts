@@ -9,7 +9,7 @@ import { checkRepositoryAccess, checkRepositoryPublic } from '../repositories/au
 import { AccessLevel } from '../schema/auth/access';
 
 @ArgsType()
-class FolderArgs {
+export class FolderArgs {
   @Field(_type => ObjectId, { description: 'folder id', nullable: true })
   id?: ObjectId;
 

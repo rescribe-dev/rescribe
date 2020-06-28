@@ -1,0 +1,25 @@
+{
+  "name": "rescribe-status",
+  "description": "rescribe service status",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified for status\"",
+    "precommit": "yarn run test",
+    "dev": "statusfy dev",
+    "build": "statusfy build",
+    "start": "statusfy start",
+    "generate": "statusfy generate",
+    "new-incident": "statusfy new-incident",
+    "delete-incident": "statusfy delete-incident",
+    "update-incident": "statusfy update-incident",
+    "predeploy": "yarn generate"
+  },
+  "dependencies": {
+    "statusfy": "^0.5.0"
+  },
+  "engines": {
+    "node": ">=10",
+    "npm": ">=5"
+  }
+}

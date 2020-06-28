@@ -15,7 +15,7 @@ check_changes() {
 
 force_run_command="-f"
 
-node_paths=("api/" "github-app/" "cli/" "web/" "vscode/" ".github/build-frontend/" "docs/")
+node_paths=("api/" "github-app/" "cli/" "web/" "vscode/" ".github/build-frontend/" "docs/" "status/")
 
 for path in "${node_paths[@]}"
 do
@@ -24,8 +24,17 @@ do
   fi
 done
 
-if [ "$1" = "$force_run_command" ] || check_changes "antlr/"; then
-  cd antlr && ./precommit.sh && cd -
-fi
+script_paths=("antlr/" "nlp/")
+
+for path in "${script_paths[@]}"
+do
+  if [ "$1" = "$force_run_command" ] || check_changes "$path" ; then
+    cd "$path"
+    ./precommit.sh
+    cd -
+  fi
+done
+
+git secrets --scan
 
 git add -A

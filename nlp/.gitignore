@@ -1,3 +1,7 @@
 # ignore credentials and datasets
 credentials/
 datasets/
+*.html
+
+# ignore python environment
+envs/

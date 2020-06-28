@@ -9,7 +9,6 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { deleteRepositoryUtil } from '../repositories/deleteRepository.resolver';
-import { RepositoryModel } from '../schema/structure/repository';
 import { checkProjectAccess } from './auth';
 
 @ArgsType()
@@ -38,9 +37,7 @@ export const deleteProjectUtil = async (args: DeleteProjectArgs, userID: ObjectI
     }
   });
   for (const repository of project.repositories) {
-    const repositoryDB = await RepositoryModel.findById(repository);
-    if (!repositoryDB) continue;
-    await deleteRepositoryUtil({ id: repository }, userID, repositoryDB);
+    await deleteRepositoryUtil({ id: repository }, userID);
   }
 };
 @Resolver()

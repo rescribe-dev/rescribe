@@ -1,0 +1,11 @@
+title: rescribe status
+name: rescribe-status
+description: rescribe service status
+defaultLocale: en
+locales:
+  - code: en
+    iso: en-US
+    name: English
+    file: en.json
+content:
+  frontMatterFormat: yaml

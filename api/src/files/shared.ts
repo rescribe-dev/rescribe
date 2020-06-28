@@ -12,9 +12,6 @@ import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/f
 import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../folders/shared';
 import { getFolder } from '../folders/folder.resolver';
 import { createHash } from 'crypto';
-import { getLogger } from 'log4js';
-
-const logger = getLogger();
 
 const hashAlgorithm = 'sha256';
 
@@ -22,7 +19,7 @@ const getHash = (input: string): string => {
   return createHash(hashAlgorithm).update(input).digest('hex');
 };
 
-export enum UpdateType {
+export enum WriteType {
   add = 'add',
   update = 'update',
   delete = 'delete'
@@ -108,7 +105,7 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFold
           numBranches: baseFolderData.branches.length
         };
         folderElasticWrites.push({
-          action: UpdateType.add,
+          action: WriteType.add,
           data: elasticFolder,
           id: folderID,
           index: folderIndexName
@@ -119,7 +116,7 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFold
         };
         folderWrites.push({
           data: folderDataDB as unknown as Record<string, unknown>,
-          action: UpdateType.add
+          action: WriteType.add
         });
       }
     }
@@ -151,9 +148,13 @@ export const saveChanges = async (args: SaveChangesArgs): Promise<void> => {
   await bulkSaveToElastic(args.fileElasticWrites);
 };
 
+export interface Aggregates {
+  numberOfFiles: number;
+  linesOfCode: number;
+}
+
 export interface FileIndexArgs {
-  action: UpdateType;
-  file: FileDB | undefined;
+  action: WriteType;
   project: ObjectId;
   repository: ObjectId;
   branch: string;
@@ -165,15 +166,259 @@ export interface FileIndexArgs {
   fileElasticWrites: SaveElasticElement[];
   fileMongoWrites: WriteMongoElement[];
   fileWrites: FileWriteData[];
+  aggregates: Aggregates;
 }
 
-export const indexFile = async (args: FileIndexArgs): Promise<void> => {
-  if (args.action === UpdateType.update && !args.file) {
-    throw new Error('file is required for update');
+interface IndexFileWriteArgs extends FileIndexArgs {
+  id: ObjectId;
+  hash: string;
+  fileLength: number;
+  currentTime: number;
+  fileData: AntlrFile | undefined;
+  hasAntlrData: boolean;
+}
+
+const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
+  const newFileDB: FileDB = {
+    _id: args.id,
+    hash: args.hash,
+    project: args.project,
+    repository: args.repository,
+    branches: [args.branch],
+    path: args.path,
+    name: args.fileName,
+    fileLength: args.fileLength,
+    public: args.public,
+    created: args.currentTime,
+    updated: args.currentTime,
+  };
+  const baseElasticContent: BaseFileElastic = {
+    name: args.fileName,
+    hash: args.hash,
+    project: args.project,
+    repository: args.repository,
+    branches: [args.branch],
+    numBranches: 1,
+    created: args.currentTime,
+    updated: args.currentTime,
+    path: args.path,
+    public: args.public,
+    fileLength: args.fileLength
+  };
+  let elasticContent: File | BaseFileElastic;
+  if (!args.hasAntlrData) {
+    elasticContent = baseElasticContent;
+  } else {
+    const fileElasticContent: File = {
+      ...baseElasticContent,
+      ...(args.fileData as AntlrFile),
+      _id: undefined
+    };
+    elasticContent = fileElasticContent;
   }
-  const id = args.action === UpdateType.add ? new ObjectId() : args.file?._id as ObjectId;
+  // if (args.isBinary) {
+  //   elasticContent.content = args.content;
+  // }
+  const elasticElement: SaveElasticElement = {
+    action: args.action,
+    data: elasticContent,
+    index: fileIndexName,
+    id: args.id
+  };
+  args.fileElasticWrites.push(elasticElement);
+  const writeMongoElement: WriteMongoElement = {
+    data: newFileDB as unknown as Record<string, unknown>,
+    action: WriteType.add,
+    id: newFileDB._id
+  };
+  args.fileMongoWrites.push(writeMongoElement);
+  await s3Client.upload({
+    Bucket: fileBucket,
+    Key: getFileKey(args.repository, args.id),
+    Body: args.content
+  }).promise();
+
+  args.fileWrites.push({
+    elastic: elasticElement,
+    mongo: writeMongoElement
+  });
+
+  args.aggregates.numberOfFiles++;
+  args.aggregates.linesOfCode += args.fileLength;
+};
+
+interface IndexFileUpdateArgs extends IndexFileWriteArgs {
+  currentFile: FileDB;
+}
+
+const indexFileUpdate = async (args: IndexFileUpdateArgs): Promise<void> => {
+  let elasticContent: Record<string, unknown>;
+  if (!args.hasAntlrData) {
+    elasticContent = {
+      _id: undefined,
+      updated: args.currentTime,
+      fileLength: args.fileLength,
+    };
+  } else {
+    elasticContent = {
+      ...(args.fileData as AntlrFile),
+      _id: undefined,
+      updated: args.currentTime,
+      fileLength: args.fileLength,
+      hash: args.hash
+    };
+  }
+  // if (args.isBinary) {
+  //   elasticContent.content = args.content;
+  // }
+  const elasticElement: SaveElasticElement = {
+    action: args.action,
+    data: elasticContent,
+    index: fileIndexName,
+    id: args.id
+  };
+  args.fileElasticWrites.push(elasticElement);
+  const writeMongoElement: WriteMongoElement = {
+    action: WriteType.update,
+    id: args.id,
+    data: {
+      $set: {
+        fileLength: args.fileLength,
+      }
+    }
+  };
+  args.fileMongoWrites.push(writeMongoElement);
+  await s3Client.upload({
+    Bucket: fileBucket,
+    Key: getFileKey(args.repository, args.id),
+    Body: args.content
+  }).promise();
+
+  args.fileWrites.push({
+    elastic: elasticElement,
+    mongo: writeMongoElement
+  });
+
+  args.aggregates.linesOfCode += (args.fileLength - args.currentFile.fileLength);
+};
+
+interface SingleBranchWriteArgs {
+  id: ObjectId;
+  branch: string;
+  currentTime: number;
+  fileElasticWrites: SaveElasticElement[];
+  fileMongoWrites: WriteMongoElement[];
+  fileWrites?: FileWriteData[];
+  aggregates?: Aggregates;
+}
+
+const singleBranchAdd = (args: SingleBranchWriteArgs): void => {
+  const elasticContent: Record<string, unknown> = {
+    script: {
+      source: `
+        ctx._source.numBranches++;
+        ctx._source.branches.add(params.branch);
+        ctx._source.updated = params.currentTime;
+      `,
+      lang: 'painless',
+      params: {
+        branch: args.branch,
+        currentTime: args.currentTime
+      }
+    }
+  };
+  const elasticElement: SaveElasticElement = {
+    action: WriteType.update,
+    data: elasticContent,
+    index: fileIndexName,
+    id: args.id
+  };
+  args.fileElasticWrites.push(elasticElement);
+  const writeMongoElement: WriteMongoElement = {
+    action: WriteType.update,
+    id: args.id,
+    data: {
+      updated: args.currentTime,
+      $add: {
+        branches: args.branch
+      }
+    }
+  };
+  args.fileMongoWrites.push(writeMongoElement);
+
+  if (args.fileWrites) {
+    args.fileWrites.push({
+      elastic: elasticElement,
+      mongo: writeMongoElement
+    });
+  }
+
+  if (args.aggregates) {
+    args.aggregates.numberOfFiles++;
+  }
+};
+
+export const singleBranchRemove = (args: SingleBranchWriteArgs): void => {
+  const elasticContent: Record<string, unknown> = {
+    script: {
+      source: `
+        ctx._source.numBranches--;
+        ctx._source.branches.remove(params.branch);
+        ctx._source.updated = params.currentTime;
+      `,
+      lang: 'painless',
+      params: {
+        branch: args.branch,
+        currentTime: args.currentTime
+      }
+    }
+  };
+  const elasticElement: SaveElasticElement = {
+    action: WriteType.update,
+    data: elasticContent,
+    index: fileIndexName,
+    id: args.id
+  };
+  args.fileElasticWrites.push(elasticElement);
+  const writeMongoElement: WriteMongoElement = {
+    action: WriteType.update,
+    id: args.id,
+    data: {
+      updated: args.currentTime,
+      $pull: {
+        branches: args.branch
+      }
+    }
+  };
+  args.fileMongoWrites.push(writeMongoElement);
+
+  if (args.fileWrites) {
+    args.fileWrites.push({
+      elastic: elasticElement,
+      mongo: writeMongoElement
+    });
+  }
+
+  if (args.aggregates) {
+    args.aggregates.numberOfFiles--;
+  }
+};
+
+export const indexFile = async (args: FileIndexArgs): Promise<void> => {
+  if (![WriteType.add, WriteType.update].includes(args.action)) {
+    throw new Error('invalid update type provided');
+  }
   let fileData: AntlrFile | undefined = undefined;
-  if (!args.isBinary && checkFileExtension(args.fileName)) {
+  // database request for all of the files with the same name within the repo
+  const currentFile = await FileModel.findOne({
+    repository: args.repository,
+    name: args.fileName,
+    path: args.path
+  });
+  let id = currentFile ? currentFile._id : new ObjectId();
+  // TODO - add file content to elastic if not binary
+  const hasAntlrData = !args.isBinary && checkFileExtension(args.fileName);
+  if (hasAntlrData) {
     fileData = await processFile({
       id,
       fileName: args.fileName,
@@ -183,145 +428,82 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
   }
   const currentTime = new Date().getTime();
   const fileLength = args.content.split('\n').length - 1;
-  // TODO - check if file is the same as a file that is already there
-  // if it is, point to it somehow
+  // check if file is the same as a file that is already there
+  // if it is, point to it
   const hash = getHash(args.content);
-  // database request for all of the files with the same name within the repo
-  const sameFile = await FileModel.findOne({
-    hash,
-    name: args.fileName,
-    path: args.path
-  });
-  if (sameFile) {
-    if (sameFile.branches.includes(args.branch)) {
-      logger.info('file already exists in current branch');
-      return;
-    }
-    const elasticContent: Record<string, unknown> = {
-      script: {
-        source: `
-          ctx._source.numBranches++;
-          ctx._source.branches.add(params.branch);
-          ctx._source.updated = params.currentTime;
-        `,
-        lang: 'painless',
-        params: {
-          branch: args.branch,
-          currentTime
-        }
+
+  if (currentFile) {
+    id = currentFile._id;
+    // file already exists in location
+    if (currentFile.hash === hash) {
+      if (currentFile.branches.includes(args.branch)) {
+        // branch is already there. continue
+        return;
       }
-    };
-    args.fileElasticWrites.push({
-      action: UpdateType.update,
-      data: elasticContent,
-      index: fileIndexName,
-      id
-    });
-    args.fileMongoWrites.push({
-      action: UpdateType.update,
-      id,
-      data: {
-        updated: currentTime,
-        $add: {
-          branches: args.branch
-        }
-      }
-    });
-  } else if (args.action === UpdateType.add) {
-    const newFileDB: FileDB = {
-      _id: id,
-      hash,
-      project: args.project,
-      repository: args.repository,
-      branches: [args.branch],
-      path: args.path,
-      name: args.fileName,
-      fileLength,
-      public: args.public,
-      created: currentTime,
-      updated: currentTime,
-    };
-    const baseElasticContent: BaseFileElastic = {
-      name: args.fileName,
-      hash,
-      project: args.project,
-      repository: args.repository,
-      branches: [args.branch],
-      numBranches: 1,
-      created: currentTime,
-      updated: currentTime,
-      path: args.path,
-      public: args.public,
-      fileLength
-    };
-    let elasticContent: File | BaseFileElastic;
-    if (args.isBinary) {
-      elasticContent = baseElasticContent;
+      // hashes are the same - same file
+      // just add branch
+      singleBranchAdd({
+        ...args,
+        id,
+        currentTime
+      });
     } else {
-      const fileElasticContent: File = {
-        ...baseElasticContent,
-        ...(fileData as AntlrFile),
-        _id: undefined
-      };
-      elasticContent = fileElasticContent;
-    }
-    const elasticElement: SaveElasticElement = {
-      action: args.action,
-      data: elasticContent,
-      index: fileIndexName,
-      id
-    };
-    args.fileElasticWrites.push(elasticElement);
-    const writeMongoElement: WriteMongoElement = {
-      data: newFileDB as unknown as Record<string, unknown>,
-      action: UpdateType.add,
-      id: newFileDB._id
-    };
-    args.fileMongoWrites.push(writeMongoElement);
-    await s3Client.upload({
-      Bucket: fileBucket,
-      Key: getFileKey(args.repository, id),
-      Body: args.content
-    }).promise();
-    args.fileWrites.push({
-      elastic: elasticElement,
-      mongo: writeMongoElement
-    });
-  } else if (args.action === UpdateType.update) {
-    let elasticContent: Record<string, unknown>;
-    if (args.isBinary) {
-      elasticContent = {
-        _id: undefined,
-        updated: currentTime,
-        fileLength,
-      };
-    } else {
-      elasticContent = {
-        ...fileData,
-        _id: undefined,
-        updated: currentTime,
-        fileLength,
-      };
-    }
-    args.fileElasticWrites.push({
-      action: args.action,
-      data: elasticContent,
-      index: fileIndexName,
-      id
-    });
-    args.fileMongoWrites.push({
-      action: UpdateType.update,
-      id,
-      data: {
-        fileLength,
+      // content is different
+      // run add or update
+      if (currentFile.branches.includes(args.branch)) {
+        // includes our branch
+        if (currentFile.branches.length === 1) {
+          // there is only one branch - our branch - the file can just be updated
+          await indexFileUpdate({
+            ...args,
+            hasAntlrData,
+            id,
+            hash,
+            fileLength,
+            currentTime,
+            currentFile,
+            fileData
+          });
+        } else {
+          // there are multiple branches - the file splits into a new file object
+          // we're doing one branch at a time, so there will not be multiple branches with the same changes.
+          await indexFileAdd({
+            ...args,
+            hasAntlrData,
+            id: new ObjectId(),
+            hash,
+            fileLength,
+            currentTime,
+            fileData
+          });
+          singleBranchRemove({
+            ...args,
+            id,
+            currentTime
+          });
+        }
+      } else {
+        await indexFileAdd({
+          ...args,
+          hasAntlrData,
+          id: new ObjectId(),
+          hash,
+          fileLength,
+          currentTime,
+          fileData
+        });
       }
-    });
-    await s3Client.upload({
-      Bucket: fileBucket,
-      Key: getFileKey(args.repository, id),
-      Body: args.content
-    }).promise();
+    }
   } else {
-    throw new Error(`invalid action ${args.action} provided`);
+    // run add
+    await indexFileAdd({
+      ...args,
+      id,
+      hasAntlrData,
+      hash,
+      fileLength,
+      currentTime,
+      fileData
+    });
   }
 };

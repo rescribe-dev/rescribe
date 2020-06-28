@@ -1,10 +1,23 @@
 # ignore node modules always
 node_modules/
+
+# mac file
 .DS_Store
+
+# java gradle build data
 .gradle
+
+# python stuff
 .ipynb_checkpoints
+__pycache__
+.pytest_cache/
+.mypy_cache/
+
+# environment file
 .env
+
+# demo code folder
 demoCode/
-debug/demoCode/
+
 # ignore swap files
 *.swp
