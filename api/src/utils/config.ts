@@ -23,6 +23,7 @@ interface ConfigType {
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
   AWS_S3_BUCKET_FILES: string;
+  AWS_S3_BUCKET_EMAILS: string;
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
   AWS_REGION: string;
@@ -54,6 +55,7 @@ export const configData: ConfigType = {
   REDIS_PORT: 0,
   REDIS_PASSWORD: '',
   AWS_S3_BUCKET_FILES: 'rescribe-repositories',
+  AWS_S3_BUCKET_EMAILS: 'rescribe-email-templates',
   AWS_ACCESS_KEY_ID: '',
   AWS_SECRET_ACCESS_KEY: '',
   AWS_REGION: 'us-east-1',

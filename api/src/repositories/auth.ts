@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { checkAccess, checkAccessLevel } from '../utils/checkAccess';
+import { checkAccess, checkAccessLevel } from '../auth/checkAccess';
 import { AccessLevel } from '../schema/auth/access';
 import { checkProjectAccess } from '../projects/auth';
 import User from '../schema/auth/user';

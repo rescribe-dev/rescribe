@@ -9,27 +9,45 @@ const logger = getLogger();
 export const s3Client = new AWS.S3();
 
 export let fileBucket: string;
+export let emailBucket: string;
+
+export const getS3Data = async (key: string, bucket: string): Promise<string> => {
+  const s3File = await s3Client.getObject({
+    Bucket: bucket,
+    Key: key,
+  }).promise();
+  if (!s3File.Body) {
+    throw new Error(`no body for file ${key}`);
+  }
+  return s3File.Body.toString();
+};
 
 export const getFileKey = (repository: ObjectId, file: ObjectId): string => {
   return `${repository.toHexString()}/${file.toHexString()}`;
 };
 
 export const getS3FileData = async (fileKey: string): Promise<string> => {
-  const s3File = await s3Client.getObject({
-    Bucket: fileBucket,
-    Key: fileKey,
-  }).promise();
-  if (!s3File.Body) {
-    throw new Error(`no body for file ${fileKey}`);
-  }
-  return s3File.Body.toString();
+  return await getS3Data(fileKey, fileBucket);
+};
+
+export const getEmailKey = (templateName: string): string => {
+  return `template/${templateName}`;
+};
+
+export const getS3EmailData = async (emailKey: string): Promise<string> => {
+  return await getS3Data(emailKey, emailBucket);
 };
 
 export const initializeAWS = async (): Promise<void> => {
   if (configData.AWS_S3_BUCKET_FILES.length === 0) {
-    throw new Error('s3 bucket not provided');
+    throw new Error('s3 files bucket not provided');
   }
   fileBucket = configData.AWS_S3_BUCKET_FILES;
+  if (configData.AWS_S3_BUCKET_EMAILS.length === 0) {
+    throw new Error('s3 emails bucket not provided');
+  }
+  emailBucket = configData.AWS_S3_BUCKET_EMAILS;
+
   AWS.config = new AWS.Config();
   if (configData.AWS_ACCESS_KEY_ID.length === 0 && !isProduction()) {
     throw new Error('no aws access key id provided');

@@ -16,7 +16,7 @@ import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
 import { checkPaginationArgs, setPaginationArgs } from '../utils/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
-import { checkAccessLevel } from '../utils/checkAccess';
+import { checkAccessLevel } from '../auth/checkAccess';
 import { queryMinLength, Language } from '../utils/variables';
 
 const logger = getLogger();

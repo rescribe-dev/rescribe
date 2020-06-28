@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 import HttpStatus from 'http-status-codes';
 import { ProcessFileInput } from './antlrTypes';
 import AntlrFile from '../schema/antlr/file';
-import { configData } from './config';
+import { configData } from '../utils/config';
 
 let antlrClient: AxiosInstance;
 

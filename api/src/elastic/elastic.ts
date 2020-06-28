@@ -3,7 +3,7 @@
 import { WriteType } from '../files/shared';
 import { ObjectId } from 'mongodb';
 import { getLogger } from 'log4js';
-import { elasticClient } from '../elastic/init';
+import { elasticClient } from './init';
 
 const logger = getLogger();
 
