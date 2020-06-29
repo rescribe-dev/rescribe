@@ -29,13 +29,18 @@ export const getParentFolderPath = (filePath: string): FolderData => {
       path: baseFolderPath
     };
   }
-  const folderPathFull = filePath.substring(lastSlash);
+  const folderPathFull = filePath.substring(0, lastSlash);
   lastSlash = folderPathFull.lastIndexOf('/');
+  const path = lastSlash === 0 ?
+    folderPathFull.substring(0, 1)
+    : folderPathFull.substring(0, lastSlash);
   return {
-    name: folderPathFull.substring(lastSlash),
-    path: folderPathFull.substring(0, lastSlash)
+    name: folderPathFull.substring(lastSlash + 1),
+    path
   };
 };
+
+const fullBasePath = '/';
 
 export const getParentFolderPaths = (filePath: string, reversed?: boolean): FolderData[] => {
   if (reversed === undefined) {
@@ -43,11 +48,12 @@ export const getParentFolderPaths = (filePath: string, reversed?: boolean): Fold
   }
   let currentFolderPath = filePath;
   const parentFolders: FolderData[] = [];
-  while (currentFolderPath.length > 0) {
+  while (currentFolderPath !== fullBasePath) {
     const parentFolderData = getParentFolderPath(currentFolderPath);
-    currentFolderPath = parentFolderData.path;
-    // ignore base folder
-    if (currentFolderPath !== baseFolderPath) {
+    currentFolderPath = `${parentFolderData.path}${
+      parentFolderData.path === fullBasePath ? '' : fullBasePath
+      }${parentFolderData.name}`;
+    if (currentFolderPath !== fullBasePath) {
       parentFolders.push(parentFolderData);
     }
   }

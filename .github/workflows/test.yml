@@ -1,7 +1,7 @@
-name: Code Check
+name: Test Code
 on: pull_request
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
       # checks out a copy of the repo
@@ -68,5 +68,16 @@ jobs:
       - name: run precommit
         run: |
           ./precommit.sh -f
+      - name: run tests and coverage
+        id: tests
+        run: |
+          cd scripts
+          ./test.sh
+          cd -
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          name: rescribe-code-coverage # optional
+          fail_ci_if_error: false # optional (default = false)
       - name: finish
         run: echo "finished!"
