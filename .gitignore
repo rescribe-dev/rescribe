@@ -21,3 +21,8 @@ demoCode/
 
 # ignore swap files
 *.swp
+
+# ignore coverage file(s)
+coverage/
+.coverage
+coverage.xml
