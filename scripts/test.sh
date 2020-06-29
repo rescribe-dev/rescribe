@@ -12,12 +12,12 @@ node_tests=("api/")
 for path in "${node_paths[@]}"
 do
   cd "$path"
-  npx npm-check-updates -u
+  pwd
   if [ -f yarn.lock ]; then
-    echo "using yarn package manager"
+    echo "using yarn"
     yarn run coverage
   else
-    echo "using npm package manager"
+    echo "using npm"
     npm run coverage
   fi
   cd -
@@ -33,3 +33,5 @@ do
 done
 
 cd scripts
+
+echo "done with testing and generating coverage"

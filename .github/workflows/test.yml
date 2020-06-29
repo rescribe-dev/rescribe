@@ -69,7 +69,7 @@ jobs:
         run: |
           ./precommit.sh -f
       - name: run tests and coverage
-        id: tests
+        id: testing
         run: |
           cd scripts
           ./test.sh
