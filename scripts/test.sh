@@ -9,7 +9,7 @@ cd ..
 
 node_tests=("api/")
 
-for path in "${node_paths[@]}"
+for path in "${node_tests[@]}"
 do
   cd "$path"
   pwd
@@ -25,7 +25,7 @@ done
 
 python_tests=()
 
-for path in "${python_paths[@]}"
+for path in "${python_tests[@]}"
 do
   cd "$path"
   ./coverage.sh
