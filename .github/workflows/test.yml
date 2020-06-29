@@ -77,8 +77,14 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          name: rescribe-code-coverage # optional
-          file: api/coverage/lcov.info api/covreage/clover.xml
+          name: api # optional
+          file: api/coverage/*
+          fail_ci_if_error: false # optional (default = false)
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          name: nlp # optional
+          file: nlp/coverage/*
           fail_ci_if_error: false # optional (default = false)
       - name: finish
         run: echo "finished!"
