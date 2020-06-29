@@ -6,7 +6,7 @@ on:
     paths:
       - "api/**"
       - ".github/workflows/api.yml"
-      - ".github/workflows/api-task.json"
+      - "aws/ecs-fargate/api-task.json"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -60,7 +60,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: .github/workflows/api-task.json
+          task-definition: aws/ecs-fargate/api-task.json
           container-name: api
           image: ${{ steps.build-image.outputs.image }}
       - name: Deploy Amazon ECS task definition
