@@ -4,4 +4,6 @@
 disable =
     too-many-instance-attributes,
     invalid-name,
-    line-too-long
+    line-too-long,
+    too-many-arguments,
+    too-many-locals

@@ -3,23 +3,22 @@
 clean data
 """
 
+import pickle
 from os.path import abspath, dirname, join
 from os import mkdir
 from typing import List, Set
 from pandas import DataFrame, read_csv
-import pickle
 from get_classification_labels import get_classification_labels
 from get_classifications import get_classifications
 from dataload import questions_output
 
 BATCH_SIZE: int = 1000
 
-clean_data_folder: str = '../clean_data'
 
-model_input_path = '.model_inputs'
-
-
-def dataclean(batch_size: int, clean_data_folder: str, model_input_path: str):
+def dataclean(clean_data_folder: str, model_input_path: str):
+    """
+    data clean
+    """
     df_chunk = read_csv(
         abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
 
@@ -30,27 +29,28 @@ def dataclean(batch_size: int, clean_data_folder: str, model_input_path: str):
         chunk = chunk.rename(
             columns={"id": "__id__", "title": "__title__", "tags": "__tags__"})
         # get all labels and save them
-        classification_labels_lol.append(get_classification_labels(chunk))
+        classification_labels_lol.append(
+            list(get_classification_labels(chunk)))
 
     # list comprehension to flatten out the list of lists of labels
-    classification_labels: List[str] = [
+    classification_labels_list: List[str] = [
         item for elem in classification_labels_lol for item in elem]
-    classification_labels: Set[str] = set(classification_labels)
+    classification_labels: Set[str] = set(classification_labels_list)
 
     try:
         mkdir(f"{model_input_path}")
     except FileExistsError:
         pass
-    with open(f"{model_input_path}/classification_labels.pkl", 'wb') as file:
-        pickle.dumps(classification_labels)
+    with open(f"{model_input_path}/classification_labels.pkl", 'wb') as pickle_file:
+        pickle.dump(classification_labels, pickle_file)
 
     del df_chunk
 
     df_chunk = read_csv(
-        abspath(join(dirname(__file__), questions_output)), chunksize=batch_size)
+        abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
 
     cls = list(classification_labels)
-    nrows: int = batch_size
+    nrows: int = BATCH_SIZE
     ncols: int = len(cls)
     output: List[List[object]] = []
     for _ in range(nrows):
@@ -73,7 +73,10 @@ def main():
     """
     main clean data script
     """
-    dataclean(BATCH_SIZE, clean_data_folder, model_input_path)
+    clean_data_folder: str = '../clean_data'
+    model_input_path = '.model_inputs'
+    dataclean(clean_data_folder, model_input_path)
+
 
 if __name__ == '__main__':
     main()
