@@ -4,8 +4,10 @@ clean data
 """
 
 from os.path import abspath, dirname, join
+from os import mkdir
 from typing import List, Set
 from pandas import DataFrame, read_csv
+import pickle
 from get_classification_labels import get_classification_labels
 from get_classifications import get_classifications
 from dataload import questions_output
@@ -14,12 +16,10 @@ BATCH_SIZE: int = 1000
 
 clean_data_folder: str = '../clean_data'
 
+model_input_path = '.model_inputs'
 
-def main():
-    """
-    main clean data script
-    """
 
+def dataclean(batch_size: int, clean_data_folder: str, model_input_path: str):
     df_chunk = read_csv(
         abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
 
@@ -36,13 +36,21 @@ def main():
     classification_labels: List[str] = [
         item for elem in classification_labels_lol for item in elem]
     classification_labels: Set[str] = set(classification_labels)
+
+    try:
+        mkdir(f"{model_input_path}")
+    except FileExistsError:
+        pass
+    with open(f"{model_input_path}/classification_labels.pkl", 'wb') as file:
+        pickle.dumps(classification_labels)
+
     del df_chunk
 
     df_chunk = read_csv(
-        abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
+        abspath(join(dirname(__file__), questions_output)), chunksize=batch_size)
 
     cls = list(classification_labels)
-    nrows: int = BATCH_SIZE
+    nrows: int = batch_size
     ncols: int = len(cls)
     output: List[List[object]] = []
     for _ in range(nrows):
@@ -60,6 +68,12 @@ def main():
             abspath(join(dirname(__file__), f"{clean_data_folder}/{i}.csv")))
     del df_chunk
 
+
+def main():
+    """
+    main clean data script
+    """
+    dataclean(BATCH_SIZE, clean_data_folder, model_input_path)
 
 if __name__ == '__main__':
     main()
