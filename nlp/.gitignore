@@ -1,6 +1,5 @@
 # ignore credentials and datasets
-credentials/
-datasets/
+bigquery_credentials.json
 *.html
 
 # ignore python environment

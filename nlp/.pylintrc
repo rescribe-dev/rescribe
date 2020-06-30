@@ -1,2 +1,7 @@
 # pylint config
 
+[MESSAGES CONTROL]
+disable =
+    too-many-instance-attributes,
+    invalid-name,
+    line-too-long
