@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+"""
+list files
+"""
 from os import listdir
 
 
