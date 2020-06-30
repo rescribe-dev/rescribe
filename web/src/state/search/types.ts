@@ -1,4 +1,4 @@
-import { SearchQuery, Language } from '../../lib/generated/datamodel';
+import { SearchQuery, Language } from 'lib/generated/datamodel';
 import ObjectId from 'bson-objectid';
 
 export interface SearchState {

@@ -4,17 +4,18 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useStaticQuery, graphql } from 'gatsby';
 import Loadable from '@loadable/component';
+import { HelmetProvider } from 'react-helmet-async';
 
-import Header from '../components/header';
-import Footer from '../components/footer';
+import Header from 'components/header';
+import Footer from 'components/footer';
 
 import { IntlProvider } from 'react-intl';
 
 import './index.scss';
 import { WindowLocation } from '@reach/router';
-import { isSSR } from '../utils/checkSSR';
+import { isSSR } from 'utils/checkSSR';
 
-const Fonts = Loadable(() => import('../components/fontloader'));
+const Fonts = Loadable(() => import('components/fontloader'));
 
 toast.configure({
   autoClose: 4000,
@@ -74,17 +75,24 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
   }
 
   return (
-    <IntlProvider locale={currentLanguage} messages={args.i18nMessages}>
-      <Fonts />
-      <div className="main-wrapper">
-        <Header
-          siteTitle={data.site.siteMetadata.title}
-          location={args.location}
-        />
-        <main className="content">{args.children}</main>
-        <Footer />
-      </div>
-    </IntlProvider>
+    <HelmetProvider>
+      <IntlProvider locale={currentLanguage} messages={args.i18nMessages}>
+        <Fonts />
+        <div className="main-wrapper">
+          <Header
+            siteTitle={data.site.siteMetadata.title}
+            location={args.location}
+          />
+          <main className="content">
+            <noscript key="noscript" id="gatsby-noscript">
+              This app works best with JavaScript enabled.
+            </noscript>
+            {args.children}
+          </main>
+          <Footer />
+        </div>
+      </IntlProvider>
+    </HelmetProvider>
   );
 };
 

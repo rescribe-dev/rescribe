@@ -10,7 +10,7 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import { setContext } from 'apollo-link-context';
 import ws from 'ws';
-import { getAuthToken, isLoggedIn } from '../state/auth/getters';
+import { getAuthToken, isLoggedIn } from 'state/auth/getters';
 import { isSSR } from './checkSSR';
 import { useSecure } from './useSecure';
 
@@ -43,7 +43,7 @@ const wsForNode = isSSR ? ws : null;
 
 export const initializeApolloClient = async (): Promise<void> => {
   if (!process.env.GATSBY_API_URL) {
-    throw new Error('no api url provided');
+    console.error('no api url provided');
   }
   let link = httpLink;
   const authToken = getAuthToken();

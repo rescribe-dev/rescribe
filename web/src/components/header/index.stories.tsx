@@ -1,6 +1,6 @@
 import React from 'react';
 import HeaderComponent from '.';
-import '../../storybook/global';
+import 'storybook/global';
 // @ts-ignore
 import markdown from './README.md';
 

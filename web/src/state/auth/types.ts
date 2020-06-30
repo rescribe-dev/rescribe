@@ -1,4 +1,4 @@
-import { UserFieldsFragment } from '../../lib/generated/datamodel';
+import { UserFieldsFragment } from 'lib/generated/datamodel';
 
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';

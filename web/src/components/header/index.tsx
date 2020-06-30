@@ -21,27 +21,27 @@ import {
   Col,
   Container,
 } from 'reactstrap';
-import { isLoggedIn } from '../../state/auth/getters';
+import { isLoggedIn } from 'state/auth/getters';
 import { useDispatch, useSelector } from 'react-redux';
 import { WindowLocation, createHistory, HistorySource } from '@reach/router';
-import { isSSR } from '../../utils/checkSSR';
-import { AppThunkDispatch } from '../../state/thunk';
-import { AuthActionTypes } from '../../state/auth/types';
-import { thunkLogout } from '../../state/auth/thunks';
+import { isSSR } from 'utils/checkSSR';
+import { AppThunkDispatch } from 'state/thunk';
+import { AuthActionTypes } from 'state/auth/types';
+import { thunkLogout } from 'state/auth/thunks';
 import { Formik, FormikValues } from 'formik';
 import { FormattedMessage } from 'react-intl';
 import { Dispatch } from 'redux';
-import { RootState } from '../../state';
-import { setQuery } from '../../state/search/actions';
-import { getSearchURL, getQuery } from '../../state/search/getters';
-import { SearchActionTypes } from '../../state/search/types';
-import { thunkSearch } from '../../state/search/thunks';
+import { RootState } from 'state';
+import { setQuery } from 'state/search/actions';
+import { getSearchURL, getQuery } from 'state/search/getters';
+import { SearchActionTypes } from 'state/search/types';
+import { thunkSearch } from 'state/search/thunks';
 import { toast } from 'react-toastify';
 
 import './index.scss';
-import { queryMinLength } from '../../utils/variables';
-import sleep from '../../utils/sleep';
-import { capitalizeFirstLetter } from '../../utils/misc';
+import { queryMinLength } from 'utils/variables';
+import sleep from 'utils/sleep';
+import { capitalizeFirstLetter } from 'utils/misc';
 
 interface HeaderArgs {
   siteTitle: string;

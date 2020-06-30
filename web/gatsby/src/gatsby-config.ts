@@ -16,7 +16,7 @@ export default {
     },
   },
   plugins: [
-    'gatsby-plugin-react-helmet',
+    'gatsby-plugin-react-helmet-async',
     // Add typescript stack into webpack
     'gatsby-plugin-typescript',
     'gatsby-plugin-sass',

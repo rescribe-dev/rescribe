@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "src",
     "outDir": "./dist/",
     "module": "commonjs",
     "target": "esnext",
@@ -15,6 +16,7 @@
     "esModuleInterop": true
   },
   "include": [
+    "src",
     "./src/**/*"
   ],
   "exclude": [
