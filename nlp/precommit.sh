@@ -14,10 +14,13 @@ autopep8 --exclude='./envs' --in-place --recursive .
 pylint src
 
 # check types
-mypy src
+mypy src --ignore-missing-imports
 
 # save current environment to file
-conda env export > environment.yml
+conda env export --no-builds | grep -v "^prefix: " > environment.yml
+
+# alternative:
+# conda list -e | sed -E "s/^(.*\=.*)(\=.*)/\1/" > requirements.txt
 
 echo 'done with nlp precommit'
 
