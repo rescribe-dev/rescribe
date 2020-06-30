@@ -1,7 +1,7 @@
 import { store } from '../reduxWrapper';
 import { RootState } from '..';
-import { searchParamKeys } from '../../utils/variables';
-import { isSSR } from '../../utils/checkSSR';
+import { searchParamKeys } from 'utils/variables';
+import { isSSR } from 'utils/checkSSR';
 
 export const getQuery = (): string => {
   const state = (store.getState() as RootState).searchReducer;

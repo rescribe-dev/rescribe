@@ -10,7 +10,7 @@ import {
   SET_HAS_SEARCHED,
   SET_LANGUAGES,
 } from './types';
-import { SearchQuery, Language } from '../../lib/generated/datamodel';
+import { SearchQuery, Language } from 'lib/generated/datamodel';
 import ObjectId from 'bson-objectid';
 
 export const setSearchResults = (

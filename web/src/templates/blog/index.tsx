@@ -1,35 +1,18 @@
 import React from 'react';
-import Img, { FluidObject } from 'gatsby-image';
+import SEO from 'components/seo';
+import Layout from 'layouts';
 
-interface BlogData {
-  title: string;
-  subtitle: string;
-  content: string;
-  hero: {
-    image: FluidObject;
-  };
-}
+import BlogContent, {
+  BlogPageDataProps,
+} from 'components/templates/blog/index';
+import BlogMessagesEnglish from 'locale/templates/user/en';
 
-interface BlogArgs {
-  pageContext: {
-    id: string;
-  };
-  data: {
-    blogPost: {
-      data: BlogData;
-    };
-  };
-}
-
-const BlogPost = (args: BlogArgs): JSX.Element => {
-  const postData = args.data.blogPost.data as BlogData;
+const BlogPost = (args: BlogPageDataProps): JSX.Element => {
   return (
-    <div id="blogpost">
-      {postData.hero.image ? <Img fluid={postData.hero.image} /> : <></>}
-      <h1>{postData.title}</h1>
-      <h2>{postData.subtitle}</h2>
-      <div>{postData.content}</div>
-    </div>
+    <Layout location={args.location}>
+      <SEO title="Blog" />
+      <BlogContent {...args} messages={BlogMessagesEnglish} />
+    </Layout>
   );
 };
 

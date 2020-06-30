@@ -1,5 +1,5 @@
 import { navigate } from 'gatsby';
-import { isLoggedIn } from '../state/auth/getters';
+import { isLoggedIn } from 'state/auth/getters';
 import React, { useState, ReactNode } from 'react';
 
 interface PrivateRouteData {

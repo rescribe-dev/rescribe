@@ -1,5 +1,5 @@
 import { AppThunkAction } from '../thunk';
-import { client } from '../../utils/apollo';
+import { client } from 'utils/apollo';
 import { login, setUser, logout } from './actions';
 import {
   Logout,
@@ -12,7 +12,7 @@ import {
   UserQuery,
   UserQueryVariables,
   UserFieldsFragment,
-} from '../../lib/generated/datamodel';
+} from 'lib/generated/datamodel';
 
 const checkAuth = async (args: LoginMutationVariables): Promise<string> => {
   const apolloRes = await client.mutate<LoginMutation, LoginMutationVariables>({
