@@ -2,7 +2,7 @@
 
 > a better way to search code
 
-[Documentation](https://docs.rescribe.dev)
+[Documentation](https://docs.rescribe.dev) [Website](https://rescribe.dev) [Status](https://status.rescribe.dev)
 
 ![License](https://img.shields.io/badge/License-CC--BY--NC--SA--4.0-green)
 

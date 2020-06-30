@@ -83,12 +83,7 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
             siteTitle={data.site.siteMetadata.title}
             location={args.location}
           />
-          <main className="content">
-            <noscript key="noscript" id="gatsby-noscript">
-              This app works best with JavaScript enabled.
-            </noscript>
-            {args.children}
-          </main>
+          <main className="content">{args.children}</main>
           <Footer />
         </div>
       </IntlProvider>
