@@ -11,7 +11,7 @@ import {
   SET_HAS_SEARCHED,
   SET_LANGUAGES,
 } from './types';
-import { perpageOptions } from '../../utils/variables';
+import { perpageOptions } from 'utils/variables';
 
 const initialState: SearchState = {
   searchResults: null,

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { store } from '../reduxWrapper';
 import { logout, setToken } from './actions';
-import { axiosClient } from '../../utils/axios';
+import { axiosClient } from 'utils/axios';
 import { runLogout } from './thunks';
 import { RootState } from '..';
 

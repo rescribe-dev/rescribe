@@ -1,17 +1,13 @@
 import React from 'react';
-import { Link, PageProps } from 'gatsby';
+import ErrorContent, { ErrorPageDataProps } from 'components/pages/404/index';
+import ErrorMessagesEnglish from 'locale/pages/404/en';
+import Layout from 'layouts/index';
+import SEO from 'components/seo';
 
-import './index.scss';
-
-import Layout from '../../layouts/index';
-import SEO from '../../components/seo';
-
-const NotFoundPage = (args: PageProps): JSX.Element => (
+const NotFoundPage = (args: ErrorPageDataProps): JSX.Element => (
   <Layout location={args.location}>
     <SEO title="404" />
-    <h1>NOT FOUND</h1>
-    <p>The page you were looking for was not found.</p>
-    <Link to="/">Go home</Link>
+    <ErrorContent {...args} messages={ErrorMessagesEnglish} />
   </Layout>
 );
 

@@ -1,10 +1,10 @@
 import { store } from '../reduxWrapper';
-import { searchParamKeys } from '../../utils/variables';
+import { searchParamKeys } from 'utils/variables';
 import { setQuery, setLanguages } from './actions';
 import { RootState } from '..';
 import { isEqual } from 'lodash';
-import { Language } from '../../lib/generated/datamodel';
-import { capitalizeFirstLetter } from '../../utils/misc';
+import { Language } from 'lib/generated/datamodel';
+import { capitalizeFirstLetter } from 'utils/misc';
 
 export const processSearchParams = (searchParamsStr: string): boolean => {
   const state = (store.getState() as RootState).searchReducer;

@@ -1,14 +1,14 @@
 import { AppThunkAction } from '../thunk';
-import { client } from '../../utils/apollo';
+import { client } from 'utils/apollo';
 import {
   SearchQueryVariables,
   SearchQuery,
   Search,
-} from '../../lib/generated/datamodel';
+} from 'lib/generated/datamodel';
 import { store } from '../reduxWrapper';
 import { RootState } from '..';
 import { setSearchResults, setSearching, setHasSearched } from './actions';
-import { queryMinLength } from '../../utils/variables';
+import { queryMinLength } from 'utils/variables';
 
 const search = async (): Promise<SearchQuery> => {
   const state = (store.getState() as RootState).searchReducer;
