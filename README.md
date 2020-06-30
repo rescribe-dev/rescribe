@@ -6,6 +6,8 @@
 
 ![License](https://img.shields.io/badge/License-CC--BY--NC--SA--4.0-green)
 
+**Note:** All source files are protected by the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license, included in this directory. Users of this source code (located in this current directory and any sub-directories) may not violate the terms of said license.
+
 [![Netlify Status](https://api.netlify.com/api/v1/badges/63eb1e80-d14d-4410-a514-4e39f9598710/deploy-status)](https://app.netlify.com/sites/rescribe/deploys)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/008527ea-a085-45a4-9d8b-d2e4f3e39886/deploy-status)](https://app.netlify.com/sites/rescribe-status/deploys)
 
