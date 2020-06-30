@@ -7,14 +7,14 @@ from pandas import DataFrame
 from google.cloud import bigquery
 from big_query_helper import BigQueryHelper as bqh
 
-dataset_length: int = 100000
+dataset_length: int = 5000
 credentials_file: str = '../bigquery_credentials.json'
 questions_output: str = '../datasets/post-questions.csv'
 
 
-def main():
+def dataload(dataset_length: int, credentials_file: str, questions_output: str):
     """
-    main dataload function
+    externally callable version of the main dataload function
     """
     client = bigquery.Client.from_service_account_json(
         abspath(join(dirname(__file__), credentials_file)))
@@ -38,6 +38,15 @@ def main():
     questions: DataFrame = data.query_to_pandas(query)
 
     questions.to_csv(abspath(join(dirname(__file__), questions_output)))
+
+    return questions
+
+
+def main():
+    """
+    main dataload function
+    """
+    questions = dataload(dataset_length, credentials_file, questions_output)
 
     print("\nMETADATA\n")
     print(questions.dtypes)
