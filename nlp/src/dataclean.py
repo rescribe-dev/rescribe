@@ -9,18 +9,19 @@ from os import mkdir
 from typing import List, Set, Union
 from pandas import DataFrame, read_csv, Series
 from dataload import questions_output
+from variables import clean_data_folder, model_input_path
 
 BATCH_SIZE: int = 1000
 
 
 def get_classifications(dataframe: DataFrame, classifications: List[str],
-                        output_init: List[List[object]] = None,
-                        delim: str = '|', column: str = "__tags__") -> List[List[object]]:
+                        output_init: List[List[int]] = None,
+                        delim: str = '|', column: str = "__tags__") -> List[List[int]]:
     """
     get classifications
     """
     if output_init:
-        output: List[List[object]] = output_init
+        output: List[List[int]] = output_init
     for index, tags in enumerate(dataframe[column]):
         tag_list: List[str] = tags.split(delim)
         for tag in tag_list:
@@ -43,7 +44,7 @@ def get_classification_labels(dataframe: DataFrame,
     return set(classification_list)
 
 
-def dataclean(clean_data_folder: str, model_input_path: str) -> None:
+def dataclean() -> None:
     """
     data clean
     """
@@ -51,14 +52,13 @@ def dataclean(clean_data_folder: str, model_input_path: str) -> None:
         abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
 
     classification_labels_lol: List[List[str]] = []
-    classifications: List[List[object]] = []
 
     for chunk in df_chunk:
-        chunk: DataFrame = chunk.rename(
+        chunk_df: DataFrame = chunk.rename(
             columns={"id": "__id__", "title": "__title__", "tags": "__tags__"})
         # get all labels and save them
         classification_labels_lol.append(
-            list(get_classification_labels(chunk)))
+            list(get_classification_labels(chunk_df)))
 
     # list comprehension to flatten out the list of lists of labels
     classification_labels_list: List[str] = [
@@ -73,38 +73,35 @@ def dataclean(clean_data_folder: str, model_input_path: str) -> None:
         pickle.dump(classification_labels, pickle_file)
     del df_chunk
 
-    df_chunk: Union[DataFrame] = read_csv(
+    df_chunk_2: Union[DataFrame] = read_csv(
         abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
-    classification_labels: List[str] = list(classification_labels)
     nrows: int = BATCH_SIZE
-    ncols: int = len(classification_labels)
+    ncols: int = len(classification_labels_list)
     output: List[List[int]] = []
     for _ in range(nrows):
         output.append([0] * ncols)
 
-    for i, chunk in enumerate(df_chunk):
+    for i, chunk in enumerate(df_chunk_2):
         chunk = chunk.rename(
             columns={"id": "__id__", "title": "__title__", "tags": "__tags__"})
         title: Union[DataFrame] = chunk[["__title__", "__tags__"]]
         # get the classifications of the titles in the form of a list of lists
-        classifications: List[List[object]] = get_classifications(
-            chunk, classification_labels, output_init=output)
+        classifications: List[List[int]] = get_classifications(
+            chunk, classification_labels_list, output_init=output)
         df_clean: DataFrame = DataFrame(
-            classifications, columns=classification_labels)
+            classifications, columns=classification_labels_list)
         df_clean["__title__"] = title.__title__.values.tolist()
         df_clean["__tags__"] = title.__tags__.values.tolist()
         df_clean.to_csv(
             abspath(join(dirname(__file__), f"{clean_data_folder}/{i}.csv")), index=False)
-    del df_chunk
+    del df_chunk_2
 
 
 def main():
     """
     main clean data script
     """
-    clean_data_folder: str = '../clean_data'
-    model_input_path: str = '.model_inputs'
-    dataclean(clean_data_folder, model_input_path)
+    dataclean()
 
 
 if __name__ == '__main__':
