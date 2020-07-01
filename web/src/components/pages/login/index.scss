@@ -1,1 +1,12 @@
-// put custom styles herei
+// put custom styles here
+
+#fillPageContainer {
+  height: 80vh;
+}
+
+@media only screen and (max-width: 600px) {
+  #fillPageContainer {
+    height: 100%;
+    margin-top: 2rem;
+  }
+}

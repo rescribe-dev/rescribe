@@ -36,6 +36,7 @@ import {
   lowercaseLetterRegex,
   numberRegex,
 } from 'utils/variables';
+import SocialButtons from 'components/SocialButtons';
 
 const loaderCSS = css`
   display: block;
@@ -67,10 +68,19 @@ const SignUpContent = (): JSX.Element => {
       dispatchAuthThunk(thunkLogout());
     });
   return (
-    <Container>
-      <Row>
-        <Col>Social Sign Up</Col>
+    <Container className="h-100">
+      <Row className="justify-content-center align-items-center h-100">
         <Col>
+          <SocialButtons signUp={true} />
+        </Col>
+        <Col>
+          <h3
+            style={{
+              marginBottom: '1rem',
+            }}
+          >
+            Sign Up
+          </h3>
           <Formik
             initialValues={{
               username: '',
@@ -189,7 +199,7 @@ const SignUpContent = (): JSX.Element => {
               handleSubmit,
               isSubmitting,
             }) => (
-              <Form>
+              <Form className="underline-inputs">
                 <FormGroup>
                   <Label for="username">Username</Label>
                   <Input
@@ -305,6 +315,11 @@ const SignUpContent = (): JSX.Element => {
                 )}
                 <Button
                   type="submit"
+                  color="primary"
+                  style={{
+                    width: '100%',
+                    borderRadius: '23px',
+                  }}
                   onClick={(evt: React.MouseEvent) => {
                     evt.preventDefault();
                     handleSubmit();

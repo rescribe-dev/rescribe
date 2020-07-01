@@ -55,7 +55,7 @@ export default {
     {
       resolve: 'gatsby-plugin-typography',
       options: {
-        pathToConfigModule: './typography',
+        pathToConfigModule: './gatsby/.gatsby/typography',
       },
     },
     {

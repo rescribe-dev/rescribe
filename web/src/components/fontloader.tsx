@@ -6,7 +6,7 @@ const FontLoader = (): JSX.Element => {
   useEffect(() => {
     WebFont.load({
       google: {
-        families: ['Noto+Sans', 'Inconsolata'],
+        families: ['Noto+Sans:wght@400;700', 'Inconsolata'],
       },
     });
   });

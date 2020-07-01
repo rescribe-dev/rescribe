@@ -15,6 +15,7 @@ module.exports = {
       'deployment/docker',
       'deployment/vscode',
     ],
+    Permissions: ['permissions/github'],
     Development: ['development/index', 'development/nlp'],
     Notes: ['notes/index', 'notes/github'],
   },
