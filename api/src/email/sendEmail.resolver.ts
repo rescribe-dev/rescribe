@@ -1,6 +1,5 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { IsEmail, MinLength } from 'class-validator';
-import { nameMinLen } from '../utils/variables';
+import { IsEmail } from 'class-validator';
 import sendgridClient from '@sendgrid/client';
 import { configData } from '../utils/config';
 import { sendgridAPIVersion } from './sendgrid';
@@ -18,9 +17,6 @@ class SendTestEmailArgs {
   email: string;
 
   @Field(_type => String, { description: 'name' })
-  @MinLength(nameMinLen, {
-    message: `name must contain at least ${nameMinLen} characters`
-  })
   name: string;
 
   @Field(_type => String, { description: 'content', nullable: true })

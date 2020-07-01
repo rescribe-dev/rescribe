@@ -4,7 +4,7 @@ import { verifyGuest } from './checkAuth';
 import { generateJWTAccess, generateJWTGuest, generateJWTRefresh } from '../utils/jwt';
 import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
-import { passwordMinLen, specialCharacterRegex } from '../utils/variables';
+import { passwordMinLen, specialCharacterRegex, numberRegex, capitalLetterRegex, lowercaseLetterRegex } from '../utils/variables';
 import { authNotificationsTrigger } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
 import User, { UserModel } from '../schema/auth/user';
@@ -25,6 +25,15 @@ class LoginArgs {
   @Field(_type => String, { description: 'password' })
   @MinLength(passwordMinLen, {
     message: `password must contain at least ${passwordMinLen} characters`
+  })
+  @Matches(lowercaseLetterRegex, {
+    message: 'no lowercase letter found'
+  })
+  @Matches(capitalLetterRegex, {
+    message: 'no capital letter found'
+  })
+  @Matches(numberRegex, {
+    message: 'no number found'
   })
   @Matches(specialCharacterRegex, {
     message: 'no special characters found'

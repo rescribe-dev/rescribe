@@ -36,6 +36,7 @@ import { setQuery } from 'state/search/actions';
 import { getSearchURL, getQuery } from 'state/search/getters';
 import { SearchActionTypes } from 'state/search/types';
 import { thunkSearch } from 'state/search/thunks';
+import SignUpModal from 'components/modals/SignUpModal';
 import { toast } from 'react-toastify';
 
 import './index.scss';
@@ -50,8 +51,22 @@ interface HeaderArgs {
 
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
 const Header = (args: HeaderArgs): JSX.Element => {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen);
+  const [headerIsOpen, setHeaderIsOpen] = useState(false);
+  const [signupIsOpen, setSignupIsOpen] = useState(false);
+  const toggleHeader = () => setHeaderIsOpen(!headerIsOpen);
+
+  const pathname =
+    typeof location === 'string'
+      ? location
+      : (args.location as WindowLocation).pathname;
+
+  const toggleSignUp = () => {
+    if (pathname === '/signup' && !signupIsOpen) {
+      return;
+    }
+    setSignupIsOpen(!signupIsOpen);
+  };
+
   isLoggedIn()
     .then((_loggedIn) => {
       // user logged in
@@ -77,10 +92,6 @@ const Header = (args: HeaderArgs): JSX.Element => {
     dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
     dispatch = useDispatch();
   }
-  const pathname =
-    typeof location === 'string'
-      ? location
-      : (args.location as WindowLocation).pathname;
 
   const formRef = useRef<FormikValues>();
   useEffect(() => {
@@ -103,6 +114,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
 
   return (
     <>
+      <SignUpModal isOpen={signupIsOpen} toggle={toggleSignUp} />
       <Navbar light expand="md">
         <NavbarBrand tag={Link} to="/">
           {args.siteTitle}
@@ -206,8 +218,8 @@ const Header = (args: HeaderArgs): JSX.Element => {
               </Col>
             )}
             <Col xs={'auto'}>
-              <NavbarToggler onClick={toggle} />
-              <Collapse isOpen={isOpen} navbar>
+              <NavbarToggler onClick={toggleHeader} />
+              <Collapse isOpen={headerIsOpen} navbar>
                 <Nav navbar className="mr-auto">
                   <NavLink className="navbar-link" tag={Link} to="/">
                     <FormattedMessage id="how it works">
@@ -243,8 +255,12 @@ const Header = (args: HeaderArgs): JSX.Element => {
                         <NavLink
                           className="navbar-link"
                           tag={Link}
-                          to="/register"
-                          key="register"
+                          key="sign-up"
+                          to="#"
+                          onClick={(evt) => {
+                            evt.preventDefault();
+                            toggleSignUp();
+                          }}
                         >
                           <FormattedMessage id="sign up">
                             {(message: string) =>
