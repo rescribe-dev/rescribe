@@ -16,7 +16,12 @@ const SignUpModal = (args: args): JSX.Element => {
         isOpen={args.isOpen}
         toggle={args.toggle}
       >
-        <ModalHeader toggle={args.toggle}>Sign up</ModalHeader>
+        <ModalHeader
+          style={{
+            borderBottom: 0,
+          }}
+          toggle={args.toggle}
+        />
         <ModalBody>
           <SignUpContent />
         </ModalBody>

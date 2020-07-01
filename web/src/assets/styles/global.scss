@@ -25,13 +25,9 @@ a.link-no-style {
   font: inherit;
 }
 
-body {
-  font-family: "Noto Sans" "Sans-Serif";
-}
-
 .default-container {
   margin-top: 3rem;
-  margin-bottom: 5rem
+  margin-bottom: 5rem;
 }
 
 .form-input {
@@ -43,6 +39,58 @@ body {
 }
 
 :root {
-  --pastel-red: #D9534F;
-  --deep-blue: #04128C;
+  --pastel-red: #d9534f;
+  --deep-blue: #04128c;
+  --lines: #dddddd;
+}
+
+// TODO - change to floating labels: https://codepen.io/elujambio/pen/yjwzGP
+// https://medium.com/@eugeniolujambio/accessible-css-only-floating-labels-74bf9173bc5f
+
+.floating-labels {
+  input {
+    transition: all 0.3s linear;
+    -webkit-appearance: none;
+    &:focus {
+      border-bottom: solid 1px $primary;
+      outline: 0;
+      box-shadow: 0 2px 6px -8px rgba($primary, 0.45);
+    }
+  }
+  .floating-label {
+    position: relative;
+    margin-bottom: 10px;
+    label {
+      position: absolute;
+      top: calc(50% - 7px);
+      left: 0;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    input:not(:placeholder-shown) {
+      padding: 28px 0px 12px 0px;
+    }
+    input:not(:placeholder-shown) + label {
+      transform: translateY(-10px);
+      opacity: 0.7;
+    }
+  }
+}
+
+.underline-inputs {
+  input,
+  select.form-control {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--lines);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  input,
+  select.form-control:focus {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
 }
