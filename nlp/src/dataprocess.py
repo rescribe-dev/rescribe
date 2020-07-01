@@ -13,6 +13,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from list_files import list_files
 from load_model_from_tfhub import load_model_from_tfhub
 from transformers import BertTokenizer
+from variables import clean_data_folder, model_input_path, bert_path
 
 
 def _get_segments(sentences: List[List[str]]) -> List[List[int]]:
@@ -60,9 +61,6 @@ def main():
     # very important - use only this bert version in tfhub since its tf2 compatible
     # all the instructions are available in the same page
     # https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1
-    clean_data_folder: str = '../clean_data'
-    model_input_path: str = '.model_inputs'
-    bert_path: str = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
     max_seq_length: int = 64
     holdout: float = 0.2
     # originally duplicated code

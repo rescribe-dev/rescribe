@@ -12,6 +12,7 @@ from tensorflow.keras.metrics import Metric
 import numpy as np
 from list_files import list_files
 from load_model_from_tfhub import load_model_from_tfhub
+from variables import bert_path
 
 
 def build_model_fully_connected(bert_layer: Layer, num_categories: int, max_sequence_length: int = 64) -> Model:
@@ -23,11 +24,11 @@ def build_model_fully_connected(bert_layer: Layer, num_categories: int, max_sequ
     input_segments: Input = Input(
         (max_sequence_length,), dtype=tf.int32, name='input_segments')
     _, sout = bert_layer([input_word_ids, input_masks, input_segments])
-    x: Dense = Dense(
+    x_1: Dense = Dense(
         int(1.2 * num_categories), activation='relu')(sout)
-    x: Layer = tf.keras.layers.GlobalAveragePooling1D()(x)
+    x_2: Layer = tf.keras.layers.GlobalAveragePooling1D()(x_1)
     output_: Dense = Dense(
-        int(num_categories), activation='sigmoid', name='output')(x)
+        int(num_categories), activation='sigmoid', name='output')(x_2)
 
     model: Model = Model(
         [input_word_ids, input_masks, input_segments], output_)
@@ -44,15 +45,15 @@ def build_model_bertembed(num_categories: int, max_sequence_length: int = 64) ->
     # The exponential activation function for our output dense layer is the ideal version
     input_: Input = Input(
         shape=(max_sequence_length, 768), name='bert_encoding')
-    x_data: Dense = Dense(int(2 * num_categories),
-                          activation='exponential')(input_)
-    # x_data = tf.keras.layers.LSTM(int(2*num_categories), return_sequences=True)(x_data)
-    x_data: Layer = tf.keras.layers.Dropout(0.3)(x_data)
-    x_data: Dense = Dense(
-        int(1.4 * num_categories), activation='relu')(x_data)
-    x_data: Layer = tf.keras.layers.GlobalAveragePooling1D()(x_data)
+    x_1: Dense = Dense(int(2 * num_categories),
+                       activation='exponential')(input_)
+    # x_data = tf.keras.layers.LSTM(int(2*num_categories), return_sequences=True)(x_1)
+    x_2: Layer = tf.keras.layers.Dropout(0.3)(x_1)
+    x_3: Dense = Dense(
+        int(1.4 * num_categories), activation='relu')(x_2)
+    x_4: Layer = tf.keras.layers.GlobalAveragePooling1D()(x_3)
     output_ = tf.keras.layers.Dense(
-        int(num_categories), activation='sigmoid', name='output')(x_data)
+        int(num_categories), activation='sigmoid', name='output')(x_4)
     model: Model = Model(input_, output_)
     print(model.summary())
     return model
@@ -78,7 +79,6 @@ def main():
     """
     model_dir: str = "saved_model"
     model_input_path: str = ".model_inputs"
-    bert_path: str = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
     bert_layer, _bert_tokenizer = load_model_from_tfhub(bert_path)
 
     with open(f"{model_input_path}/classification_labels.pkl", 'rb') as pickle_file:
@@ -96,9 +96,9 @@ def main():
                 test_inputs: List[tf.Tensor]
                 [bert_inputs, test_inputs] = pickle.load(pickle_file)
             with open(f"{model_input_path}/raw_bert_outputs{index}.pkl", 'rb') as pickle_file:
-                xtr_bert: np.ndarray
-                xte_bert: np.ndarray
-                [xtr_bert, xte_bert] = pickle.load(pickle_file)
+                _xtr_bert: np.ndarray
+                _xte_bert: np.ndarray
+                [_xtr_bert, _xte_bert] = pickle.load(pickle_file)
             with open(f"{model_input_path}/data_labels{index}.pkl", 'rb') as pickle_file:
                 ytr: np.ndarray
                 yte: np.ndarray
