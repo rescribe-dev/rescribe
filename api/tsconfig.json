@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "src",
     "declaration": true,
     "module": "commonjs",
     "moduleResolution": "node",
@@ -26,6 +27,7 @@
     "pretty": false
   },
   "include": [
+    "src",
     "src/**/*.ts"
   ],
   "compileOnSave": false,

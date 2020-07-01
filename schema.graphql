@@ -433,8 +433,8 @@ type Mutation {
     # recaptcha token
     recaptchaToken: String!
 
-    # email
-    email: String!
+    # username or email
+    usernameEmail: String!
 
     # password
     password: String!

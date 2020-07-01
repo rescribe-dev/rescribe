@@ -1,7 +1,8 @@
 import { LoginMessages } from './loginMessages';
 
 const englishMessages: LoginMessages = {
-  email: 'email',
+  email: 'email / username',
+  password: 'password',
 };
 
 export default englishMessages;

@@ -3,7 +3,7 @@ import { GraphQLContext } from '../utils/context';
 import { verifyGuest } from './checkAuth';
 import { generateJWTAccess, generateJWTGuest, generateJWTRefresh } from '../utils/jwt';
 import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } from 'type-graphql';
-import { IsEmail, MinLength, Matches } from 'class-validator';
+import { MinLength, Matches } from 'class-validator';
 import { passwordMinLen, specialCharacterRegex, numberRegex, capitalLetterRegex, lowercaseLetterRegex } from '../utils/variables';
 import { authNotificationsTrigger } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
@@ -16,11 +16,8 @@ class LoginArgs {
   @Field(_type => String, { description: 'recaptcha token' })
   recaptchaToken: string;
 
-  @Field(_type => String, { description: 'email' })
-  @IsEmail({}, {
-    message: 'invalid email provided'
-  })
-  email: string;
+  @Field(_type => String, { description: 'username or email' })
+  usernameEmail: string;
 
   @Field(_type => String, { description: 'password' })
   @MinLength(passwordMinLen, {
@@ -48,13 +45,24 @@ class LoginResolvers {
     if (!(await verifyRecaptcha(args.recaptchaToken))) {
       throw new Error('invalid recaptcha token');
     }
-    const userRes = await UserModel.findOne({
-      email: args.email
-    });
-    if (!userRes) {
-      throw new Error(`cannot find user with email ${args.email}`);
+    let user: User;
+    if (args.usernameEmail.includes('@')) {
+      const userRes = await UserModel.findOne({
+        email: args.usernameEmail
+      });
+      if (!userRes) {
+        throw new Error(`cannot find user with email ${args.usernameEmail}`);
+      }
+      user = userRes as User;
+    } else {
+      const userRes = await UserModel.findOne({
+        username: args.usernameEmail
+      });
+      if (!userRes) {
+        throw new Error(`cannot find user with username ${args.usernameEmail}`);
+      }
+      user = userRes as User;
     }
-    const user = userRes as User;
     if (!user.emailVerified) {
       throw new Error('email is not verified');
     }

@@ -16,27 +16,37 @@ const runAPI = async (): Promise<void> => {
   const logger = initializeLogger();
   try {
     if (configData.CONNECT_ANTLR) {
+      logger.info('start antlr initialize');
       await initializeAntlr();
       logger.info('connected to antlr');
     }
     if (configData.CONNECT_NLP) {
+      logger.info('start nlp initialize');
       await initializeNLP();
       logger.info('connected to nlp');
     }
+    logger.info('start github initialize');
     initializeGithub();
     logger.info('github client initialized');
+    logger.info('start aws initialize');
     await initializeAWS();
     logger.info('aws initialized');
+    logger.info('start sendgrid initialize');
     await initializeSendgrid();
     logger.info('sendgrid connection initialized');
+    logger.info('start email templates initialize');
     await compileEmailTemplates();
     logger.info('email templates compiled');
+    logger.info('start elastic initialize');
     await initializeElastic();
     logger.info('connected to elasticsearch');
+    logger.info('start db initialize');
     await initializeDB();
     logger.info('database connection set up');
+    logger.info('start redis initialize');
     await initializeRedis();
     logger.info('connected to redis');
+    logger.info('start server initialize');
     await initializeServer();
     logger.info('server started');
   } catch(err) {
