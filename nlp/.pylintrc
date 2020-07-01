@@ -6,4 +6,6 @@ disable =
     invalid-name,
     line-too-long,
     too-many-arguments,
-    too-many-locals
+    too-many-locals,
+    broad-except,
+    wrong-import-order
