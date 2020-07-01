@@ -7,9 +7,50 @@ import pickle
 import gc
 import pandas as pd
 import numpy as np
-from _get_inputs import _get_inputs
+from typing import List
+import tensorflow as tf
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 from list_files import list_files
-from train import load_model_from_tfhub
+from load_model_from_tfhub import load_model_from_tfhub
+from transformers import BertTokenizer
+
+
+def _get_segments(sentences: List[List[str]]) -> List[List[int]]:
+    """
+    gets sentence segments
+    """
+    sentences_segments: List[List[int]] = []
+    for sent in list(sentences):
+        temp: List[int] = []
+        i: int = 0
+        for token in sent:
+            temp.append(i)
+            if token == "[SEP]":
+                i += 1
+        sentences_segments.append(temp)
+    return sentences_segments
+
+
+def _get_inputs(dataframe: pd.DataFrame, _maxlen: int, tokenizer: BertTokenizer) -> List[tf.Tensor]:
+    """
+    get inputs
+    """
+    # titles is a list of the question titles
+    titles_temp: List[str] = dataframe["__title__"].values.tolist()
+    titles: List[str] = ["[CLS] " +
+                         title.lower() + " [SEP]" for title in titles_temp]
+    titles_padded_temp: List[List[str]] = [
+        tokenizer.tokenize(title) for title in titles]
+    # titles mask is the bitmask for the titles padded out to the _maxlen
+    titles_mask: List[List[int]] = [
+        [1] * len(title) + [0] * (_maxlen - len(title)) for title in titles_padded_temp]
+    titles_padded: List[List[str]] = pad_sequences(
+        titles_padded_temp, dtype=object, maxlen=_maxlen, value='[PAD]', padding='post')
+    titles_segment: List[List[int]] = _get_segments(titles_padded)
+    titles_converted: List[List[int]] = [tokenizer.convert_tokens_to_ids(
+        title) for title in titles_padded]
+    return [tf.cast(titles_converted, tf.int32),
+            tf.cast(titles_segment, tf.int32), tf.cast(titles_mask, tf.int32)]
 
 
 def main():
@@ -22,9 +63,8 @@ def main():
     clean_data_folder: str = '../clean_data'
     model_input_path: str = '.model_inputs'
     bert_path: str = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
-    max_seq_length = 64
-    holdout = 0.2
-
+    max_seq_length: int = 64
+    holdout: float = 0.2
     # originally duplicated code
     bert_layer, bert_tokenizer = load_model_from_tfhub(bert_path)
 
@@ -33,38 +73,48 @@ def main():
     except FileExistsError:
         pass
 
-    files = list_files(f"{clean_data_folder}/", "csv")
+    files: List[str] = list_files(f"{clean_data_folder}/", "csv")
     for file_name in files:
         index: int = int(file_name.split('.')[0])
         data_frame: pd.DataFrame = pd.read_csv(
-            f"{clean_data_folder}/{file_name}")
-        labels = data_frame.drop(columns=["__title__"])
-        train = data_frame.iloc[:int(len(data_frame) * (1 - holdout))]
-        test = data_frame.iloc[int(len(data_frame) * (1 - holdout)):]
-        labels_train = labels[:int(len(labels) * (1 - holdout))]
-        labels_test = labels[int(len(data_frame) * (1 - holdout)):]
+            f"{clean_data_folder}/{file_name}", index_col=None)
+        labels: pd.DataFrame = data_frame.drop(
+            columns=["__title__", "__tags__"])
+        train: pd.DataFrame = data_frame.iloc[:int(
+            len(data_frame) * (1 - holdout))]
+        test: pd.DataFrame = data_frame.iloc[int(
+            len(data_frame) * (1 - holdout)):]
+        labels_train: pd.DataFrame = labels[:int(len(labels) * (1 - holdout))]
+        labels_test: pd.DataFrame = labels[int(
+            len(data_frame) * (1 - holdout)):]
 
-        bert_inputs = _get_inputs(
+        bert_inputs: List[tf.Tensor] = _get_inputs(
             dataframe=train, tokenizer=bert_tokenizer, _maxlen=max_seq_length)
-        test_inputs = _get_inputs(
+        test_inputs: List[tf.Tensor] = _get_inputs(
             dataframe=test, tokenizer=bert_tokenizer, _maxlen=max_seq_length)
 
         print(file_name)
         print(index)
         _, xtr_bert = bert_layer(bert_inputs)
-        ytr = labels_train
+        ytr: pd.DataFrame = labels_train
         _, xte_bert = bert_layer(test_inputs)
-        yte = labels_test
+        yte: pd.DataFrame = labels_test
 
-        xtr_bert = np.asarray(xtr_bert)
-        ytr = np.asarray(ytr)
-        xte_bert = np.asarray(xte_bert)
-        yte = np.asarray(yte)
+        xtr_bert: np.ndarray = np.asarray(xtr_bert)
+        ytr: np.ndarry = np.asarray(ytr)
+        xte_bert: np.ndarray = np.asarray(xte_bert)
+        yte: np.ndarray = np.asarray(yte)
 
-        model_inputs = [bert_inputs, test_inputs, xtr_bert, xte_bert, ytr, yte]
+        model_inputs: List[List[tf.Tensor]] = [bert_inputs, test_inputs]
+        raw_bert_outputs: List[np.ndarray] = [xtr_bert, xte_bert]
+        data_labels: List[np.ndarray] = [ytr, yte]
 
-        with open(f"{model_input_path}/{index}.pkl", 'w') as pickle_file:
+        with open(f"{model_input_path}/model_inputs{index}.pkl", 'wb') as pickle_file:
             pickle.dump(model_inputs, pickle_file)
+        with open(f"{model_input_path}/raw_bert_outputs{index}.pkl", 'wb') as pickle_file:
+            pickle.dump(raw_bert_outputs, pickle_file)
+        with open(f"{model_input_path}/data_labels{index}.pkl", 'wb') as pickle_file:
+            pickle.dump(data_labels, pickle_file)
     gc.collect()
 
 
