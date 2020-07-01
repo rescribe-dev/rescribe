@@ -11,11 +11,11 @@ credentials_file: str = '../bigquery_credentials.json'
 questions_output: str = '../datasets/post-questions.csv'
 
 
-def dataload(dataset_length: int):
+def dataload(dataset_length: int) -> DataFrame:
     """
     externally callable version of the main dataload function
     """
-    client = bigquery.Client.from_service_account_json(
+    client: bigquery.Client = bigquery.Client.from_service_account_json(
         abspath(join(dirname(__file__), credentials_file)))
 
     data = bqh(active_project="bigquery-public-data",
@@ -45,8 +45,8 @@ def main():
     """
     main dataload function
     """
-    dataset_length: int = 5000
-    questions = dataload(dataset_length)
+    dataset_length: int = 2000
+    questions: DataFrame = dataload(dataset_length)
 
     print("\nMETADATA\n")
     print(questions.dtypes)
