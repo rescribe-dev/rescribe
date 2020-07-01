@@ -22,7 +22,6 @@ import {
   AddToMailingListMutationVariables,
   AddToMailingList,
 } from 'lib/generated/datamodel';
-import { nameMinLen } from 'utils/variables';
 
 const loaderCSS = css`
   display: block;
@@ -65,12 +64,7 @@ const Newsletter = (): JSX.Element => {
             email: '',
           }}
           validationSchema={Yup.object().shape({
-            name: Yup.string()
-              .required('Name is required')
-              .min(
-                nameMinLen,
-                `name must be at least ${nameMinLen} characters long`
-              ),
+            name: Yup.string().required('Name is required'),
             email: Yup.string()
               .required('Email is required')
               .email('Email is invalid'),

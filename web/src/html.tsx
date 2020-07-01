@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function HTML(props) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const HTML = (props: any): JSX.Element => {
   return (
     <html {...props.htmlAttributes}>
       <head>
@@ -27,7 +28,7 @@ export default function HTML(props) {
       </body>
     </html>
   );
-}
+};
 
 HTML.propTypes = {
   htmlAttributes: PropTypes.object,
@@ -37,3 +38,5 @@ HTML.propTypes = {
   body: PropTypes.string,
   postBodyComponents: PropTypes.array,
 };
+
+export default HTML;

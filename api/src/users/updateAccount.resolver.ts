@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches, IsOptional } from 'class-validator';
-import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from '../utils/variables';
+import { passwordMinLen, specialCharacterRegex, saltRounds, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../utils/variables';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 
@@ -12,9 +12,6 @@ import { UserModel } from '../schema/auth/user';
 class UpdateArgs {
   @Field(_type => String, { description: 'name', nullable: true })
   @IsOptional()
-  @MinLength(nameMinLen, {
-    message: `name must contain at least ${nameMinLen} characters`
-  })
   name?: string;
 
   @Field(_type => String, { description: 'email', nullable: true })
@@ -28,6 +25,15 @@ class UpdateArgs {
   @IsOptional()
   @MinLength(passwordMinLen, {
     message: `password must contain at least ${passwordMinLen} characters`
+  })
+  @Matches(lowercaseLetterRegex, {
+    message: 'no lowercase letter found'
+  })
+  @Matches(capitalLetterRegex, {
+    message: 'no capital letter found'
+  })
+  @Matches(numberRegex, {
+    message: 'no number found'
   })
   @Matches(specialCharacterRegex, {
     message: 'no special characters found'
@@ -49,7 +55,7 @@ class UpdateAccountResolver {
       throw new Error('user not logged in');
     }
     const userUpdateData: UserUpdateData = {};
-    if (name) {
+    if (name && name.length > 0) {
       userUpdateData.name = name;
     }
     if (email) {

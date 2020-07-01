@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
-import { nameMinLen, passwordMinLen, specialCharacterRegex, saltRounds } from '../utils/variables';
+import { passwordMinLen, specialCharacterRegex, saltRounds, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../utils/variables';
 import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID, ObjectId } from 'mongodb';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';
@@ -18,9 +18,6 @@ class RegisterArgs {
   recaptchaToken: string;
 
   @Field(_type => String, { description: 'name' })
-  @MinLength(nameMinLen, {
-    message: `name must contain at least ${nameMinLen} characters`
-  })
   name: string;
 
   @Field(_type => String, { description: 'username' })
@@ -35,6 +32,15 @@ class RegisterArgs {
   @Field(_type => String, { description: 'password' })
   @MinLength(passwordMinLen, {
     message: `password must contain at least ${passwordMinLen} characters`
+  })
+  @Matches(lowercaseLetterRegex, {
+    message: 'no lowercase letter found'
+  })
+  @Matches(capitalLetterRegex, {
+    message: 'no capital letter found'
+  })
+  @Matches(numberRegex, {
+    message: 'no number found'
   })
   @Matches(specialCharacterRegex, {
     message: 'no special characters found'
