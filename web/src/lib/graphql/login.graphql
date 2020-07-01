@@ -1,3 +1,3 @@
-mutation login($email: String!, $password: String!, $recaptchaToken: String!) {
-  login(email: $email, password: $password, recaptchaToken: $recaptchaToken)
+mutation login($usernameEmail: String!, $password: String!, $recaptchaToken: String!) {
+  login(usernameEmail: $usernameEmail, password: $password, recaptchaToken: $recaptchaToken)
 }
