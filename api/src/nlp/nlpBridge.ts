@@ -13,14 +13,15 @@ interface NLPProcessInput {
 }
 
 export const processInput = async(query: string): Promise<NLPProcessOutput> => {
-  const processOutput = await nlpClient.put<NLPProcessInput, NLPProcessOutput>({
+  const input: NLPProcessInput = {
     query
-  });
+  };
+  const processOutput = await nlpClient.put<NLPProcessOutput>('/processInput', input);
   if (!processOutput.data) {
-    throw new Error('cannot find process input data')
+    throw new Error('cannot find process input data');
   }
   return processOutput.data;
-}
+};
 
 export const pingNLP = async (): Promise<boolean> => {
   try {
