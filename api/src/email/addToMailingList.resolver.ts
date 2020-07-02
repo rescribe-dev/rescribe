@@ -83,6 +83,23 @@ export const addToMailingListUtil = async (args: AddToMailingListUtilArgs): Prom
       method: 'PUT',
       url: `${sendgridAPIVersion}/marketing/contacts`,
     });
+  const emailTemplateData = emailTemplateFiles.welcomeNewsletter;
+  const template = emailTemplateData.template;
+  if (!template) {
+    throw new Error('cannot find welcome newsletter email template');
+  }
+  const emailData = template({
+    name: args.name
+  });
+  await sendEmailUtil({
+    content: emailData,
+    email: args.email,
+    sendByEmail: configData.MAILING_LIST_EMAIL,
+    sendByName: configData.MAILING_LIST_EMAIL_NAME,
+    unsubscribeGroupID: configData.SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID,
+    name: args.name,
+    subject: emailTemplateData.subject
+  });
 };
 
 @Resolver()
@@ -110,7 +127,7 @@ class AddToMailingListResolver {
     const verify_token = await generateJWTVerifyEmailNewsletter(args.email, args.name);
     const emailData = template({
       name: args.name,
-      verify_url: `${configData.WEBSITE_URL}?token=${verify_token}&verify_newsletter=true`
+      verify_url: `${configData.WEBSITE_URL}?token=${verify_token}&verify_newsletter=true`,
     });
     await sendEmailUtil({
       content: emailData,

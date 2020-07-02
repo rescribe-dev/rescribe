@@ -21,6 +21,7 @@
 ![Upload CLI](https://github.com/rescribe-dev/rescribe/workflows/Upload%20CLI/badge.svg)
 ![Upload vscode](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Vscode/badge.svg)
 ![Upload Github](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Github/badge.svg)
-![Test Code](https://github.com/rescribe-dev/rescribe/workflows/Test%20Code/badge.svg)
+![Upload Emails](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Github/badge.svg)
+![Test Code](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Emails/badge.svg)
 
 [![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/IU2gHt3Qn)
