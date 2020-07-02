@@ -8,4 +8,5 @@ disable =
     too-many-arguments,
     too-many-locals,
     broad-except,
-    wrong-import-order
+    wrong-import-order,
+    global-statement

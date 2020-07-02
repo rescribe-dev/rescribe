@@ -12,7 +12,7 @@ from tensorflow.keras.metrics import Metric
 import numpy as np
 from list_files import list_files
 from load_model_from_tfhub import load_model_from_tfhub
-from variables import bert_path
+from variables import bert_path, model_dir
 
 
 def build_model_fully_connected(bert_layer: Layer, num_categories: int, max_sequence_length: int = 64) -> Model:
@@ -77,7 +77,6 @@ def main():
     """
     main training function for handling batched training
     """
-    model_dir: str = "saved_model"
     model_input_path: str = ".model_inputs"
     bert_layer, _bert_tokenizer = load_model_from_tfhub(bert_path)
 
