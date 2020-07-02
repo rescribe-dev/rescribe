@@ -15,7 +15,7 @@ check_changes() {
 
 force_run_command="-f"
 
-node_paths=("api/" "github-app/" "cli/" "web/" "vscode/" ".github/build-frontend/" "docs/" "status/")
+node_paths=("api/" "github-app/" "cli/" "web/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/")
 
 for path in "${node_paths[@]}"
 do

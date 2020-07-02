@@ -5,7 +5,7 @@
   "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mdigreg2/rescribe.git"
+    "url": "git+https://github.com/rescribe-dev/rescribe.git"
   },
   "author": {
     "name": "rescribe"

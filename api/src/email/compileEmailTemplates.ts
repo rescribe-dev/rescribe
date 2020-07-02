@@ -24,6 +24,13 @@ interface TemplateFiles {
       name: string;
     }>;
     subject: string;
+  },
+  welcomeNewsletter: {
+    file: string;
+    template?: HandlebarsTemplateDelegate<{
+      name: string;
+    }>;
+    subject: string;
   }
 }
 
@@ -42,7 +49,12 @@ export const emailTemplateFiles: TemplateFiles = {
     file: 'verify_email_newsletter.html',
     template: undefined,
     subject: 'Verify Email for Newsletter'
-  }
+  },
+  welcomeNewsletter: {
+    file: 'welcome_newsletter.html',
+    template: undefined,
+    subject: 'Welcome to Rescribe!'
+  },
 };
 
 const compileEmailTemplates = async (): Promise<void> => {

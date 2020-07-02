@@ -17,7 +17,7 @@ Currently there are no settings.
 
 ## Known Issues
 
-Currently there are many known issues. Please see https://github.com/mdigreg2/rescribe.
+Currently there are many known issues. Please see https://github.com/rescribe-dev/rescribe.
 
 ## Release Notes
 

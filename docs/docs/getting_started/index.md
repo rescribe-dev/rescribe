@@ -8,7 +8,7 @@ sidebar_label: Getting Started
 
 First clone the repository:
 
-1. `git clone https://github.com/mdigreg2/rescribe`
+1. `git clone https://github.com/rescribe-dev/rescribe`
 2. `cd rescribe`
 
 Then make sure your system time is correct. Otherwise the pings will not work. Make sure node.js and java jdk 8 is installed - you can use [this link](https://github.com/nodesource/distributions) for node and [this](https://openjdk.java.net/install/) for java (`sudo apt-get install -y openjdk-8-jdk`). Next make sure yarn is installed [from here](https://classic.yarnpkg.com/en/docs/install).

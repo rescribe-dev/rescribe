@@ -10,6 +10,9 @@ export const initializeSendgrid = async (): Promise<void> => {
   if (configData.SENDGRID_MAILING_LIST_ID.length === 0) {
     throw new Error('no sendgrid mailing list id provided');
   }
+  if (configData.SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID === 0) {
+    throw new Error('no sendgrid mailing list unsubscribe id provided');
+  }
   sendgridClient.setApiKey(configData.SENDGRID_API_KEY);
   await sendgridClient.request({
     url: `${sendgridAPIVersion}/ips`,

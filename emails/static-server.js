@@ -11,11 +11,11 @@ const PORT = process.env.PORT || 8001;
 const directory = 'dist';
 
 const index = serveIndex(directory, {
-  icons: true,
+  'icons': true
 });
 
 const serve = serveStatic(directory, {
-  extensions: ['html'],
+  extensions: ['html']
 });
 
 const server = createServer((req, res) => {

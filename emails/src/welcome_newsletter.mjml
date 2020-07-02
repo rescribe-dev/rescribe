@@ -1,0 +1,15 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>
+          Hello {{name}}. Welcome to the newsletter!
+        </mj-text>
+        <mj-text>
+          <a href="<%asm_group_unsubscribe_raw_url%>">Unsubscribe</a>
+          <a href="<%asm_preferences_raw_url%>">Unsubscribe Preferences</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

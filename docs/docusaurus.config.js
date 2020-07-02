@@ -22,7 +22,7 @@ module.exports = {
         },
         { to: 'blog', label: 'Blog', position: 'left' },
         {
-          href: 'https://github.com/mdigreg2/rescribe',
+          href: 'https://github.com/rescribe-dev/rescribe',
           label: 'GitHub',
           position: 'right',
         },
@@ -66,7 +66,7 @@ module.exports = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/mdigreg2/rescribe',
+              href: 'https://github.com/rescribe-dev/rescribe',
             },
           ],
         },
@@ -83,13 +83,13 @@ module.exports = {
           homePageId: 'home',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: 'https://github.com/mdigreg2/rescribe/edit/master/docs/',
+          editUrl: 'https://github.com/rescribe-dev/rescribe/edit/master/docs/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/mdigreg2/rescribe/edit/master/docs/blog/',
+            'https://github.com/rescribe-dev/rescribe/edit/master/docs/blog/',
         },
         theme: [
           'theme-blog-bootstrap',
