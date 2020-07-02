@@ -2,11 +2,29 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 import HttpStatus from 'http-status-codes';
 import { configData } from '../utils/config';
 
-let antlrClient: AxiosInstance;
+let nlpClient: AxiosInstance;
+
+interface NLPProcessOutput {
+  matches: string[];
+}
+
+interface NLPProcessInput {
+  query: string
+}
+
+export const processInput = async(query: string): Promise<NLPProcessOutput> => {
+  const processOutput = await nlpClient.put<NLPProcessInput, NLPProcessOutput>({
+    query
+  });
+  if (!processOutput.data) {
+    throw new Error('cannot find process input data')
+  }
+  return processOutput.data;
+}
 
 export const pingNLP = async (): Promise<boolean> => {
   try {
-    const res = await antlrClient.get('/ping');
+    const res = await nlpClient.get('/ping');
     if (res.status === HttpStatus.OK) {
       return true;
     }
@@ -22,7 +40,7 @@ export const initializeNLP = async (): Promise<boolean> => {
   if (configData.NLP_URI.length === 0) {
     throw new Error('cannot find nlp uri');
   }
-  antlrClient = axios.create({
+  nlpClient = axios.create({
     baseURL: configData.NLP_URI,
     headers: {
       common: {
