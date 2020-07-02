@@ -9,6 +9,7 @@ RUN conda env create -f environment.yml
 
 # Copy app
 COPY src .
+COPY .global.env .env
 
 EXPOSE 8082
 # run environment through conda instead of conda activate
