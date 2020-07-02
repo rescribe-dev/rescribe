@@ -136,7 +136,13 @@
         }
       },
       "entryPoint": null,
-      "portMappings": [],
+      "portMappings": [
+        {
+          "hostPort": 8081,
+          "protocol": "tcp",
+          "containerPort": 8081
+        }
+      ],
       "command": null,
       "linuxParameters": null,
       "cpu": 0,
@@ -184,7 +190,13 @@
         }
       },
       "entryPoint": null,
-      "portMappings": [],
+      "portMappings": [
+        {
+          "hostPort": 8082,
+          "protocol": "tcp",
+          "containerPort": 8082
+        }
+      ],
       "command": null,
       "linuxParameters": null,
       "cpu": 0,
