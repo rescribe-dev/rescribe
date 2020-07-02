@@ -6,7 +6,6 @@ on:
     paths:
       - "nlp/**"
       - ".github/workflows/nlp.yml"
-      - "aws/ecs-fargate/api-task.json"
 jobs:
   deploy:
     runs-on: ubuntu-latest
