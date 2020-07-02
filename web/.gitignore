@@ -13,3 +13,6 @@ dist-storybook
 
 # ignore generated
 src/lib/generated/
+
+# ignore logs
+*.log

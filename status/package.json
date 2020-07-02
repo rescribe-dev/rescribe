@@ -1,8 +1,16 @@
 {
   "name": "rescribe-status",
   "description": "rescribe service status",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rescribe-dev/rescribe.git"
+  },
+  "author": {
+    "name": "rescribe"
+  },
+  "license": "CC-BY-NC-SA-4.0",
   "scripts": {
     "test": "echo \"Error: no test specified for status\"",
     "precommit": "yarn run test",

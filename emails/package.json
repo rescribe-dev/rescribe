@@ -1,0 +1,39 @@
+{
+  "name": "emails",
+  "version": "0.0.1",
+  "description": "emails",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rescribe-dev/rescribe.git"
+  },
+  "author": {
+    "name": "rescribe"
+  },
+  "type": "module",
+  "keywords": [
+    "emails"
+  ],
+  "scripts": {
+    "start": "node lib/index",
+    "test": "echo \"Error: no test specified for status\"",
+    "precommit": "yarn run test",
+    "save": "./save_emails.sh",
+    "compile-emails": "mjml src/*.mjml -o dist",
+    "watch-emails": "mjml --watch src/*.mjml -o dist",
+    "serve": "node static-server",
+    "watch": "concurrently \"yarn watch-emails\" \"yarn serve\""
+  },
+  "dependencies": {
+    "concurrently": "^5.2.0",
+    "dotenv": "^8.2.0",
+    "finalhandler": "^1.1.2",
+    "mjml": "^4.6.3",
+    "serve-index": "^1.9.1",
+    "serve-static": "^1.14.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=10.0.0"
+  }
+}
