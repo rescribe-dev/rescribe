@@ -86,6 +86,10 @@
           "name": "SENDGRID_MAILING_LIST_ID"
         },
         {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID-P4WpnA",
+          "name": "SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID"
+        },
+        {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:RECAPTCHA_SECRET-tc1ajA",
           "name": "RECAPTCHA_SECRET"
         }

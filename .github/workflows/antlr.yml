@@ -6,7 +6,6 @@ on:
     paths:
       - "antlr/**"
       - ".github/workflows/antlr.yml"
-      - "aws/ecs-fargate/api-task.json"
 jobs:
   deploy:
     runs-on: ubuntu-latest
