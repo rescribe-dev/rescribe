@@ -90,7 +90,6 @@ const SignUpContent = (): JSX.Element => {
             }}
             validationSchema={yup.object({
               username: yup.string().required('required'),
-              name: yup.string().required('required'),
               email: yup
                 .string()
                 .required('required')
