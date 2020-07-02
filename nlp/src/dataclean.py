@@ -64,7 +64,6 @@ def dataclean() -> None:
     classification_labels_list: List[str] = [
         item for elem in classification_labels_lol for item in elem]
     classification_labels: Set[str] = set(classification_labels_list)
-
     try:
         mkdir(f"{model_input_path}")
     except FileExistsError:

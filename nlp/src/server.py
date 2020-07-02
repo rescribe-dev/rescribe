@@ -9,9 +9,10 @@ from logging import Logger
 from typing import cast
 from loguru import logger
 from aiohttp import web
+from get_prediction import main as get_prediction
 
 
-async def index(_request: web.Request):
+async def index(_request: web.Request) -> web.Response:
     """
     index page resolver
     """
@@ -20,7 +21,7 @@ async def index(_request: web.Request):
     })
 
 
-async def hello(_request: web.Request):
+async def hello(_request: web.Request) -> web.Response:
     """
     hello world request resolver
     """
@@ -29,11 +30,26 @@ async def hello(_request: web.Request):
     })
 
 
-async def ping(_request: web.Request):
+async def ping(_request: web.Request) -> web.Response:
     """
     hello world request resolver
     """
     return web.Response(text='')
+
+QUERY_KEY = 'query'
+
+
+async def process_input(request: web.Request) -> web.Response:
+    """
+    process nlp input
+    """
+    json_data = await request.json()
+    if QUERY_KEY not in json_data:
+        raise ValueError(f'cannot find key {QUERY_KEY} in request body')
+    results = get_prediction(json_data[QUERY_KEY])
+    return web.json_response({
+        'matches': results
+    })
 
 
 def start_server(port: int):
@@ -45,6 +61,7 @@ def start_server(port: int):
         web.get('/', index),
         web.get('/hello', hello),
         web.get('/ping', ping),
+        web.put('/processInput', process_input)
     ])
     logger.info(f'Nlp started: http://localhost:{port} 🚀')
     web_logger = cast(Logger, logger)
