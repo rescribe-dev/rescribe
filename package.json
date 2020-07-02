@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mdigreg2/rescribe.git"
+    "url": "git+https://github.com/rescribe-dev/rescribe.git"
   },
   "keywords": [
     "search"
@@ -27,7 +27,7 @@
   "author": "Rescribe",
   "license": "CC-BY-NC-SA-4.0",
   "bugs": {
-    "url": "https://github.com/mdigreg2/rescribe/issues"
+    "url": "https://github.com/rescribe-dev/rescribe/issues"
   },
-  "homepage": "https://github.com/mdigreg2/rescribe#readme"
+  "homepage": "https://github.com/rescribe-dev/rescribe#readme"
 }

@@ -9,9 +9,6 @@ yarn-error.log*
 lib
 lib_test
 
-# ignore generated mjml html files
-.mjml/
-
 # ignore swap files
 *.swp
 
