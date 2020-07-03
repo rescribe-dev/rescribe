@@ -600,6 +600,26 @@ type Mutation {
     # branch name
     branch: String!
   ): String!
+  loginGithub(
+    # github code
+    code: String!
+
+    # gitub state
+    state: String!
+  ): String!
+  registerGithub(
+    # name
+    name: String
+
+    # username
+    username: String
+
+    # github code
+    code: String!
+
+    # gitub state
+    state: String!
+  ): String!
   addProject(
     # project name
     name: String!

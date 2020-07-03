@@ -1,6 +1,7 @@
 import { UserFieldsFragment } from 'lib/generated/datamodel';
 
 export const LOGIN = 'LOGIN';
+export const GENERATE_OAUTH_ID = 'GENERATE_OAUTH_ID';
 export const LOGOUT = 'LOGOUT';
 export const SET_TOKEN = 'SET_TOKEN';
 export const SET_USER = 'SET_USER';
@@ -15,6 +16,12 @@ export interface AuthState {
   username: string;
   user: UserFieldsFragment | undefined;
   loggedIn: boolean;
+  oauthID: string;
+}
+
+interface GenerateOauthID {
+  type: typeof GENERATE_OAUTH_ID;
+  payload: string;
 }
 
 interface LoginAction {
@@ -39,6 +46,7 @@ interface SetUserAction {
 
 export type AuthActionTypes =
   | LoginAction
+  | GenerateOauthID
   | LogoutAction
   | SetTokenAction
   | SetUserAction;

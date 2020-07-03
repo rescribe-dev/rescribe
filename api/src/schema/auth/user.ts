@@ -62,7 +62,7 @@ export default class User extends PublicUser {
   @Property({ required: false })
   githubUsername: string;
 
-  @Property({ required: true })
+  @Property({ required: false })
   password: string;
 
   @Field({ description: 'email verified' })

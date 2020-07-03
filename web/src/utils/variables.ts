@@ -11,6 +11,8 @@ export const blacklistedRepositoryNames = ['projects'];
 export const minJWTLen = 30;
 export const queryMinLength = 3;
 
+export const githubOauthURL = 'https://github.com/login/oauth/authorize';
+
 interface PerpageFiletersTypes {
   projects: number;
   repositories: number;

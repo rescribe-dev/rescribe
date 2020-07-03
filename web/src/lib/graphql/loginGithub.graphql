@@ -1,0 +1,3 @@
+mutation loginGithub($code: String!, $state: String!) {
+  loginGithub(code: $code, state: $state)
+}

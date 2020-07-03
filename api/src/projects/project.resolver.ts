@@ -9,9 +9,6 @@ import { elasticClient } from '../elastic/init';
 import { checkProjectAccess } from './auth';
 import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
-import { getLogger } from 'log4js';
-
-const logger = getLogger();
 
 @ArgsType()
 class ProjectArgs {
@@ -46,7 +43,6 @@ export const getProject = async (args: ProjectArgs, userID: ObjectId): Promise<P
         }
       });
     }
-    logger.info(args.name);
     const mustParams: TermQuery[] = [{
       term: {
         name: args.name.toLowerCase()
