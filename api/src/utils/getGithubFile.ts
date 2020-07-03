@@ -1,10 +1,10 @@
 import { gql } from 'apollo-server-express';
 import { print } from 'graphql/language/printer';
-import { graphql, GraphQlQueryResponseData } from '@octokit/graphql/dist-types/types';
+import { graphql } from '@octokit/graphql/dist-types/types';
 
 interface ResponseData {
   isBinary: boolean;
-    text: string;
+  text: string;
 }
 
 interface GithubFileRes {
@@ -13,7 +13,7 @@ interface GithubFileRes {
 
 export const getGithubFile = async (githubClient: graphql, ref: string, path: string, repositoryName: string, repositoryOwner: string): Promise<ResponseData> => {
   const expression = `${ref}:${path}`;
-  const res: GraphQlQueryResponseData = await githubClient(print(gql`
+  const res = await githubClient<GithubFileRes>(print(gql`
     query files($name: String!, $owner: String!, $expression: String!) { 
       repository(name: $name, owner: $owner) { 
         object(expression: $expression) {
@@ -29,8 +29,5 @@ export const getGithubFile = async (githubClient: graphql, ref: string, path: st
     name: repositoryName,
     owner: repositoryOwner
   });
-  if (!res) {
-    throw new Error(`no response found for file query ${expression}`);
-  }
-  return (res as GithubFileRes).repository;
+  return res.repository;
 };

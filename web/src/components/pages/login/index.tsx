@@ -204,6 +204,8 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                             const username = getUsername();
                             if (username.length > 0) {
                               navigate(`/${username}`);
+                            } else {
+                              navigate('/account');
                             }
                           }
                         } catch (err) {

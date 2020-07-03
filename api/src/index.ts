@@ -3,7 +3,7 @@ import { initializeElastic } from './elastic/init';
 import { initializeServer } from './server';
 import { initializeAntlr } from './antlr/antlrBridge';
 import { initializeLogger } from './utils/logger';
-import { initializeGithub } from './utils/github';
+import { initializeGithub } from './github/init';
 import { configData, initializeConfig } from './utils/config';
 import { initializeAWS } from './utils/aws';
 import { initializeRedis } from './utils/redis';

@@ -1,0 +1,3 @@
+mutation registerGithub($code: String!, $state: String!) {
+  registerGithub(code: $code, state: $state)
+}

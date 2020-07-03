@@ -2,6 +2,7 @@ import { store } from '../reduxWrapper';
 import { RootState } from '..';
 import { searchParamKeys } from 'utils/variables';
 import { isSSR } from 'utils/checkSSR';
+import { getBaseURL } from 'utils/misc';
 
 export const getQuery = (): string => {
   const state = (store.getState() as RootState).searchReducer;
@@ -13,7 +14,7 @@ export const getSearchURL = (): string => {
     return '';
   }
   const state = (store.getState() as RootState).searchReducer;
-  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+  const baseUrl = getBaseURL();
   const searchURL = new URL(`${baseUrl}/search`);
   if (state.query.length > 0) {
     searchURL.searchParams.append(searchParamKeys.query, state.query);

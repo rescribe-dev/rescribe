@@ -19,6 +19,8 @@ interface ConfigType {
   NLP_URI: string;
   GITHUB_APP_ID: number;
   GITHUB_PRIVATE_KEY: string;
+  GITHUB_CLIENT_ID: string;
+  GITHUB_CLIENT_SECRET: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
@@ -56,6 +58,8 @@ export const configData: ConfigType = {
   NLP_URI: '',
   GITHUB_APP_ID: 0,
   GITHUB_PRIVATE_KEY: '',
+  GITHUB_CLIENT_ID: '',
+  GITHUB_CLIENT_SECRET: '',
   REDIS_HOST: '',
   REDIS_PORT: 0,
   REDIS_PASSWORD: '',

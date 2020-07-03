@@ -54,6 +54,14 @@
           "name": "GITHUB_APP_ID"
         },
         {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_CLIENT_ID-BzryIO",
+          "name": "GITHUB_CLIENT_ID"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_CLIENT_SECRET-VRIxLG",
+          "name": "GITHUB_CLIENT_SECRET"
+        },
+        {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_PRIVATE_KEY-4RJ18P",
           "name": "GITHUB_PRIVATE_KEY"
         },
