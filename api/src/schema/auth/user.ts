@@ -74,11 +74,11 @@ export default class User extends PublicUser {
   tokenVersion: number;
 
   @Field(_type => [Access], { description: 'repository access' })
-  @Property({ required: true })
+  @Property({ required: true, type: Access })
   repositories: Access[];
 
   @Field(_type => [Access], { description: 'project access' })
-  @Property({ required: true })
+  @Property({ required: true, type: Access })
   projects: Access[];
 }
 

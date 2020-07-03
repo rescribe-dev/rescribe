@@ -10,7 +10,7 @@ export class BaseProject {
   name: string;
 
   @Field(_type => [ObjectId], { description: 'repositories' })
-  @Property({ required: true })
+  @Property({ required: true, type: ObjectId })
   repositories: ObjectId[];
 
   @Field({ description: 'owner' })

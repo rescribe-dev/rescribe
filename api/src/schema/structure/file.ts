@@ -25,7 +25,7 @@ class BaseFile {
   @Field(_type => Int, { description: 'number of lines in file' })
   fileLength: number;
 
-  @Property({ required: true })
+  @Property({ required: true, type: String })
   @Field(_type => [String], { description: 'branches' })
   branches: string[];
 
