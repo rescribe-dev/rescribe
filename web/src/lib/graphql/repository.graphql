@@ -1,5 +1,6 @@
-query repository($name: String!) {
-  repository(name: $name) {
+query repository($name: String!, $owner: String!) {
+  repository(name: $name, owner: $owner) {
     _id
+    branches
   }
 }

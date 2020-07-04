@@ -24,25 +24,30 @@ interface RepositoryProps extends RepositoryPageDataProps {
 }
 
 const RepositoryPage = (args: RepositoryProps): JSX.Element => {
+  const [repositoryOwner, setRepositoryOwner] = useState<string | null>(null);
   const [repositoryName, setRepositoryName] = useState<string | null>(null);
   const [repositoryQueryRes, setRepositoryQueryRes] = useState<
     ApolloQueryResult<RepositoryQuery> | undefined
   >(undefined);
   useEffect(() => {
     const splitPath = args.location.pathname.split('/');
-    let localRepositoryName: string | undefined = undefined;
-    if (splitPath.length === 3) {
+    let localRepositoryName: string | null = null;
+    let localRepositoryOwner: string | null = null;
+    if (splitPath.length >= 3) {
+      localRepositoryOwner = splitPath[1];
       localRepositoryName = splitPath[2];
     }
-    if (!localRepositoryName) {
+    if (!localRepositoryName || !localRepositoryOwner) {
       return;
     }
     setRepositoryName(localRepositoryName);
+    setRepositoryOwner(localRepositoryOwner);
     client
       .query<RepositoryQuery, RepositoryQueryVariables>({
         query: Repository,
         variables: {
           name: localRepositoryName,
+          owner: localRepositoryOwner,
         },
       })
       .then((res) => {
@@ -59,14 +64,20 @@ const RepositoryPage = (args: RepositoryProps): JSX.Element => {
     <Container>
       {repositoryName ? (
         <>
-          {!repositoryQueryRes ||
+          {!repositoryOwner ||
+          !repositoryQueryRes ||
           repositoryQueryRes.loading ||
           !repositoryQueryRes.data ? (
             <p>loading...</p>
+          ) : repositoryQueryRes.data.repository.branches.length === 0 ? (
+            <p>no branches</p>
           ) : (
             <Files
               repositoryID={repositoryQueryRes.data.repository._id}
               repositoryName={repositoryName}
+              defaultBranch={repositoryQueryRes.data.repository.branches[0]}
+              repositoryOwner={repositoryOwner}
+              location={args.location}
             />
           )}
         </>
