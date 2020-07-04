@@ -23,7 +23,10 @@ interface RepositoryProps extends RepositoryPageDataProps {
   messages: RepositoryMessages;
 }
 
-const RepositoryPage = (args: RepositoryProps): JSX.Element => {
+// TODO - merge with repository template data as one component,
+// get branch and path from url path
+
+const RepositoryFiles = (args: RepositoryProps): JSX.Element => {
   const [repositoryName, setRepositoryName] = useState<string | null>(null);
   const [repositoryQueryRes, setRepositoryQueryRes] = useState<
     ApolloQueryResult<RepositoryQuery> | undefined
@@ -31,7 +34,7 @@ const RepositoryPage = (args: RepositoryProps): JSX.Element => {
   useEffect(() => {
     const splitPath = args.location.pathname.split('/');
     let localRepositoryName: string | undefined = undefined;
-    if (splitPath.length === 3) {
+    if (splitPath.length >= 3) {
       localRepositoryName = splitPath[2];
     }
     if (!localRepositoryName) {
@@ -77,4 +80,4 @@ const RepositoryPage = (args: RepositoryProps): JSX.Element => {
   );
 };
 
-export default RepositoryPage;
+export default RepositoryFiles;

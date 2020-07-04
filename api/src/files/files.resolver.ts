@@ -1,6 +1,6 @@
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { elasticClient } from '../elastic/init';
-import File, { FileModel, FileDB } from '../schema/structure/file';
+import File, { FileModel, FileDB, BaseFileElastic } from '../schema/structure/file';
 import { fileIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -39,6 +39,9 @@ export class FilesArgs {
 
   @Field({ description: 'file path', nullable: true })
   path?: string;
+
+  @Field({ description: 'only get base file data', defaultValue: true })
+  baseFileOnly: boolean;
 
   @Field(_type => [Language], { description: 'programming languages', nullable: true })
   languages?: Language[];
@@ -100,18 +103,18 @@ export const nestedFields = [
   'comments'
 ];
 
-export const mainFields = [
-  'name',
-  'importPath',
-  'path'
-];
+export const baseMainFields: string[] = ['name', 'path', 'content'];
 
-enum DatastoreType {
+export const mainFields: string[] = baseMainFields.concat([
+  'importPath'
+]);
+
+export enum DatastoreType {
   project,
   repository
 };
 
-const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: ProjectDB | RepositoryDB }, type: DatastoreType): Promise<void> => {
+export const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]: ProjectDB | RepositoryDB }, type: DatastoreType): Promise<void> => {
   if (!(id.toHexString() in datastore)) {
     if (type === DatastoreType.project) {
       const project = await ProjectModel.findById(id);
@@ -239,7 +242,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       if (checkAccessLevel(repository.public, AccessLevel.view)) {
         // public access
       } else if (!user) {
-        throw new Error(`user must be logged in to access file ${args.file?.toHexString()}`);
+        throw new Error(`user must be logged in to access repository ${repositoryID.toHexString()}`);
       } else {
         await getSaveDatastore(repository.project, projectData, DatastoreType.project);
         // const project = projectData[repository.project.toHexString()];
@@ -296,15 +299,8 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       });
     }
     if (user) {
-      if (user.repositories.length === 0 && user.projects.length === 0) {
+      if (user.repositories.length === 0) {
         return null;
-      }
-      for (const project of user.projects) {
-        filterShouldParams.push({
-          term: {
-            project: project._id.toHexString()
-          }
-        });
       }
       for (const repository of user.repositories) {
         filterShouldParams.push({
@@ -332,38 +328,37 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     pre_tags: [''],
     post_tags: ['']
   };
-  for (const nestedField of nestedFields) {
-    // TODO - tweak this to get it faster - boosting alternatives
-    // use boost to make certain fields weighted higher than others
-    const currentQuery: Record<string, unknown> = args.query ? {
-      multi_match: {
-        query: args.query
-      }
-    } : {
-        match_all: {}
-      };
-    mustShouldParams.push({
-      nested: {
-        path: nestedField,
-        query: currentQuery,
-        inner_hits: {
-          highlight
+  if (!args.baseFileOnly) {
+    for (const nestedField of nestedFields) {
+      // TODO - tweak this to get it faster - boosting alternatives
+      // use boost to make certain fields weighted higher than others
+      const currentQuery: Record<string, unknown> = args.query ? {
+        multi_match: {
+          query: args.query
         }
-      }
-    });
-  }
-  const fieldsQuery: Record<string, unknown> = args.query ? {
-    multi_match: {
-      query: args.query,
-      fields: mainFields
+      } : {
+          match_all: {}
+        };
+      mustShouldParams.push({
+        nested: {
+          path: nestedField,
+          query: currentQuery,
+          inner_hits: {
+            highlight
+          }
+        }
+      });
     }
-  } : {
+  }
+  if (args.query) {
+    const fieldsQuery: Record<string, unknown> = {
       multi_match: {
-        query: '*',
-        fields: mainFields
+        query: args.query,
+        fields: args.baseFileOnly ? baseMainFields : mainFields
       }
     };
-  mustShouldParams.push(fieldsQuery);
+    mustShouldParams.push(fieldsQuery);
+  }
   const searchParams: RequestParams.Search = {
     index: fileIndexName,
     body: {
@@ -428,12 +423,14 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
 class FilesResolver {
   @Query(_returns => [File])
   async files(@Args() args: FilesArgs, @Ctx() ctx: GraphQLContext): Promise<File[]> {
-    if (!verifyLoggedIn(ctx) || !ctx.auth) {
-      throw new Error('user not logged in');
-    }
-    const user = await UserModel.findById(ctx.auth.id);
-    if (!user) {
-      throw new Error('cannot find user');
+    let user: User | null;
+    if (verifyLoggedIn(ctx) && ctx.auth) {
+      user = await UserModel.findById(ctx.auth.id);
+      if (!user) {
+        throw new Error('cannot find user');
+      }
+    } else {
+      user = null;
     }
     const elasticFileData = await search(user, args);
     const result: File[] = [];
@@ -441,11 +438,28 @@ class FilesResolver {
       return result;
     }
     for (const hit of elasticFileData.body.hits.hits) {
-      const currentFile: File = {
-        ...hit._source as File,
-        _id: new ObjectId(hit._id as string),
-      };
-      result.push(currentFile);
+      const id = new ObjectId(hit._id as string);
+      const baseFile: BaseFileElastic = hit._source;
+      let fileData: File;
+      if (baseFile.hasStructure) {
+        fileData = {
+          ...hit._source as File,
+          _id: id
+        };
+      } else {
+        fileData = {
+          ...baseFile,
+          _id: id,
+          classes: [],
+          comments: [],
+          variables: [],
+          functions: [],
+          importPath: '',
+          imports: [],
+          language: Language.none,
+        };
+      }
+      result.push(fileData);
     }
     return result;
   }

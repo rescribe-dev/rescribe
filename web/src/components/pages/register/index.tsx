@@ -60,7 +60,7 @@ declare global {
   }
 }
 
-const RegisterPage = (_args: RegisterProps): JSX.Element => {
+const RegisterPage = (args: RegisterProps): JSX.Element => {
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
@@ -353,7 +353,7 @@ const RegisterPage = (_args: RegisterProps): JSX.Element => {
               )}
             </Formik>
             <hr />
-            <SocialButtons signUp={true} />
+            <SocialButtons location={args.location} signUp={true} />
           </Col>
         </Row>
       </Container>
