@@ -1,7 +1,7 @@
 import { ObjectType, Field, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
-import Access, { AccessLevel } from '../auth/access';
+import { AccessLevel } from '../auth/access';
 
 @ObjectType({ description : 'base repository' })
 export class BaseRepository {
@@ -21,7 +21,7 @@ export class BaseRepository {
   @Property({required: true})
   project: ObjectId;
 
-  @Field(_type => [Access], { description: 'public access level' })
+  @Field(_type => AccessLevel, { description: 'public access level' })
   @Property({ required: true })
   public: AccessLevel;
 

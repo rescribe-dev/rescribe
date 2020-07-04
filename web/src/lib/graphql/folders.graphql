@@ -1,0 +1,10 @@
+fragment folderDataFields on Folder {
+  _id
+  name
+}
+
+query folders($repositories: [ObjectId!]!, $perpage: Int!, $page: Int!, $branches: [String!]!, $path: String!) {
+  folders(repositories: $repositories, perpage: $perpage, page: $page, branches: $branches, path: $path) {
+    ...folderDataFields
+  }
+}

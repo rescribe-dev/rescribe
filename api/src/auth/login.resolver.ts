@@ -38,6 +38,19 @@ class LoginArgs {
   password: string;
 }
 
+export const commonLogin = async (user: User, pubSub: PubSubEngine, ctx: GraphQLContext): Promise<string> => {
+  const token = await generateJWTAccess(user);
+  if (verifyGuest(ctx) && ctx.auth !== undefined) {
+    const notification: AuthNotificationPayload = {
+      id: ctx.auth.id,
+      token
+    };
+    await pubSub.publish(authNotificationsTrigger, notification);
+  }
+  setRefreshToken(ctx.res, await generateJWTRefresh(user));
+  return token;
+};
+
 @Resolver()
 class LoginResolvers {
   @Mutation(_returns => String)
@@ -69,16 +82,7 @@ class LoginResolvers {
     if (!await bcrypt.compare(args.password, user.password)) {
       throw new Error('password is invalid');
     }
-    const token = await generateJWTAccess(user);
-    if (verifyGuest(ctx) && ctx.auth !== undefined) {
-      const notification: AuthNotificationPayload = {
-        id: ctx.auth.id,
-        token
-      };
-      await pubSub.publish(authNotificationsTrigger, notification);
-    }
-    setRefreshToken(ctx.res, await generateJWTRefresh(user));
-    return token;
+    return await commonLogin(user, pubSub, ctx);
   }
 
   @Mutation(_returns => String)

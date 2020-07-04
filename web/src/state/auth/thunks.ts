@@ -12,9 +12,12 @@ import {
   UserQuery,
   UserQueryVariables,
   UserFieldsFragment,
+  LoginGithubMutationVariables,
+  LoginGithubMutation,
+  LoginGithub,
 } from 'lib/generated/datamodel';
 
-const checkAuth = async (args: LoginMutationVariables): Promise<string> => {
+const loginMutation = async (args: LoginMutationVariables): Promise<string> => {
   const apolloRes = await client.mutate<LoginMutation, LoginMutationVariables>({
     mutation: Login,
     variables: args,
@@ -29,11 +32,39 @@ const checkAuth = async (args: LoginMutationVariables): Promise<string> => {
 export const thunkLogin = (
   args: LoginMutationVariables
 ): AppThunkAction<Promise<void>> => async (dispatch) => {
-  const authToken = await checkAuth(args);
+  const authToken = await loginMutation(args);
   dispatch(
     login({
       authToken,
-      ...args,
+      loggedIn: true,
+    })
+  );
+};
+
+const loginMutationGithub = async (
+  args: LoginGithubMutationVariables
+): Promise<string> => {
+  const apolloRes = await client.mutate<
+    LoginGithubMutation,
+    LoginGithubMutationVariables
+  >({
+    mutation: LoginGithub,
+    variables: args,
+  });
+  if (apolloRes.data) {
+    return apolloRes.data.loginGithub;
+  } else {
+    throw new Error('cannot find apollo data');
+  }
+};
+
+export const thunkLoginGithub = (
+  args: LoginGithubMutationVariables
+): AppThunkAction<Promise<void>> => async (dispatch) => {
+  const authToken = await loginMutationGithub(args);
+  dispatch(
+    login({
+      authToken,
       loggedIn: true,
     })
   );

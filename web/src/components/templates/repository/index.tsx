@@ -1,26 +1,20 @@
-import React, { useState } from 'react';
-import { Container, Table, Row, Col } from 'reactstrap';
+import React, { useEffect, useState } from 'react';
+import { Container } from 'reactstrap';
 import { PageProps, navigate } from 'gatsby';
+import Files from 'components/Files';
 
 import './index.scss';
 
-import { useQuery } from '@apollo/react-hooks';
-import { QueryResult } from '@apollo/react-common';
 import { toast } from 'react-toastify';
 import {
-  Files,
-  FilesQuery,
-  FilesQueryVariables,
   RepositoryQuery,
   RepositoryQueryVariables,
   Repository,
 } from 'lib/generated/datamodel';
-import { isSSR } from 'utils/checkSSR';
-import { client } from 'utils/apollo';
-import { ApolloQueryResult } from 'apollo-client';
-import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
 
 import { RepositoryMessages } from 'locale/templates/repository/repositoryMessages';
+import { client } from 'utils/apollo';
+import { ApolloQueryResult } from 'apollo-client';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RepositoryPageDataProps extends PageProps {}
@@ -30,85 +24,50 @@ interface RepositoryProps extends RepositoryPageDataProps {
 }
 
 const RepositoryPage = (args: RepositoryProps): JSX.Element => {
-  const splitPath = args.location.pathname.split('/');
-  let repositoryName: string | undefined = undefined;
-  if (splitPath.length === 3) {
-    repositoryName = splitPath[2];
-  } else if (splitPath.length === 4) {
-    repositoryName = splitPath[3];
-  }
-  const [filesData, setFilesData] = useState<
-    ApolloQueryResult<FilesQuery> | undefined
+  const [repositoryName, setRepositoryName] = useState<string | null>(null);
+  const [repositoryQueryRes, setRepositoryQueryRes] = useState<
+    ApolloQueryResult<RepositoryQuery> | undefined
   >(undefined);
-  const repositoryQueryRes:
-    | QueryResult<RepositoryQuery, RepositoryQueryVariables>
-    | undefined =
-    isSSR || repositoryName === undefined
-      ? undefined
-      : useQuery<RepositoryQuery, RepositoryQueryVariables>(Repository, {
-          variables: {
-            name: repositoryName,
-          },
-          onCompleted: async (data) => {
-            setFilesData(
-              await client.query<FilesQuery, FilesQueryVariables>({
-                query: Files,
-                variables: {
-                  repositories: [data.repository._id],
-                  page: 0,
-                  perpage: 1,
-                },
-                fetchPolicy: 'no-cache',
-              })
-            );
-          },
-          onError: (err) => {
-            toast(err.message, {
-              type: 'error',
-            });
-            navigate('/404');
-          },
+  useEffect(() => {
+    const splitPath = args.location.pathname.split('/');
+    let localRepositoryName: string | undefined = undefined;
+    if (splitPath.length === 3) {
+      localRepositoryName = splitPath[2];
+    }
+    if (!localRepositoryName) {
+      return;
+    }
+    setRepositoryName(localRepositoryName);
+    client
+      .query<RepositoryQuery, RepositoryQueryVariables>({
+        query: Repository,
+        variables: {
+          name: localRepositoryName,
+        },
+      })
+      .then((res) => {
+        setRepositoryQueryRes(res);
+      })
+      .catch((err) => {
+        toast(err.message, {
+          type: 'error',
         });
+        navigate('/404');
+      });
+  }, []);
   return (
     <Container>
       {repositoryName ? (
         <>
           {!repositoryQueryRes ||
           repositoryQueryRes.loading ||
-          !repositoryQueryRes.data ||
-          !filesData ||
-          filesData.loading ||
-          !filesData.data ? (
+          !repositoryQueryRes.data ? (
             <p>loading...</p>
           ) : (
-            <>
-              {filesData.data.files.length === 0 ? (
-                <p>no files in repository {repositoryName}</p>
-              ) : (
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Files:</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filesData.data.files.map((file) => (
-                      <tr key={file._id}>
-                        <td>
-                          <Row>
-                            <Col>
-                              <AiFillFolder />
-                              <AiOutlineFile />
-                            </Col>
-                            <Col>{file.name}</Col>
-                          </Row>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              )}
-            </>
+            <Files
+              repositoryID={repositoryQueryRes.data.repository._id}
+              repositoryName={repositoryName}
+            />
           )}
         </>
       ) : (

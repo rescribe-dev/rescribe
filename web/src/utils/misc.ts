@@ -4,3 +4,7 @@ export const capitalizeFirstLetter = (elem: string): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
+
+export const getBaseURL = (): string => {
+  return `${window.location.protocol}//${window.location.host}`;
+};

@@ -124,7 +124,7 @@ type BaseRepository {
   project: ObjectId!
 
   # public access level
-  public: [Access!]!
+  public: AccessLevel!
 
   # repository image
   image: String!
@@ -216,6 +216,9 @@ type File {
   # sha-1 hash
   hash: String!
 
+  # has antlr data
+  hasStructure: Boolean!
+
   # number of lines in file
   fileLength: Int!
 
@@ -236,6 +239,9 @@ type File {
 
   # folder
   folder: ObjectId
+
+  # file content
+  content: String!
 
   # date created
   created: Float!
@@ -402,6 +408,7 @@ type Import {
 
 # language type
 enum Language {
+  none
   java
   javascript
 }
@@ -600,6 +607,26 @@ type Mutation {
     # branch name
     branch: String!
   ): String!
+  loginGithub(
+    # github code
+    code: String!
+
+    # gitub state
+    state: String!
+  ): String!
+  registerGithub(
+    # name
+    name: String
+
+    # username
+    username: String
+
+    # github code
+    code: String!
+
+    # gitub state
+    state: String!
+  ): String!
   addProject(
     # project name
     name: String!
@@ -797,6 +824,9 @@ type Query {
     # file path
     path: String
 
+    # only get base file data
+    baseFileOnly: Boolean = true
+
     # programming languages
     languages: [Language!]
 
@@ -844,6 +874,9 @@ type Query {
     # file path
     path: String
 
+    # only get base file data
+    baseFileOnly: Boolean = true
+
     # programming languages
     languages: [Language!]
 
@@ -885,8 +918,23 @@ type Query {
     # query
     query: String
 
-    # file name
+    # only user folders
+    onlyUser: Boolean
+
+    # folder path
+    path: String
+
+    # folder name
     name: String
+
+    # projects
+    projects: [ObjectId!]
+
+    # repositories
+    repositories: [ObjectId!]
+
+    # branches
+    branches: [String!]
 
     # page number
     page: Int
@@ -960,7 +1008,7 @@ type Repository {
   project: ObjectId!
 
   # public access level
-  public: [Access!]!
+  public: AccessLevel!
 
   # repository image
   image: String!
@@ -997,7 +1045,7 @@ type RepositoryDB {
   project: ObjectId!
 
   # public access level
-  public: [Access!]!
+  public: AccessLevel!
 
   # repository image
   image: String!

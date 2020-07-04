@@ -14,6 +14,7 @@ import { getUser } from '../users/shared';
 import { addBranchUtil } from '../branches/addBranch.resolver';
 import { SaveElasticElement } from '../elastic/elastic';
 import { WriteMongoElement } from '../db/mongo';
+import { saveAggregates } from './deleteFiles.resolver';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -62,7 +63,7 @@ class IndexFilesResolver {
       throw new Error('cannot find user data');
     }
     if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
-      throw new Error('user does not have edit permissions for project or repository');
+      throw new Error('user does not have edit permissions or repository');
     }
     if (!repository.branches.includes(args.branch)) {
       if (!args.autoCreateBranch) {
@@ -122,6 +123,7 @@ class IndexFilesResolver {
                 fileMongoWrites,
                 fileWrites
               });
+              await saveAggregates(aggregates, repository._id);
               resolve('done indexing files');
             }
           } catch (err) {

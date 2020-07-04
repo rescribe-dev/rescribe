@@ -3,7 +3,7 @@ const folderMappings = {
     type: 'text'
   },
   path: {
-    type: 'text'
+    type: 'keyword'
   },
   branches: {
     type: 'keyword'

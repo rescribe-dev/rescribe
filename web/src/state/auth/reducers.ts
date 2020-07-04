@@ -5,11 +5,13 @@ import {
   SET_TOKEN,
   SET_USER,
   LOGOUT,
+  GENERATE_OAUTH_ID,
 } from './types';
 
 const initialState: AuthState = {
   authToken: '',
   username: '',
+  oauthID: '',
   user: undefined,
   loggedIn: false,
 };
@@ -26,6 +28,11 @@ export const authReducer = (
       };
     case LOGOUT:
       return initialState;
+    case GENERATE_OAUTH_ID:
+      return {
+        ...state,
+        oauthID: action.payload,
+      };
     case SET_TOKEN:
       return {
         ...state,

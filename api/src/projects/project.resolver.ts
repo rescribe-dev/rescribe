@@ -39,14 +39,16 @@ export const getProject = async (args: ProjectArgs, userID: ObjectId): Promise<P
     };
   } else if (args.name) {
     const shouldParams: TermQuery[] = [];
+    logger.info(user);
+    logger.info(user.projects);
     for (const project of user.projects) {
+      logger.info(project);
       shouldParams.push({
         term: {
           _id: project._id.toHexString()
         }
       });
     }
-    logger.info(args.name);
     const mustParams: TermQuery[] = [{
       term: {
         name: args.name.toLowerCase()
