@@ -12,13 +12,16 @@ import { AccessLevel } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { getUser } from '../users/shared';
 import { addBranchUtil } from '../branches/addBranch.resolver';
+import { ArrayUnique } from 'class-validator';
 import { SaveElasticElement } from '../elastic/elastic';
 import { WriteMongoElement } from '../db/mongo';
 import { saveAggregates } from './deleteFiles.resolver';
 
 @ArgsType()
 class IndexFilesArgs {
-  // all paths MUST be unique, or there will be problems. TODO class validator
+  @ArrayUnique({
+    message: 'all paths must be unique'
+  })
   @Field(_type => [String], { description: 'paths' })
   paths: string[];
 

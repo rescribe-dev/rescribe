@@ -23,7 +23,6 @@ const SocialButtons = (args: SocialButtonsArgs): JSX.Element => {
   const [cliLogin, setCliLogin] = useState<boolean>(false);
   const [vscodeLogin, setVSCodeLogin] = useState<boolean>(false);
   useEffect(() => {
-    // TODO - refactor with login page to one function instead of 2 or many more
     if (args.location.search.length > 0) {
       const searchParams = new URLSearchParams(args.location.search);
       if (!args.signUp) {

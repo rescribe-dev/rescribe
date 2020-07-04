@@ -34,10 +34,8 @@ const createPages: GatsbyNode['createPages'] = async ({ actions }) => {
       context: {}, // optional
     });
     createPage({
-      path: `${language}/:username/:repositoryName/*`,
-      component: resolve(
-        `src/templates/repositoryFiles/index${languagePath}.tsx`
-      ),
+      path: `${language}/:username/:repositoryName/tree/*`,
+      component: resolve(`src/templates/repository/index${languagePath}.tsx`),
       matchPath: `${language}/:username/:repositoryName/tree/*`,
       context: {}, // optional
     });

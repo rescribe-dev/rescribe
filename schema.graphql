@@ -981,6 +981,9 @@ type Query {
 
     # repository name
     name: String
+
+    # repository owner
+    owner: String
   ): Repository!
 
   # public user data

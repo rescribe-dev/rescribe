@@ -4,11 +4,12 @@ import { Repository, RepositoryDB } from '../schema/structure/repository';
 import { repositoryIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/auth/user';
 import { elasticClient } from '../elastic/init';
-import { checkRepositoryAccess } from './auth';
+import { checkRepositoryAccess, checkRepositoryPublic } from './auth';
 import { AccessLevel } from '../schema/auth/access';
 import { TermQuery } from '../elastic/types';
+import { getUser } from '../users/shared';
 
 @ArgsType()
 class RepositoryArgs {
@@ -17,21 +18,27 @@ class RepositoryArgs {
 
   @Field({ description: 'repository name', nullable: true })
   name?: string;
+
+  @Field({ description: 'repository owner', nullable: true })
+  owner?: string;
 }
 
 @Resolver()
 class RepositoryResolver {
   @Query(_returns => Repository)
   async repository(@Args() args: RepositoryArgs, @Ctx() ctx: GraphQLContext): Promise<Repository> {
-    if (!verifyLoggedIn(ctx) || !ctx.auth) {
-      throw new Error('user not logged in');
-    }
-    const userID = new ObjectId(ctx.auth.id);
-    const user = await UserModel.findById(userID);
-    if (!user) {
-      throw new Error('cannot find user data');
-    }
     let repository: Repository;
+    let user: User | null = null;
+    if (args.owner && !args.name) {
+      throw new Error('cannot query repository by owner without name');
+    }
+    if (verifyLoggedIn(ctx) && ctx.auth) {
+      const userID = new ObjectId(ctx.auth.id);
+      user = await UserModel.findById(userID);
+      if (!user) {
+        throw new Error('cannot find user data');
+      }
+    }
     if (args.id) {
       const repositoryData = await elasticClient.get({
         id: args.id.toHexString(),
@@ -43,18 +50,38 @@ class RepositoryResolver {
       };
     } else if (args.name) {
       const shouldParams: TermQuery[] = [];
-      for (const repository of user.repositories) {
-        shouldParams.push({
-          term: {
-            _id: repository._id.toHexString()
-          }
-        });
+      if (user) {
+        for (const repository of user.repositories) {
+          shouldParams.push({
+            term: {
+              _id: repository._id.toHexString()
+            }
+          });
+        }
       }
+      shouldParams.push({
+        term: {
+          public: AccessLevel.view
+        }
+      });
+      shouldParams.push({
+        term: {
+          public: AccessLevel.edit
+        }
+      });
       const mustParams: TermQuery[] = [{
         term: {
           name: args.name.toLowerCase()
         }
       }];
+      if (args.owner) {
+        const ownerData = await getUser(args.owner);
+        mustParams.push({
+          term: {
+            owner: ownerData._id
+          }
+        });
+      }
       const repositoryData = await elasticClient.search({
         index: repositoryIndexName,
         body: {
@@ -81,8 +108,10 @@ class RepositoryResolver {
       image: '',
       _id: repository._id as ObjectId
     };
-    if (!(await checkRepositoryAccess(user, repositoryDBType, AccessLevel.view))) {
+    if (user && !(await checkRepositoryAccess(user, repositoryDBType, AccessLevel.view))) {
       throw new Error('user not authorized to view repository');
+    } else if (!await checkRepositoryPublic(repositoryDBType, AccessLevel.view)) {
+      throw new Error('repository is not public');
     }
     return repository;
   }
