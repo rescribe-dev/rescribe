@@ -122,4 +122,3 @@ const CallbackPage = (args: CallbackPageDataProps): JSX.Element => {
 };
 
 export default CallbackPage;
-// https://rescribe.dev/callback?code=ee7ae09e03941163ab19

@@ -12,7 +12,7 @@ export const getSupportedFileExtensions = async (): Promise<void> => {
   const extensionsRes = await apolloClient.query<SupportedExtensionsQuery, SupportedExtensionsQueryVariables>({
     query: SupportedExtensions,
     variables: {},
-    fetchPolicy: 'no-cache' // don't cache this - TODO (change)
+    fetchPolicy: 'no-cache' // TODO - cache this
   });
   if (!extensionsRes.data) {
     throw new Error('cannot get supported extensions');

@@ -417,7 +417,6 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
     path: args.path
   });
   let id = currentFile ? currentFile._id : new ObjectId();
-  // TODO - add file content to elastic if not binary
   const hasAntlrData = !args.isBinary && checkFileExtension(args.fileName);
   if (hasAntlrData) {
     fileData = await processFile({
