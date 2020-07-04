@@ -56,9 +56,35 @@ declare global {
   }
 }
 
+export const postLogin = (
+  cliLogin: boolean,
+  vscodeLogin: boolean,
+  redirect: string | null
+): void => {
+  if (cliLogin) {
+    toast('view cli', {
+      type: 'success',
+    });
+  } else if (vscodeLogin) {
+    toast('view vscode', {
+      type: 'success',
+    });
+  }
+  if (redirect !== null) {
+    navigate(redirect);
+  } else {
+    const username = getUsername();
+    if (username.length > 0) {
+      navigate(`/${username}`);
+    } else {
+      navigate('/account');
+    }
+  }
+};
+
 const LoginPage = (args: LoginPageData): JSX.Element => {
   const [token, setLocalToken] = useState<string | undefined>(undefined);
-  const [redirect, setRedirect] = useState<string | undefined>(undefined);
+  const [redirect, setRedirect] = useState<string | null>(null);
   const [cliLogin, setCliLogin] = useState<boolean>(false);
   const [vscodeLogin, setVSCodeLogin] = useState<boolean>(false);
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
@@ -118,7 +144,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
         if (localToken === undefined && loggedIn) {
           const username = getUsername();
           if (username.length > 0) {
-            if (redirect !== undefined) {
+            if (redirect !== null) {
               navigate(redirect);
             } else {
               navigate(`/${username}`);
@@ -189,23 +215,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                           );
                           await initializeApolloClient();
                           await dispatchAuthThunk(thunkGetUser());
-                          if (redirect !== undefined) {
-                            navigate(redirect);
-                          } else {
-                            if (cliLogin) {
-                              toast('view cli', {
-                                type: 'success',
-                              });
-                            } else if (vscodeLogin) {
-                              toast('view vscode', {
-                                type: 'success',
-                              });
-                            }
-                            const username = getUsername();
-                            if (username.length > 0) {
-                              navigate(`/${username}`);
-                            }
-                          }
+                          postLogin(cliLogin, vscodeLogin, redirect);
                         } catch (err) {
                           toast(err.message, {
                             type: 'error',
@@ -325,7 +335,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
               )}
             </Formik>
             <hr />
-            <SocialButtons signUp={false} />
+            <SocialButtons signUp={false} location={args.location} />
           </Col>
         </Row>
       </Container>

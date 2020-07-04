@@ -9,6 +9,10 @@ export const getAuthToken = (): string => {
   return (store.getState() as RootState).authReducer.authToken;
 };
 
+export const getOauthToken = (): string => {
+  return (store.getState() as RootState).authReducer.oauthID;
+};
+
 interface RefreshRes {
   accessToken: string;
 }

@@ -14,7 +14,7 @@ export class BaseFolder {
   path: string;
 
   @Field(_type => [String], { description: 'branches' })
-  @Property({required: true})
+  @Property({ required: true, type: String })
   branches: string[];
 
   @Field({ description: 'project' })

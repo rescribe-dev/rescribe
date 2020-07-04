@@ -39,6 +39,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
     throw new Error(`repository with name ${repository} does not exist`);
   }
   cacheData.repository = name;
+  cacheData.repositoryOwner = owner;
   await writeCache();
   logger.info('saved configuration');
   console.log(`set repository to ${repository}`);

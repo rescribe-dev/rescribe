@@ -27,7 +27,7 @@ const persistedReducer = persistReducer(
     key: 'rescribe',
     storage,
     transforms: [
-      createWhitelistFilter('authReducer', ['loggedIn', 'username']),
+      createWhitelistFilter('authReducer', ['loggedIn', 'username', 'oauthID']),
     ],
     blacklist: ['searchReducer'],
   },

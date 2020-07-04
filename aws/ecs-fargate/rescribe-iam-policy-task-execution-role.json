@@ -22,6 +22,8 @@
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:DB_CONNECTION_URI-OSzAkX",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:ELASTICSEARCH_URI-N3iCXK",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_APP_ID-9CB2CN",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_CLIENT_ID-BzryIO",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_CLIENT_SECRET-VRIxLG",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_PRIVATE_KEY-4RJ18P",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:JWT_SECRET-VVDIzd",

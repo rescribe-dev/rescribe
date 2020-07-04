@@ -1,4 +1,4 @@
-import { createClient } from '../utils/github';
+import { createGithubAppClient } from '../github/init';
 import { verifyGithub } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import yaml from 'js-yaml';
@@ -94,7 +94,7 @@ class IndexGithubResolver {
         }
       });
     }
-    const githubClient = createClient(args.installationID);
+    const githubClient = await createGithubAppClient(args.installationID);
     let repository = await RepositoryModel.findOne({
       githubID: args.githubRepositoryID
     });

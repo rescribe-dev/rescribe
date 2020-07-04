@@ -36,7 +36,6 @@ import { setQuery } from 'state/search/actions';
 import { getSearchURL, getQuery } from 'state/search/getters';
 import { SearchActionTypes } from 'state/search/types';
 import { thunkSearch } from 'state/search/thunks';
-import SignUpModal from 'components/modals/SignUpModal';
 import { toast } from 'react-toastify';
 
 import './index.scss';
@@ -52,20 +51,12 @@ interface HeaderArgs {
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
 const Header = (args: HeaderArgs): JSX.Element => {
   const [headerIsOpen, setHeaderIsOpen] = useState(false);
-  const [signupIsOpen, setSignupIsOpen] = useState(false);
   const toggleHeader = () => setHeaderIsOpen(!headerIsOpen);
 
   const pathname =
     typeof location === 'string'
       ? location
       : (args.location as WindowLocation).pathname;
-
-  const toggleSignUp = () => {
-    if (pathname === '/signup' && !signupIsOpen) {
-      return;
-    }
-    setSignupIsOpen(!signupIsOpen);
-  };
 
   isLoggedIn()
     .then((_loggedIn) => {
@@ -114,7 +105,6 @@ const Header = (args: HeaderArgs): JSX.Element => {
 
   return (
     <>
-      <SignUpModal isOpen={signupIsOpen} toggle={toggleSignUp} />
       <Navbar light expand="md">
         <NavbarBrand tag={Link} to="/">
           {args.siteTitle}
@@ -256,11 +246,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           className="navbar-link"
                           tag={Link}
                           key="sign-up"
-                          to="#"
-                          onClick={(evt) => {
-                            evt.preventDefault();
-                            toggleSignUp();
-                          }}
+                          to="/signup"
                         >
                           <FormattedMessage id="sign up">
                             {(message: string) =>
