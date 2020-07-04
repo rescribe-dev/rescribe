@@ -3,8 +3,8 @@ fragment fileDataFields on File {
   name
 }
 
-query files($repositories: [ObjectId!]!, $perpage: Int!, $page: Int!) {
-  files(repositories: $repositories, perpage: $perpage, page: $page) {
+query files($repositories: [ObjectId!]!, $perpage: Int!, $page: Int!, $branches: [String!]!, $path: String!) {
+  files(repositories: $repositories, perpage: $perpage, page: $page, branches: $branches, path: $path) {
     ...fileDataFields
   }
 }

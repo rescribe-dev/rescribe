@@ -216,6 +216,9 @@ type File {
   # sha-1 hash
   hash: String!
 
+  # has antlr data
+  hasStructure: Boolean!
+
   # number of lines in file
   fileLength: Int!
 
@@ -236,6 +239,9 @@ type File {
 
   # folder
   folder: ObjectId
+
+  # file content
+  content: String!
 
   # date created
   created: Float!
@@ -402,6 +408,7 @@ type Import {
 
 # language type
 enum Language {
+  none
   java
   javascript
 }
@@ -817,6 +824,9 @@ type Query {
     # file path
     path: String
 
+    # only get base file data
+    baseFileOnly: Boolean = true
+
     # programming languages
     languages: [Language!]
 
@@ -864,6 +874,9 @@ type Query {
     # file path
     path: String
 
+    # only get base file data
+    baseFileOnly: Boolean = true
+
     # programming languages
     languages: [Language!]
 
@@ -905,8 +918,23 @@ type Query {
     # query
     query: String
 
-    # file name
+    # only user folders
+    onlyUser: Boolean
+
+    # folder path
+    path: String
+
+    # folder name
     name: String
+
+    # projects
+    projects: [ObjectId!]
+
+    # repositories
+    repositories: [ObjectId!]
+
+    # branches
+    branches: [String!]
 
     # page number
     page: Int

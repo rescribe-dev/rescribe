@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 export const checkAccessLevel = (givenLevel: AccessLevel, requiredLevel: AccessLevel): boolean => {
   switch (requiredLevel) {
     case AccessLevel.none:
-      return givenLevel !== AccessLevel.none;
+      return givenLevel === AccessLevel.none;
     case AccessLevel.view:
       return [AccessLevel.owner, AccessLevel.admin, AccessLevel.edit, AccessLevel.view].includes(givenLevel);
     case AccessLevel.edit:

@@ -5,6 +5,9 @@ import functionMappings from './function';
 import classMappings from './class';
 
 const fileMappings = {
+  content: {
+    type: 'text'
+  },
   language: {
     type: 'keyword'
   },
@@ -26,8 +29,7 @@ const fileMappings = {
     analyzer: 'trigrams'
   },
   path: {
-    type: 'text',
-    analyzer: 'trigrams'
+    type: 'keyword'
   },
   numBranches: {
     type: 'integer'

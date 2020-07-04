@@ -15,6 +15,9 @@ import { FolderModel } from '../schema/structure/folder';
 import { baseFolderName, baseFolderPath } from '../folders/shared';
 import { RepositoryModel } from '../schema/structure/repository';
 import { elasticClient } from '../elastic/init';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 @ArgsType()
 class DeleteFilesArgs {
@@ -226,14 +229,18 @@ export const deleteFilesUtil = async (args: DeleteFilesUtilArgs): Promise<void> 
 
 export const saveAggregates = async (aggregates: Aggregates, repository: ObjectId): Promise<void> => {
   const currentTime = new Date().getTime();
+  logger.info('save start');
   await elasticClient.update({
     index: repositoryIndexName,
     id: repository.toHexString(),
     body: {
-      currentTime,
-      ...aggregates
+      doc: {
+        currentTime,
+        ...aggregates
+      }
     }
   });
+  logger.info('save next');
   await RepositoryModel.updateOne({
     _id: repository
   }, {

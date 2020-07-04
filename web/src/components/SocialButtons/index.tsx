@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Container, Button } from 'reactstrap';
 import { navigate } from 'gatsby';
@@ -7,15 +7,40 @@ import { githubOauthURL } from 'utils/variables';
 import { getOauthToken } from 'state/auth/getters';
 import { store } from 'state/reduxWrapper';
 import { generateOauthID } from 'state/auth/actions';
+import { WindowLocation } from '@reach/router';
 
 interface SocialButtonsArgs {
   signUp: boolean;
+  location: WindowLocation;
 }
 
 const githubScopes = ['read:user'];
 
-const LoginPage = (args: SocialButtonsArgs): JSX.Element => {
+const SocialButtons = (args: SocialButtonsArgs): JSX.Element => {
   const actionMessage = args.signUp ? 'Sign Up' : 'Login';
+  const [token, setLocalToken] = useState<string | null>(null);
+  const [redirect, setRedirect] = useState<string | null>(null);
+  const [cliLogin, setCliLogin] = useState<boolean>(false);
+  const [vscodeLogin, setVSCodeLogin] = useState<boolean>(false);
+  useEffect(() => {
+    // TODO - refactor with login page to one function instead of 2 or many more
+    if (args.location.search.length > 0) {
+      const searchParams = new URLSearchParams(args.location.search);
+      if (!args.signUp) {
+        if (searchParams.has('token')) {
+          setLocalToken(searchParams.get('token') as string);
+        }
+        if (searchParams.has('redirect')) {
+          setRedirect(searchParams.get('redirect') as string);
+        }
+        if (searchParams.has('cli')) {
+          setCliLogin(true);
+        } else if (searchParams.has('vscode')) {
+          setVSCodeLogin(true);
+        }
+      }
+    }
+  }, []);
   return (
     <Container className="p-0">
       <Button
@@ -44,6 +69,20 @@ const LoginPage = (args: SocialButtonsArgs): JSX.Element => {
             const callbackURL = new URL(
               process.env.GATSBY_SITE_URL + '/callback/github'
             );
+            if (!args.signUp) {
+              if (token) {
+                callbackURL.searchParams.append('token', token);
+              }
+              if (cliLogin) {
+                callbackURL.searchParams.append('cli', '');
+              }
+              if (vscodeLogin) {
+                callbackURL.searchParams.append('vscode', '');
+              }
+              if (redirect !== null) {
+                callbackURL.searchParams.append('redirect', redirect);
+              }
+            }
             callbackURL.searchParams.append(
               'type',
               args.signUp ? 'signup' : 'login'
@@ -66,4 +105,4 @@ const LoginPage = (args: SocialButtonsArgs): JSX.Element => {
   );
 };
 
-export default LoginPage;
+export default SocialButtons;

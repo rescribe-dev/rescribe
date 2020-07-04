@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import SEO from 'components/seo';
 import { PageProps, navigate } from 'gatsby';
 import { toast } from 'react-toastify';
-import { getOauthToken, getUsername } from 'state/auth/getters';
+import { getOauthToken } from 'state/auth/getters';
 import { thunkLoginGithub, thunkGetUser } from 'state/auth/thunks';
 import { useDispatch } from 'react-redux';
 import { AuthActionTypes } from 'state/auth/types';
@@ -15,14 +15,19 @@ import {
   RegisterGithubMutationVariables,
   RegisterGithub,
 } from 'lib/generated/datamodel';
+import { postLogin } from 'components/pages/login';
+import { Dispatch } from 'redux';
+import { setToken } from 'state/auth/actions';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CallbackPageDataProps extends PageProps {}
 
 const CallbackPage = (args: CallbackPageDataProps): JSX.Element => {
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
+  let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
+    dispatch = useDispatch();
   }
   useEffect(() => {
     try {
@@ -34,6 +39,10 @@ const CallbackPage = (args: CallbackPageDataProps): JSX.Element => {
             message = searchParams.get('error') as string;
           }
           throw new Error('GitHub Oauth Error: ' + message);
+        }
+        let token: string | undefined = undefined;
+        if (searchParams.has('token')) {
+          token = searchParams.get('token') as string;
         }
         if (!searchParams.has('type')) {
           throw new Error('no callback type found');
@@ -66,34 +75,32 @@ const CallbackPage = (args: CallbackPageDataProps): JSX.Element => {
               navigate('/signup');
             });
         } else if (callbackType === 'login') {
-          dispatchAuthThunk(
-            thunkLoginGithub({
-              code,
-              state,
-            })
-          )
-            .then(async () => {
-              try {
+          (async (): Promise<void> => {
+            try {
+              if (token !== undefined) {
+                dispatch(setToken(token));
                 await initializeApolloClient();
-                await dispatchAuthThunk(thunkGetUser());
-                const username = getUsername();
-                if (username.length > 0) {
-                  navigate(`/${username}`);
-                } else {
-                  navigate('/account');
-                }
-              } catch (err) {
-                toast((err as Error).message, {
-                  type: 'error',
-                });
               }
-            })
-            .catch((err) => {
+              await dispatchAuthThunk(
+                thunkLoginGithub({
+                  code,
+                  state,
+                })
+              );
+              await initializeApolloClient();
+              await dispatchAuthThunk(thunkGetUser());
+              const cliLogin = searchParams.has('cli');
+              const vscodeLogin = searchParams.has('vscode');
+              const redirect = searchParams.has('redirect')
+                ? (searchParams.get('redirect') as string)
+                : null;
+              postLogin(cliLogin, vscodeLogin, redirect);
+            } catch (err) {
               toast((err as Error).message, {
                 type: 'error',
               });
-              navigate('/signup');
-            });
+            }
+          })();
         } else {
           throw new Error('invalid type found');
         }

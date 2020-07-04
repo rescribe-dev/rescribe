@@ -183,6 +183,7 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
     _id: args.id,
     hash: args.hash,
     project: args.project,
+    hasStructure: args.hasAntlrData,
     repository: args.repository,
     branches: [args.branch],
     path: args.path,
@@ -195,6 +196,8 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
   const baseElasticContent: BaseFileElastic = {
     name: args.fileName,
     hash: args.hash,
+    content: !args.isBinary ? args.content : '',
+    hasStructure: args.hasAntlrData,
     project: args.project,
     repository: args.repository,
     branches: [args.branch],
@@ -216,9 +219,6 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
     };
     elasticContent = fileElasticContent;
   }
-  // if (args.isBinary) {
-  //   elasticContent.content = args.content;
-  // }
   const elasticElement: SaveElasticElement = {
     action: args.action,
     data: elasticContent,
@@ -268,9 +268,10 @@ const indexFileUpdate = async (args: IndexFileUpdateArgs): Promise<void> => {
       hash: args.hash
     };
   }
-  // if (args.isBinary) {
-  //   elasticContent.content = args.content;
-  // }
+  elasticContent.hasStructure = args.hasAntlrData;
+  if (args.isBinary) {
+    elasticContent.content = args.content;
+  }
   const elasticElement: SaveElasticElement = {
     action: args.action,
     data: elasticContent,
