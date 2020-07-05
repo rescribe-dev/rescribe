@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Row, Col } from 'reactstrap';
+import { Container } from 'reactstrap';
 
 import './index.scss';
 
 import { toast } from 'react-toastify';
 import {
-  Files,
-  FilesQuery,
-  FilesQueryVariables,
-  FoldersQuery,
-  FoldersQueryVariables,
-  Folders,
+  FileNameExistsQuery,
+  FileNameExistsQueryVariables,
+  FileNameExists,
 } from 'lib/generated/datamodel';
-import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
 import { ObjectId } from 'mongodb';
-import { ApolloQueryResult, ApolloError } from 'apollo-client';
+import { ApolloError } from 'apollo-client';
 import { WindowLocation } from '@reach/router';
 import { client } from 'utils/apollo';
-import { Link } from 'gatsby';
+import FileView from './FileView';
+import FolderView from './FolderView';
+import { getFilePath } from 'shared/files';
 
 interface FilesProps {
   repositoryName: string;
@@ -27,128 +25,81 @@ interface FilesProps {
   location: WindowLocation;
 }
 
-const perPage = 10;
-
 const FilesList = (args: FilesProps): JSX.Element => {
-  const [foldersRes, setFoldersRes] = useState<
-    ApolloQueryResult<FoldersQuery> | undefined
-  >(undefined);
-  const [filesRes, setFilesRes] = useState<
-    ApolloQueryResult<FilesQuery> | undefined
-  >(undefined);
   const [branch, setBranch] = useState<string | undefined>(undefined);
   const [path, setPath] = useState<string>('/');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [name, setName] = useState<string>('');
+  const [fileView, setFileView] = useState<boolean>(false);
   useEffect(() => {
     let localBranch: string = args.defaultBranch;
     let localPath = '/';
+    let localName = '';
     if (args.location.pathname.includes('tree')) {
       // in subtree
-      const fullPath = args.location.pathname.split('tree')[1];
-      localBranch = fullPath.substring(1);
-      const lastSlash = localBranch.indexOf('/');
-      if (lastSlash > 0) {
-        localBranch = localBranch.substring(0, lastSlash);
-      } else {
+      const pathWithBranch = args.location.pathname.split('tree')[1];
+      localBranch = pathWithBranch.substring(1);
+      let firstSlash = localBranch.indexOf('/');
+      if (firstSlash < 0) {
+        localBranch += '/';
+        firstSlash = localBranch.length - 1;
+      }
+      localBranch = localBranch.substring(0, firstSlash);
+      if (localBranch.length === 0) {
         localBranch = args.defaultBranch;
       }
-      localPath = fullPath.substring(lastSlash + 1);
-      if (localPath.length === 0 || localPath[localPath.length - 1] !== '/') {
-        localPath += '/';
-      }
+      const fullPath = pathWithBranch.substring(firstSlash + 1);
+      const folderData = getFilePath(fullPath);
+      localPath = folderData.path;
+      localName = folderData.name;
     }
     setBranch(localBranch);
     setPath(localPath);
+    setName(localName);
     (async (): Promise<void> => {
       try {
-        setFoldersRes(
-          await client.query<FoldersQuery, FoldersQueryVariables>({
-            query: Folders,
-            variables: {
-              repositories: [args.repositoryID],
-              page: 0,
-              perpage: perPage,
-              branches: [localBranch],
-              path: localPath,
-            },
-            fetchPolicy: 'no-cache',
-          })
-        );
-        setFilesRes(
-          await client.query<FilesQuery, FilesQueryVariables>({
-            query: Files,
-            variables: {
-              repositories: [args.repositoryID],
-              page: 0,
-              perpage: perPage,
-              branches: [localBranch],
-              path: localPath,
-            },
-            fetchPolicy: 'no-cache',
-          })
-        );
+        const fileExists = await client.query<
+          FileNameExistsQuery,
+          FileNameExistsQueryVariables
+        >({
+          query: FileNameExists,
+          variables: {
+            path: localPath,
+            name: localName,
+            repository: args.repositoryID,
+            branch: localBranch,
+          },
+          fetchPolicy: 'no-cache',
+        });
+        setFileView(fileExists.data.fileNameExists);
+        setLoading(false);
       } catch (err) {
         toast((err as ApolloError).message, {
           type: 'error',
         });
       }
     })();
-  }, []);
+  }, [args.location]);
   return (
     <Container>
-      {!foldersRes ||
-      foldersRes.loading ||
-      !foldersRes.data ||
-      !filesRes ||
-      filesRes.loading ||
-      !filesRes.data ? (
+      {loading || !branch ? (
         <p>loading...</p>
+      ) : fileView ? (
+        <FileView
+          branch={branch}
+          name={name}
+          path={path}
+          repositoryID={args.repositoryID}
+        />
       ) : (
-        <>
-          {foldersRes.data.folders.length === 0 &&
-          filesRes.data.files.length === 0 ? (
-            <p>no files in repository {args.repositoryName}</p>
-          ) : (
-            <Table>
-              <thead>
-                <tr>
-                  <th>Files:</th>
-                </tr>
-              </thead>
-              <tbody>
-                {foldersRes.data.folders.map((folder) => (
-                  <tr key={folder._id}>
-                    <td>
-                      <Row>
-                        <Col>
-                          <AiFillFolder />
-                        </Col>
-                        <Col>
-                          <Link
-                            to={`/${args.repositoryOwner}/${args.repositoryName}/tree/${branch}${path}${folder.name}`}
-                          >
-                            {folder.name}
-                          </Link>
-                        </Col>
-                      </Row>
-                    </td>
-                  </tr>
-                ))}
-                {filesRes.data.files.map((file) => (
-                  <tr key={file._id}>
-                    <td>
-                      <Row>
-                        <Col>
-                          <AiOutlineFile />
-                        </Col>
-                        <Col>{file.name}</Col>
-                      </Row>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </>
+        <FolderView
+          branch={branch}
+          path={path}
+          name={name}
+          repositoryID={args.repositoryID}
+          repositoryName={args.repositoryName}
+          repositoryOwner={args.repositoryOwner}
+        />
       )}
     </Container>
   );

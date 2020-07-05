@@ -4,7 +4,7 @@ import { verifyGuest } from './checkAuth';
 import { generateJWTAccess, generateJWTGuest, generateJWTRefresh } from '../utils/jwt';
 import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } from 'type-graphql';
 import { MinLength, Matches } from 'class-validator';
-import { passwordMinLen, specialCharacterRegex, numberRegex, capitalLetterRegex, lowercaseLetterRegex } from '../utils/variables';
+import { passwordMinLen, specialCharacterRegex, numberRegex, capitalLetterRegex, lowercaseLetterRegex } from '../shared/variables';
 import { authNotificationsTrigger } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
 import User, { UserModel } from '../schema/auth/user';

@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { FolderModel, FolderDB, BaseFolder, Folder } from '../schema/structure/folder';
-import { baseFolderPath, baseFolderName, getParentFolderPaths } from './shared';
+import { baseFolderPath, baseFolderName, getParentFolderPaths } from '../shared/folders';
 import { getFolder } from './folder.resolver';
 import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';

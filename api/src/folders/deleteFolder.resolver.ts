@@ -5,7 +5,7 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { FolderModel, FolderDB } from '../schema/structure/folder';
 import { FileDB, FileModel } from '../schema/structure/file';
 import { deleteFilesUtil, saveAggregates } from '../files/deleteFiles.resolver';
-import { baseFolderPath, baseFolderName } from './shared';
+import { baseFolderPath, baseFolderName } from '../shared/folders';
 import { getFolder, FolderArgs } from './folder.resolver';
 import { UserModel } from '../schema/auth/user';
 import { checkRepositoryAccess } from '../repositories/auth';

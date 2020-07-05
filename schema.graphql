@@ -213,6 +213,9 @@ type File {
   # language type
   language: [Language!]!
 
+  # file name search
+  nameSearch: String!
+
   # sha-1 hash
   hash: String!
 
@@ -595,6 +598,9 @@ type Mutation {
     # folder path
     path: String
 
+    # branch name
+    branch: String!
+
     # repository id
     repositoryID: ObjectId
 
@@ -603,9 +609,6 @@ type Mutation {
 
     # owner name
     owner: String
-
-    # branch name
-    branch: String!
   ): String!
   loginGithub(
     # github code
@@ -791,6 +794,9 @@ type Query {
     # folder path
     path: String
 
+    # folder branch
+    branch: String
+
     # repository id
     repositoryID: ObjectId
 
@@ -812,8 +818,39 @@ type Query {
   ): Int!
   file(
     # file id
-    id: ObjectId!
+    id: ObjectId
+
+    # file name
+    name: String
+
+    # file path
+    path: String
+
+    # file branch
+    branch: String
+
+    # repository id
+    repositoryID: ObjectId
+
+    # repository name
+    repository: String
+
+    # owner name
+    owner: String
   ): File!
+  fileNameExists(
+    # file name
+    name: String!
+
+    # file path
+    path: String
+
+    # file branch
+    branch: String!
+
+    # repository id
+    repository: ObjectId!
+  ): Boolean!
   files(
     # query
     query: String
@@ -864,6 +901,13 @@ type Query {
     # end line
     end: Int!
   ): [String!]!
+  projectNameExists(
+    # project name
+    name: String!
+
+    # repository owner
+    owner: String
+  ): Boolean!
   search(
     # query
     query: String
@@ -944,13 +988,6 @@ type Query {
   ): [Folder!]!
   hello: String!
   languages: [LanguageData!]!
-  projectNameExists(
-    # project name
-    name: String!
-
-    # repository owner
-    owner: String
-  ): Boolean!
   project(
     # project id
     id: ObjectId

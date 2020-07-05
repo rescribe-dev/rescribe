@@ -11,8 +11,9 @@ import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 import { Matches, IsNotIn, MinLength } from 'class-validator';
 import { countRepositoriesUserAccess } from './repositoryNameExists.resolver';
-import { validRepositoryName, blacklistedRepositoryNames, defaultRepositoryImage } from '../utils/variables';
-import { baseFolderName, baseFolderPath } from '../folders/shared';
+import { validRepositoryName, blacklistedRepositoryNames } from '../shared/variables';
+import { defaultRepositoryImage } from '../utils/variables';
+import { baseFolderName, baseFolderPath } from '../shared/folders';
 import { createFolder } from '../folders/addFolder.resolver';
 
 @ArgsType()
