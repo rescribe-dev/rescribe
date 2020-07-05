@@ -10,11 +10,17 @@ import { initializeRedis } from './utils/redis';
 import { initializeSendgrid } from './email/sendgrid';
 import { initializeNLP } from './nlp/nlpBridge';
 import compileEmailTemplates from './email/compileEmailTemplates';
+import { checkLanguageColors } from './utils/variables';
 
 const runAPI = async (): Promise<void> => {
+  // initialize config and logger
   await initializeConfig();
   const logger = initializeLogger();
+
   try {
+    // run checks
+    checkLanguageColors();
+    // initialize everything else
     if (configData.CONNECT_ANTLR) {
       logger.info('start antlr initialize');
       await initializeAntlr();
@@ -49,7 +55,7 @@ const runAPI = async (): Promise<void> => {
     logger.info('start server initialize');
     await initializeServer();
     logger.info('server started');
-  } catch(err) {
+  } catch (err) {
     logger.fatal(err.message);
   }
 };
