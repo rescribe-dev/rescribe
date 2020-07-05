@@ -31,6 +31,7 @@ import { toast } from 'react-toastify';
 import { thunkSearch } from 'state/search/thunks';
 import { SearchActionTypes } from 'state/search/types';
 import { AppThunkDispatch } from 'state/thunk';
+import { ApolloError } from 'apollo-client';
 
 interface SelectObject {
   value: Language;
@@ -67,6 +68,11 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
     useQuery<LanguagesQuery, LanguagesQueryVariables>(Languages, {
       variables: {},
       fetchPolicy: isDebug() ? 'no-cache' : 'cache-first', // disable cache if in debug
+      onError: (err) => {
+        toast((err as ApolloError).message, {
+          type: 'error',
+        });
+      },
       onCompleted: (data) => {
         const newLanguageOptions = data.languages;
         setLanguageOptions(
