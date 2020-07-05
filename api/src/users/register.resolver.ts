@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
-import { passwordMinLen, specialCharacterRegex, saltRounds, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../utils/variables';
+import { passwordMinLen, specialCharacterRegex, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../shared/variables';
+import { saltRounds } from '../utils/variables';
 import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID, ObjectId } from 'mongodb';
 import User, { Plan, UserType, UserModel } from '../schema/auth/user';

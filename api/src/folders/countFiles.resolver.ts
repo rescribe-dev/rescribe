@@ -16,7 +16,7 @@ class CountFilesArgs {
 }
 
 export const countFiles = async (repositoryID: ObjectId, folderID: ObjectId, branch: string): Promise<number> => {
-  return await FileModel.count({
+  return await FileModel.countDocuments({
     repository: repositoryID,
     branches: branch,
     folder: folderID

@@ -8,7 +8,7 @@ import {
 import { store } from '../reduxWrapper';
 import { RootState } from '..';
 import { setSearchResults, setSearching, setHasSearched } from './actions';
-import { queryMinLength } from 'utils/variables';
+import { queryMinLength } from 'shared/variables';
 
 const search = async (): Promise<SearchQuery> => {
   const state = (store.getState() as RootState).searchReducer;

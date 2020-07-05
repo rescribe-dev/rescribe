@@ -35,7 +35,7 @@ import {
   capitalLetterRegex,
   lowercaseLetterRegex,
   numberRegex,
-} from 'utils/variables';
+} from 'shared/variables';
 import SocialButtons from 'components/SocialButtons';
 
 const loaderCSS = css`

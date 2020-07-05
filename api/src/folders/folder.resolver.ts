@@ -19,6 +19,9 @@ export class FolderArgs {
   @Field({ description: 'folder path', nullable: true })
   path?: string;
 
+  @Field({ description: 'folder branch', nullable: true })
+  branch?: string;
+
   @Field(_type => ObjectId, { description: 'repository id', nullable: true })
   repositoryID?: ObjectId;
 
@@ -37,32 +40,27 @@ export const getFolder = async (args: FolderArgs): Promise<FolderDB> => {
     }
     return folder;
   }
-  if (args.name !== undefined && args.path !== undefined && (args.repositoryID || (args.repository && args.owner))) {
-    if (args.repositoryID) {
-      const folder = await FolderModel.findOne({
-        repository: args.repositoryID,
-        name: args.name,
-        path: args.path
-      });
-      if (!folder) {
-        throw new Error('cannot find folder with given name, path, and repository');
-      }
-      return folder;
-    } else {
+  if (args.name !== undefined && args.path !== undefined
+    && (args.repositoryID || (args.repository && args.owner))) {
+    if (!args.repositoryID) {
       if (!args.repository || !args.owner) {
         throw new Error('repo or owner is undefined');
       }
       const repository = await getRepositoryByOwner(args.repository, args.owner);
-      const folder = await FolderModel.findOne({
-        repository: repository._id,
-        name: args.name,
-        path: args.path
-      });
-      if (!folder) {
-        throw new Error('cannot find folder with given name, path, and repository');
-      }
-      return folder;
+      args.repositoryID = repository._id;
     }
+    const folder = await FolderModel.findOne({
+      repository: args.repositoryID,
+      name: args.name,
+      path: args.path
+    });
+    if (!folder) {
+      throw new Error('cannot find folder with given name, path, and repository');
+    }
+    if (args.branch && !folder.branches.includes(args.branch)) {
+      throw new Error(`folder does not exist on branch ${args.branch}`);
+    }
+    return folder;
   } else {
     throw new Error('invalid combination of parameters to get folder data');
   }

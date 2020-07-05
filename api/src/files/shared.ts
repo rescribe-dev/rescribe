@@ -9,7 +9,7 @@ import AntlrFile from '../schema/antlr/file';
 import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';
 import checkFileExtension from '../languages/checkFileExtension';
 import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/folder';
-import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../folders/shared';
+import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../shared/folders';
 import { getFolder } from '../folders/folder.resolver';
 import { createHash } from 'crypto';
 
@@ -29,17 +29,6 @@ export interface FileWriteData {
   elastic: SaveElasticElement;
   mongo: WriteMongoElement;
 }
-
-export const getFilePath = (path: string): string => {
-  let filePath = path.substring(0, path.lastIndexOf('/') + 1);
-  if (filePath.length > 0) {
-    if (filePath[0] !== '/') {
-      filePath = `/${filePath}`;
-    }
-    return filePath;
-  }
-  return '/';
-};
 
 interface CreateFoldersArgs {
   fileWriteData: FileWriteData[];
@@ -195,6 +184,7 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
   };
   const baseElasticContent: BaseFileElastic = {
     name: args.fileName,
+    nameSearch: args.fileName,
     hash: args.hash,
     content: !args.isBinary ? args.content : '',
     hasStructure: args.hasAntlrData,

@@ -39,7 +39,7 @@ import { thunkSearch } from 'state/search/thunks';
 import { toast } from 'react-toastify';
 
 import './index.scss';
-import { queryMinLength } from 'utils/variables';
+import { queryMinLength } from 'shared/variables';
 import sleep from 'utils/sleep';
 import { capitalizeFirstLetter } from 'utils/misc';
 

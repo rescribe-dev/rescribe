@@ -10,6 +10,7 @@ node_paths=("." "api/" "github-app/" "web/" "vscode/" ".github/build-frontend/" 
 for path in "${node_paths[@]}"
 do
   cd "$path"
+  echo "install dependencies in $path"
   if [ -f yarn.lock ]; then
     echo "using yarn package manager"
     yarn install

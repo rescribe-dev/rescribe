@@ -22,9 +22,9 @@ import './index.scss';
 import {
   validProjectName,
   validRepositoryName,
-  perpageFilters,
   blacklistedRepositoryNames,
-} from 'utils/variables';
+} from 'shared/variables';
+import { perpageFilters } from 'utils/variables';
 import ObjectID from 'bson-objectid';
 import AsyncSelect from 'react-select/async';
 import Select from 'react-select';
