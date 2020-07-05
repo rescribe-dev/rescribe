@@ -1,0 +1,3 @@
+query fileNameExists($name: String!, $path: String!, $repository: ObjectId!, $branch: String!) {
+  fileNameExists(name: $name, path: $path, repository: $repository, branch: $branch)
+}

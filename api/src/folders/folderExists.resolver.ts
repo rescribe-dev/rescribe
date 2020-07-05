@@ -2,7 +2,7 @@ import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { Matches } from 'class-validator';
-import { validRepositoryName } from '../utils/variables';
+import { validRepositoryName } from '../shared/variables';
 import { FolderModel } from '../schema/structure/folder';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { getRepositoryByOwner } from '../repositories/repositoryNameExists.resolver';
@@ -23,7 +23,7 @@ class RepositoryExistsArgs {
 }
 
 export const countFolders = async (repositoryID: ObjectId, path: string, name: string): Promise<number> => {
-  return await FolderModel.count({
+  return await FolderModel.countDocuments({
     repository: repositoryID,
     path,
     name

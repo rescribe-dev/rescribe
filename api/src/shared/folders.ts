@@ -1,12 +1,12 @@
 export const baseFolderName = '';
 export const baseFolderPath = '';
 
-export interface FolderData {
+export interface PathData {
   name: string;
   path: string;
 }
 
-export const getParentFolderPath = (filePath: string): FolderData => {
+export const getParentFolderPath = (filePath: string): PathData => {
   // file path is something like /folder1/folder2/test.txt
   //                             /folder1/asdf.txt
   // for a file in those 2 folders
@@ -42,12 +42,12 @@ export const getParentFolderPath = (filePath: string): FolderData => {
 
 const fullBasePath = '/';
 
-export const getParentFolderPaths = (filePath: string, reversed?: boolean): FolderData[] => {
+export const getParentFolderPaths = (filePath: string, reversed?: boolean): PathData[] => {
   if (reversed === undefined) {
     reversed = true;
   }
   let currentFolderPath = filePath;
-  const parentFolders: FolderData[] = [];
+  const parentFolders: PathData[] = [];
   while (currentFolderPath !== fullBasePath) {
     const parentFolderData = getParentFolderPath(currentFolderPath);
     currentFolderPath = `${parentFolderData.path}${
@@ -57,7 +57,7 @@ export const getParentFolderPaths = (filePath: string, reversed?: boolean): Fold
       parentFolders.push(parentFolderData);
     }
   }
-  let orderedFolders: FolderData[] = parentFolders;
+  let orderedFolders: PathData[] = parentFolders;
   if (reversed) {
     orderedFolders = parentFolders.reverse();
   }

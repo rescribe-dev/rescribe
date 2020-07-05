@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, WriteType, getFilePath, saveChanges, FileWriteData, Aggregates } from './shared';
+import { indexFile, WriteType, saveChanges, FileWriteData, Aggregates } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -16,6 +16,7 @@ import { ArrayUnique } from 'class-validator';
 import { SaveElasticElement } from '../elastic/elastic';
 import { WriteMongoElement } from '../db/mongo';
 import { saveAggregates } from './deleteFiles.resolver';
+import { getFilePath } from '../shared/files';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -107,7 +108,7 @@ class IndexFilesResolver {
               project: repository.project,
               repository: repositoryID,
               branch: args.branch,
-              path: getFilePath(path),
+              path: getFilePath(path).path,
               fileName: file.filename,
               public: repository.public,
               content,

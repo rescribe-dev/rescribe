@@ -8,7 +8,7 @@ import { elasticClient } from '../elastic/init';
 import { TermQuery } from '../elastic/types';
 import { RequestParams } from '@elastic/elasticsearch';
 import { Matches } from 'class-validator';
-import { validRepositoryName } from '../utils/variables';
+import { validRepositoryName } from '../shared/variables';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { getUser } from '../users/shared';
 
@@ -91,7 +91,7 @@ export const countRepositoriesUserAccess = async (user: User, name?: string): Pr
 };
 
 export const countRepositories = async (owner: ObjectId, name?: string): Promise<number> => {
-  return await RepositoryModel.count({
+  return await RepositoryModel.countDocuments({
     owner,
     name
   });

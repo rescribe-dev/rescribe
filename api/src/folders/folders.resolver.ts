@@ -1,7 +1,7 @@
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import { Min, Max, MinLength, ArrayMaxSize, ArrayUnique } from 'class-validator';
-import { queryMinLength } from '../utils/variables';
+import { queryMinLength } from '../shared/variables';
 import { Folder } from '../schema/structure/folder';
 import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
 import { TermQuery } from '../elastic/types';

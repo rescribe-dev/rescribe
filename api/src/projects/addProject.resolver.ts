@@ -9,7 +9,7 @@ import Access, { AccessLevel, AccessType } from '../schema/auth/access';
 import { UserModel } from '../schema/auth/user';
 import { countProjectsUserAccess } from './projectNameExists.resolver';
 import { Matches } from 'class-validator';
-import { validProjectName } from '../utils/variables';
+import { validProjectName } from '../shared/variables';
 @ArgsType()
 class AddProjectArgs {
   @Field(_type => String, { description: 'project name' })

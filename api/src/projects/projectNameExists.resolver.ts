@@ -7,7 +7,7 @@ import { UserModel } from '../schema/auth/user';
 import { elasticClient } from '../elastic/init';
 import { TermQuery } from '../elastic/types';
 import { Matches } from 'class-validator';
-import { validProjectName } from '../utils/variables';
+import { validProjectName } from '../shared/variables';
 import { getUser } from '../users/shared';
 import { ProjectModel } from '../schema/structure/project';
 
@@ -74,11 +74,11 @@ export const countProjectsUserAccess = async (userID: ObjectId, name?: string): 
  * count projects owned by user
  * 
  * @param {ObjectId} owner user id
- * @param {string} name optional project name
+ * @param {string} name project name
  * @returns {number} number
  */
-export const countProjects = async (owner: ObjectId, name?: string): Promise<number> => {
-  return ProjectModel.count({
+export const countProjects = async (owner: ObjectId, name: string): Promise<number> => {
+  return ProjectModel.countDocuments({
     name,
     owner
   });
