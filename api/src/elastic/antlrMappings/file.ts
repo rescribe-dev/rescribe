@@ -21,6 +21,9 @@ const fileMappings = {
     type: 'keyword'
   },
   name: {
+    type: 'keyword'
+  },
+  nameSearch: {
     type: 'text',
     analyzer: 'trigrams'
   },

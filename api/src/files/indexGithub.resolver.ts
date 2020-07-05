@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../utils/getGithubFile';
 import { UserModel } from '../schema/auth/user';
-import { indexFile, WriteType, getFilePath, saveChanges, FileWriteData, Aggregates } from './shared';
+import { indexFile, WriteType, saveChanges, FileWriteData, Aggregates } from './shared';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
@@ -14,6 +14,7 @@ import { ProjectModel } from '../schema/structure/project';
 import { SaveElasticElement } from '../elastic/elastic';
 import { WriteMongoElement } from '../db/mongo';
 import { deleteFilesUtil, saveAggregates } from './deleteFiles.resolver';
+import { getFilePath } from '../shared/files';
 
 export const githubConfigFilePath = 'rescribe.yml';
 
@@ -144,7 +145,7 @@ class IndexGithubResolver {
         project: projectID,
         repository: repositoryID,
         branch,
-        path: getFilePath(filePath),
+        path: getFilePath(filePath).path,
         fileName: getFileName(filePath),
         public: repository.public,
         content: content.text,

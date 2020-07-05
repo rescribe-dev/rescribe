@@ -29,7 +29,7 @@ export class BaseFile {
   @Field(_type => Int, { description: 'number of lines in file' })
   fileLength: number;
 
-  @Property({ required: true })
+  @Property({ required: true, type: String })
   @Field(_type => [String], { description: 'branches' })
   branches: string[];
 
@@ -68,11 +68,17 @@ export class BaseFileElastic extends BaseFile {
 
   @Field(_type => String, { description: 'file content' })
   content: string;
+
+  @Field(_type => String, { description: 'file name search' })
+  nameSearch: string;
 }
 
 // input / result from elastic
 @ObjectType({ description: 'file' })
 export default class File extends AntlrFile implements BaseFileElastic {
+  @Field(_type => String, { description: 'file name search' })
+  nameSearch: string;
+
   @Field({ description: 'sha-1 hash' })
   hash: string;
 

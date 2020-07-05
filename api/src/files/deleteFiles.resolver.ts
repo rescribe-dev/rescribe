@@ -12,7 +12,7 @@ import { WriteType, Aggregates, FileWriteData, singleBranchRemove } from './shar
 import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';
 import { FileModel, FileDB } from '../schema/structure/file';
 import { FolderModel } from '../schema/structure/folder';
-import { baseFolderName, baseFolderPath } from '../folders/shared';
+import { baseFolderName, baseFolderPath } from '../shared/folders';
 import { RepositoryModel } from '../schema/structure/repository';
 import { elasticClient } from '../elastic/init';
 import { getLogger } from 'log4js';
@@ -142,7 +142,7 @@ export const deleteFilesUtil = async (args: DeleteFilesUtilArgs): Promise<void> 
   const bulkUpdateFolderElasticData: SaveElasticElement[] = [];
   const bulkUpdateFolderMongoData: WriteMongoElement[] = [];
   for (const parentFolderID of parentFolderIDsSet.values()) {
-    const numChildren = await FileModel.count({
+    const numChildren = await FileModel.countDocuments({
       folder: parentFolderID,
       repository: args.repository,
       branches: {

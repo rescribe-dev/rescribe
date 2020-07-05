@@ -17,7 +17,8 @@ import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';
-import { queryMinLength, Language } from '../utils/variables';
+import { queryMinLength } from '../shared/variables';
+import { Language } from '../utils/variables';
 
 const logger = getLogger();
 

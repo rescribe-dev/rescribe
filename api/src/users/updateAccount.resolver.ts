@@ -4,7 +4,8 @@ import bcrypt from 'bcrypt';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches, IsOptional } from 'class-validator';
-import { passwordMinLen, specialCharacterRegex, saltRounds, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../utils/variables';
+import { passwordMinLen, specialCharacterRegex, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../shared/variables';
+import { saltRounds } from '../utils/variables';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/auth/user';
 
