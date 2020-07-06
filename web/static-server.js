@@ -1,10 +1,8 @@
-import finalhandler from 'finalhandler';
-import { createServer } from 'http';
-import serveIndex from 'serve-index';
-import serveStatic from 'serve-static';
-import dotenv from 'dotenv';
-
-dotenv.config();
+const finalhandler = require('finalhandler');
+const createServer = require('http').createServer;
+const serveIndex = require('serve-index');
+const serveStatic = require('serve-static');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 8001;
 
