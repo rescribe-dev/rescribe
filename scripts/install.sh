@@ -5,7 +5,7 @@ set -e
 
 cd ..
 
-node_paths=("." "api/" "github-app/" "web/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/")
+node_paths=("." "api/" "github-app/" "web/" "prerender/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/")
 
 for path in "${node_paths[@]}"
 do
@@ -18,6 +18,17 @@ do
     echo "using npm package manager"
     npm install
   fi
+  cd -
+done
+
+# install golang dependencies
+go_paths=("router")
+
+for path in "${go_paths[@]}"
+do
+  cd "$path/src"
+  echo "install dependencies in $path/"
+  go get .
   cd -
 done
 

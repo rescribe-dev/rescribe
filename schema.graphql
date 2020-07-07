@@ -896,10 +896,10 @@ type Query {
     branch: String!
 
     # start line
-    start: Int!
+    start: Int
 
     # end line
-    end: Int!
+    end: Int
   ): [String!]!
   projectNameExists(
     # project name

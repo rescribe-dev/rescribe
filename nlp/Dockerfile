@@ -1,5 +1,8 @@
 FROM continuumio/miniconda3
 
+# Add Maintainer Info
+LABEL maintainer="Rescribe"
+
 # create app directory
 WORKDIR /app
 
