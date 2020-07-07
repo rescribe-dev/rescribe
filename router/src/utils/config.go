@@ -12,7 +12,7 @@ import (
 var Port = 8084
 
 // DefaultHost host name for default
-var DefaultHost = "rescribe.dev"
+var DefaultHost = "static.rescribe.dev"
 
 // DefaultSecure use secure connection for default
 var DefaultSecure = true
