@@ -10,7 +10,7 @@ interface ConfigType {
 
 export const configData: ConfigType = {
   PORT: 8083,
-  WEBSITE_URL: 'https://rescribe.dev',
+  WEBSITE_URL: 'https://static.rescribe.dev',
   DEBUG: false,
 };
 
