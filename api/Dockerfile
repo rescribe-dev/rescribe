@@ -1,5 +1,8 @@
 FROM node:13
 
+# Add Maintainer Info
+LABEL maintainer="Rescribe"
+
 # Create app directory
 WORKDIR /app
 

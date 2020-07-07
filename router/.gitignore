@@ -17,3 +17,6 @@
 
 # environment
 .env
+
+# built files
+main

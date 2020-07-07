@@ -11,6 +11,12 @@ import { configData } from './utils/config';
 
 const logger = getLogger();
 
+const forceRenderQuery = '_render';
+
+const widthQuery = '_width';
+const heightQuery = '_height';
+const mobileQuery = '_mobile';
+
 const contentTypeHeader = 'content-type';
 
 const renderTimeSeconds = 0.5;
@@ -24,11 +30,6 @@ const sendAxiosResponse = (axiosRes: AxiosResponse, res: Response, content?: any
   }
   res.status(axiosRes.status).send(content);
 };
-
-const forceRenderQuery = '_render';
-const widthQuery = '_width';
-const heightQuery = '_height';
-const mobileQuery = '_mobile';
 
 enum RenderType {
   html = 'html',
