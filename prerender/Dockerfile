@@ -17,7 +17,6 @@ RUN yarn install
 # Copy app
 COPY lib .
 
-COPY .rescriberc.yml .
+EXPOSE 8083
 
-EXPOSE 8080
 CMD [ "node", "index.js" ]
