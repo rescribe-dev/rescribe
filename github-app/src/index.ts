@@ -13,6 +13,8 @@ interface Commit {
   modified: string[];
 }
 
+const githubUserAgent = 'Rescribe-GitHub-App';
+
 initializeConfig();
 
 export = (app: Application): void => {
@@ -76,7 +78,8 @@ export = (app: Application): void => {
               },
               context: {
                 headers: {
-                  Authorization: `Bearer ${token}`
+                  Authorization: `Bearer ${token}`,
+                  'User-Agent': githubUserAgent
                 }
               }
             });

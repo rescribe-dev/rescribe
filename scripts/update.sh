@@ -8,7 +8,7 @@ set -e
 
 cd ..
 
-node_paths=("." "api/" "github-app/" "cli/" "web/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/")
+node_paths=("." "api/" "github-app/" "cli/" "web/" "prerender/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/")
 
 for path in "${node_paths[@]}"
 do
@@ -31,6 +31,15 @@ do
   cd "$path"
   conda env update --file environment.yml --prune
   conda env export > environment.yml
+  cd -
+done
+
+go_paths=("router")
+
+for path in "${go_paths[@]}"
+do
+  cd "$path/src"
+  go get -u
   cd -
 done
 

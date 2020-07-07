@@ -30,7 +30,7 @@ export const initializeServer = async (): Promise<void> => {
   const app = express();
   const corsConfig: CorsOptions = {
     credentials: true,
-    origin: configData.WEBSITE_URL
+    origin: '*'
   };
   app.use(cors(corsConfig));
   app.use(cookieParser());

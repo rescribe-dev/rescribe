@@ -56,6 +56,7 @@ export const getContext = async ({ req, res, connection }: ExpressContext): Prom
       res
     };
   }
+  // TODO - use user agent to differentiate between the two auth schemas
   let authData: AuthData | undefined;
   try {
     authData = await decodeAuth(jwtType.LOCAL, token);

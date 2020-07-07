@@ -15,7 +15,7 @@
     "emails"
   ],
   "scripts": {
-    "start": "node lib/index",
+    "start": "yarn run compile-emails",
     "test": "echo \"Error: no test specified for status\"",
     "precommit": "yarn run test",
     "save": "./save_emails.sh",
