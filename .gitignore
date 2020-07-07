@@ -25,4 +25,5 @@ demoCode/
 # ignore coverage file(s)
 coverage/
 .coverage
+coverage.txt
 coverage.xml

@@ -21,6 +21,17 @@ do
   cd -
 done
 
+# install golang dependencies
+go_paths=("router")
+
+for path in "${go_paths[@]}"
+do
+  cd "$path/src"
+  echo "install dependencies in $path/"
+  go get .
+  cd -
+done
+
 cd scripts
 
 # additional install scripts

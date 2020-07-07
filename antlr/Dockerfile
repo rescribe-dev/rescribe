@@ -1,5 +1,8 @@
 FROM openjdk:8-jdk-alpine
 
+# Add Maintainer Info
+LABEL maintainer="Rescribe"
+
 # Create app directory
 WORKDIR /app
 

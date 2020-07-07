@@ -99,7 +99,7 @@ def main():
         yte: pd.DataFrame = labels_test
 
         xtr_bert: np.ndarray = np.asarray(xtr_bert)
-        ytr: np.ndarry = np.asarray(ytr)
+        ytr: np.ndarray = np.asarray(ytr)
         xte_bert: np.ndarray = np.asarray(xte_bert)
         yte: np.ndarray = np.asarray(yte)
 
