@@ -7,7 +7,11 @@ const logger = getLogger();
 export let browser: Browser;
 
 export const initializePuppet = async (): Promise<void> => {
-  browser = await launch();
+  // see this: https://stackoverflow.com/a/51038064/8623391
+  browser = await launch({
+    headless: true,
+    args: ['--no-sandbox'],
+  });
   exitHook(() => {
     logger.info('close browser');
     browser.close();
