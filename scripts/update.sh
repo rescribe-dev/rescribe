@@ -34,4 +34,13 @@ do
   cd -
 done
 
+go_paths=("router")
+
+for path in "${go_paths[@]}"
+do
+  cd "$path/src"
+  go get -u
+  cd -
+done
+
 cd scripts
