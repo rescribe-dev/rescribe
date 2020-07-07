@@ -9,11 +9,11 @@
   "cSpell.words": [
     "rescribe"
   ],
+  "terminal.integrated.shell.linux": "/usr/bin/bash",
   "extensions.ignoreRecommendations": true,
   "files.autoSave": "off",
   "debug.allowBreakpointsEverywhere": true,
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
-  "python.pythonPath": "/home/mycicle/anaconda3/envs/rescribe-nlp/bin/python",
   "files.eol": "\n"
 }
