@@ -71,6 +71,12 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install go helpers
+        id: go-helpers
+        run: |
+          cd scripts
+          ./install_go_helpers.sh
+          cd -
 
       - name: Install dependencies
         id: install
