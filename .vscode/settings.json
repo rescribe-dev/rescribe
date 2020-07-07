@@ -14,5 +14,6 @@
   "debug.allowBreakpointsEverywhere": true,
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
-  "python.pythonPath": "/home/mycicle/anaconda3/envs/rescribe-nlp/bin/python"
+  "python.pythonPath": "/home/mycicle/anaconda3/envs/rescribe-nlp/bin/python",
+  "files.eol": "\n"
 }
