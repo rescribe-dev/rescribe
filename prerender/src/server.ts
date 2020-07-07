@@ -4,7 +4,6 @@ import { getLogger } from 'log4js';
 import { createServer } from 'http';
 import { configData } from './utils/config';
 import { OK } from 'http-status-codes';
-import { launch } from 'puppeteer';
 import prerender from './prerender';
 
 const logger = getLogger();
@@ -15,10 +14,9 @@ export const initializeServer = async (): Promise<void> => {
     credentials: true,
     origin: configData.WEBSITE_URL
   };
-  const browser = await launch();
 
   app.use(cors(corsConfig));
-  app.get('*', (req, res) => prerender(req, res, browser));
+  app.get('*', prerender);
   app.get('/_hello', (_, res) => {
     res.json({
       message: 'hello world!'
