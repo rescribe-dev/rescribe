@@ -18,6 +18,8 @@
 ![Upload Api](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Api/badge.svg)
 ![Upload Antlr](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Antlr/badge.svg)
 ![Upload NLP](https://github.com/rescribe-dev/rescribe/workflows/Upload%20NLP/badge.svg)
+![Upload Prerender](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Prerender/badge.svg)
+![Upload Router](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Router/badge.svg)
 ![Upload CLI](https://github.com/rescribe-dev/rescribe/workflows/Upload%20CLI/badge.svg)
 ![Upload vscode](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Vscode/badge.svg)
 ![Upload Github](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Github/badge.svg)
