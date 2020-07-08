@@ -81,8 +81,8 @@
   "scripts": {
     "build:gatsby": "cd gatsby && tsc",
     "prebuild": "yarn build:gatsby",
-    "build": "npm run remove:dist && npm run codegen && gatsby build && npm run copy:headers",
-    "predeploy": "yarn build && npm run move:folder",
+    "build": "yarn remove:dist && yarn codegen && gatsby build && yarn move:folder && yarn copy:headers",
+    "predeploy": "yarn build",
     "move:folder": "mv public dist",
     "copy:headers": "cp dist/_headers ../aws/cloudfront",
     "dev": "yarn build:gatsby && yarn lint && gatsby develop",
@@ -93,7 +93,7 @@
     "clean": "gatsby clean && remove:dist && rimraf gatsby/.gatsby",
     "precommit": "yarn lint",
     "storybook": "start-storybook -p 9000 -c .storybook",
-    "build-storybook": "build-storybook -c .storybook -o dist-storybook",
+    "build:storybook": "build-storybook -c .storybook -o dist-storybook",
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "devDependencies": {
