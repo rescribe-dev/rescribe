@@ -8,6 +8,7 @@ interface ConfigType {
   JWT_ISSUER: string;
   DB_NAME: string;
   WEBSITE_URL: string;
+  STATIC_WEBSITE_URL: string;
   CONNECT_ANTLR: boolean;
   CONNECT_NLP: boolean;
   DEBUG: boolean;
@@ -47,6 +48,7 @@ export const configData: ConfigType = {
   JWT_ISSUER: 'rescribe',
   DB_NAME: 'rescribe',
   WEBSITE_URL: 'https://rescribe.dev',
+  STATIC_WEBSITE_URL: 'https://static.rescribe.dev',
   CONNECT_ANTLR: true,
   CONNECT_NLP: true,
   DEBUG: false,
