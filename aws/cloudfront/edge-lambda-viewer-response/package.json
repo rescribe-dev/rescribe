@@ -17,10 +17,10 @@
   "files": [
     "lib"
   ],
-  "main": "lib/lambda",
-  "types": "lib/lambda",
+  "main": "lib/index",
+  "types": "lib/index",
   "scripts": {
-    "start": "node lib/lambda",
+    "start": "node lib/index",
     "dev": "tsc-watch --onSuccess \"npm run postbuildWatch\"",
     "clean": "rimraf lib && rimraf coverage",
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",

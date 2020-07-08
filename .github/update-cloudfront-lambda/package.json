@@ -1,7 +1,7 @@
 {
-  "name": "build-frontend",
+  "name": "upload-lambda-cloudfront",
   "version": "1.0.0",
-  "description": "create frontend s3",
+  "description": "upload lambda functions cloudfront",
   "main": "lib/index",
   "types": "lib/index",
   "scripts": {
@@ -33,8 +33,7 @@
   "homepage": "https://github.com/rescribe-dev/rescribe#readme",
   "dependencies": {
     "aws-sdk": "^2.705.0",
-    "dotenv": "^8.2.0",
-    "mime-types": "^2.1.27"
+    "dotenv": "^8.2.0"
   },
   "engines": {
     "node": ">=10.0.0"

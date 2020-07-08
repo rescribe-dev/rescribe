@@ -1,0 +1,16 @@
+# ignore dist
+dist.zip
+
+# ignore logs
+*.logs*
+
+coverage/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.nyc_output
+lib/
+!src/lib/
+src/lib/generated
+lib_test
