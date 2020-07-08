@@ -1,0 +1,5 @@
+# don't ignore _headers files
+!./_headers
+
+# ignore output
+dist.zip
