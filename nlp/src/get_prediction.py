@@ -12,7 +12,7 @@ from transformers import BertTokenizer
 from dataprocess import _get_inputs
 from variables import bert_tokenizer, max_sequence_length, model_input_path
 from initialize_model import nlp_model
-
+from os.path import abspath, join, dirname
 classification_labels_data: Union[List[str], None] = None
 
 
@@ -22,7 +22,8 @@ def initialize_classification_labels():
     """
     global classification_labels_data
     try:
-        with open(f"{model_input_path}/classification_labels.pkl", 'rb') as pickle_file:
+        with open(abspath(join(dirname(__file__), f"../src/{model_input_path}/classification_labels.pkl")), 'rb') as \
+                pickle_file:
             classification_labels_data = pickle.load(pickle_file)
     except FileNotFoundError:
         raise FileNotFoundError(
