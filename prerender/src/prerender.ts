@@ -7,7 +7,6 @@ import { webClient } from './utils/webBridge';
 import { extension } from 'mime-types';
 import { AxiosError, AxiosResponse } from 'axios';
 import { browser } from './utils/puppet';
-import { configData } from './utils/config';
 
 const logger = getLogger();
 
@@ -170,7 +169,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     }
   } catch (error) {
     const err = error as Error;
-    const message = `unable to render ${configData.WEBSITE_URL + proxiedURL}: ${err.message}`;
+    const message = `unable to render ${(webClient.defaults.baseURL as string) + proxiedURL}: ${err.message}`;
     logger.error(message);
     res.status(NOT_FOUND).send(message);
   } finally {

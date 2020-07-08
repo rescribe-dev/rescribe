@@ -4,13 +4,15 @@ export const appName = 'rescribe';
 
 interface ConfigType {
   PORT: number;
-  WEBSITE_URL: string;
+  WEBSITE_HOST: string;
+  USE_SECURE: boolean
   DEBUG: boolean;
 }
 
 export const configData: ConfigType = {
   PORT: 8083,
-  WEBSITE_URL: 'https://static.rescribe.dev',
+  WEBSITE_HOST: 'static.rescribe.dev',
+  USE_SECURE: true,
   DEBUG: false,
 };
 
