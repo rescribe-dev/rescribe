@@ -23,7 +23,7 @@ def initialize_classification_labels():
     global classification_labels_data
     try:
         with open(f"{model_input_path}/classification_labels.pkl", 'rb') as pickle_file:
-            classification_labels_data: List[str] = pickle.load(pickle_file)
+            classification_labels_data = pickle.load(pickle_file)
     except FileNotFoundError:
         raise FileNotFoundError(
             f"Cannot find the classfication labels pickle file at {model_input_path}/classification_labels.pkl")

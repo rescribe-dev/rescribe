@@ -18,6 +18,7 @@ import Newsletter from './Newsletter';
 import { client } from 'utils/apollo';
 import { toast } from 'react-toastify';
 import { IndexMessages } from 'locale/pages/index/indexMessages';
+import { Helmet } from 'react-helmet-async';
 
 export interface IndexPageProps extends PageProps {
   data: {
@@ -79,6 +80,22 @@ const IndexPage = (args: IndexPageContentProps): JSX.Element => {
   //   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultricies porttitor ullamcorper. Lorem ipsum dolor sit amet, consectetur adipiscing elit';
   return (
     <>
+      <Helmet>
+        <script type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "url": "${process.env.GATSBY_SITE_URL}",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "${process.env.GATSBY_SITE_URL}/search?q={query}",
+                "query-input": "required name=query"
+              }
+            }
+          `}
+        </script>
+      </Helmet>
       <Container className="default-container">
         <SearchBar />
         {/*<NavCard
