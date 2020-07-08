@@ -33,14 +33,21 @@ jobs:
           cd aws/cloudfront/edge-lambda-origin-request
           yarn install
           yarn run predeploy
+          mv dist.zip ../../../.github/update-cloudfront-lambda
           cd -
       - name: upload
-        uses: appleboy/lambda-action@master
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-east-1
-          function_name: rescribe-cloudfront-origin-request
-          zip_file: aws/cloudfront/edge-lambda-origin-request/dist.zip
+        run: |
+          cd .github/update-cloudfront-lambda
+          yarn install
+          yarn run build
+          yarn start
+          cd -
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID }}
+          AWS_REGION: us-east-1
+          SOURCE: dist.zip
+          LAMBDA_FUNCTION: rescribe-cloudfront-origin-request
       - name: finish
         run: echo "finished!"
