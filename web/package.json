@@ -81,7 +81,7 @@
   "scripts": {
     "build:gatsby": "cd gatsby && tsc",
     "prebuild": "yarn build:gatsby",
-    "build": "npm run remove:dist && npm run codegen && gatsby build",
+    "build": "npm run remove:dist && npm run codegen && gatsby build && npm run copy:headers",
     "predeploy": "yarn build && npm run move:folder",
     "move:folder": "mv public dist",
     "copy:headers": "cp dist/_headers ../aws/cloudfront",
