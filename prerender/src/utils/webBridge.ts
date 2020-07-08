@@ -19,11 +19,11 @@ export const pingWeb = async (): Promise<boolean> => {
 };
 
 export const initializeWeb = async (): Promise<boolean> => {
-  if (configData.WEBSITE_URL.length === 0) {
-    throw new Error('cannot find antlr uri');
+  if (configData.WEBSITE_HOST.length === 0) {
+    throw new Error('cannot find target url');
   }
   webClient = axios.create({
-    baseURL: configData.WEBSITE_URL,
+    baseURL: `http${configData.USE_SECURE ? 's' : ''}://${configData.WEBSITE_HOST}`,
     headers: {
       common: {},
     },

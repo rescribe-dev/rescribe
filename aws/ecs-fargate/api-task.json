@@ -270,13 +270,23 @@
       "command": null,
       "linuxParameters": null,
       "cpu": 0,
-      "environment": [],
+      "environment": [
+        {
+          "name": "USE_SECURE",
+          "value": "true"
+        }
+      ],
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,
       "mountPoints": [],
       "workingDirectory": null,
-      "secrets": null,
+      "secrets": [
+        {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:FRONTEND_URL-sBKSCV",
+          "name": "WEBSITE_HOST"
+        }
+      ],
       "dockerSecurityOptions": null,
       "memory": null,
       "memoryReservation": null,
