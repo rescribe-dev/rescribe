@@ -13,10 +13,10 @@ jobs:
     steps:
       # checks out a copy of the repo
       - uses: actions/checkout@master
-      - name: Setup Node.js 12
+      - name: Setup Node.js 13
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
+          node-version: 13.x
       # node yarn - cache
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -39,7 +39,7 @@ jobs:
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: eu-east-1
+          aws_region: us-east-1
           function_name: rescribe-cloudfront-viewer-response
           zip_file: aws/cloudfront/edge-lambda-viewer-response/dist.zip
       - name: finish
