@@ -901,13 +901,6 @@ type Query {
     # end line
     end: Int
   ): [String!]!
-  projectNameExists(
-    # project name
-    name: String!
-
-    # repository owner
-    owner: String
-  ): Boolean!
   search(
     # query
     query: String
@@ -988,6 +981,13 @@ type Query {
   ): [Folder!]!
   hello: String!
   languages: [LanguageData!]!
+  projectNameExists(
+    # project name
+    name: String!
+
+    # repository owner
+    owner: String
+  ): Boolean!
   project(
     # project id
     id: ObjectId
