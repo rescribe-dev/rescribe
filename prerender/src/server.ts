@@ -12,7 +12,7 @@ export const initializeServer = async (): Promise<void> => {
   const app = express();
   const corsConfig: CorsOptions = {
     credentials: true,
-    origin: configData.WEBSITE_URL
+    origin: [configData.MAIN_WEBSITE, configData.STATIC_WEBSITE]
   };
 
   app.use(cors(corsConfig));
