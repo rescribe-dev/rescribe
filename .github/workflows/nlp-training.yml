@@ -8,7 +8,7 @@ on:
       - master
     paths:
       - "nlp/training/**"
-      - ".github/workflows/nlp.yml"
+      - ".github/workflows/nlp-training.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest

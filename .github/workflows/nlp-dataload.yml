@@ -5,7 +5,7 @@ on:
       - master
     paths:
       - "nlp/dataload/**"
-      - ".github/workflows/nlp.yml"
+      - ".github/workflows/nlp-dataload.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
