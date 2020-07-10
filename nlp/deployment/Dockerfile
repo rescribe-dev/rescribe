@@ -17,4 +17,4 @@ COPY .global.env .env
 EXPOSE 8082
 # run environment through conda instead of conda activate
 # see https://pythonspeed.com/articles/activate-conda-dockerfile/
-ENTRYPOINT ["conda", "run", "-n", "rescribe-nlp", "python", "main.py"]
+ENTRYPOINT ["conda", "run", "-n", "rescribe-nlp-deployment", "python", "main.py"]

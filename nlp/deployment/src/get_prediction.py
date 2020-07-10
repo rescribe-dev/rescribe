@@ -6,13 +6,13 @@ Take a string and return the bert prediction for it
 
 from typing import List, Dict, Union, cast
 import pickle
+from os.path import abspath, join, dirname
 import pandas as pd
 import tensorflow as tf
 from transformers import BertTokenizer
-from dataprocess import get_inputs
-from variables import bert_tokenizer, max_sequence_length, model_input_path
+from shared.variables import bert_tokenizer, max_sequence_length, model_input_path
+from shared.get_inputs import get_inputs
 from initialize_model import nlp_model
-from os.path import abspath, join, dirname
 classification_labels_data: Union[List[str], None] = None
 
 

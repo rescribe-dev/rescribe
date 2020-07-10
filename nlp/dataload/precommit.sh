@@ -5,7 +5,7 @@ set -e
 
 source $(conda info --base)/etc/profile.d/conda.sh
 
-conda activate rescribe-nlp
+conda activate rescribe-nlp-dataload
 
 # format files
 autopep8 --exclude='./envs' --in-place --recursive .
@@ -22,6 +22,6 @@ conda env export --no-builds | grep -v "^prefix: " > environment.yml
 # alternative:
 # conda list -e | sed -E "s/^(.*\=.*)(\=.*)/\1/" > requirements.txt
 
-echo 'done with nlp precommit'
+echo 'done with nlp training precommit'
 
 conda deactivate
