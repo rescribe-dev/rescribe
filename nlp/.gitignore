@@ -4,5 +4,6 @@ bigquery_credentials.json
 
 # ignore python environment
 envs/
-/src/.model_inputs/
-/src/saved_model/
+.model_inputs/
+*.tar.gz
+.idea/

@@ -25,8 +25,8 @@ jobs:
             ${{ runner.os }}-pip-
       - name: install dependencies
         run: |
-          cd scripts
-          ./install_nlp.sh
+          cd nlp/deployment
+          conda env create --file ./environment.yml
           cd -
       - name: Run precommit
         id: precommit
