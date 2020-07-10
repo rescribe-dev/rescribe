@@ -3,15 +3,16 @@
 data processing
 """
 from os import mkdir
+from os.path import abspath, basename, join
 import pickle
 import gc
+import tarfile
+from typing import List
 import pandas as pd
 import numpy as np
-from typing import List
 import tensorflow as tf
 from shared.list_files import list_files
-from shared.load_model_from_tfhub import load_model_from_tfhub
-from shared.variables import clean_data_folder, model_input_path, bert_path
+from shared.variables import clean_data_folder, model_input_path, max_sequence_length, holdout, tarfile_path, bert_tokenizer, bert_layer
 from shared.get_inputs import get_inputs
 
 
@@ -22,21 +23,19 @@ def main():
     # very important - use only this bert version in tfhub since its tf2 compatible
     # all the instructions are available in the same page
     # https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1
-    max_seq_length: int = 64
-    holdout: float = 0.2
-    # originally duplicated code
-    bert_layer, bert_tokenizer = load_model_from_tfhub(bert_path)
+    max_seq_length: int = max_sequence_length
 
     try:
         mkdir(f"{model_input_path}")
     except FileExistsError:
         pass
 
-    files: List[str] = list_files(f"{clean_data_folder}/", "csv")
+    files: List[str] = list_files(
+        abspath(join(__file__, f'../..{clean_data_folder}/')), "csv")
     for file_name in files:
         index: int = int(file_name.split('.')[0])
         data_frame: pd.DataFrame = pd.read_csv(
-            f"{clean_data_folder}/{file_name}", index_col=None)
+            abspath(join(__file__, f"../{clean_data_folder}/{file_name}")), index_col=None)
         labels: pd.DataFrame = data_frame.drop(
             columns=["__title__", "__tags__"])
         train: pd.DataFrame = data_frame.iloc[:int(
@@ -67,7 +66,6 @@ def main():
         model_inputs: List[List[tf.Tensor]] = [bert_inputs, test_inputs]
         raw_bert_outputs: List[np.ndarray] = [xtr_bert, xte_bert]
         data_labels: List[np.ndarray] = [ytr, yte]
-
         with open(f"{model_input_path}/model_inputs{index}.pkl", 'wb') as pickle_file:
             pickle.dump(model_inputs, pickle_file)
         with open(f"{model_input_path}/raw_bert_outputs{index}.pkl", 'wb') as pickle_file:
@@ -75,6 +73,9 @@ def main():
         with open(f"{model_input_path}/data_labels{index}.pkl", 'wb') as pickle_file:
             pickle.dump(data_labels, pickle_file)
     gc.collect()
+    with tarfile.open(tarfile_path, "w:gz") as tar:
+        # arcname makes the tarfile contain a diretcory with the same name as model_input_path, use os.path.sep for the tarfile to contain the contents themselves
+        tar.add(model_input_path, arcname=basename(model_input_path))
 
 
 if __name__ == '__main__':

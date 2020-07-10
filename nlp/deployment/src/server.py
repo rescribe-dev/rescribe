@@ -9,6 +9,7 @@ from logging import Logger
 from typing import cast
 from loguru import logger
 from aiohttp import web
+from config import PORT
 from get_prediction import main as get_prediction
 
 
@@ -52,7 +53,7 @@ async def process_input(request: web.Request) -> web.Response:
     })
 
 
-def start_server(port: int):
+def start_server():
     """
     run web server
     """
@@ -63,6 +64,6 @@ def start_server(port: int):
         web.get('/ping', ping),
         web.put('/processInput', process_input)
     ])
-    logger.info(f'Nlp started: http://localhost:{port} 🚀')
+    logger.info(f'Nlp started: http://localhost:{PORT} 🚀')
     web_logger = cast(Logger, logger)
-    web.run_app(app, port=port, access_log=web_logger)
+    web.run_app(app, port=PORT, access_log=web_logger)

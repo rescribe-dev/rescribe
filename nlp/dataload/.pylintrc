@@ -9,4 +9,8 @@ disable =
     too-many-locals,
     broad-except,
     wrong-import-order,
-    global-statement
+    global-statement,
+    unused-variable,
+    redefined-outer-name,
+    global-variable-not-assigned
+

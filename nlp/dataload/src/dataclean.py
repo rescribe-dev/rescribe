@@ -95,7 +95,6 @@ def dataclean() -> None:
 
         df_clean.to_csv(
             abspath(join(dirname(__file__), f"{clean_data_folder}/{i}.csv")), index=False)
-    # save as tar file to s3
     del df_chunk_2
 
 

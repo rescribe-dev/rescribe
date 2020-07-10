@@ -4,17 +4,20 @@ FROM continuumio/miniconda3
 LABEL maintainer="Rescribe"
 
 # create app directory
-WORKDIR /app
+WORKDIR /opt/ml/code/
 
 # Create the environment
 COPY environment.yml .
 RUN conda env create -f environment.yml
+RUN conda_env="rescribe-nlp-training"
+
+# Activate a file
+ENV PATH "/opt/conda/envs/$conda_env/bin:$PATH"
+RUN /bin/bash -c "source activate $conda_env"
 
 # Copy app
 COPY src .
 COPY .global.env .env
 
-EXPOSE 8082
-# run environment through conda instead of conda activate
-# see https://pythonspeed.com/articles/activate-conda-dockerfile/
-ENTRYPOINT ["conda", "run", "-n", "rescribe-nlp-training", "python", "main.py"]
+# Defines train.py as script entrypoint
+ENV SAGEMAKER_PROGRAM main.py
