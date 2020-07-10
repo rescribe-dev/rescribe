@@ -4,12 +4,11 @@ clean data
 """
 
 import pickle
-from os.path import abspath, dirname, join
 from os import mkdir
 from typing import List, Set, Union
 from pandas import DataFrame, read_csv, Series
-from dataload import questions_output
-from shared.variables import clean_data_folder, model_input_path
+from shared.utils import get_file_path_relative
+from shared.variables import clean_data_folder, model_input_path, questions_file
 
 BATCH_SIZE: int = 1000
 
@@ -49,7 +48,7 @@ def dataclean() -> None:
     data clean
     """
     df_chunk: Union[DataFrame] = read_csv(
-        abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
+        get_file_path_relative(questions_file), chunksize=BATCH_SIZE)
 
     classification_labels_lol: List[List[str]] = []
 
@@ -64,17 +63,20 @@ def dataclean() -> None:
     classification_labels_list: List[str] = [
         item for elem in classification_labels_lol for item in elem]
     classification_labels: Set[str] = set(classification_labels_list)
+    classification_labels_list = list(classification_labels)
+
     try:
-        mkdir(f"{model_input_path}")
+        mkdir(get_file_path_relative(model_input_path))
     except FileExistsError:
         pass
 
-    with open(f"{model_input_path}/classification_labels.pkl", 'wb') as pickle_file:
+    with open(get_file_path_relative(f"{model_input_path}/classification_labels.pkl"), 'wb') as pickle_file:
         pickle.dump(classification_labels, pickle_file)
     del df_chunk
 
     df_chunk_2: Union[DataFrame] = read_csv(
-        abspath(join(dirname(__file__), questions_output)), chunksize=BATCH_SIZE)
+        get_file_path_relative(questions_file), chunksize=BATCH_SIZE)
+
     nrows: int = BATCH_SIZE
     ncols: int = len(classification_labels_list)
     output: List[List[int]] = []
@@ -94,7 +96,7 @@ def dataclean() -> None:
         df_clean["__tags__"] = title.__tags__.values.tolist()
 
         df_clean.to_csv(
-            abspath(join(dirname(__file__), f"{clean_data_folder}/{i}.csv")), index=False)
+            get_file_path_relative(f"{clean_data_folder}/{i}.csv"), index=False)
     del df_chunk_2
 
 

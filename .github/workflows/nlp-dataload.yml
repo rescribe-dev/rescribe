@@ -1,9 +1,8 @@
-name: Upload NLP Deployment
+name: Run NLP Dataload
 on:
   push:
     branches:
       - master
-      - dev
     paths:
       - "nlp/dataload/**"
       - ".github/workflows/nlp.yml"
@@ -48,30 +47,43 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: rescribe-nlp
+          ECR_REPOSITORY: rescribe-nlp-dataload
           # change image tag to ${{ github.sha }} if you want
           IMAGE_TAG: latest
         run: |
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          cd nlp
+          cd nlp/dataload
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           cd -
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: aws/ecs-fargate/api-task.json
-          container-name: nlp
-          image: ${{ steps.build-image.outputs.image }}
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: rescribe-api
-          cluster: fargate
-          # wait until service is stable
-          wait-for-service-stability: false
+      - name: Run dataload job
+        id: run-job
+        env:
+          ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
+          IMAGE_NAME: ${{ steps.build-image.outputs.image }}
+        run: |
+          cd nlp/sagemaker
+          source $(conda info --base)/etc/profile.d/conda.sh
+          conda activate rescribe-nlp-sagemaker
+          python3 src/main.py
+          conda deactivate
+          cd -
+
+      # run training (runs on master branch):
+      # - name: Wait for dataload to run
+      #   uses: jakejarvis/wait-action@master
+      #   with:
+      #     time: '5m'
+      # - name: Trigger nlp training
+      #   uses: peter-evans/repository-dispatch@v1
+      #   with:
+      #     token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      #     repository: rescribe-dev/rescribe
+      #     event-type: train-nlp
+      #     client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+
+      - name: finish
+        run: echo "finished!"

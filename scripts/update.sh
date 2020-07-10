@@ -26,7 +26,7 @@ do
   cd -
 done
 
-python_paths=("nlp/dataload" "nlp/deployment" "nlp/training")
+python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "nlp/sagemaker")
 
 for path in "${python_paths[@]}"
 do
