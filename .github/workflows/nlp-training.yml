@@ -28,13 +28,13 @@ jobs:
             ${{ runner.os }}-pip-
       - name: install dependencies
         run: |
-          cd nlp/deployment
+          cd nlp/training
           conda env create --file ./environment.yml
           cd -
       - name: Run precommit
         id: precommit
         run: |
-          cd nlp
+          cd nlp/training
           ./precommit.sh
           cd -
       - name: Configure AWS credentials
