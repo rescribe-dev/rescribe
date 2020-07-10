@@ -1,4 +1,1 @@
 # ignore working files for training
-saved_model/
-/src/saved_model/
-/training/.mypy_cache/

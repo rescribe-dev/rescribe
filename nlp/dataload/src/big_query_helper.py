@@ -4,6 +4,7 @@ helper for bigquery tasks
 """
 import time
 import pandas as pd
+from loguru import logger
 
 from google.cloud import bigquery
 
@@ -133,7 +134,7 @@ class BigQueryHelper():
         start_time = time.time()
         while not my_job.done():
             if (time.time() - start_time) > self.max_wait_seconds:
-                print("Max wait time elapsed, query cancelled.")
+                logger.info("Max wait time elapsed, query cancelled.")
                 self.client.cancel_job(my_job.job_id)
                 return None
             time.sleep(0.1)
@@ -152,7 +153,7 @@ class BigQueryHelper():
         if query_size <= max_gb_scanned:
             return self.query_to_pandas(query)
         msg = "Query cancelled; estimated size of {0} exceeds limit of {1} GB"
-        print(msg.format(query_size, max_gb_scanned))
+        logger.info(msg.format(query_size, max_gb_scanned))
         return None
 
     def head(self, table_name, num_rows=5, start_index=None, selected_columns=None):

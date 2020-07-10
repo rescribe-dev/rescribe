@@ -2,24 +2,38 @@
 """
 load data into post questions
 """
-from os.path import abspath, dirname, join
+from os import getenv
+from os.path import exists
+from config import PRODUCTION
 from pandas import DataFrame
+from loguru import logger
+from typing import Union
 from google.cloud import bigquery
 from big_query_helper import BigQueryHelper as bqh
-# from io import StringIO # python3; python2: BytesIO
-# import boto3
-# from variables import bucket_name
+import boto3
+from get_bigquery_credentials import main as get_bigquery_credentials
+from io import StringIO
+from shared.utils import get_file_path_relative
+from shared.variables import questions_file, bucket_name
 
 credentials_file: str = '../../bigquery_credentials.json'
-questions_output: str = '../datasets/post-questions.csv'
 
 
 def dataload(dataset_length: int) -> DataFrame:
     """
     externally callable version of the main dataload function
     """
+    file_path = get_file_path_relative(credentials_file)
+    if not exists(file_path):
+        environment_data: Union[str, None] = getenv('BIGQUERY_CREDENTIALS')
+        if environment_data is None:
+            if PRODUCTION:
+                environment_data = get_bigquery_credentials()
+            raise ValueError('cannot find big query credentials')
+        with open(file_path, 'w') as credentials_file_object:
+            credentials_file_object.write(environment_data)
     client: bigquery.Client = bigquery.Client.from_service_account_json(
-        abspath(join(dirname(__file__), credentials_file)))
+        get_file_path_relative(credentials_file))
 
     data = bqh(active_project="bigquery-public-data",
                dataset_name="stackoverflow",
@@ -38,12 +52,14 @@ def dataload(dataset_length: int) -> DataFrame:
     LIMIT {dataset_length}
     """
     questions: DataFrame = data.query_to_pandas(query)
-    # bucket: str = bucket_name
-    # csv_buffer = StringIO()
-    # questions.to_csv(csv_buffer)
-    # s3_resource = boto3.resource('s3')
-    # s3_resource.Object(bucket, 'post-questions.csv').put(Body=csv_buffer.getvalue())
-    questions.to_csv(abspath(join(dirname(__file__), questions_output)))
+    questions.to_csv(get_file_path_relative(questions_file))
+
+    if PRODUCTION:
+        csv_buffer = StringIO()
+        questions.to_csv(csv_buffer)
+        s3_resource = boto3.resource('s3')
+        s3_resource.Object(
+            bucket_name, 'post-questions.csv').put(Body=csv_buffer.getvalue())
 
     return questions
 
@@ -55,11 +71,9 @@ def main():
     dataset_length: int = 2000
     questions: DataFrame = dataload(dataset_length)
 
-    print("\nMETADATA\n")
-    print(questions.dtypes)
-    print(f"Number of rows: {len(questions)}\n")
-    print(questions.sample(5))
-    print('\n')
+    logger.info("\nMETADATA:\n" + str(questions.dtypes))
+    logger.info(f"Number of rows: {len(questions)}")
+    logger.info('\n' + str(questions.sample(5)) + '\n')
 
 
 if __name__ == '__main__':
