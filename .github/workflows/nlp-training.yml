@@ -70,6 +70,7 @@ jobs:
         run: |
           cd nlp/sagemaker
           source $(conda info --base)/etc/profile.d/conda.sh
+          conda env create --file ./environment.yml
           conda activate rescribe-nlp-sagemaker
           python3 src/main.py
           conda deactivate
