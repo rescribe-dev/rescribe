@@ -23,6 +23,16 @@ do
   cd -
 done
 
+python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "nlp/sagemaker")
+
+for path in "${python_paths[@]}"
+do
+  cd "$path"
+  echo "install dependencies in $path/"
+  conda env create --file ./environment.yml
+  cd -
+done
+
 # install golang dependencies
 go_paths=("router")
 
@@ -41,7 +51,6 @@ cd scripts
 # local packages
 ./install_cli.sh
 ./install_antlr.sh
-./install_nlp.sh
 
 # additional installs
 ./install_git_secrets.sh

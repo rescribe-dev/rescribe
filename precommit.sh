@@ -26,7 +26,7 @@ do
   fi
 done
 
-script_paths=("antlr/" "nlp/" "router/")
+script_paths=("antlr/" "router/" "nlp/dataload" "nlp/deployment" "nlp/training" "nlp/sagemaker")
 
 for path in "${script_paths[@]}"
 do
