@@ -10,7 +10,7 @@ from big_query_helper import BigQueryHelper as bqh
 # import boto3
 # from variables import bucket_name
 
-credentials_file: str = '../bigquery_credentials.json'
+credentials_file: str = '../../bigquery_credentials.json'
 questions_output: str = '../datasets/post-questions.csv'
 
 
