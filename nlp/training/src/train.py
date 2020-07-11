@@ -91,9 +91,9 @@ def main():
 
     tar_input_path_abs = get_file_path_relative(tarfile_path_model_inputs)
     if PRODUCTION and not exists(tar_input_path_abs):
-        filename = basename(tar_input_path_abs)
-        with open(filename, 'wb') as file:
-            s3.download_fileobj(bucket_name, tar_input_path_abs, file)
+        with open(tar_input_path_abs, 'wb') as file:
+            s3.download_fileobj(
+                bucket_name, basename(tar_input_path_abs), file)
 
     with tarfile.open(tar_input_path_abs) as tar:
         tar.extractall(get_file_path_relative('.'))
