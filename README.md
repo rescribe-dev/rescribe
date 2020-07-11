@@ -2,7 +2,7 @@
 
 > a better way to search code
 
-[Documentation](https://docs.rescribe.dev) [Website](https://rescribe.dev) [Status](https://status.rescribe.dev)
+[Web](https://rescribe.dev) | [Docs](https://docs.rescribe.dev) | [Status](https://status.rescribe.dev)
 
 ![License](https://img.shields.io/badge/License-CC--BY--NC--SA--4.0-green)
 
@@ -10,6 +10,8 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/63eb1e80-d14d-4410-a514-4e39f9598710/deploy-status)](https://app.netlify.com/sites/rescribe/deploys)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/008527ea-a085-45a4-9d8b-d2e4f3e39886/deploy-status)](https://app.netlify.com/sites/rescribe-status/deploys)
+
+**Note:** Netlify "failed" means either deployment failed or no applicable changes found in last commit.
 
 [![codecov](https://codecov.io/gh/rescribe-dev/rescribe/branch/master/graph/badge.svg?token=FGYV3NYN8F)](https://codecov.io/gh/rescribe-dev/rescribe)
 
