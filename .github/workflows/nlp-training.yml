@@ -54,7 +54,7 @@ jobs:
           password: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           registry: ${{ steps.login-ecr.outputs.registry }}
           image_name: rescribe-nlp-training
-          build_extra_args: "--build-arg=CACHEBUST=$(date +%s)"
+          build_extra_args: "--build-arg=CACHEBUST=$(date)"
           # change image tag to ${{ github.sha }} if you want
           image_tag: latest
           context: nlp
