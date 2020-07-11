@@ -40,8 +40,8 @@ jobs:
           yarn install
           yarn run predeploy
           cd -
-      - name: Docker cache
-        id: docker-cache
+      - name: Docker
+        id: docker-build
         uses: whoan/docker-build-with-cache-action@v5
         with:
           username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -57,7 +57,7 @@ jobs:
         with:
           task-definition: aws/ecs-fargate/api-task.json
           container-name: api
-          image: ${{ steps.build-image.outputs.FULL_IMAGE_NAME }}
+          image: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:

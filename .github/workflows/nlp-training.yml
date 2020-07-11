@@ -46,8 +46,8 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Docker cache
-        id: docker-cache
+      - name: Docker
+        id: docker-build
         uses: whoan/docker-build-with-cache-action@v5
         with:
           username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
@@ -62,7 +62,7 @@ jobs:
         id: run-job
         env:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
-          IMAGE_NAME: ${{ steps.build-image.outputs.FULL_IMAGE_NAME }}
+          IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
         run: |
           cd nlp/sagemaker
           source $(conda info --base)/etc/profile.d/conda.sh
