@@ -3,7 +3,7 @@
 load data into post questions
 """
 from os import getenv
-from os.path import exists
+from os.path import exists, basename
 from pandas import DataFrame
 from loguru import logger
 from typing import Union
@@ -59,7 +59,7 @@ def dataload(dataset_length: int) -> DataFrame:
         questions.to_csv(csv_buffer)
         s3_resource = boto3.resource('s3')
         s3_resource.Object(
-            bucket_name, 'post-questions.csv').put(Body=csv_buffer.getvalue())
+            bucket_name, basename(questions_file)).put(Body=csv_buffer.getvalue())
 
     return questions
 

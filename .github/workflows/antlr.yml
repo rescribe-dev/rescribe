@@ -38,29 +38,25 @@ jobs:
         run: |
           cd scripts
           ./install_antlr.sh
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: rescribe-antlr
+      # docker cache
+      - name: Docker cache
+        id: docker-cache
+        uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          password: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          registry: ${{ steps.login-ecr.outputs.registry }}
+          image_name: rescribe-antlr
           # change image tag to ${{ github.sha }} if you want
-          IMAGE_TAG: latest
-        run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          cd antlr
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          cd -
+          image_tag: latest
+          context: antlr
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: aws/ecs-fargate/api-task.json
           container-name: antlr
-          image: ${{ steps.build-image.outputs.image }}
+          image: ${{ steps.build-image.outputs.FULL_IMAGE_NAME }}
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:

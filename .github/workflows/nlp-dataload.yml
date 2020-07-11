@@ -43,27 +43,23 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: rescribe-nlp-dataload
+      - name: Docker cache
+        id: docker-cache
+        uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          password: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          registry: ${{ steps.login-ecr.outputs.registry }}
+          image_name: rescribe-nlp-dataload
           # change image tag to ${{ github.sha }} if you want
-          IMAGE_TAG: latest
-        run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          cd nlp
-          docker build -f dataload/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          cd -
+          image_tag: latest
+          context: nlp
+          dockerfile: dataload/Dockerfile
       - name: Run dataload job
         id: run-job
         env:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
-          IMAGE_NAME: ${{ steps.build-image.outputs.image }}
+          IMAGE_NAME: ${{ steps.build-image.outputs.FULL_IMAGE_NAME }}
         run: |
           cd nlp/sagemaker
           source $(conda info --base)/etc/profile.d/conda.sh
