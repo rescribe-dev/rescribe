@@ -151,7 +151,7 @@ def main():
         tarfile_model_output_dir)
     tarfile_filename = basename(tarfile_path_model_output_abs)
     with tarfile.open(tarfile_path_model_output_abs, "w:gz") as tar:
-        tar.add(tarfile_path_model_output_abs, arcname=tarfile_filename)
+        tar.add(abs_model_output_dir, arcname=tarfile_filename, recursive=True)
 
     if PRODUCTION:
         s3_client.upload_file(tarfile_path_model_output_abs,

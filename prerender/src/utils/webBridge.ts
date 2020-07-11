@@ -18,22 +18,18 @@ export const pingWeb = async (): Promise<boolean> => {
   }
 };
 
-export const initializeWeb = async (): Promise<boolean> => {
+export const initializeWeb = async (): Promise<void> => {
   if (configData.WEBSITE_HOST.length === 0) {
     throw new Error('cannot find target url');
   }
+  const baseURL = `http${configData.USE_SECURE ? 's' : ''}://${configData.WEBSITE_HOST}`;
   webClient = axios.create({
-    baseURL: `http${configData.USE_SECURE ? 's' : ''}://${configData.WEBSITE_HOST}`,
-    headers: {
-      common: {},
-    },
+    baseURL,
     timeout: 3000,
   });
   try {
-    const res = await pingWeb();
-    return res;
-  }
-  catch (err) {
-    throw new Error(`cannot connect to website: ${err.message}`);
+    await pingWeb();
+  } catch (err) {
+    throw new Error(`cannot connect to website ${baseURL}: ${err.message}`);
   }
 };

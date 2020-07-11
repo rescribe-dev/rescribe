@@ -36,7 +36,6 @@ def main():
         tar.extractall(model_abs)
 
     if not exists(model_abs):
-        if not PRODUCTION:
-            raise ValueError('cannot find model files')
+        raise ValueError('cannot find model files')
 
     nlp_model = tf.keras.models.load_model(model_abs)

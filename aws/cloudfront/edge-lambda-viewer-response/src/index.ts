@@ -1,7 +1,7 @@
-import { parseHeadersFile } from './shared/headers';
+import { parseHeadersFile, invalidHeaderPrefixes, invalidHeaders } from './shared/headers';
 import { absolutePath } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
-import { CloudFrontRequestHandler, CloudFrontHeaders } from 'aws-lambda';
+import { CloudFrontResponseHandler, CloudFrontHeaders } from 'aws-lambda';
 
 const headerData = parseHeadersFile();
 const headerMap: { regex: RegExp, path: string }[] = [];
@@ -21,40 +21,49 @@ getHeaderMap();
 
 const allHeadersPaths = ['/*'];
 
+// from https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html
+const restrictedHeaders = ['Content-Encoding', 'Content-Length', 'Transfer-Encoding', 'Warning', 'Via'];
+
 const getAllHeaders = (uri: string): CloudFrontHeaders => {
-  const headers: CloudFrontHeaders = {};
+  const newHeaders: CloudFrontHeaders = {};
   const absolute = uri.match(absolutePath);
   for (const elem of headerMap) {
     if (allHeadersPaths.includes(elem.path) || uri === elem.path
       || (!absolute && uri.match(elem.regex))) {
       const headerContent = headerData[elem.path];
       for (const headerKey in headerContent) {
-        if (!(headerKey in headers)) {
-          headers[headerKey] = [];
+        if (restrictedHeaders.includes(headerKey) ||
+          invalidHeaders.includes(headerKey) ||
+          invalidHeaderPrefixes.findIndex(prefix => headerKey.startsWith(prefix)) >= 0) {
+          continue;
+        }
+        if (!(headerKey in newHeaders)) {
+          newHeaders[headerKey] = [];
         }
         for (const headerVal of headerContent[headerKey]) {
-          headers[headerKey].push({
+          newHeaders[headerKey].push({
             value: headerVal
           });
         }
       }
     }
   }
-  return headers;
+  return newHeaders;
 };
 
-export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
+export const handler: CloudFrontResponseHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
-  const headers = request.headers;
+  const response = event.Records[0].cf.response;
+  const originalHeaders = response.headers;
 
   const newHeaders = getAllHeaders(request.uri);
 
   for (const headerKey in newHeaders) {
-    if (!(headerKey in headers)) {
-      headers[headerKey] = [];
+    if (!(headerKey in originalHeaders)) {
+      originalHeaders[headerKey] = [];
     }
-    headers[headerKey].concat(newHeaders[headerKey]);
+    originalHeaders[headerKey].concat(newHeaders[headerKey]);
   }
 
-  callback(null, request);
+  callback(null, response);
 };

@@ -382,7 +382,7 @@
     }
   ],
   "placementConstraints": [],
-  "memory": "1024",
+  "memory": "2048",
   "taskRoleArn": "arn:aws:iam::259559535892:role/rescribe-task-role",
   "family": "api-task",
   "pidMode": null,
@@ -390,7 +390,7 @@
     "FARGATE"
   ],
   "networkMode": "awsvpc",
-  "cpu": "512",
+  "cpu": "1024",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
   "volumes": []

@@ -87,7 +87,7 @@ def main():
         # arcname makes the tarfile contain a directory with the same name as model_input_path,
         # use os.path.sep for the tarfile to contain the contents themselves
         tar.add(get_file_path_relative(model_input_path),
-                arcname=basename(model_input_path))
+                arcname=basename(model_input_path), recursive=True)
 
     from config import PRODUCTION
 

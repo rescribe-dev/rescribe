@@ -15,6 +15,16 @@ interface data {
 
 const headersFile = '../_headers';
 
+export const invalidHeaders = [
+  'Connection', 'Expect', 'Keep-Alive', 'Proxy-Authenticate', 'Proxy-Authorization',
+  'Proxy-Connection', 'Trailer', 'Upgrade', 'X-Accel-Buffering', 'X-Accel-Charset',
+  'X-Accel-Limit-Rate', 'X-Accel-Redirect', 'X-Cache', 'X-Forwarded-Proto', 'X-Real-IP'
+];
+
+export const invalidHeaderPrefixes = [
+  'X-Amz-Cf-', 'X-Amzn-', 'X-Edge-'
+];
+
 export const parseHeadersFile = (): data => {
   const rules: data = {};
   if (!fs.existsSync(headersFile)) return rules;
