@@ -12,6 +12,7 @@ dependencies:
   - astroid=2.4.2
   - astunparse=1.6.3
   - autopep8=1.5.3
+  - blas=2.14
   - blinker=1.4
   - boto3=1.14.20
   - botocore=1.17.20
@@ -46,6 +47,7 @@ dependencies:
   - libgfortran-ng=7.5.0
   - libgomp=9.2.0
   - liblapack=3.8.0
+  - liblapacke=3.8.0
   - libopenblas=0.3.7
   - libprotobuf=3.12.3
   - libstdcxx-ng=9.2.0
@@ -56,6 +58,7 @@ dependencies:
   - mypy_extensions=0.4.3
   - ncurses=6.1
   - numpy=1.18.5
+  - numpy-base=1.18.5
   - oauthlib=3.0.1
   - openssl=1.1.1g
   - opt_einsum=3.2.1

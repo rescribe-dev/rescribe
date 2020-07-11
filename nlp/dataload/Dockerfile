@@ -7,7 +7,7 @@ LABEL maintainer="Rescribe"
 WORKDIR /opt/ml/code/
 
 # Create the environment
-COPY environment.yml .
+COPY dataload/environment.yml .
 RUN conda env create -f environment.yml
 ARG conda_env=rescribe-nlp-dataload
 
@@ -16,8 +16,9 @@ ENV PATH "/opt/conda/envs/$conda_env/bin:$PATH"
 RUN /bin/bash -c "source activate $conda_env"
 
 # Copy app
-COPY src datasets clean_data ./
-COPY .global.env .env
+COPY dataload/src datasets clean_data ./
+# copy env file
+COPY dataload/.global.env .env
 
 # install sagemaker dependencies
 RUN apt-get -y update && apt-get install -y build-essential

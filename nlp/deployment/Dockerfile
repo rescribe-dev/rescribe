@@ -7,12 +7,15 @@ LABEL maintainer="Rescribe"
 WORKDIR /app
 
 # Create the environment
-COPY environment.yml .
+COPY deployment/environment.yml .
 RUN conda env create -f environment.yml
 
 # Copy app
-COPY src .
-COPY .global.env .env
+COPY deployment/src .
+# copy symlinks
+COPY dataload/src/shared shared
+# copy env file
+COPY deployment/.global.env .env
 
 EXPOSE 8082
 # run environment through conda instead of conda activate
