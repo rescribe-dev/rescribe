@@ -6,7 +6,7 @@ entry point for running nlp training module
 """
 
 import argparse
-from dotenv import load_dotenv
+from config import read_config
 from train import main as training_main
 
 
@@ -14,7 +14,7 @@ def main() -> None:
     """
     main entry point
     """
-    load_dotenv()
+    read_config()
 
     parser = argparse.ArgumentParser()
 
