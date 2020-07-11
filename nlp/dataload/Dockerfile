@@ -28,6 +28,7 @@ COPY dataload/.global.env .env
 
 # disregard cache to activate
 ARG CACHEBUST=1
+RUN echo "$CACHEBUST"
 
 # Activate environment
 RUN /bin/bash -c "source activate $conda_env"

@@ -27,6 +27,7 @@ COPY training/.global.env .env
 
 # disregard cache to activate
 ARG CACHEBUST=1
+RUN echo "$CACHEBUST"
 
 # Activate the environment
 RUN /bin/bash -c "source activate $conda_env"
