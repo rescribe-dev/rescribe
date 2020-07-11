@@ -19,6 +19,8 @@ from shared.variables import clean_data_folder, model_input_path, \
 from shared.get_inputs import get_inputs
 from shared.load_model_from_tfhub import load_model_from_tfhub
 
+s3 = boto3.resource('s3')
+
 
 def main():
     """
@@ -90,7 +92,7 @@ def main():
     from config import PRODUCTION
 
     if PRODUCTION:
-        boto3.resource('s3').Bucket(bucket_name).upload_file(
+        s3.Bucket(bucket_name).upload_file(
             tarfile_path_model_inputs_abs, basename(tarfile_path_model_inputs_abs))
 
 

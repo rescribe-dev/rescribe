@@ -63,6 +63,10 @@ jobs:
         env:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
           IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
+          # compute power for training
+          # see https://aws.amazon.com/sagemaker/pricing/
+          # and https://aws.amazon.com/sagemaker/pricing/instance-types/
+          INSTANCE_TYPE: ml.g4dn.xlarge
         run: |
           cd nlp/sagemaker
           source $(conda info --base)/etc/profile.d/conda.sh

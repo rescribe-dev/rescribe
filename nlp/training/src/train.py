@@ -19,7 +19,7 @@ from shared.variables import model_output_dir, tarfile_model_output_dir, model_i
     tarfile_path_model_inputs, bert_path, bucket_name
 from shared.load_model_from_tfhub import load_model_from_tfhub
 
-s3 = boto3.client('s3')
+s3 = boto3.resource('s3')
 
 
 def build_model_fully_connected(bert_input_layer: Layer, num_categories: int, max_sequence_length: int = 64) -> Model:

@@ -11,11 +11,12 @@ from google.cloud import bigquery
 from big_query_helper import BigQueryHelper as bqh
 import boto3
 from get_bigquery_credentials import main as get_bigquery_credentials
-from io import StringIO
 from shared.utils import get_file_path_relative
 from shared.variables import questions_file, bucket_name
 
 credentials_file: str = '../../bigquery_credentials.json'
+
+s3 = boto3.resource('s3')
 
 
 def dataload(dataset_length: int) -> DataFrame:
@@ -52,14 +53,12 @@ def dataload(dataset_length: int) -> DataFrame:
     LIMIT {dataset_length}
     """
     questions: DataFrame = data.query_to_pandas(query)
-    questions.to_csv(get_file_path_relative(questions_file))
+    questions_file_abs = get_file_path_relative(questions_file)
+    questions.to_csv(questions_file_abs)
 
     if PRODUCTION:
-        csv_buffer = StringIO()
-        questions.to_csv(csv_buffer)
-        s3_resource = boto3.resource('s3')
-        s3_resource.Object(
-            bucket_name, basename(questions_file)).put(Body=csv_buffer.getvalue())
+        s3.Bucket(bucket_name).upload_file(
+            questions_file_abs, basename(questions_file_abs))
 
     return questions
 
