@@ -6,7 +6,6 @@ from os.path import exists, basename
 import tensorflow as tf
 import tarfile
 from typing import Union
-from config import PRODUCTION
 from tensorflow.keras.models import Model
 import boto3
 from shared.utils import get_file_path_relative
@@ -22,6 +21,8 @@ def main():
     Load the most recent bert model in from disk
     """
     global nlp_model
+
+    from config import PRODUCTION
 
     tar_input_path_abs = get_file_path_relative(tarfile_model_output_dir)
     if PRODUCTION and not exists(tar_input_path_abs):

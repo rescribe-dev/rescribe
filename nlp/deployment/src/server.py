@@ -9,7 +9,6 @@ from logging import Logger
 from typing import cast
 from loguru import logger
 from aiohttp import web
-from config import PORT
 from get_prediction import main as get_prediction
 
 
@@ -57,6 +56,8 @@ def start_server():
     """
     run web server
     """
+    from config import PORT
+
     app = web.Application()
     app.add_routes([
         web.get('/', index),

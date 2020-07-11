@@ -12,4 +12,5 @@ disable =
     global-statement,
     unused-variable,
     redefined-outer-name,
-    global-variable-not-assigned
+    global-variable-not-assigned,
+    import-outside-toplevel

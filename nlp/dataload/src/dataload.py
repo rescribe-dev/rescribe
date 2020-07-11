@@ -4,7 +4,6 @@ load data into post questions
 """
 from os import getenv
 from os.path import exists
-from config import PRODUCTION
 from pandas import DataFrame
 from loguru import logger
 from typing import Union
@@ -23,6 +22,7 @@ def dataload(dataset_length: int) -> DataFrame:
     """
     externally callable version of the main dataload function
     """
+    from config import PRODUCTION
     file_path = get_file_path_relative(credentials_file)
     if not exists(file_path):
         environment_data: Union[str, None] = getenv('BIGQUERY_CREDENTIALS')

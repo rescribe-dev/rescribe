@@ -21,3 +21,4 @@ def read_config() -> None:
     production_str: Union[str, None] = getenv('PRODUCTION')
     if production_str is not None:
         PRODUCTION = production_str == 'true'
+    print(PRODUCTION)

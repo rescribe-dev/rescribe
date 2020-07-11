@@ -13,7 +13,6 @@ import numpy as np
 import tensorflow as tf
 from loguru import logger
 import boto3
-from config import PRODUCTION
 from shared.utils import list_files, get_file_path_relative
 from shared.variables import clean_data_folder, model_input_path, \
     max_sequence_length, holdout, tarfile_path_model_inputs, bert_path, bucket_name
@@ -87,6 +86,8 @@ def main():
         # use os.path.sep for the tarfile to contain the contents themselves
         tar.add(get_file_path_relative(model_input_path),
                 arcname=basename(model_input_path))
+
+    from config import PRODUCTION
 
     if PRODUCTION:
         boto3.resource('s3').Bucket(bucket_name).upload_file(

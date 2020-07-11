@@ -13,7 +13,6 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.metrics import Metric
 import numpy as np
 from loguru import logger
-from config import PRODUCTION
 import boto3
 from shared.utils import list_files, get_file_path_relative
 from shared.variables import model_output_dir, tarfile_model_output_dir, model_input_path, \
@@ -87,6 +86,8 @@ def main():
     main training function for handling batched training
     """
     bert_layer, _bert_tokenizer = load_model_from_tfhub(bert_path)
+
+    from config import PRODUCTION
 
     tar_input_path_abs = get_file_path_relative(tarfile_path_model_inputs)
     if PRODUCTION and not exists(tar_input_path_abs):
