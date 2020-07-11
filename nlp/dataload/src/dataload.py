@@ -27,9 +27,9 @@ def dataload(dataset_length: int) -> DataFrame:
     if not exists(file_path):
         environment_data: Union[str, None] = getenv('BIGQUERY_CREDENTIALS')
         if environment_data is None:
-            if PRODUCTION:
-                environment_data = get_bigquery_credentials()
-            raise ValueError('cannot find big query credentials')
+            if not PRODUCTION:
+                raise ValueError('cannot find big query credentials')
+            environment_data = get_bigquery_credentials()
         with open(file_path, 'w') as credentials_file_object:
             credentials_file_object.write(environment_data)
     client: bigquery.Client = bigquery.Client.from_service_account_json(
