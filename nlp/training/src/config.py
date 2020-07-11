@@ -16,7 +16,7 @@ def read_config() -> None:
     """
     main entry point
     """
-    global production
+    global PRODUCTION
     load_dotenv()
     production_str: Union[str, None] = getenv('PRODUCTION')
     if PRODUCTION is not None:
