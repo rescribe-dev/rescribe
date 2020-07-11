@@ -16,7 +16,7 @@ from shared.variables import questions_file, bucket_name
 
 credentials_file: str = '../../bigquery_credentials.json'
 
-s3 = boto3.resource('s3')
+s3_client = boto3.client('s3')
 
 
 def dataload(dataset_length: int) -> DataFrame:
@@ -57,8 +57,8 @@ def dataload(dataset_length: int) -> DataFrame:
     questions.to_csv(questions_file_abs)
 
     if PRODUCTION:
-        s3.Bucket(bucket_name).upload_file(
-            questions_file_abs, basename(questions_file_abs))
+        s3_client.upload_file(
+            questions_file_abs, bucket_name, basename(questions_file_abs))
 
     return questions
 

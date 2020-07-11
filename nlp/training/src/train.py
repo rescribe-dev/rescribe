@@ -19,7 +19,7 @@ from shared.variables import model_output_dir, tarfile_model_output_dir, model_i
     tarfile_path_model_inputs, bert_path, bucket_name
 from shared.load_model_from_tfhub import load_model_from_tfhub
 
-s3 = boto3.resource('s3')
+s3_client = boto3.client('s3')
 
 
 def build_model_fully_connected(bert_input_layer: Layer, num_categories: int, max_sequence_length: int = 64) -> Model:
@@ -92,7 +92,7 @@ def main():
     tar_input_path_abs = get_file_path_relative(tarfile_path_model_inputs)
     if PRODUCTION and not exists(tar_input_path_abs):
         with open(tar_input_path_abs, 'wb') as file:
-            s3.download_fileobj(
+            s3_client.download_fileobj(
                 bucket_name, basename(tar_input_path_abs), file)
 
     with tarfile.open(tar_input_path_abs) as tar:
@@ -154,8 +154,8 @@ def main():
         tar.add(tarfile_path_model_output_abs, arcname=tarfile_filename)
 
     if PRODUCTION:
-        s3.Bucket(bucket_name).upload_file(
-            tarfile_path_model_output_abs, tarfile_filename)
+        s3_client.upload_file(tarfile_path_model_output_abs,
+                              bucket_name, tarfile_filename)
 
 
 if __name__ == '__main__':

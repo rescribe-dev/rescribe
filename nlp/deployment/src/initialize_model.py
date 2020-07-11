@@ -13,7 +13,7 @@ from shared.variables import model_output_dir, tarfile_model_output_dir, bucket_
 
 nlp_model: Union[Model, None] = None
 
-s3 = boto3.client('s3')
+s3_client = boto3.client('s3')
 
 
 def main():
@@ -26,9 +26,9 @@ def main():
 
     tar_input_path_abs = get_file_path_relative(tarfile_model_output_dir)
     if PRODUCTION and not exists(tar_input_path_abs):
-        filename = basename(tar_input_path_abs)
-        with open(filename, 'wb') as file:
-            s3.download_fileobj(bucket_name, tar_input_path_abs, file)
+        with open(tar_input_path_abs, 'wb') as file:
+            s3_client.download_fileobj(
+                bucket_name, basename(tar_input_path_abs), file)
 
     model_abs = get_file_path_relative(model_output_dir)
 
