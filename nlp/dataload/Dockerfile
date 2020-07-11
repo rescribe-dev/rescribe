@@ -16,7 +16,7 @@ ENV PATH "/opt/conda/envs/$conda_env/bin:$PATH"
 RUN /bin/bash -c "source activate $conda_env"
 
 # Copy app
-COPY dataload/src .
+COPY dataload/src src
 # copy folders
 COPY dataload/datasets datasets
 COPY dataload/clean_data clean_data
@@ -30,4 +30,4 @@ RUN apt-get -y update && apt-get install -y build-essential
 RUN pip install sagemaker-training
 
 # Defines train.py as script entrypoint
-ENV SAGEMAKER_PROGRAM main.py
+ENV SAGEMAKER_PROGRAM src/main.py
