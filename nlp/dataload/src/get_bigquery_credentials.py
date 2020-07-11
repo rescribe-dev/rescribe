@@ -25,6 +25,7 @@ def main() -> str:
             SecretId=secret_name
         )
     except ClientError as err:
+        # handle error
         raise err
 
     secret_string_key: str = 'SecretString'
