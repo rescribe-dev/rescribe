@@ -1,15 +1,16 @@
 {
   "Version": "2012-10-17",
   "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-          "secretsmanager:GetSecretValue",
-          "kms:Decrypt"
-        ],
-        "Resource": [
-          "arnarn:aws:secretsmanager:us-east-1:259559535892:secret:BIGQUERY_CREDENTIALS-43jZDu"
-        ]
-      }
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:BIGQUERY_CREDENTIALS-43jZDu"
+      ]
+    }
   ]
 }

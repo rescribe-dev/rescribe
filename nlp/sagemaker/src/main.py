@@ -34,7 +34,7 @@ def main(role: Union[str, None] = None, image_name: Union[str, None] = None):
                           train_volume_size=5,
                           train_instance_type=instance_type)
 
-    estimator.fit()
+    estimator.fit(wait=False)
 
 
 if __name__ == '__main__':
