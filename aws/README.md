@@ -1,3 +1,3 @@
 # aws
 
-aws-specific source files
+> aws-specific source files

@@ -11,18 +11,6 @@ import (
 // Port the port for the server
 var Port = 8084
 
-// DefaultHost host name for default
-var DefaultHost = "static.rescribe.dev"
-
-// DefaultSecure use secure connection for default
-var DefaultSecure = true
-
-// PrerenderHost host name for prerender
-var PrerenderHost = "localhost:8083"
-
-// PrerenderSecure use secure connection for prerender
-var PrerenderSecure = false
-
 func contains(s []int, e int) bool {
 	for _, a := range s {
 		if a == e {
@@ -77,17 +65,5 @@ func LoadConfig() error {
 		return err
 	}
 
-	if DefaultHost, err = handleString("DEFAULT_HOST", DefaultHost); err != nil {
-		return err
-	}
-	if DefaultSecure, err = handleBool("DEFAULT_SECURE", DefaultSecure); err != nil {
-		return err
-	}
-	if PrerenderHost, err = handleString("PRERENDER_HOST", PrerenderHost); err != nil {
-		return err
-	}
-	if PrerenderSecure, err = handleBool("PRERENDER_SECURE", PrerenderSecure); err != nil {
-		return err
-	}
 	return nil
 }

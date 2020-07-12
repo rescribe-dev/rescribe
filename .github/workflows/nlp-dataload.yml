@@ -62,7 +62,7 @@ jobs:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
           IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
         run: |
-          cd nlp/sagemaker
+          cd aws/sagemaker/deploy
           source $(conda info --base)/etc/profile.d/conda.sh
           conda env create --file ./environment.yml
           conda activate rescribe-nlp-sagemaker

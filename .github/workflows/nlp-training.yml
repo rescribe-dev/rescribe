@@ -69,7 +69,7 @@ jobs:
           # and https://aws.amazon.com/sagemaker/pricing/instance-types/
           # INSTANCE_TYPE: ml.g4dn.xlarge
         run: |
-          cd nlp/sagemaker
+          cd aws/sagemaker/deploy
           source $(conda info --base)/etc/profile.d/conda.sh
           conda env create --file ./environment.yml
           conda activate rescribe-nlp-sagemaker

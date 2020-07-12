@@ -5,10 +5,10 @@ set -e
 
 cd ..
 
-node_paths=("." "api/" "github-app/" "web/" "prerender/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/" \
-            "aws/cloudfront-frontend/origin-request/" "aws/cloudfront-frontend/viewer-response/" \
-            "aws/cloudfront-docs/origin-request/" "aws/cloudfront-docs/viewer-response/" \
-            ".github/update-cloudfront-lambda")
+node_paths=("." "api/" "github-app/" "web/" "prerender/" "vscode/" "docs/" "status/" "emails/" \
+            "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
+            "aws/cloudfront/docs/origin-request/" "aws/cloudfront/docs/viewer-response/" \
+            "aws/cloudfront/build-frontend/" "aws/lambda/update-cloudfront-lambda")
 
 for path in "${node_paths[@]}"
 do
@@ -24,7 +24,7 @@ do
   cd -
 done
 
-python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "nlp/sagemaker")
+python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
 
 for path in "${python_paths[@]}"
 do
@@ -35,7 +35,7 @@ do
 done
 
 # install golang dependencies
-go_paths=("router")
+go_paths=("fast")
 
 for path in "${go_paths[@]}"
 do

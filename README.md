@@ -23,7 +23,7 @@
 ![Run NLP Dataload](https://github.com/rescribe-dev/rescribe/workflows/Run%20NLP%20Dataload/badge.svg)
 ![Run NLP Training](https://github.com/rescribe-dev/rescribe/workflows/Run%20NLP%20Training/badge.svg)
 ![Upload Prerender](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Prerender/badge.svg)
-![Upload Router](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Router/badge.svg)
+![Upload Fast](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Fast/badge.svg)
 ![Upload CLI](https://github.com/rescribe-dev/rescribe/workflows/Upload%20CLI/badge.svg)
 ![Upload vscode](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Vscode/badge.svg)
 ![Upload Github](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Github/badge.svg)

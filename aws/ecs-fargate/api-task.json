@@ -356,7 +356,7 @@
       "memoryReservation": null,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "259559535892.dkr.ecr.us-east-1.amazonaws.com/rescribe-router:latest",
+      "image": "259559535892.dkr.ecr.us-east-1.amazonaws.com/rescribe-fast:latest",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": [
@@ -378,7 +378,7 @@
       "dockerLabels": null,
       "systemControls": null,
       "privileged": null,
-      "name": "router"
+      "name": "fast"
     }
   ],
   "memory": "4096",

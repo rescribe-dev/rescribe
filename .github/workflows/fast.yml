@@ -1,11 +1,11 @@
-name: Upload Router
+name: Upload Fast
 on:
   push:
     branches:
       - master
     paths:
-      - "router/**"
-      - ".github/workflows/router.yml"
+      - "fast/**"
+      - ".github/workflows/fast.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -35,16 +35,16 @@ jobs:
           username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           password: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           registry: ${{ steps.login-ecr.outputs.registry }}
-          image_name: rescribe-router
+          image_name: rescribe-fast
           # change image tag to ${{ github.sha }} if you want
           image_tag: latest
-          context: router
+          context: fast
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: aws/ecs-fargate/api-task.json
-          container-name: router
+          container-name: fast
           image: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1

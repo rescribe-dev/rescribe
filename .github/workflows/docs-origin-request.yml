@@ -4,8 +4,8 @@ on:
     branches:
       - master
     paths:
-      - "aws/cloudfront-docs/origin-request/**"
-      - ".github/update-cloudfront-lambda/**"
+      - "aws/cloudfront/docs/origin-request/**"
+      - "aws/lambda/update-cloudfront-lambda/**"
       - ".github/workflows/docs-origin-request.yml"
 jobs:
   deploy:
@@ -30,14 +30,14 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: build
         run: |
-          cd aws/cloudfront-docs/origin-request
+          cd aws/cloudfront/docs/origin-request
           yarn install
           yarn run predeploy
-          mv dist.zip ../../../.github/update-cloudfront-lambda
+          mv dist.zip ../../../aws/lambda/update-cloudfront-lambda
           cd -
       - name: upload
         run: |
-          cd .github/update-cloudfront-lambda
+          cd aws/lambda/update-cloudfront-lambda
           yarn install
           yarn run build
           yarn start

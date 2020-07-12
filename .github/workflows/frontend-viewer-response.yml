@@ -4,9 +4,9 @@ on:
     branches:
       - master
     paths:
-      - "aws/cloudfront-frontend/_headers"
-      - ".github/update-cloudfront-lambda/**"
-      - "aws/cloudfront-frontend/viewer-response/**"
+      - "aws/cloudfront/frontend/_headers"
+      - "aws/lambda/update-cloudfront-lambda/**"
+      - "aws/cloudfront/frontend/viewer-response/**"
       - ".github/workflows/frontend-viewer-response.yml"
 jobs:
   deploy:
@@ -31,14 +31,14 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: build
         run: |
-          cd aws/cloudfront-frontend/viewer-response
+          cd aws/cloudfront/frontend/viewer-response
           yarn install
           yarn run predeploy
-          mv dist.zip ../../../.github/update-cloudfront-lambda
+          mv dist.zip ../../../aws/lambda/update-cloudfront-lambda
           cd -
       - name: upload
         run: |
-          cd .github/update-cloudfront-lambda
+          cd aws/lambda/update-cloudfront-lambda
           yarn install
           yarn run build
           yarn start

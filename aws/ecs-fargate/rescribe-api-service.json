@@ -9,9 +9,9 @@
       "containerPort": 8080
     },
     {
-      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:259559535892:targetgroup/rescribe-router-target-group/e338eda0224f6760",
-      "containerName": "router",
-      "containerPort": 8084
+      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:259559535892:targetgroup/rescribe-prerender-target-group/e338eda0224f6760",
+      "containerName": "prerender",
+      "containerPort": 8083
     }
   ],
   "serviceRegistries": [],

@@ -15,10 +15,10 @@ check_changes() {
 
 force_run_command="-f"
 
-node_paths=("api/" "github-app/" "cli/" "web/" "prerender/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/" \
-            "aws/cloudfront-frontend/origin-request/" "aws/cloudfront-frontend/viewer-response/" \
-            "aws/cloudfront-docs/origin-request/" "aws/cloudfront-docs/viewer-response/" \
-            ".github/update-cloudfront-lambda")
+node_paths=("api/" "github-app/" "cli/" "web/" "prerender/" "vscode/" "aws/cloudfront/build-frontend/" "docs/" "status/" "emails/" \
+            "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
+            "aws/cloudfront/docs/origin-request/" "aws/cloudfront/docs/viewer-response/" \
+            "aws/lambda/update-cloudfront-lambda")
 
 for path in "${node_paths[@]}"
 do
@@ -27,7 +27,7 @@ do
   fi
 done
 
-script_paths=("antlr/" "router/" "nlp/dataload" "nlp/deployment" "nlp/training" "nlp/sagemaker")
+script_paths=("antlr/" "fast/" "nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
 
 for path in "${script_paths[@]}"
 do
