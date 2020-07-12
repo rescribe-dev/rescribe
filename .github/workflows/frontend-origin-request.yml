@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - "aws/cloudfront-frontend/_headers"
+      - ".github/update-cloudfront-lambda/**"
       - "aws/cloudfront-frontend/origin-request/**"
       - ".github/workflows/frontend-origin-request.yml"
 jobs:

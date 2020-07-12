@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - "aws/cloudfront-docs/origin-request/**"
+      - ".github/update-cloudfront-lambda/**"
       - ".github/workflows/docs-origin-request.yml"
 jobs:
   deploy:

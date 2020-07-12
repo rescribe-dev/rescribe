@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - "aws/cloudfront-docs/viewer-response/**"
+      - ".github/update-cloudfront-lambda/**"
       - ".github/workflows/docs-viewer-response.yml"
 jobs:
   deploy:
