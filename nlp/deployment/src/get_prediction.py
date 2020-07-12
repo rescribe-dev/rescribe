@@ -5,33 +5,17 @@ Take a string and return the bert prediction for it
 
 
 from typing import List, Dict, Union, cast
-import pickle
 from pandas import DataFrame
 import tensorflow as tf
 from transformers import BertTokenizer
-from shared.variables import max_sequence_length, model_input_path, bert_path
+from shared.variables import max_sequence_length, bert_path
 from shared.get_inputs import get_inputs
-from shared.utils import get_file_path_relative
 from shared.load_model_from_tfhub import load_model_from_tfhub
 from initialize_model import nlp_model
 
 classification_labels_data: Union[List[str], None] = None
 
 _bert_layer, bert_tokenizer = load_model_from_tfhub(bert_path)
-
-
-def initialize_classification_labels():
-    """
-    initialize classification labels
-    """
-    global classification_labels_data
-    try:
-        with open(get_file_path_relative(f"../src/{model_input_path}/classification_labels.pkl"), 'rb') as \
-                pickle_file:
-            classification_labels_data = pickle.load(pickle_file)
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            "Cannot find the classification labels pickle file")
 
 
 def generate_bert_input(input_string: str, maxlen: int = max_sequence_length,

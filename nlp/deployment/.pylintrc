@@ -13,5 +13,6 @@ disable =
     unused-variable,
     redefined-outer-name,
     global-variable-not-assigned,
-    import-outside-toplevel
+    import-outside-toplevel,
+    unsubscriptable-object
 

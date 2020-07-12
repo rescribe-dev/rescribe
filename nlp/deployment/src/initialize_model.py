@@ -24,16 +24,19 @@ def main():
 
     from config import PRODUCTION
 
-    tar_input_path_abs = get_file_path_relative(tarfile_model_output_dir)
-    if PRODUCTION and not exists(tar_input_path_abs):
-        with open(tar_input_path_abs, 'wb') as file:
-            s3_client.download_fileobj(
-                bucket_name, basename(tar_input_path_abs), file)
-
     model_abs = get_file_path_relative(model_output_dir)
 
-    with tarfile.open(tar_input_path_abs) as tar:
-        tar.extractall(model_abs)
+    if not exists(model_abs):
+        tar_input_path_abs = get_file_path_relative(tarfile_model_output_dir)
+        if not exists(tar_input_path_abs):
+            if not PRODUCTION:
+                raise ValueError('cannot find saved model tar file')
+            with open(tar_input_path_abs, 'wb') as file:
+                s3_client.download_fileobj(
+                    bucket_name, basename(tar_input_path_abs), file)
+
+        with tarfile.open(tar_input_path_abs) as tar:
+            tar.extractall(model_abs)
 
     if not exists(model_abs):
         raise ValueError('cannot find model files')
