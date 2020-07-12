@@ -22,7 +22,7 @@ const uploadFunction = async (lambdaFunction: string, sourceZip: string): Promis
   });
 };
 
-const updateCloudfront = async (arn: string, cloudfrontID: string, lambdaFunction: string, lambdaType: string)
+const updateCloudfront = async (arn: string, cloudfrontID: string, lambdaType: string)
   : Promise<void> => {
   const cloudfrontClient = new AWS.CloudFront();
   return new Promise<void>((resolve, reject) => {
@@ -100,7 +100,7 @@ const runAction = async (): Promise<void> => {
   }
   AWS.config.region = process.env.AWS_REGION;
   const arn = await uploadFunction(lambdaFunction, sourceZip);
-  await updateCloudfront(arn, cloudfrontID, lambdaFunction, lambdaType);
+  await updateCloudfront(arn, cloudfrontID, lambdaType);
 };
 
 if (!module.parent) {
