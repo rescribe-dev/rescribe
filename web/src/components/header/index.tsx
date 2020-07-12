@@ -40,7 +40,7 @@ import { toast } from 'react-toastify';
 
 import './index.scss';
 import { queryMinLength } from 'shared/variables';
-import sleep from 'utils/sleep';
+import sleep from 'shared/sleep';
 import { capitalizeFirstLetter } from 'utils/misc';
 
 interface HeaderArgs {

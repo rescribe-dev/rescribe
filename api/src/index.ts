@@ -26,11 +26,6 @@ const runAPI = async (): Promise<void> => {
       await initializeAntlr();
       logger.info('connected to antlr');
     }
-    if (configData.CONNECT_NLP) {
-      logger.info('start nlp initialize');
-      await initializeNLP();
-      logger.info('connected to nlp');
-    }
     logger.info('start github initialize');
     initializeGithub();
     logger.info('github client initialized');
@@ -52,6 +47,11 @@ const runAPI = async (): Promise<void> => {
     logger.info('start redis initialize');
     await initializeRedis();
     logger.info('connected to redis');
+    if (configData.CONNECT_NLP) {
+      logger.info('start nlp initialize');
+      await initializeNLP();
+      logger.info('connected to nlp');
+    }
     logger.info('start server initialize');
     await initializeServer();
     logger.info('server started');

@@ -1,6 +1,10 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import HttpStatus from 'http-status-codes';
 import { configData } from '../utils/config';
+import { getLogger } from 'log4js';
+import sleep from '../shared/sleep';
+
+const logger = getLogger();
 
 let nlpClient: AxiosInstance;
 
@@ -11,6 +15,8 @@ interface NLPProcessOutput {
 interface NLPProcessInput {
   query: string
 }
+
+const pingRetryAfter = 5;
 
 export const processInput = async(query: string): Promise<NLPProcessOutput> => {
   const input: NLPProcessInput = {
@@ -53,11 +59,15 @@ export const initializeNLP = async (): Promise<boolean> => {
     },
     timeout: 3000,
   });
-  try {
-    const res = await pingNLP();
-    return res;
-  }
-  catch (err) {
-    throw new Error(`cannot connect to nlp server: ${err.message}`);
+  for (;;) {
+    try {
+      const res = await pingNLP();
+      return res;
+    }
+    catch (err) {
+      logger.error(new Error(`cannot connect to nlp server: ${err.message}`));
+      // retry ping
+      await sleep(pingRetryAfter * 1000);
+    }
   }
 };

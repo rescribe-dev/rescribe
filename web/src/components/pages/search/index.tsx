@@ -18,7 +18,7 @@ import { AppThunkDispatch } from 'state/thunk';
 import { thunkSearch } from 'state/search/thunks';
 import { FiSliders } from 'react-icons/fi';
 import { createHistory, HistorySource } from '@reach/router';
-import sleep from 'utils/sleep';
+import sleep from 'shared/sleep';
 import { toast } from 'react-toastify';
 import { SearchMessages } from 'locale/pages/search/searchMessages';
 

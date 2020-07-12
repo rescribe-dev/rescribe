@@ -381,8 +381,7 @@
       "name": "router"
     }
   ],
-  "placementConstraints": [],
-  "memory": "2048",
+  "memory": "4096",
   "taskRoleArn": "arn:aws:iam::259559535892:role/rescribe-task-role",
   "family": "api-task",
   "pidMode": null,
@@ -391,7 +390,8 @@
   ],
   "networkMode": "awsvpc",
   "cpu": "1024",
-  "inferenceAccelerators": null,
+  "inferenceAccelerators": [],
   "proxyConfiguration": null,
-  "volumes": []
+  "volumes": [],
+  "tags": []
 }
