@@ -12,6 +12,7 @@ import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/f
 import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../shared/folders';
 import { getFolder } from '../folders/folder.resolver';
 import { createHash } from 'crypto';
+import { Language } from '../utils/variables';
 
 const hashAlgorithm = 'sha256';
 
@@ -196,7 +197,8 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
     updated: args.currentTime,
     path: args.path,
     public: args.public,
-    fileLength: args.fileLength
+    fileLength: args.fileLength,
+    language: Language.none // TODO get correct language
   };
   let elasticContent: File | BaseFileElastic;
   if (!args.hasAntlrData) {

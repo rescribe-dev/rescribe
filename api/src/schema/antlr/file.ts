@@ -28,6 +28,6 @@ export default class AntlrFile {
   imports: Import[];
   @Field(_type => [Comment], { description: 'comments' })
   comments: Comment[];
-  @Field(_type => [Language], { description: 'language type' })
+  @Field(_type => Language, { description: 'language type' })
   language: Language;
 }
