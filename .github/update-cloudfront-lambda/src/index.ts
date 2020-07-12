@@ -3,10 +3,7 @@ import { config } from 'dotenv';
 import { readFileSync } from 'fs';
 import { UpdateDistributionRequest, DistributionConfig } from 'aws-sdk/clients/cloudfront';
 
-const lambdaTypeMap: Record<string, string> = {
-  'rescribe-cloudfront-origin-request': 'origin-request',
-  'rescribe-cloudfront-viewer-response': 'viewer-response'
-};
+const lambdaTypes: string[] = ['origin-request', 'viewer-response'];
 
 const uploadFunction = async (lambdaFunction: string, sourceZip: string): Promise<string> => {
   const lambdaClient = new AWS.Lambda();
@@ -25,7 +22,8 @@ const uploadFunction = async (lambdaFunction: string, sourceZip: string): Promis
   });
 };
 
-const updateCloudfront = async (arn: string, cloudfrontID: string, lambdaFunction: string): Promise<void> => {
+const updateCloudfront = async (arn: string, cloudfrontID: string, lambdaFunction: string, lambdaType: string)
+  : Promise<void> => {
   const cloudfrontClient = new AWS.CloudFront();
   return new Promise<void>((resolve, reject) => {
     cloudfrontClient.getDistributionConfig({
@@ -43,7 +41,7 @@ const updateCloudfront = async (arn: string, cloudfrontID: string, lambdaFunctio
         const functionItems = config.DefaultCacheBehavior.LambdaFunctionAssociations?.Items;
         if (functionItems) {
           for (const item of functionItems) {
-            if (item.EventType === lambdaTypeMap[lambdaFunction]) {
+            if (item.EventType === lambdaType) {
               item.LambdaFunctionARN = arn;
               foundFunction = true;
             }
@@ -83,7 +81,8 @@ const runAction = async (): Promise<void> => {
   if (!process.env.SOURCE) {
     throw new Error('source zip provided');
   }
-  if (!(lambdaFunction in lambdaTypeMap)) {
+  const lambdaType = lambdaTypes.find(type => lambdaFunction.includes(type));
+  if (!lambdaType) {
     throw new Error('unsupported function name provided');
   }
   const sourceZip = process.env.SOURCE;
@@ -101,7 +100,7 @@ const runAction = async (): Promise<void> => {
   }
   AWS.config.region = process.env.AWS_REGION;
   const arn = await uploadFunction(lambdaFunction, sourceZip);
-  await updateCloudfront(arn, cloudfrontID, lambdaFunction);
+  await updateCloudfront(arn, cloudfrontID, lambdaFunction, lambdaType);
 };
 
 if (!module.parent) {
