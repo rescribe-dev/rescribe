@@ -1,0 +1,49 @@
+{
+  "cluster": "fargate",
+  "serviceName": "rescribe-api",
+  "taskDefinition": "api-task:114",
+  "loadBalancers": [
+    {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:259559535892:targetgroup/rescribe-target-group/e16695a87f11f210",
+      "containerName": "api",
+      "containerPort": 8080
+    },
+    {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:259559535892:targetgroup/rescribe-router-target-group/e338eda0224f6760",
+      "containerName": "router",
+      "containerPort": 8084
+    }
+  ],
+  "serviceRegistries": [],
+  "desiredCount": 1,
+  "clientToken": "",
+  "launchType": "FARGATE",
+  "capacityProviderStrategy": [],
+  "role": "",
+  "deploymentConfiguration": {
+    "maximumPercent": 200,
+    "minimumHealthyPercent": 100
+  },
+  "placementConstraints": [],
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": [
+        "subnet-2505546f",
+        "subnet-54159333",
+        "subnet-14d5ad1b",
+        "subnet-e5a570db",
+        "subnet-3ac84a66",
+        "subnet-ac25a882"
+      ],
+      "securityGroups": [
+        "sg-091839cd6d5585cff"
+      ],
+      "assignPublicIp": "ENABLED"
+    }
+  },
+  "healthCheckGracePeriodSeconds": 30,
+  "schedulingStrategy": "REPLICA",
+  "deploymentController": {
+    "type": "ECS"
+  }
+}
