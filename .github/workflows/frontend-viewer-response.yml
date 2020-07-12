@@ -1,12 +1,12 @@
-name: Lambda Cloudfront Origin Request
+name: Frontend Viewer Response
 on:
   push:
     branches:
       - master
     paths:
-      - "aws/cloudfront/_headers"
-      - "aws/cloudfront/edge-lambda-origin-request/**"
-      - ".github/workflows/lambda-cloudfront-origin-request.yml"
+      - "aws/cloudfront-frontend/_headers"
+      - "aws/cloudfront-frontend/viewer-response/**"
+      - ".github/workflows/frontend-viewer-response.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: build
         run: |
-          cd aws/cloudfront/edge-lambda-origin-request
+          cd aws/cloudfront-frontend/viewer-response
           yarn install
           yarn run predeploy
           mv dist.zip ../../../.github/update-cloudfront-lambda
@@ -48,6 +48,6 @@ jobs:
           AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID }}
           AWS_REGION: us-east-1
           SOURCE: dist.zip
-          LAMBDA_FUNCTION: rescribe-cloudfront-origin-request
+          LAMBDA_FUNCTION: rescribe-cloudfront-viewer-response
       - name: finish
         run: echo "finished!"

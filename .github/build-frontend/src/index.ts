@@ -5,6 +5,7 @@ import { createBrotliCompress, createGzip } from 'zlib';
 import mime from 'mime-types';
 import { config } from 'dotenv';
 
+const defaultBase = 'none';
 const gzipBase = 'gzip';
 const brotliBase = 'brotli';
 
@@ -71,8 +72,6 @@ const processFile = async (filePath: string): Promise<void> => {
   const mimeFileType = mime.lookup(extname(filePath));
   const fileType = mimeFileType ? mimeFileType : 'application/octet-stream';
   const bucketPath = filePath.split(sourceDir)[1];
-  const readGzip = createReadStream(filePath);
-  const gzipFile = readGzip.pipe(createGzip());
   let numUploads = 0;
   return new Promise<void>((resolve, reject) => {
     const callback = (err: Error | undefined): void => {
@@ -81,10 +80,24 @@ const processFile = async (filePath: string): Promise<void> => {
         return;
       }
       numUploads++;
-      if (numUploads === 2) {
+      if (numUploads === 3) {
         resolve();
       }
     };
+    const defaultFile = createReadStream(filePath);
+    s3Client.upload({
+      Bucket: s3Bucket,
+      Body: defaultFile,
+      Key: defaultBase + bucketPath,
+      ContentEncoding: 'identity',
+      ContentType: fileType
+    })
+      .on('httpUploadProgress', (evt) => {
+        console.log(evt);
+      })
+      .send(callback);
+    const readGzip = createReadStream(filePath);
+    const gzipFile = readGzip.pipe(createGzip());
     s3Client.upload({
       Bucket: s3Bucket,
       Body: gzipFile,

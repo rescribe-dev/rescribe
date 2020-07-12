@@ -1,12 +1,11 @@
-name: Lambda Cloudfront Viewer Response
+name: Docs Viewer Response
 on:
   push:
     branches:
       - master
     paths:
-      - "aws/cloudfront/_headers"
-      - "aws/cloudfront/edge-lambda-viewer-response/**"
-      - ".github/workflows/lambda-cloudfront-viewer-response.yml"
+      - "aws/cloudfront-docs/viewer-response/**"
+      - ".github/workflows/docs-viewer-response.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,7 +29,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: build
         run: |
-          cd aws/cloudfront/edge-lambda-viewer-response
+          cd aws/cloudfront-docs/viewer-response
           yarn install
           yarn run predeploy
           mv dist.zip ../../../.github/update-cloudfront-lambda
@@ -45,9 +44,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID }}
+          AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID_DOCS }}
           AWS_REGION: us-east-1
           SOURCE: dist.zip
-          LAMBDA_FUNCTION: rescribe-cloudfront-viewer-response
+          LAMBDA_FUNCTION: rescribe-docs-cloudfront-viewer-response
       - name: finish
         run: echo "finished!"

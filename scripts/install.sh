@@ -6,7 +6,8 @@ set -e
 cd ..
 
 node_paths=("." "api/" "github-app/" "web/" "prerender/" "vscode/" ".github/build-frontend/" "docs/" "status/" "emails/" \
-            "aws/cloudfront/edge-lambda-origin-request/" "aws/cloudfront/edge-lambda-viewer-response/" \
+            "aws/cloudfront-frontend/origin-request/" "aws/cloudfront-frontend/viewer-response/" \
+            "aws/cloudfront-docs/origin-request/" "aws/cloudfront-docs/viewer-response/" \
             ".github/update-cloudfront-lambda")
 
 for path in "${node_paths[@]}"

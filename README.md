@@ -28,8 +28,10 @@
 ![Upload vscode](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Vscode/badge.svg)
 ![Upload Github](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Github/badge.svg)
 ![Upload Emails](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Emails/badge.svg)
-![Lambda Cloudfront Origin Request](https://github.com/rescribe-dev/rescribe/workflows/Lambda%20Cloudfront%20Origin%20Request/badge.svg)
-![Lambda Cloudfront Viewer Response](https://github.com/rescribe-dev/rescribe/workflows/Lambda%20Cloudfront%20Viewer%20Response/badge.svg)
+![Frontend Origin Request](https://github.com/rescribe-dev/rescribe/workflows/Frontend%20Origin%20Request/badge.svg)
+![Frontend Viewer Response](https://github.com/rescribe-dev/rescribe/workflows/Frontend%20Viewer%20Response/badge.svg)
+![Docs Origin Request](https://github.com/rescribe-dev/rescribe/workflows/Docs%20Origin%20Request/badge.svg)
+![Docs Viewer Response](https://github.com/rescribe-dev/rescribe/workflows/Docs%20Viewer%20Response/badge.svg)
 ![Test Code](https://github.com/rescribe-dev/rescribe/workflows/Test%20Code/badge.svg)
 
 [![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/IU2gHt3Qn)
