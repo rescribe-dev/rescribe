@@ -9,7 +9,7 @@
       "containerPort": 8080
     },
     {
-      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:259559535892:targetgroup/rescribe-prerender-target-group/e338eda0224f6760",
+      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:259559535892:loadbalancer/app/rescribe-prerender/ed82c4a38ab397cb",
       "containerName": "prerender",
       "containerPort": 8083
     }

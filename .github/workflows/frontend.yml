@@ -5,7 +5,7 @@ on:
       - master
     paths:
       - "web/**"
-      - "aws/cloudfront/build-frontend/**"
+      - "aws/cloudfront/build-cloudfront/**"
       - ".github/workflows/frontend.yml"
 jobs:
   deploy:
@@ -41,10 +41,10 @@ jobs:
           GATSBY_SITE_URL: https://rescribe.dev
           GATSBY_MODE: production
       - name: copy dist
-        run: cp -r web/dist aws/cloudfront/build-frontend/dist
+        run: cp -r web/dist aws/cloudfront/build-cloudfront/dist
       - name: upload
         run: |
-          cd aws/cloudfront/build-frontend
+          cd aws/cloudfront/build-cloudfront
           yarn install
           yarn run build
           yarn start

@@ -5,7 +5,7 @@ on:
       - master
     paths:
       - "docs/**"
-      - "aws/cloudfront/build-frontend/**"
+      - "aws/cloudfront/build-cloudfront/**"
       - ".github/workflows/docs.yml"
 jobs:
   deploy:
@@ -35,10 +35,10 @@ jobs:
           yarn run build
           cd -
       - name: copy dist
-        run: cp -r docs/dist aws/cloudfront/build-frontend/dist
+        run: cp -r docs/dist aws/cloudfront/build-cloudfront/dist
       - name: upload to s3
         run: |
-          cd aws/cloudfront/build-frontend
+          cd aws/cloudfront/build-cloudfront
           yarn install
           yarn run build
           yarn start

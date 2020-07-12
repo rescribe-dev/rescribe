@@ -1,5 +1,5 @@
 {
-  "name": "build-frontend",
+  "name": "build-cloudfront",
   "version": "1.0.0",
   "description": "create frontend s3",
   "main": "lib/index",
