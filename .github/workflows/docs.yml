@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - "docs/**"
+      - ".github/build-frontend/**"
       - ".github/workflows/docs.yml"
 jobs:
   deploy:
