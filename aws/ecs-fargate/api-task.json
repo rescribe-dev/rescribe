@@ -357,12 +357,7 @@
       "dnsServers": null,
       "mountPoints": [],
       "workingDirectory": null,
-      "secrets": [
-        {
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:FRONTEND_URL-sBKSCV",
-          "name": "DEFAULT_HOST"
-        }
-      ],
+      "secrets": [],
       "dockerSecurityOptions": null,
       "memory": null,
       "memoryReservation": null,
@@ -371,12 +366,7 @@
       "image": "259559535892.dkr.ecr.us-east-1.amazonaws.com/rescribe-fast:latest",
       "startTimeout": null,
       "firelensConfiguration": null,
-      "dependsOn": [
-        {
-          "containerName": "prerender",
-          "condition": "START"
-        }
-      ],
+      "dependsOn": [],
       "disableNetworking": null,
       "interactive": null,
       "healthCheck": null,
