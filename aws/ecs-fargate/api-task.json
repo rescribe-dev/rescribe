@@ -220,6 +220,10 @@
         {
           "name": "DEBUG",
           "value": "true"
+        },
+        {
+          "name": "LOGURU_LEVEL",
+          "value": "DEBUG"
         }
       ],
       "resourceRequirements": null,
@@ -283,6 +287,10 @@
         {
           "name": "USE_SECURE",
           "value": "true"
+        },
+        {
+          "name": "WEBSITE_HOST",
+          "value": "rescribe.dev"
         }
       ],
       "resourceRequirements": null,
@@ -290,12 +298,7 @@
       "dnsServers": null,
       "mountPoints": [],
       "workingDirectory": null,
-      "secrets": [
-        {
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:FRONTEND_URL-sBKSCV",
-          "name": "WEBSITE_HOST"
-        }
-      ],
+      "secrets": [],
       "dockerSecurityOptions": null,
       "memory": null,
       "memoryReservation": null,

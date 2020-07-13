@@ -6,7 +6,6 @@ on:
     paths:
       - "api/**"
       - ".github/workflows/api.yml"
-      - "aws/ecs-fargate/api-task.json"
 jobs:
   deploy:
     runs-on: ubuntu-latest

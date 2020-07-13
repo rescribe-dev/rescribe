@@ -85,6 +85,8 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     return;
   }
 
+  request.uri = '';
+
   const headers = request.headers;
 
   if (renderHeader in headers && headers[renderHeader].length > 0
@@ -107,6 +109,8 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     return;
   }
 
+  let fullPath = path;
+
   if (!path.match(absolutePath)) {
     // change to be an absolute path
     const matches: PathData[] = [];
@@ -116,10 +120,10 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
       }
     }
     if (matches.length === 0) {
-      request.uri = errorPage;
+      fullPath = errorPage;
     } else {
       matches.sort((a, b) => numWildcards(a.path) - numWildcards(b.path));
-      request.uri = matches[0].path;
+      fullPath = matches[0].path;
     }
   }
 
@@ -134,7 +138,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     }
   }
 
-  request.uri = encodingPath + request.uri;
+  fullPath = encodingPath + fullPath;
 
   request.origin = {
     custom: undefined,
@@ -142,7 +146,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
       authMethod: 'none',
       customHeaders: {},
       domainName: defaultBucket,
-      path: request.uri,
+      path: fullPath,
       region: 'us-east-1'
     }
   };

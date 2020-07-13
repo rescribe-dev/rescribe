@@ -20,7 +20,7 @@ const mobileQuery = '_mobile';
 
 const contentTypeHeader = 'content-type';
 
-const renderTimeSeconds = 0.5;
+const renderTimeSeconds = 1;
 
 const sendAxiosResponse = (axiosRes: AxiosResponse, res: Response, content?: any): void => {
   for (const header in axiosRes.headers) {
@@ -68,10 +68,16 @@ const getIntegerQuery = (key: string, value: string): number => {
 
 const prerender = async (req: Request, res: Response): Promise<void> => {
   const url = parse(req.url);
-  const query = new URLSearchParams(url.query ? url.query : '');
-  query.delete(forceRenderQuery);
-  const proxiedURL = (url.path ? url.path : '') + (url.query ? '?' + query.toString() : '');
-  let html: string;
+  let queryStr = '';
+  if (url.query) {
+    const query = new URLSearchParams(url.query ? Object.assign('', url.search) : undefined);
+    query.delete(forceRenderQuery);
+    const queryStrData = query.toString();
+    if (queryStrData.length > 0) {
+      queryStr = '?' + queryStrData;
+    }
+  }
+  const proxiedURL = (url.path ? url.pathname : '') + queryStr;
   let requestResponse: AxiosResponse | undefined = undefined;
 
   const mustRender = forceRenderQuery in req.query;
@@ -106,14 +112,13 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
       }
     }
     delete req.headers.host;
-    logger.info(req.headers);
     delete req.headers[renderHeader];
     req.headers['cache-control'] = 'no-cache';
     delete req.headers['accept-encoding'];
     if (mustRender && req.headers.accept) {
       delete req.headers.accept;
     }
-    requestResponse = await webClient.get(proxiedURL, {
+    requestResponse = await webClient.get(webClient.defaults.baseURL + proxiedURL, {
       headers: req.headers
     });
     if (!requestResponse) return;
@@ -128,9 +133,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     if (mustRender && type !== 'html') {
       throw new Error('content is not html');
     }
-    if (type === 'html') {
-      html = requestResponse.data;
-    } else {
+    if (type !== 'html') {
       sendAxiosResponse(requestResponse, res);
       return;
     }
@@ -145,9 +148,11 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
   }
 
   let page: Page | null = null;
+  const pageURL = (webClient.defaults.baseURL as string) + proxiedURL;
   try {
     page = await browser.newPage();
-    await page.setContent(html);
+    logger.info(`prerender ${pageURL}`);
+    await page.goto(pageURL);
     await page.waitFor(renderTimeSeconds * 1000);
     if (windowsizeRenderTypes.includes(renderType)) {
       await page.setViewport(viewPort);
@@ -175,7 +180,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     }
   } catch (error) {
     const err = error as Error;
-    const message = `unable to render ${(webClient.defaults.baseURL as string) + proxiedURL}: ${err.message}`;
+    const message = `unable to render ${pageURL}: ${err.message}`;
     logger.error(message);
     res.status(NOT_FOUND).send(message);
   } finally {
