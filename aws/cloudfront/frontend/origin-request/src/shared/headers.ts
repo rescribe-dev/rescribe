@@ -18,7 +18,7 @@ export const renderQuery = '_render';
 
 export const renderHeader = 'x-prerender';
 
-const headersFile = relative(process.cwd(), '../_headers');
+const headersFile = relative(process.cwd(), './_headers');
 
 export const invalidHeaders = [
   'Connection', 'Expect', 'Keep-Alive', 'Proxy-Authenticate', 'Proxy-Authorization',
