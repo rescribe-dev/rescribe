@@ -1,16 +1,16 @@
 import { botHeader } from './shared/headers';
 import isBot from 'isbot';
-import { CloudFrontResponseHandler } from 'aws-lambda';
+import { CloudFrontRequestHandler } from 'aws-lambda';
 
 const userAgentHeader = 'user-agent';
 
-export const handler: CloudFrontResponseHandler = (event, _context, callback) => {
-  const response = event.Records[0].cf.response;
+export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
+  const request = event.Records[0].cf.request;
 
-  const userAgent = response.headers[userAgentHeader][0].value;
+  const userAgent = request.headers[userAgentHeader][0].value;
   if (isBot(userAgent)) {
-    response.headers[botHeader] = [{ key: botHeader, value: 'true' }];
+    request.headers[botHeader] = [{ key: botHeader, value: 'true' }];
   }
 
-  callback(null, response);
+  callback(null, request);
 };
