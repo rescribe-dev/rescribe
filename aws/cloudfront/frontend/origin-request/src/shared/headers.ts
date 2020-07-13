@@ -1,6 +1,7 @@
 // from https://raw.githubusercontent.com/netlify/cli/master/src/utils/headers.js
 
 import fs from 'fs';
+import { relative } from 'path';
 
 const TOKEN_COMMENT = '#';
 const TOKEN_PATH = '/';
@@ -15,9 +16,9 @@ interface data {
 
 export const renderQuery = '_render';
 
-export const renderHeader = 'X-Render';
+export const renderHeader = 'x-prerender';
 
-const headersFile = '../_headers';
+const headersFile = relative(process.cwd(), '../_headers');
 
 export const invalidHeaders = [
   'Connection', 'Expect', 'Keep-Alive', 'Proxy-Authenticate', 'Proxy-Authorization',

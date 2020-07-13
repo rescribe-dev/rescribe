@@ -1,5 +1,5 @@
 import { parseHeadersFile, invalidHeaderPrefixes, invalidHeaders } from './shared/headers';
-import { absolutePath } from './shared/regex';
+import { absolutePath, getPath } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontResponseHandler, CloudFrontHeaders } from 'aws-lambda';
 
@@ -24,12 +24,12 @@ const allHeadersPaths = ['/*'];
 // from https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html
 const restrictedHeaders = ['Content-Encoding', 'Content-Length', 'Transfer-Encoding', 'Warning', 'Via'];
 
-const getAllHeaders = (uri: string): CloudFrontHeaders => {
+const getAllHeaders = (path: string): CloudFrontHeaders => {
   const newHeaders: CloudFrontHeaders = {};
-  const absolute = uri.match(absolutePath);
+  const absolute = path.match(absolutePath);
   for (const elem of headerMap) {
-    if (allHeadersPaths.includes(elem.path) || uri === elem.path
-      || (!absolute && uri.match(elem.regex))) {
+    if (allHeadersPaths.includes(elem.path) || path === elem.path
+      || (!absolute && path.match(elem.regex))) {
       const headerContent = headerData[elem.path];
       for (const headerKey in headerContent) {
         if (restrictedHeaders.includes(headerKey) ||
@@ -56,7 +56,8 @@ export const handler: CloudFrontResponseHandler = (event, _context, callback) =>
   const response = event.Records[0].cf.response;
   const originalHeaders = response.headers;
 
-  const newHeaders = getAllHeaders(request.uri);
+  const path = getPath(request.uri);
+  const newHeaders = getAllHeaders(path);
 
   for (const headerKey in newHeaders) {
     if (!(headerKey in originalHeaders)) {

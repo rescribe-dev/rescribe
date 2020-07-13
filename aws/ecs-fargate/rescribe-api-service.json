@@ -1,7 +1,7 @@
 {
   "cluster": "fargate",
   "serviceName": "rescribe-api",
-  "taskDefinition": "api-task:114",
+  "taskDefinition": "api-task:122",
   "loadBalancers": [
     {
       "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:259559535892:targetgroup/rescribe-target-group/e16695a87f11f210",
@@ -41,7 +41,7 @@
       "assignPublicIp": "ENABLED"
     }
   },
-  "healthCheckGracePeriodSeconds": 30,
+  "healthCheckGracePeriodSeconds": 60,
   "schedulingStrategy": "REPLICA",
   "deploymentController": {
     "type": "ECS"

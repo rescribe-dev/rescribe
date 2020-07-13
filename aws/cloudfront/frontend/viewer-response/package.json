@@ -29,7 +29,7 @@
     "predeploy": "npm run build && ./build_zip.sh",
     "prepublishOnly": "npm run build",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
-    "prebuild": "npm run format && npm run lint && npm run printTypescriptVersion",
+    "prebuild": "npm run format && npm run lint && cp ../_headers . && npm run printTypescriptVersion",
     "build": "yarn clean && tsc && cp ../_headers lib",
     "test": "jest",
     "coverage": "jest --coverage",

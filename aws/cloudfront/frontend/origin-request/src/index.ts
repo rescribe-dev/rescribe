@@ -1,5 +1,5 @@
 import { parseHeadersFile, renderHeader } from './shared/headers';
-import { absolutePath } from './shared/regex';
+import { absolutePath, getPath } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontRequestHandler } from 'aws-lambda';
 
@@ -12,12 +12,11 @@ interface PathData {
   regex: RegExp;
 }
 
-const paths: PathData[] = [];
-
 const relativePathExclude = ['/*', '/static/*'];
 
-const getPaths = (): void => {
+const getPaths = (): PathData[] => {
   const headerData = parseHeadersFile();
+  const paths: PathData[] = [];
   for (let path in headerData) {
     if (!relativePathExclude.includes(path) && !path.match(absolutePath)) {
       // replace /* with (.*) to work with path-to-regexp
@@ -32,13 +31,14 @@ const getPaths = (): void => {
       });
     }
   }
+  return paths;
 };
 
-getPaths();
+const paths = getPaths();
 
 let useSecure = false;
 
-let prerenderURL = 'internal-rescribe-prerender-2130697091.us-east-1.elb.amazonaws.com';
+let prerenderURL = 'rescribe-prerender-load-balancer-1976257869.us-east-1.elb.amazonaws.com';
 
 const processEnvironment = (): void => {
   const useSecureStr = process.env.USE_SECURE;
@@ -56,8 +56,10 @@ processEnvironment();
 export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
 
+  const path = getPath(request.uri);
+
   // Redirect (301) non-root requests ending in "/" to URI without trailing slash
-  if (request.uri.match(/.+\/$/)) {
+  if (path.match(/.+\/$/)) {
     const response = {
       headers: {
         'location': [{
@@ -72,11 +74,32 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     return;
   }
 
-  if (!request.uri.match(absolutePath)) {
+  const headers = request.headers;
+
+  if (renderHeader in headers && headers[renderHeader].length > 0
+    && headers[renderHeader][0].value.length > 0) {
+    request.origin = {
+      custom: {
+        customHeaders: {},
+        domainName: prerenderURL,
+        keepaliveTimeout: 5,
+        path: request.uri + `?render=${headers[renderHeader][0].value}`,
+        port: useSecure ? 443 : 80,
+        protocol: useSecure ? 'https' : 'http',
+        readTimeout: 5,
+        sslProtocols: ['TLSv1', 'TLSv1.1']
+      },
+      s3: undefined
+    };
+    callback(null, request);
+    return;
+  }
+
+  if (!path.match(absolutePath)) {
     // change to be an absolute path
     let foundPage = false;
     for (const pathData of paths) {
-      if (request.uri.match(pathData.regex)) {
+      if (path.match(pathData.regex)) {
         request.uri = pathData.path;
         foundPage = true;
         break;
@@ -86,8 +109,6 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
       request.uri = errorPage;
     }
   }
-
-  const headers = request.headers;
 
   let encodingPath = '/none';
 
@@ -101,14 +122,6 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
   }
 
   request.uri = encodingPath + request.uri;
-
-  if (renderHeader in headers && headers[renderHeader].length > 0
-    && headers[renderHeader][0].value.length > 0) {
-    const url = new URL(`http://${prerenderURL}?render=${headers[renderHeader][0].value}`);
-    url.protocol = useSecure ? 'https' : 'http';
-    url.port = useSecure ? '443' : '80';
-    request.uri = url.toString();
-  }
 
   callback(null, request);
 };
