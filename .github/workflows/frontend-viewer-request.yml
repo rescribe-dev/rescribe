@@ -1,12 +1,12 @@
-name: Docs Origin Request
+name: Frontend Origin Request
 on:
   push:
     branches:
       - master
     paths:
-      - "aws/cloudfront/docs/origin-request/**"
       - "aws/lambda/update-cloudfront-lambda/**"
-      - ".github/workflows/docs-origin-request.yml"
+      - "aws/cloudfront/frontend/viewer-request/**"
+      - ".github/workflows/frontend-viewer-request.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: build
         run: |
-          cd aws/cloudfront/docs/origin-request
+          cd aws/cloudfront/frontend/viewer-request
           yarn install
           yarn run predeploy
           mv dist.zip ../../../lambda/update-cloudfront-lambda
@@ -45,9 +45,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID_DOCS }}
+          AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID }}
           AWS_REGION: us-east-1
           SOURCE: dist.zip
-          LAMBDA_FUNCTION: rescribe-docs-cloudfront-origin-request
+          LAMBDA_FUNCTION: rescribe-cloudfront-viewer-request
       - name: finish
         run: echo "finished!"

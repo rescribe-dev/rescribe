@@ -18,7 +18,8 @@ force_run_command="-f"
 node_paths=("api/" "github-app/" "cli/" "web/" "prerender/" "vscode/" "docs/" "status/" "emails/" \
             "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
             "aws/cloudfront/docs/origin-request/" "aws/cloudfront/docs/viewer-response/" \
-            "aws/cloudfront/build-cloudfront/" "aws/lambda/update-cloudfront-lambda")
+            "aws/cloudfront/build-cloudfront/" "aws/lambda/update-cloudfront-lambda" \
+            "aws/cloudfront/frontend/viewer-request/")
 
 for path in "${node_paths[@]}"
 do

@@ -33,7 +33,7 @@ jobs:
           cd aws/cloudfront/docs/viewer-response
           yarn install
           yarn run predeploy
-          mv dist.zip ../../../aws/lambda/update-cloudfront-lambda
+          mv dist.zip ../../../lambda/update-cloudfront-lambda
           cd -
       - name: upload
         run: |

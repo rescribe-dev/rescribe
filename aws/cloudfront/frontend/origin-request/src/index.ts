@@ -1,4 +1,4 @@
-import { parseHeadersFile } from './shared/headers';
+import { parseHeadersFile, botHeader } from './shared/headers';
 import { absolutePath } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontRequestHandler } from 'aws-lambda';
@@ -35,6 +35,24 @@ const getPaths = (): void => {
 };
 
 getPaths();
+
+let useSecure = false;
+
+let prerenderURL: string;
+
+const processEnvironment = (): void => {
+  const useSecureStr = process.env.USE_SECURE;
+  if (useSecureStr) {
+    useSecure = useSecureStr === 'true';
+  }
+  const prerenderURLStr = process.env.PRERENDER_URL;
+  if (!prerenderURLStr) {
+    throw new Error('cannot find prerender url');
+  }
+  prerenderURL = prerenderURLStr;
+}
+
+processEnvironment();
 
 export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
@@ -84,6 +102,14 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
   }
 
   request.uri = encodingPath + request.uri;
+
+  if (botHeader in headers && headers[botHeader].length > 0 && headers[botHeader][0].value === 'true') {
+    const url = new URL(request.uri);
+    url.protocol = useSecure ? 'https' : 'http';
+    url.hostname = prerenderURL;
+    url.port = useSecure ? '443' : '80';
+    request.uri = url.toString();
+  }
 
   callback(null, request);
 };

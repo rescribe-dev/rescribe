@@ -29,6 +29,7 @@
 ![Upload Github](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Github/badge.svg)
 ![Upload Emails](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Emails/badge.svg)
 ![Frontend Origin Request](https://github.com/rescribe-dev/rescribe/workflows/Frontend%20Origin%20Request/badge.svg)
+![Frontend Viewer Request](https://github.com/rescribe-dev/rescribe/workflows/Frontend%20Viewer%20Request/badge.svg)
 ![Frontend Viewer Response](https://github.com/rescribe-dev/rescribe/workflows/Frontend%20Viewer%20Response/badge.svg)
 ![Docs Origin Request](https://github.com/rescribe-dev/rescribe/workflows/Docs%20Origin%20Request/badge.svg)
 ![Docs Viewer Response](https://github.com/rescribe-dev/rescribe/workflows/Docs%20Viewer%20Response/badge.svg)

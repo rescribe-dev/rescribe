@@ -34,7 +34,7 @@ jobs:
           cd aws/cloudfront/frontend/origin-request
           yarn install
           yarn run predeploy
-          mv dist.zip ../../../aws/lambda/update-cloudfront-lambda
+          mv dist.zip ../../../lambda/update-cloudfront-lambda
           cd -
       - name: upload
         run: |

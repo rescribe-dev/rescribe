@@ -1,7 +1,7 @@
 {
-  "name": "edge-lambda-origin-request",
+  "name": "edge-lambda-viewer-response",
   "version": "0.0.1",
-  "description": "edge lambda origin request",
+  "description": "edge lambda viewer response",
   "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",
@@ -37,7 +37,7 @@
     "watch:test": "jest --watch"
   },
   "dependencies": {
-    "path-to-regexp": "^6.1.0"
+    "isbot": "^3.0.4"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.58",
