@@ -66,7 +66,9 @@ const getIntegerQuery = (key: string, value: string): number => {
 
 const prerender = async (req: Request, res: Response): Promise<void> => {
   const url = parse(req.url);
-  const proxiedURL = (url.path ? url.path : '') + (url.query ? `?${url.query}` : '');
+  const query = new URLSearchParams(url.query ? url.query : '');
+  query.delete(forceRenderQuery);
+  const proxiedURL = (url.path ? url.path : '') + (url.query ? '?' + query.toString() : '');
   let html: string;
   let requestResponse: AxiosResponse | undefined = undefined;
 

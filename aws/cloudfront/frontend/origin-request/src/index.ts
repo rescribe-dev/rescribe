@@ -104,9 +104,8 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
 
   if (renderHeader in headers && headers[renderHeader].length > 0
     && headers[renderHeader][0].value.length > 0) {
-    const url = new URL(request.uri);
+    const url = new URL(`http://${prerenderURL}?render=${headers[renderHeader][0].value}`);
     url.protocol = useSecure ? 'https' : 'http';
-    url.hostname = prerenderURL;
     url.port = useSecure ? '443' : '80';
     request.uri = url.toString();
   }
