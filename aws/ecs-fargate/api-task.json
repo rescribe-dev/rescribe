@@ -216,7 +216,12 @@
       "command": null,
       "linuxParameters": null,
       "cpu": 0,
-      "environment": [],
+      "environment": [
+        {
+          "name": "DEBUG",
+          "value": "true"
+        }
+      ],
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,
@@ -271,6 +276,10 @@
       "linuxParameters": null,
       "cpu": 0,
       "environment": [
+        {
+          "name": "DEBUG",
+          "value": "true"
+        },
         {
           "name": "USE_SECURE",
           "value": "true"

@@ -12,6 +12,8 @@ const logger = getLogger();
 
 const forceRenderQuery = '_render';
 
+const renderHeader = 'x-render';
+
 const widthQuery = '_width';
 const heightQuery = '_height';
 const mobileQuery = '_mobile';
@@ -105,7 +107,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     }
     delete req.headers.host;
     logger.info(req.headers);
-    delete req.headers['X-Render'];
+    delete req.headers[renderHeader];
     req.headers['cache-control'] = 'no-cache';
     delete req.headers['accept-encoding'];
     if (mustRender && req.headers.accept) {

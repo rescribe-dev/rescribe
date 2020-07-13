@@ -16,7 +16,6 @@ export const initializeServer = async (): Promise<void> => {
   };
 
   app.use(cors(corsConfig));
-  app.get('*', prerender);
   app.get('/_hello', (_, res) => {
     res.json({
       message: 'hello world!'
@@ -25,6 +24,7 @@ export const initializeServer = async (): Promise<void> => {
   app.get('/_ping', (_, res) => {
     res.status(OK).send();
   });
+  app.get('*', prerender);
   const httpServer = createServer(app);
   httpServer.listen(configData.PORT, () => logger.info(`Prerendering service started: http://localhost:${configData.PORT} 🚀`));
 };
