@@ -1,4 +1,4 @@
-name: Frontend Viewer Response
+name: Frontend Viewer Request
 on:
   push:
     branches:
