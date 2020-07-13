@@ -1,5 +1,5 @@
 import { parseHeadersFile, invalidHeaderPrefixes, invalidHeaders } from './shared/headers';
-import { absolutePath, getPathData } from './shared/regex';
+import { absolutePath, getPathData, getEnding } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontResponseHandler, CloudFrontHeaders } from 'aws-lambda';
 
@@ -51,19 +51,85 @@ const getAllHeaders = (path: string): CloudFrontHeaders => {
   return newHeaders;
 };
 
+const cacheControlHeader = 'cache-control';
+const stsHeader = 'strict-transport-security';
+const ctoHeader = 'x-content-type-options';
+const xfoHeader = 'x-frame-options';
+const xssHeader = 'x-xss-protection';
+const referrerHeader = 'referrer-policy';
+const varyHeader = 'vary';
+
 export const handler: CloudFrontResponseHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
   const response = event.Records[0].cf.response;
-  const originalHeaders = response.headers;
+  const headers = response.headers;
 
   const pathData = getPathData(request.uri);
   const newHeaders = getAllHeaders(pathData.pathname);
 
   for (const headerKey in newHeaders) {
-    if (!(headerKey in originalHeaders)) {
-      originalHeaders[headerKey] = [];
+    if (!(headerKey in headers)) {
+      headers[headerKey] = [];
     }
-    originalHeaders[headerKey].concat(newHeaders[headerKey]);
+    headers[headerKey].concat(newHeaders[headerKey]);
+  }
+
+  if (!(cacheControlHeader in headers)) {
+    let cacheTime = 21536000;
+    const endingMatches = request.uri.match(getEnding);
+    if (endingMatches && endingMatches.length > 0) {
+      switch (endingMatches[0]) {
+        case '.js':
+          cacheTime = 31536000;
+          break;
+        case '.css':
+          cacheTime = 31536000;
+          break;
+        default:
+          break;
+      }
+    }
+    headers[cacheControlHeader] = [{
+      key: cacheControlHeader,
+      value: `public, max-age=${cacheTime}`
+    }];
+  }
+
+  if (!(stsHeader in headers)) {
+    headers[stsHeader] = [{
+      key: stsHeader,
+      value: 'max-age=31536000; includeSubdomains; preload'
+    }];
+  }
+  if (!(ctoHeader in headers)) {
+    headers[ctoHeader] = [{
+      key: ctoHeader,
+      value: 'nosniff'
+    }];
+  }
+  if (!(xfoHeader in headers)) {
+    headers[xfoHeader] = [{
+      key: xfoHeader,
+      value: 'DENY'
+    }];
+  }
+  if (!(xssHeader in headers)) {
+    headers[xssHeader] = [{
+      key: xssHeader,
+      value: '1; mode=block'
+    }];
+  }
+  if (!(referrerHeader in headers)) {
+    headers[referrerHeader] = [{
+      key: referrerHeader,
+      value: 'same-origin'
+    }];
+  }
+  if (!(varyHeader in headers)) {
+    headers[varyHeader] = [{
+      key: varyHeader,
+      value: 'accept-encoding'
+    }];
   }
 
   callback(null, response);

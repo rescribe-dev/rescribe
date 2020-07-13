@@ -19,6 +19,9 @@ const heightQuery = '_height';
 const mobileQuery = '_mobile';
 
 const contentTypeHeader = 'content-type';
+const cacheControlHeader = 'cache-control';
+const noCacheValue = 'no-cache';
+const acceptEncodingHeader = 'accept-encoding';
 
 const renderTimeSeconds = 1;
 
@@ -113,8 +116,8 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     }
     delete req.headers.host;
     delete req.headers[renderHeader];
-    req.headers['cache-control'] = 'no-cache';
-    delete req.headers['accept-encoding'];
+    req.headers[cacheControlHeader] = noCacheValue;
+    delete req.headers[acceptEncodingHeader];
     if (mustRender && req.headers.accept) {
       delete req.headers.accept;
     }
@@ -133,6 +136,8 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     if (mustRender && type !== 'html') {
       throw new Error('content is not html');
     }
+    // don't cache response in cloudfront or browser
+    requestResponse.headers[cacheControlHeader] = noCacheValue;
     if (type !== 'html') {
       sendAxiosResponse(requestResponse, res);
       return;
