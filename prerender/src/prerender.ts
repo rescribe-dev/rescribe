@@ -34,7 +34,8 @@ const brotliKey = 'br';
 
 const renderTimeSeconds = 1;
 
-const sendAxiosResponse = async (axiosRes: AxiosResponse, res: Response, content?: string | Buffer, encodingHeaderData?: string | string[]): Promise<void> => {
+const sendAxiosResponse = async (axiosRes: AxiosResponse, res: Response,
+  content?: string | Buffer, encodingHeaderData?: string | string[]): Promise<void> => {
   for (const header in axiosRes.headers) {
     res.setHeader(header, axiosRes.headers[header]);
   }
