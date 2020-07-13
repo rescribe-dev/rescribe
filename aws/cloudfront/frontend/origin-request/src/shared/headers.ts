@@ -13,7 +13,9 @@ interface data {
   [path: string]: headers;
 }
 
-export const botHeader = 'X-Bot';
+export const renderQuery = '_render';
+
+export const renderHeader = 'X-Render';
 
 const headersFile = '../_headers';
 

@@ -1,4 +1,4 @@
-import { parseHeadersFile, botHeader } from './shared/headers';
+import { parseHeadersFile, renderHeader, renderQuery } from './shared/headers';
 import { absolutePath } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontRequestHandler } from 'aws-lambda';
@@ -53,8 +53,6 @@ const processEnvironment = (): void => {
 
 processEnvironment();
 
-const renderQuery = '_render';
-
 export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
 
@@ -106,8 +104,8 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
 
   const searchParams = new URLSearchParams(request.querystring);
 
-  if (searchParams.has(renderQuery) || (botHeader in headers
-    && headers[botHeader].length > 0 && headers[botHeader][0].value === 'true')) {
+  if (searchParams.has(renderQuery) || (renderHeader in headers
+    && headers[renderHeader].length > 0 && headers[renderHeader][0].value === 'true')) {
     const url = new URL(request.uri);
     url.protocol = useSecure ? 'https' : 'http';
     url.hostname = prerenderURL;
