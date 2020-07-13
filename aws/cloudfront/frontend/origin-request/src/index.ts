@@ -38,7 +38,7 @@ getPaths();
 
 let useSecure = false;
 
-let prerenderURL: string;
+let prerenderURL = 'internal-rescribe-prerender-2130697091.us-east-1.elb.amazonaws.com';
 
 const processEnvironment = (): void => {
   const useSecureStr = process.env.USE_SECURE;
@@ -46,11 +46,10 @@ const processEnvironment = (): void => {
     useSecure = useSecureStr === 'true';
   }
   const prerenderURLStr = process.env.PRERENDER_URL;
-  if (!prerenderURLStr) {
-    throw new Error('cannot find prerender url');
+  if (prerenderURLStr !== undefined) {
+    prerenderURL = prerenderURLStr;
   }
-  prerenderURL = prerenderURLStr;
-}
+};
 
 processEnvironment();
 
