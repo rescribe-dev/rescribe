@@ -1,4 +1,4 @@
-import { parseHeadersFile, renderHeader, renderQuery } from './shared/headers';
+import { parseHeadersFile, renderHeader } from './shared/headers';
 import { absolutePath } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontRequestHandler } from 'aws-lambda';
@@ -102,10 +102,8 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
 
   request.uri = encodingPath + request.uri;
 
-  const searchParams = new URLSearchParams(request.querystring);
-
-  if (searchParams.has(renderQuery) || (renderHeader in headers
-    && headers[renderHeader].length > 0 && headers[renderHeader][0].value === 'true')) {
+  if (renderHeader in headers && headers[renderHeader].length > 0
+    && headers[renderHeader][0].value.length > 0) {
     const url = new URL(request.uri);
     url.protocol = useSecure ? 'https' : 'http';
     url.hostname = prerenderURL;
