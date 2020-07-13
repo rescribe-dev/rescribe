@@ -54,23 +54,25 @@ const processEnvironment = (): void => {
 
 processEnvironment();
 
+const renderQuery = '_render';
+
 export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
 
   // Redirect (301) non-root requests ending in "/" to URI without trailing slash
-	if (request.uri.match(/.+\/$/)) {
-		const response = {
-			headers: {
-				'location': [{
-					key: 'Location',
-					value: request.uri.slice(0, -1)
-				 }]
-			},
-			status: '301',
-			statusDescription: 'Moved Permanently'
-		};
-		callback(null, response);
-		return;
+  if (request.uri.match(/.+\/$/)) {
+    const response = {
+      headers: {
+        'location': [{
+          key: 'Location',
+          value: request.uri.slice(0, -1)
+        }]
+      },
+      status: '301',
+      statusDescription: 'Moved Permanently'
+    };
+    callback(null, response);
+    return;
   }
 
   if (!request.uri.match(absolutePath)) {
@@ -103,7 +105,10 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
 
   request.uri = encodingPath + request.uri;
 
-  if (botHeader in headers && headers[botHeader].length > 0 && headers[botHeader][0].value === 'true') {
+  const searchParams = new URLSearchParams(request.querystring);
+
+  if (searchParams.has(renderQuery) || (botHeader in headers
+    && headers[botHeader].length > 0 && headers[botHeader][0].value === 'true')) {
     const url = new URL(request.uri);
     url.protocol = useSecure ? 'https' : 'http';
     url.hostname = prerenderURL;
