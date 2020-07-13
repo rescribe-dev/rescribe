@@ -1,5 +1,5 @@
 import { parseHeadersFile, invalidHeaderPrefixes, invalidHeaders } from './shared/headers';
-import { absolutePath, getPath } from './shared/regex';
+import { absolutePath, getPathData } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontResponseHandler, CloudFrontHeaders } from 'aws-lambda';
 
@@ -56,8 +56,8 @@ export const handler: CloudFrontResponseHandler = (event, _context, callback) =>
   const response = event.Records[0].cf.response;
   const originalHeaders = response.headers;
 
-  const path = getPath(request.uri);
-  const newHeaders = getAllHeaders(path);
+  const pathData = getPathData(request.uri);
+  const newHeaders = getAllHeaders(pathData.pathname);
 
   for (const headerKey in newHeaders) {
     if (!(headerKey in originalHeaders)) {

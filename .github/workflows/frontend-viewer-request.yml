@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - "aws/lambda/update-cloudfront-lambda/**"
+      - "aws/cloudfront/frontend/origin-request/src/shared/**"
       - "aws/cloudfront/frontend/viewer-request/**"
       - ".github/workflows/frontend-viewer-request.yml"
 jobs:

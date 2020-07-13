@@ -6,6 +6,7 @@ on:
     paths:
       - "aws/cloudfront/frontend/_headers"
       - "aws/lambda/update-cloudfront-lambda/**"
+      - "aws/cloudfront/frontend/origin-request/src/shared/**"
       - "aws/cloudfront/frontend/viewer-response/**"
       - ".github/workflows/frontend-viewer-response.yml"
 jobs:
