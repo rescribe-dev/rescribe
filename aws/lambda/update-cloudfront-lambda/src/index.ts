@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { readFileSync } from 'fs';
 import { UpdateDistributionRequest, DistributionConfig } from 'aws-sdk/clients/cloudfront';
 
-const lambdaTypes: string[] = ['origin-request', 'viewer-response'];
+const lambdaTypes: string[] = ['origin-request', 'viewer-response', 'viewer-request'];
 
 const uploadFunction = async (lambdaFunction: string, sourceZip: string): Promise<string> => {
   const lambdaClient = new AWS.Lambda();

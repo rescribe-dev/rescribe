@@ -1,4 +1,4 @@
-name: Frontend Origin Request
+name: Frontend Viewer Response
 on:
   push:
     branches:
