@@ -146,11 +146,13 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
       authMethod: 'none',
       customHeaders: {},
       domainName: defaultBucket,
-      path: fullPath,
+      path: '',
       region: 'us-east-1'
     }
   };
   request.headers['host'] = [ { key: 'host', value: defaultBucket } ];
+
+  request.uri = fullPath;
 
   callback(null, request);
 };
