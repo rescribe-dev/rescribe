@@ -2,11 +2,16 @@ import { Request, Response } from 'express';
 import { Page, Viewport } from 'puppeteer';
 import { parse } from 'url';
 import { getLogger } from 'log4js';
+import { brotliCompress, gzip } from 'zlib';
 import { NOT_FOUND, OK } from 'http-status-codes';
 import { webClient } from './utils/webBridge';
 import { extension } from 'mime-types';
 import { AxiosError, AxiosResponse } from 'axios';
+import { promisify } from 'util';
 import { browser } from './utils/puppet';
+
+const brotliCompressPromise = promisify(brotliCompress);
+const gzipCompressPromise = promisify(gzip);
 
 const logger = getLogger();
 
@@ -21,16 +26,36 @@ const mobileQuery = '_mobile';
 const contentTypeHeader = 'content-type';
 const cacheControlHeader = 'cache-control';
 const noCacheValue = 'no-cache';
-const acceptEncodingHeader = 'accept-encoding';
+const encodingHeader = 'accept-encoding';
+const contentEncodingHeader = 'content-encoding';
+const contentLengthHeader = 'content-length';
+const gzipKey = 'gzip';
+const brotliKey = 'br';
 
 const renderTimeSeconds = 1;
 
-const sendAxiosResponse = (axiosRes: AxiosResponse, res: Response, content?: any): void => {
+const sendAxiosResponse = async (axiosRes: AxiosResponse, res: Response, content?: string | Buffer, encodingHeaderData?: string | string[]): Promise<void> => {
   for (const header in axiosRes.headers) {
     res.setHeader(header, axiosRes.headers[header]);
   }
   if (!content) {
     content = axiosRes.data;
+  } else if (encodingHeaderData && encodingHeaderData.length > 0) {
+    const headerDataStr = typeof encodingHeaderData === 'string' ?
+      encodingHeaderData : (encodingHeaderData as string[]).join(' ');
+    let foundEncoding = false;
+    if (headerDataStr.includes(brotliKey)) {
+      content = await brotliCompressPromise(content);
+      foundEncoding = true;
+      res.setHeader(contentEncodingHeader, brotliKey);
+    } else if (headerDataStr.includes(gzipKey)) {
+      content = await gzipCompressPromise(content) as Buffer;
+      foundEncoding = true;
+      res.setHeader(contentEncodingHeader, gzipKey);
+    }
+    if (foundEncoding) {
+      res.setHeader(contentLengthHeader, (content as Buffer).byteLength);
+    }
   }
   res.status(axiosRes.status).send(content);
 };
@@ -89,6 +114,8 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     ...defaultViewport
   };
 
+  let originalEncodingHeaderData: string | string[] = '';
+
   try {
     const renderTypeParam = getQueryParm(req, forceRenderQuery);
     if (mustRender && renderTypeParam.length > 0) {
@@ -117,7 +144,10 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     delete req.headers.host;
     delete req.headers[renderHeader];
     req.headers[cacheControlHeader] = noCacheValue;
-    delete req.headers[acceptEncodingHeader];
+    if (req.headers[encodingHeader]) {
+      originalEncodingHeaderData = req.headers[encodingHeader] as string | string[];
+    }
+    delete req.headers[encodingHeader];
     if (mustRender && req.headers.accept) {
       delete req.headers.accept;
     }
@@ -139,13 +169,13 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     // don't cache response in cloudfront or browser
     requestResponse.headers[cacheControlHeader] = noCacheValue;
     if (type !== 'html') {
-      sendAxiosResponse(requestResponse, res);
+      await sendAxiosResponse(requestResponse, res);
       return;
     }
   } catch (error) {
     const err = error as AxiosError;
     if (err.response) {
-      sendAxiosResponse(err.response, res);
+      await sendAxiosResponse(err.response, res);
     } else {
       res.status(NOT_FOUND).send(err.message);
     }
@@ -164,7 +194,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     }
     switch (renderType) {
       case RenderType.html:
-        sendAxiosResponse(requestResponse, res, await page.content());
+        await sendAxiosResponse(requestResponse, res, await page.content(), originalEncodingHeaderData);
         break;
       case RenderType.pdf:
         res.contentType('pdf').status(OK).send(await page.pdf({ format: 'A4' }));
