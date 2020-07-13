@@ -65,7 +65,9 @@ const numWildcards = (path: string) => {
 export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
 
-  const currentPathData = getPathData(request.uri);
+  const query = request.querystring.length > 0 ? '?' + request.querystring : '';
+  const currentPathData = getPathData(request.uri + query);
+  console.log(currentPathData);
   const path = currentPathData.pathname;
   const search = currentPathData.search;
 
@@ -85,8 +87,6 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     return;
   }
 
-  request.uri = '';
-
   const headers = request.headers;
 
   if (renderHeader in headers && headers[renderHeader].length > 0
@@ -96,7 +96,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
         customHeaders: {},
         domainName: prerenderURL,
         keepaliveTimeout: 5,
-        path: path + search,
+        path: '',
         port: useSecure ? 443 : 80,
         protocol: useSecure ? 'https' : 'http',
         readTimeout: 5,
@@ -109,8 +109,6 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     return;
   }
 
-  let fullPath = path;
-
   if (!path.match(absolutePath)) {
     // change to be an absolute path
     const matches: PathData[] = [];
@@ -120,10 +118,10 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
       }
     }
     if (matches.length === 0) {
-      fullPath = errorPage;
+      request.uri = errorPage;
     } else {
       matches.sort((a, b) => numWildcards(a.path) - numWildcards(b.path));
-      fullPath = matches[0].path;
+      request.uri = matches[0].path;
     }
   }
 
@@ -138,7 +136,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     }
   }
 
-  fullPath = encodingPath + fullPath;
+  request.uri = encodingPath + request.uri;
 
   request.origin = {
     custom: undefined,
@@ -151,8 +149,6 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     }
   };
   request.headers['host'] = [ { key: 'host', value: defaultBucket } ];
-
-  request.uri = fullPath;
 
   callback(null, request);
 };
