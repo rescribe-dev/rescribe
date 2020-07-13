@@ -40,6 +40,11 @@ jobs:
           GATSBY_RECAPTCHA_SITE_KEY: ${{ secrets.GATSBY_RECAPTCHA_SITE_KEY }}
           GATSBY_SITE_URL: https://rescribe.dev
           GATSBY_MODE: production
+          GATSBY_GOOGLE_ANALYTICS_ID: ${{ secrets.GATSBY_GOOGLE_ANALYTICS_ID }}
+          GATSBY_GOOGLE_OPTIMIZE_ID: ${{ secrets.GATSBY_GOOGLE_OPTIMIZE_ID }}
+          GATSBY_GOOGLE_EXPERIMENT_ID: ${{ secrets.GATSBY_GOOGLE_EXPERIMENT_ID }}
+          GATSBY_GOOGLE_VARIATION_ID: ${{ secrets.GATSBY_GOOGLE_VARIATION_ID }}
+          GATSBY_GITHUB_CLIENT_ID: $ {{ secteys.GATSBY_GITHUB_CLIENT_ID }}
       - name: copy dist
         run: cp -r web/dist aws/cloudfront/build-cloudfront/dist
       - name: upload
