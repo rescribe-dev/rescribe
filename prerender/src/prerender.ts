@@ -104,6 +104,8 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
       }
     }
     delete req.headers.host;
+    logger.info(req.headers);
+    delete req.headers['X-Render'];
     req.headers['cache-control'] = 'no-cache';
     delete req.headers['accept-encoding'];
     if (mustRender && req.headers.accept) {
