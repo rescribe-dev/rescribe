@@ -18,6 +18,9 @@ import { ObjectId } from 'mongodb';
 import { client } from 'utils/apollo';
 import { ApolloQueryResult } from 'apollo-client';
 
+import CodeHighlight from 'components/codeHighlight';
+import { Language } from 'prism-react-renderer';
+
 interface FilesProps {
   repositoryID: ObjectId;
   branch: string;
@@ -64,15 +67,18 @@ const FileData = (args: FilesProps): JSX.Element => {
       !fileRes.data ||
       !fileTextData ||
       fileTextData.loading ||
-      !fileTextData.data ? (
+      !fileTextData.data ||
+      !fileRes.data.file.language ? (
         <p>loading...</p>
       ) : (
         <>
           <p>{fileRes.data.file.name}</p>
-          <p>file text:</p>
-          {fileTextData.data.fileText.map((line, i) => (
-            <p key={`line-${i}-${fileRes.data?.file.name}`}>{line}</p>
-          ))}
+          <p>File text:</p>
+          <CodeHighlight
+            startIndex={0}
+            code={fileTextData.data.fileText}
+            language={(fileRes.data.file.language as unknown) as Language}
+          />
         </>
       )}
     </Container>

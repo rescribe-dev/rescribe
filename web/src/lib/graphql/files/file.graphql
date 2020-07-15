@@ -2,5 +2,6 @@ query file($name: String!, $path: String!, $branch: String!, $repositoryID: Obje
   file(name: $name, path: $path, branch: $branch, repositoryID: $repositoryID) {
     name
     _id
+    language
   }
 }

@@ -52,7 +52,7 @@ type AntlrFile {
   comments: [Comment!]!
 
   # language type
-  language: [Language!]!
+  language: Language!
 }
 
 # auth notification
@@ -211,7 +211,7 @@ type File {
   comments: [Comment!]!
 
   # language type
-  language: [Language!]!
+  language: Language!
 
   # file name search
   nameSearch: String!
@@ -455,32 +455,6 @@ type Mutation {
     # email
     email: String
   ): String!
-  register(
-    # recaptcha token
-    recaptchaToken: String!
-
-    # name
-    name: String!
-
-    # username
-    username: String!
-
-    # email
-    email: String!
-
-    # password
-    password: String!
-  ): String!
-  updateAccount(
-    # name
-    name: String
-
-    # email
-    email: String
-
-    # password
-    password: String
-  ): String!
   addBranch(
     # branch name
     name: String!
@@ -652,6 +626,32 @@ type Mutation {
     # public access level
     publicAccess: AccessLevel!
   ): String!
+  register(
+    # recaptcha token
+    recaptchaToken: String!
+
+    # name
+    name: String!
+
+    # username
+    username: String!
+
+    # email
+    email: String!
+
+    # password
+    password: String!
+  ): String!
+  updateAccount(
+    # name
+    name: String
+
+    # email
+    email: String
+
+    # password
+    password: String
+  ): String!
   usernameExists(
     # recaptcha token
     recaptchaToken: String!
@@ -770,8 +770,6 @@ type PublicUser {
 }
 
 type Query {
-  # user data
-  user: User!
   branches(
     # repository id
     repository: ObjectId!
@@ -1031,6 +1029,9 @@ type Query {
     # project name
     username: String
   ): PublicUser!
+
+  # user data
+  user: User!
 }
 
 # repository

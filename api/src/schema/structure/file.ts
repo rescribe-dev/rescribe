@@ -3,6 +3,7 @@ import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typ
 import { ObjectId } from 'mongodb';
 import AntlrFile from '../antlr/file';
 import { AccessLevel } from '../auth/access';
+import { Language } from '../../utils/variables';
 
 export class BaseFile {
   @Property({ required: true })
@@ -71,6 +72,9 @@ export class BaseFileElastic extends BaseFile {
 
   @Field(_type => String, { description: 'file name search' })
   nameSearch: string;
+
+  @Field(_type => Language, { description: 'language type' })
+  language: Language;
 }
 
 // input / result from elastic
