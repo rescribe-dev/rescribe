@@ -13,7 +13,7 @@ interface Commit {
   modified: string[];
 }
 
-const githubUserAgent = 'Rescribe-GitHub-App';
+const githubUserAgent = 'rescribe-github-app';
 
 initializeConfig();
 

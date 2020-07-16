@@ -20,15 +20,9 @@ export const onSubscription = async (params: SubscriptionContextParams): Promise
     // require at least guest login
     throw new Error('auth token must be provided');
   }
-  let authData: AuthData | undefined;
-  try {
-    authData = await decodeAuth(jwtType.LOCAL, params.authToken);
-  } catch (err) {
-    // does not allow github subscriptions
-    throw new Error('invalid auth token');
-  }
+
   return {
-    auth: authData
+    auth: await decodeAuth(jwtType.LOCAL, params.authToken)
   };
 };
 
@@ -38,6 +32,13 @@ export const getToken = (req: Request): string => {
     return '';
   }
   return req.headers.authorization.split(' ')[1];
+};
+
+const githubUserAgent = 'rescribe-github-app';
+
+const isGithubApp = (req: Request): boolean => {
+  const userAgentHeader = req.headers['user-agent'];
+  return userAgentHeader !== undefined && userAgentHeader === githubUserAgent;
 };
 
 export const getContext = async ({ req, res, connection }: ExpressContext): Promise<GraphQLContext> => {
@@ -56,16 +57,11 @@ export const getContext = async ({ req, res, connection }: ExpressContext): Prom
       res
     };
   }
-  // TODO - use user agent to differentiate between the two auth schemas
   let authData: AuthData | undefined;
-  try {
+  if (isGithubApp(req)) {
+    authData = await decodeAuth(jwtType.GITHUB, token);
+  } else {
     authData = await decodeAuth(jwtType.LOCAL, token);
-  } catch (err) {
-    try {
-      authData = await decodeAuth(jwtType.GITHUB, token);
-    } catch (err) {
-      throw new Error('invalid auth token');
-    }
   }
   return {
     auth: authData,
