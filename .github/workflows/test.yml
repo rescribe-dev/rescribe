@@ -82,7 +82,7 @@ jobs:
         id: install
         run: |
           cd scripts
-          ./install.sh
+          ./install_tests.sh
           cd -
       - name: run precommit
         run: |
