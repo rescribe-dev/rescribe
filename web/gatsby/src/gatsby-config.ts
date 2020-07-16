@@ -1,5 +1,7 @@
 import path from 'path';
 import { config } from 'dotenv';
+import { print } from 'graphql/language/printer';
+import gql from 'graphql-tag';
 
 config();
 
@@ -10,6 +12,7 @@ export default {
     title: 'Rescribe',
     description: 'search engine for code',
     author: 'rescribe',
+    siteUrl: process.env.GATSBY_SITE_URL,
     languages: {
       default: 'en',
       options: ['en'],
@@ -128,6 +131,46 @@ export default {
         langKeyDefault: 'en',
         useLangKeyLayout: false,
         prefixDefault: true, // create pages for default language
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-sitemap',
+      options: {
+        output: '/sitemap-main.xml',
+        exclude: [],
+        query: print(gql`
+          {
+            site {
+              siteMetadata {
+                siteUrl
+              }
+            }
+            allSitePage {
+              nodes {
+                path
+              }
+            }
+          }
+        `),
+        serialize: ({
+          site,
+          allSitePage,
+        }: {
+          site: { siteMetadata: { siteUrl: string } };
+          allSitePage: { nodes: { path: string }[] };
+        }) => {
+          return allSitePage.nodes
+            .filter((node) => {
+              return !node.path.includes(':');
+            })
+            .map((node) => {
+              return {
+                url: `${site.siteMetadata.siteUrl}${node.path}`,
+                changefreq: 'daily',
+                priority: 0.7,
+              };
+            });
+        },
       },
     },
     // see https://github.com/jlengstorf/gatsby-hasura-realtime-app
