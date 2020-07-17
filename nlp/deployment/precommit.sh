@@ -3,7 +3,9 @@
 # abort on errors
 set -e
 
-source $(conda info --base)/etc/profile.d/conda.sh
+if [ -z "$CONDA_DEFAULT_ENV" ]; then
+  source $(conda info --base)/etc/profile.d/conda.sh
+fi
 
 conda activate rescribe-nlp-deployment
 

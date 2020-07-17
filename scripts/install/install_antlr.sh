@@ -3,7 +3,7 @@
 # abort on errors
 set -e
 
-cd ../antlr
+cd ../../antlr
 sudo apt-get update -y
 sudo apt-get install -y antlr4
 ./predeploy.sh

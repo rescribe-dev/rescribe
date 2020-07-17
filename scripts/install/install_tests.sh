@@ -3,7 +3,7 @@
 # abort on errors
 set -e
 
-cd ..
+cd ../..
 
 node_tests=("api/")
 
@@ -42,6 +42,6 @@ do
   cd -
 done
 
-cd scripts
+cd scripts/install
 
 # additional install scripts

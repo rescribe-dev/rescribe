@@ -15,6 +15,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           auto-update-conda: true
+          miniconda-version: latest
           python-version: 3.8
       # python pip - cache
       - uses: actions/cache@v2

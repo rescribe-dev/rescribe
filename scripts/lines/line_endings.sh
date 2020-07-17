@@ -5,7 +5,7 @@
 # abort on errors
 set -e
 
-cd ..
+cd ../..
 
 # .sln and .bat are windows-only files
 

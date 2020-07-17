@@ -15,6 +15,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           auto-update-conda: true
+          miniconda-version: latest
           python-version: 3.8
       # python pip - cache
       - uses: actions/cache@v2
@@ -63,7 +64,9 @@ jobs:
           IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
         run: |
           cd aws/sagemaker/deploy
-          source $(conda info --base)/etc/profile.d/conda.sh
+          if [ -z "$CONDA_DEFAULT_ENV" ]; then
+            source $(conda info --base)/etc/profile.d/conda.sh
+          fi
           conda env create --file ./environment.yml
           conda activate rescribe-nlp-sagemaker
           python3 src/main.py

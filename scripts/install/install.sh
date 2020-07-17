@@ -3,7 +3,7 @@
 # abort on errors
 set -e
 
-cd ..
+cd ../..
 
 node_paths=("." "api/" "github-app/" "web/" "prerender/" "vscode/" "docs/" "status/" "emails/" \
             "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
@@ -46,7 +46,7 @@ do
   cd -
 done
 
-cd scripts
+cd scripts/install
 
 # additional install scripts
 

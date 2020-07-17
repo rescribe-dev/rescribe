@@ -7,7 +7,7 @@
 # abort on errors
 set -e
 
-cd ..
+cd ../..
 
 # make sure cloc is installed with sudo apt-get install -y cloc
 cloc $(git ls-files)

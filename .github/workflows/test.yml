@@ -19,6 +19,7 @@ jobs:
         uses: goanpeca/setup-miniconda@v1
         with:
           auto-update-conda: true
+          miniconda-version: latest
           python-version: 3.8
       - name: Setup Go
         uses: actions/setup-go@v2
@@ -74,14 +75,14 @@ jobs:
       - name: Install go helpers
         id: go-helpers
         run: |
-          cd scripts
+          cd scripts/install
           ./install_go_helpers.sh
           cd -
 
       - name: Install dependencies
         id: install
         run: |
-          cd scripts
+          cd scripts/install
           ./install_tests.sh
           cd -
       - name: run precommit
