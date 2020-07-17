@@ -5,6 +5,7 @@ set -e
 
 cd ../..
 
+# node
 node_paths=("." "api/" "github-app/" "web/" "prerender/" "vscode/" "docs/" "status/" "emails/" \
             "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
             "aws/cloudfront/docs/origin-request/" "aws/cloudfront/docs/viewer-response/" \
@@ -15,23 +16,17 @@ for path in "${node_paths[@]}"
 do
   cd "$path"
   echo "install dependencies in $path"
-  if [ -f yarn.lock ]; then
-    echo "using yarn package manager"
-    yarn install
+  if ! [ -d node_modules ]; then
+    if [ -f yarn.lock ]; then
+      echo "using yarn package manager"
+      yarn install
+    else
+      echo "using npm package manager"
+      npm install
+    fi
   else
-    echo "using npm package manager"
-    npm install
+    echo "node_modules already exists"
   fi
-  cd -
-done
-
-python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
-
-for path in "${python_paths[@]}"
-do
-  cd "$path"
-  echo "install dependencies in $path/"
-  conda env create --file ./environment.yml
   cd -
 done
 
@@ -48,11 +43,23 @@ done
 
 cd scripts/install
 
-# additional install scripts
-
 # local packages
 ./install_cli.sh
 ./install_antlr.sh
 
 # additional installs
 ./install_git_secrets.sh
+
+cd -
+
+# python
+python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
+
+for path in "${python_paths[@]}"
+do
+  cd "$path"
+  echo "install dependencies in $path/"
+  # fails if environment already exists
+  conda env create --file ./environment.yml
+  cd -
+done
