@@ -30,11 +30,15 @@ done
 
 python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
 
+source $(conda info --base)/etc/profile.d/conda.sh
 for path in "${python_paths[@]}"
 do
   cd "$path"
+  env_name=$(grep 'name:' environment.yml | cut -d ' ' -f 2)
+  conda activate $env_name
   conda env update --file environment.yml --prune
-  conda env export > environment.yml
+  conda env export --no-builds | grep -v "^prefix: " > environment.yml
+  conda deactivate
   cd -
 done
 

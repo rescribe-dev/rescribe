@@ -3,11 +3,12 @@
 # abort on errors
 set -e
 
-if [ -z "$CONDA_DEFAULT_ENV" ]; then
-  source $(conda info --base)/etc/profile.d/conda.sh
-fi
+cd "../$1"
 
-conda activate rescribe-nlp-deployment
+source $(conda info --base)/etc/profile.d/conda.sh
+
+env_name=$(grep 'name:' environment.yml | cut -d ' ' -f 2)
+conda activate $env_name
 
 # format files
 autopep8 --exclude='./envs' --in-place --recursive .
@@ -24,6 +25,8 @@ conda env export --no-builds | grep -v "^prefix: " > environment.yml
 # alternative:
 # conda list -e | sed -E "s/^(.*\=.*)(\=.*)/\1/" > requirements.txt
 
-echo 'done with nlp deployment precommit'
+echo "done with precommit for $env_name"
 
 conda deactivate
+
+cd -

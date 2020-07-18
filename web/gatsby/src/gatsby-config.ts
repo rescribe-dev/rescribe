@@ -158,7 +158,7 @@ export default {
         }: {
           site: { siteMetadata: { siteUrl: string } };
           allSitePage: { nodes: { path: string }[] };
-        }) => {
+        }): { url: string; changefreq: string; priority: number }[] => {
           return allSitePage.nodes
             .filter((node) => {
               return !node.path.includes(':');
