@@ -85,9 +85,6 @@ jobs:
           cd scripts/install
           ./install_tests.sh
           cd -
-      - name: run precommit
-        run: |
-          ./precommit.sh -f
       - name: run tests and coverage
         id: testing
         run: |
