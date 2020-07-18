@@ -16,7 +16,11 @@ module.exports = {
       'deployment/vscode',
     ],
     Permissions: ['permissions/github'],
-    Development: ['development/index', 'development/nlp'],
+    Development: [
+      'development/index',
+      'development/scripts',
+      'development/nlp',
+    ],
     Notes: ['notes/index', 'notes/github'],
   },
 };
