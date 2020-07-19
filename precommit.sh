@@ -28,24 +28,13 @@ do
   fi
 done
 
-script_paths=("antlr/" "fast/")
+script_paths=("antlr/" "fast/" "nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
 
 for path in "${script_paths[@]}"
 do
   if [ "$1" = "$force_run_command" ] || check_changes "$path" ; then
     cd "$path"
     ./precommit.sh
-    cd -
-  fi
-done
-
-python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
-
-for path in "${python_paths[@]}"
-do
-  if [ "$1" = "$force_run_command" ] || check_changes "$path" ; then
-    cd scripts
-    ./precommit_python.sh $path
     cd -
   fi
 done

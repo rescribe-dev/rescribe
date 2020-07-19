@@ -2,15 +2,8 @@
 
 set -e
 
-output="dist.zip"
+cd ../../../scripts
 
-rm -rf yarn.lock node_modules "$output"
-yarn install --prod
-mv node_modules lib
+./build_zip_lambda.sh aws/cloudfront/frontend/origin-request
 
-cd lib
-zip -r "$output" *
-mv "$output" ..
 cd -
-
-yarn install
