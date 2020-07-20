@@ -75,7 +75,6 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
 
   const query = request.querystring.length > 0 ? '?' + request.querystring : '';
   const currentPathData = getPathData(request.uri + query);
-  console.log(currentPathData);
   const path = currentPathData.pathname;
   const search = currentPathData.search;
 
@@ -101,7 +100,9 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     && headers[renderHeader][0].value.length > 0) {
     request.origin = {
       custom: {
-        customHeaders: {},
+        customHeaders: {
+          ...request.headers
+        },
         domainName: prerenderURL,
         keepaliveTimeout: 5,
         path: '',
@@ -121,7 +122,9 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
   if (sitemapPaths.includes(path)) {
     request.origin = {
       custom: {
-        customHeaders: {},
+        customHeaders: {
+          ...request.headers
+        },
         domainName: apiURL,
         keepaliveTimeout: 5,
         path: '',
