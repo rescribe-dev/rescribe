@@ -1,4 +1,4 @@
-import { ScheduledHandler } from 'aws-lambda';
+import { EventBridgeHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { brotliCompress, gzip } from 'zlib';
 import xmlBuilder from 'xmlbuilder';
@@ -103,11 +103,11 @@ const writeAllSitemaps = async (): Promise<void> => {
   await writeSitemap(sitemapPaths[0].substring(1), createSitemapIndex(sitemapPaths.slice(1)));
 };
 
-export const handler: ScheduledHandler = async (_event, _context, callback) => {
+export const handler: EventBridgeHandler<string, null, void> = async (_event, _context, callback): Promise<void> => {
   await initializeConfig(false);
   initializeLogger();
   await writeAllSitemaps();
-  callback(null);
+  callback();
   process.exit(0);
 };
 
