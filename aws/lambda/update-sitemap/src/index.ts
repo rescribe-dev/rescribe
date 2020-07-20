@@ -1,12 +1,14 @@
 import { ScheduledHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { brotliCompress, gzip } from 'zlib';
-import { config } from 'dotenv';
 import xmlBuilder from 'xmlbuilder';
 import { promisify } from 'util';
 import { getLogger } from 'log4js';
 import { initializeDB } from './shared/db/connect';
 import { UserModel } from './shared/schema/auth/user';
+import { initializeConfig, s3Bucket, websiteURL, dbConnectionURI, dbName } from './utils/config';
+import { initializeLogger } from './utils/logger';
+import { sitemapPaths } from './shared/sitemaps';
 
 const logger = getLogger();
 
@@ -21,12 +23,6 @@ const changeFrequency = 'daily';
 const priority = 0.7;
 
 const s3Client = new AWS.S3();
-
-let dbConnectionURI: string;
-let s3Bucket = 'rescribe-sitemap';
-let dbName = 'rescribe';
-let websiteURL = 'https://rescribe.dev';
-let apiURL = 'https://api.rescribe.dev';
 
 const writeSitemap = async (name: string, content: string): Promise<void> => {
   const fileType = 'application/xml';
@@ -87,15 +83,11 @@ const createSitemapIndex = (paths: string[]): string => {
     .attribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
   for (const path of paths) {
     const sitemapObj = xmlFile.element('sitemap');
-    sitemapObj.element('loc', apiURL + path);
+    sitemapObj.element('loc', websiteURL + path);
     sitemapObj.element('lastmod', new Date().getTime());
   }
   return xmlFile.end();
 };
-
-const usersSitemap = 'sitemap_users.xml';
-
-const sitemaps = [usersSitemap];
 
 const writeAllSitemaps = async (): Promise<void> => {
   logger.info('start db initialize');
@@ -106,47 +98,21 @@ const writeAllSitemaps = async (): Promise<void> => {
   for (const user of await UserModel.find()) {
     userPaths.push(`/${user.username}`);
   }
-  await writeSitemap(usersSitemap, createSitemap(userPaths));
+  await writeSitemap(sitemapPaths[1].substring(1), createSitemap(userPaths));
 
-  await writeSitemap('sitemap.xml', createSitemapIndex(sitemaps.map(name => `/${name}`)));
+  await writeSitemap(sitemapPaths[0].substring(1), createSitemapIndex(sitemapPaths.slice(1)));
 };
 
 export const handler: ScheduledHandler = async (_event, _context, callback) => {
+  initializeConfig(false);
+  initializeLogger();
   await writeAllSitemaps();
   callback(null);
 };
 
 const runUpdate = async (): Promise<void> => {
-  config();
-  if (!process.env.DB_CONNECTION_URI) {
-    throw new Error('cannot find database uri');
-  }
-  dbConnectionURI = process.env.DB_CONNECTION_URI;
-  if (process.env.DB_NAME) {
-    dbName = process.env.DB_NAME;
-  }
-  if (process.env.WEBSITE_URL) {
-    websiteURL = process.env.WEBSITE_URL;
-  }
-  if (process.env.API_URL) {
-    apiURL = process.env.API_URL;
-  }
-  if (process.env.AWS_S3_BUCKET) {
-    s3Bucket = process.env.AWS_S3_BUCKET;
-  }
-  AWS.config = new AWS.Config();
-  if (!process.env.AWS_ACCESS_KEY_ID) {
-    throw new Error('no aws access key id provided');
-  }
-  AWS.config.accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  if (!process.env.AWS_SECRET_ACCESS_KEY) {
-    throw new Error('no aws secret access key provided');
-  }
-  AWS.config.secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-  if (!process.env.AWS_REGION) {
-    throw new Error('no aws region provided');
-  }
-  AWS.config.region = process.env.AWS_REGION;
+  initializeConfig(true);
+  initializeLogger();
   await writeAllSitemaps();
 };
 

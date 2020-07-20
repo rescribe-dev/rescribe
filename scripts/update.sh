@@ -11,8 +11,8 @@ cd ..
 node_paths=("." "api/" "github-app/" "cli/" "web/" "prerender/" "vscode/" "docs/" "status/" "emails/" \
             "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
             "aws/cloudfront/docs/origin-request/" "aws/cloudfront/docs/viewer-response/" \
-            "aws/cloudfront/build-cloudfront/" "aws/lambda/update-cloudfront-lambda" \
-            "aws/cloudfront/frontend/viewer-request/")
+            "aws/cloudfront/build-cloudfront/" "aws/lambda/update-cloudfront-lambda/" \
+            "aws/cloudfront/frontend/viewer-request/" "aws/lambda/update-sitemap/")
 
 for path in "${node_paths[@]}"
 do
@@ -28,7 +28,7 @@ do
   cd -
 done
 
-python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
+python_paths=("nlp/dataload/" "nlp/deployment/" "nlp/training/" "aws/sagemaker/deploy/")
 
 source $(conda info --base)/etc/profile.d/conda.sh
 for path in "${python_paths[@]}"
@@ -42,7 +42,7 @@ do
   cd -
 done
 
-go_paths=("fast")
+go_paths=("fast/")
 
 for path in "${go_paths[@]}"
 do

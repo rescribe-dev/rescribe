@@ -16,7 +16,7 @@ import { baseFolderName, baseFolderPath } from '../shared/folders';
 import { RepositoryModel } from '../schema/structure/repository';
 import { elasticClient } from '../elastic/init';
 import { getLogger } from 'log4js';
-import { WriteType } from '../db/writeType';
+import { WriteType } from '../utils/writeType';
 
 const logger = getLogger();
 

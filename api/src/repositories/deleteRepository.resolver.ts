@@ -14,7 +14,7 @@ import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';
 import { FileModel } from '../schema/structure/file';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { FolderModel } from '../schema/structure/folder';
-import { WriteType } from '../db/writeType';
+import { WriteType } from '../utils/writeType';
 
 @ArgsType()
 class DeleteRepositoryArgs {

@@ -22,7 +22,8 @@ import { graphqlUploadExpress } from 'graphql-upload';
 import { TypegooseMiddleware } from './db/typegoose';
 import { handleRefreshToken } from './utils/jwt';
 import { configData } from './utils/config';
-import { usersSitemap } from './sitemap/users';
+import { getSitemap } from './sitemap/getSitemap';
+import { sitemapPaths } from './sitemap/sitemaps';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -96,7 +97,9 @@ export const initializeServer = async (): Promise<void> => {
       message: 'go to /graphql for playground'
     });
   });
-  app.get('/sitemap-users.xml', usersSitemap);
+  for (const sitemapPath of sitemapPaths) {
+    app.get(sitemapPath, getSitemap);
+  }
   app.post('/refreshToken', async (req, res) => {
     try {
       const accessToken = await handleRefreshToken(req);

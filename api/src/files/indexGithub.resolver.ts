@@ -15,7 +15,7 @@ import { SaveElasticElement } from '../elastic/elastic';
 import { WriteMongoElement } from '../db/mongo';
 import { deleteFilesUtil, saveAggregates } from './deleteFiles.resolver';
 import { getFilePath } from '../shared/files';
-import { WriteType } from '../db/writeType';
+import { WriteType } from '../utils/writeType';
 
 export const githubConfigFilePath = 'rescribe.yml';
 

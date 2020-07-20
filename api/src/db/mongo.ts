@@ -1,7 +1,7 @@
 import { FileModel } from '../schema/structure/file';
 import { FolderModel } from '../schema/structure/folder';
 import { ObjectId } from 'mongodb';
-import { WriteType } from './writeType';
+import { WriteType } from '../utils/writeType';
 
 type models = typeof FolderModel | typeof FileModel;
 

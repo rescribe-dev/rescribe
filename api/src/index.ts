@@ -16,6 +16,7 @@ const runAPI = async (): Promise<void> => {
   // initialize config and logger
   await initializeConfig();
   const logger = initializeLogger();
+  logger.info('logger initialized');
 
   try {
     // run checks

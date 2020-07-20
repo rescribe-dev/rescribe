@@ -12,7 +12,7 @@ import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/f
 import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../shared/folders';
 import { getFolder } from '../folders/folder.resolver';
 import { createHash } from 'crypto';
-import { WriteType } from '../db/writeType';
+import { WriteType } from '../utils/writeType';
 import { Language } from '../schema/language';
 
 

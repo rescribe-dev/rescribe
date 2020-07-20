@@ -1,5 +1,5 @@
 import { configure, getLogger, Logger } from 'log4js';
-import { isDebug } from './mode';
+import { debug } from './config';
 
 export const initializeLogger = (): Logger => {
   configure({
@@ -7,7 +7,7 @@ export const initializeLogger = (): Logger => {
       console: { type: 'console' }
     },
     categories: {
-      default: { appenders: ['console'], level: isDebug() ? 'all' : 'error' }
+      default: { appenders: ['console'], level: debug ? 'all' : 'error' }
     }
   });
   const logger = getLogger();

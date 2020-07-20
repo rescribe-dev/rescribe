@@ -2,6 +2,7 @@ import { parseHeadersFile, renderHeader } from './shared/headers';
 import { absolutePath, getPathData } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontRequestHandler } from 'aws-lambda';
+import { sitemapPaths } from './sitemaps';
 
 const errorPage = '/404';
 
@@ -39,7 +40,10 @@ const paths = getPaths();
 let useSecure = true;
 
 let prerenderURL = 'prerender.rescribe.dev';
+let apiURL = 'api.rescribe.dev';
 let defaultBucket = 'rescribe-frontend.s3.us-east-1.amazonaws.com';
+
+const cacheControlHeader = 'cache-control';
 
 const processEnvironment = (): void => {
   const useSecureStr = process.env.USE_SECURE;
@@ -49,6 +53,10 @@ const processEnvironment = (): void => {
   const prerenderURLStr = process.env.PRERENDER_URL;
   if (prerenderURLStr !== undefined) {
     prerenderURL = prerenderURLStr;
+  }
+  const apiURLStr = process.env.API_URL;
+  if (apiURLStr !== undefined) {
+    apiURL = apiURLStr;
   }
   const defaultBucketStr = process.env.DEFAULT_BUCKET;
   if (defaultBucketStr !== undefined) {
@@ -105,6 +113,27 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
       s3: undefined
     };
     request.headers['host'] = [ { key: 'host', value: prerenderURL } ];
+    request.headers[cacheControlHeader] = [ { key: cacheControlHeader, value: 'no-cache' } ];
+    callback(null, request);
+    return;
+  }
+
+  if (sitemapPaths.includes(path)) {
+    request.origin = {
+      custom: {
+        customHeaders: {},
+        domainName: apiURL,
+        keepaliveTimeout: 5,
+        path: '',
+        port: useSecure ? 443 : 80,
+        protocol: useSecure ? 'https' : 'http',
+        readTimeout: 5,
+        sslProtocols: ['TLSv1', 'TLSv1.1']
+      },
+      s3: undefined
+    };
+    request.headers['host'] = [ { key: 'host', value: apiURL } ];
+    request.headers[cacheControlHeader] = [ { key: cacheControlHeader, value: 'no-cache' } ];
     callback(null, request);
     return;
   }
