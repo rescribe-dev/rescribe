@@ -5,7 +5,7 @@ import Variable from './variable';
 import Comment from './comment';
 import Import from './import';
 import { ObjectId } from 'mongodb';
-import { Language } from '../../utils/variables';
+import { Language } from '../language';
 
 // output from antlr
 @ObjectType({ description: 'base file' })

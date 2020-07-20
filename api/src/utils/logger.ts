@@ -11,6 +11,5 @@ export const initializeLogger = (): Logger => {
     }
   });
   const logger = getLogger();
-  logger.info('logger initialized');
   return logger;
 };

@@ -1,13 +1,7 @@
+import { Language } from '../schema/language';
+
 export const defaultRepositoryImage = 'https://example.com/image.jpg';
 export const saltRounds = 10;
-
-// supported languages:
-
-export enum Language {
-  none = 'none',
-  java = 'java',
-  javascript = 'javascript',
-}
 
 export const languageColorMap: {[key: string]: number} = {};
 

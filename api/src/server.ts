@@ -5,7 +5,7 @@ import compression from 'compression';
 import cors, { CorsOptions } from 'cors';
 import express from 'express';
 import depthLimit from 'graphql-depth-limit';
-import HttpStatus from 'http-status-codes';
+import { BAD_REQUEST, OK } from 'http-status-codes';
 import { getLogger } from 'log4js';
 import statusMonitor from 'express-status-monitor';
 import cookieParser from 'cookie-parser';
@@ -22,6 +22,8 @@ import { graphqlUploadExpress } from 'graphql-upload';
 import { TypegooseMiddleware } from './db/typegoose';
 import { handleRefreshToken } from './utils/jwt';
 import { configData } from './utils/config';
+import { getSitemap } from './sitemap/getSitemap';
+import { sitemapPaths } from './sitemap/sitemaps';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -34,6 +36,9 @@ export const initializeServer = async (): Promise<void> => {
   };
   app.use(cors(corsConfig));
   app.use(cookieParser());
+  // use in proxy that you trust (like aws)
+  // see http://expressjs.com/en/guide/behind-proxies.html
+  app.set('trust proxy', true);
   const schema = await buildSchema({
     resolvers: [join(__dirname, '/**/**/*.resolver.{ts,js}')],
     scalarsMap: [{
@@ -92,6 +97,9 @@ export const initializeServer = async (): Promise<void> => {
       message: 'go to /graphql for playground'
     });
   });
+  for (const sitemapPath of sitemapPaths) {
+    app.get(sitemapPath, getSitemap);
+  }
   app.post('/refreshToken', async (req, res) => {
     try {
       const accessToken = await handleRefreshToken(req);
@@ -101,7 +109,7 @@ export const initializeServer = async (): Promise<void> => {
       });
     } catch (err) {
       const errObj = err as Error;
-      res.status(HttpStatus.BAD_REQUEST).json({
+      res.status(BAD_REQUEST).json({
         message: errObj.message
       });
     }
@@ -117,13 +125,13 @@ export const initializeServer = async (): Promise<void> => {
           throw new Error('invalid token provided');
         }
         await initializeMappings();
-        res.status(HttpStatus.OK).json({
+        res.status(OK).json({
           message: 'initialized mappings'
         });
       } catch (err) {
         const errObj = err as Error;
         logger.error(errObj.message);
-        res.status(HttpStatus.BAD_REQUEST).json({
+        res.status(BAD_REQUEST).json({
           message: errObj.message
         });
       }

@@ -1,5 +1,5 @@
 import { registerEnumType, ObjectType, Field, Int } from 'type-graphql';
-import { Language } from '../../utils/variables';
+import { Language } from '../language';
 
 registerEnumType(Language, {
   name: 'Language',

@@ -8,7 +8,7 @@ import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { SaveElasticElement, bulkSaveToElastic } from '../elastic/elastic';
-import { WriteType, Aggregates, FileWriteData, singleBranchRemove } from './shared';
+import { Aggregates, FileWriteData, singleBranchRemove } from './shared';
 import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';
 import { FileModel, FileDB } from '../schema/structure/file';
 import { FolderModel } from '../schema/structure/folder';
@@ -16,6 +16,7 @@ import { baseFolderName, baseFolderPath } from '../shared/folders';
 import { RepositoryModel } from '../schema/structure/repository';
 import { elasticClient } from '../elastic/init';
 import { getLogger } from 'log4js';
+import { WriteType } from '../utils/writeType';
 
 const logger = getLogger();
 

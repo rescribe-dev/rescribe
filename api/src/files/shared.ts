@@ -12,7 +12,8 @@ import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/f
 import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../shared/folders';
 import { getFolder } from '../folders/folder.resolver';
 import { createHash } from 'crypto';
-import { Language } from '../utils/variables';
+import { WriteType } from '../utils/writeType';
+import { Language } from '../schema/language';
 
 
 const hashAlgorithm = 'sha256';
@@ -20,12 +21,6 @@ const hashAlgorithm = 'sha256';
 const getHash = (input: string): string => {
   return createHash(hashAlgorithm).update(input).digest('hex');
 };
-
-export enum WriteType {
-  add = 'add',
-  update = 'update',
-  delete = 'delete'
-}
 
 export interface FileWriteData {
   elastic: SaveElasticElement;

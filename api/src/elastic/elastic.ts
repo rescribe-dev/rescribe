@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import { WriteType } from '../files/shared';
 import { ObjectId } from 'mongodb';
 import { getLogger } from 'log4js';
 import { elasticClient } from './init';
+import { WriteType } from '../utils/writeType';
 
 const logger = getLogger();
 

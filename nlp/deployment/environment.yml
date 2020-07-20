@@ -15,6 +15,7 @@ dependencies:
   - async-timeout=3.0.1
   - attrs=19.3.0
   - autopep8=1.5.3
+  - blas=2.14
   - blinker=1.4
   - boto3=1.14.20
   - botocore=1.17.20
@@ -49,6 +50,7 @@ dependencies:
   - libgfortran-ng=7.5.0
   - libgomp=9.2.0
   - liblapack=3.8.0
+  - liblapacke=3.8.0
   - libopenblas=0.3.7
   - libprotobuf=3.12.3
   - libstdcxx-ng=9.2.0
@@ -60,6 +62,7 @@ dependencies:
   - mypy_extensions=0.4.3
   - ncurses=6.1
   - numpy=1.18.5
+  - numpy-base=1.18.5
   - oauthlib=3.0.1
   - openssl=1.1.1g
   - opt_einsum=3.2.1
@@ -109,8 +112,11 @@ dependencies:
   - zipp=3.1.0
   - zlib=1.2.11
   - pip:
+    - filelock==3.0.12
+    - joblib==0.16.0
     - packaging==20.4
     - pyparsing==2.4.7
+    - regex==2020.7.14
     - sacremoses==0.0.43
     - sentencepiece==0.1.91
     - tokenizers==0.8.1rc1

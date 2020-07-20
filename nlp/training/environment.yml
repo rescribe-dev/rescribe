@@ -105,8 +105,11 @@ dependencies:
   - zipp=3.1.0
   - zlib=1.2.11
   - pip:
+    - filelock==3.0.12
+    - joblib==0.16.0
     - packaging==20.4
     - pyparsing==2.4.7
+    - regex==2020.7.14
     - sacremoses==0.0.43
     - sentencepiece==0.1.91
     - tokenizers==0.8.1rc1

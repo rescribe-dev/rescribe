@@ -17,113 +17,82 @@ let sourceDir: string;
 let cloudfrontID: string;
 
 const deleteObjects = async (): Promise<void> => {
-  return new Promise<void>((resolve, reject) => {
-    s3Client.listObjects({
-      Bucket: s3Bucket
-    }, (err, data) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      if (!data.Contents) {
-        reject(new Error('no data found'));
-        return;
-      }
-      const callback = async (): Promise<void> => {
-        if (data.IsTruncated) {
-          try {
-            await deleteObjects();
-          } catch (err) {
-            reject(err);
-          }
-        } else {
-          resolve();
-        }
-      };
-      for (let i = 0; i < data.Contents.length; i++) {
-        if (!data.Contents[i].Key) {
-          reject(new Error('cannot find key for content'));
-          return;
-        }
-        s3Client.deleteObject({
-          Bucket: s3Bucket,
-          Key: data.Contents[i].Key as string
-        }, (err) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          if (!data.Contents) {
-            reject(new Error('no data found'));
-            return;
-          }
-          if (i === data.Contents.length - 1) {
-            callback();
-          }
-        });
-      }
-      if (data.Contents.length === 0) {
-        callback();
-      }
-    });
-  });
+  const data = await s3Client.listObjects({
+    Bucket: s3Bucket
+  }).promise();
+  if (!data.Contents) {
+    throw new Error('no data found');
+  }
+  const callback = async (): Promise<void> => {
+    if (data.IsTruncated) {
+      await deleteObjects();
+    }
+  };
+  for (let i = 0; i < data.Contents.length; i++) {
+    if (!data.Contents[i].Key) {
+      throw new Error('cannot find key for content');
+    }
+    await s3Client.deleteObject({
+      Bucket: s3Bucket,
+      Key: data.Contents[i].Key as string
+    }).promise();
+
+    if (!data.Contents) {
+      throw new Error('no data found');
+    }
+    if (i === data.Contents.length - 1) {
+      callback();
+    }
+  }
+  if (data.Contents.length === 0) {
+    callback();
+  }
 };
+
 const processFile = async (filePath: string): Promise<void> => {
   const mimeFileType = mime.lookup(extname(filePath));
   const fileType = mimeFileType ? mimeFileType : 'application/octet-stream';
   const bucketPath = filePath.split(sourceDir)[1];
-  let numUploads = 0;
-  return new Promise<void>((resolve, reject) => {
-    const callback = (err: Error | undefined): void => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      numUploads++;
-      if (numUploads === 3) {
-        resolve();
-      }
-    };
-    const defaultFile = createReadStream(filePath);
-    s3Client.upload({
-      Bucket: s3Bucket,
-      Body: defaultFile,
-      Key: defaultBase + bucketPath,
-      ContentEncoding: 'identity',
-      ContentType: fileType
+  const defaultFile = createReadStream(filePath);
+  await s3Client.upload({
+    Bucket: s3Bucket,
+    Body: defaultFile,
+    Key: defaultBase + bucketPath,
+    ContentEncoding: 'identity',
+    ContentType: fileType
+  })
+    .on('httpUploadProgress', (evt) => {
+      console.log(evt);
     })
-      .on('httpUploadProgress', (evt) => {
-        console.log(evt);
-      })
-      .send(callback);
-    const readGzip = createReadStream(filePath);
-    const gzipFile = readGzip.pipe(createGzip());
-    s3Client.upload({
-      Bucket: s3Bucket,
-      Body: gzipFile,
-      Key: gzipBase + bucketPath,
-      ContentEncoding: 'gzip',
-      ContentType: fileType
+    .promise();
+  const readGzip = createReadStream(filePath);
+  const gzipFile = readGzip.pipe(createGzip());
+  await s3Client.upload({
+    Bucket: s3Bucket,
+    Body: gzipFile,
+    Key: gzipBase + bucketPath,
+    ContentEncoding: 'gzip',
+    ContentType: fileType
+  })
+    .on('httpUploadProgress', (evt) => {
+      console.log(evt);
     })
-      .on('httpUploadProgress', (evt) => {
-        console.log(evt);
-      })
-      .send(callback);
-    const readBrotli = createReadStream(filePath);
-    const brotliFile = readBrotli.pipe(createBrotliCompress());
-    s3Client.upload({
-      Bucket: s3Bucket,
-      Body: brotliFile,
-      Key: brotliBase + bucketPath,
-      ContentEncoding: 'br',
-      ContentType: fileType
+    .promise();
+  const readBrotli = createReadStream(filePath);
+  const brotliFile = readBrotli.pipe(createBrotliCompress());
+  await s3Client.upload({
+    Bucket: s3Bucket,
+    Body: brotliFile,
+    Key: brotliBase + bucketPath,
+    ContentEncoding: 'br',
+    ContentType: fileType
+  })
+    .on('httpUploadProgress', (evt) => {
+      console.log(evt);
     })
-      .on('httpUploadProgress', (evt) => {
-        console.log(evt);
-      })
-      .send(callback);
-  });
+    .promise();
 };
+
 const processDirectory = async (dir: string): Promise<void> => {
   const list = readdirSync(dir);
   for (const filePath of list) {
@@ -136,27 +105,20 @@ const processDirectory = async (dir: string): Promise<void> => {
     }
   }
 };
+
 const clearCloudfront = async (): Promise<void> => {
-  return new Promise<void>((resolve, reject) => {
-    cloudfrontClient.createInvalidation({
-      DistributionId: cloudfrontID,
-      InvalidationBatch: {
-        CallerReference: new Date().getTime().toString(),
-        Paths: {
-          Quantity: 1,
-          Items: [
-            '/*'
-          ]
-        }
+  await cloudfrontClient.createInvalidation({
+    DistributionId: cloudfrontID,
+    InvalidationBatch: {
+      CallerReference: new Date().getTime().toString(),
+      Paths: {
+        Quantity: 1,
+        Items: [
+          '/*'
+        ]
       }
-    }, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
+    }
+  }).promise();
 };
 
 const runAction = async (): Promise<void> => {
@@ -193,7 +155,7 @@ const runAction = async (): Promise<void> => {
 
 if (!module.parent) {
   runAction().then(() => {
-    console.log('done with frontend deploy');
+    console.log('done with deploy');
   }).catch((err: Error) => {
     console.error(err.message);
     process.exit(1);

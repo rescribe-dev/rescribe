@@ -213,17 +213,23 @@ const Header = (args: HeaderArgs): JSX.Element => {
                 <Nav navbar className="mr-auto">
                   <NavLink className="navbar-link" tag={Link} to="/">
                     <FormattedMessage id="how it works">
-                      {(message: string) => capitalizeFirstLetter(message)}
+                      {(messages: string[]) =>
+                        capitalizeFirstLetter(messages[0])
+                      }
                     </FormattedMessage>
                   </NavLink>
                   <NavLink className="navbar-link" tag={Link} to="/">
                     <FormattedMessage id="pricing">
-                      {(message: string) => capitalizeFirstLetter(message)}
+                      {(messages: string[]) =>
+                        capitalizeFirstLetter(messages[0])
+                      }
                     </FormattedMessage>
                   </NavLink>
                   <NavLink className="navbar-link" tag={Link} to="/search">
                     <FormattedMessage id="explore">
-                      {(message: string) => capitalizeFirstLetter(message)}
+                      {(messages: string[]) =>
+                        capitalizeFirstLetter(messages[0])
+                      }
                     </FormattedMessage>
                   </NavLink>
                   {loggedIn
@@ -235,8 +241,8 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           key="projecs"
                         >
                           <FormattedMessage id="projects">
-                            {(message: string) =>
-                              capitalizeFirstLetter(message)
+                            {(messages: string[]) =>
+                              capitalizeFirstLetter(messages[0])
                             }
                           </FormattedMessage>
                         </NavLink>,
@@ -249,8 +255,8 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           to="/signup"
                         >
                           <FormattedMessage id="sign up">
-                            {(message: string) =>
-                              capitalizeFirstLetter(message)
+                            {(messages: string[]) =>
+                              capitalizeFirstLetter(messages[0])
                             }
                           </FormattedMessage>
                         </NavLink>,
@@ -261,8 +267,8 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           key="login"
                         >
                           <FormattedMessage id="login">
-                            {(message: string) =>
-                              capitalizeFirstLetter(message)
+                            {(messages: string[]) =>
+                              capitalizeFirstLetter(messages[0])
                             }
                           </FormattedMessage>
                         </NavLink>,

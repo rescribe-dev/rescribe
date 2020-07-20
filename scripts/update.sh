@@ -11,8 +11,8 @@ cd ..
 node_paths=("." "api/" "github-app/" "cli/" "web/" "prerender/" "vscode/" "docs/" "status/" "emails/" \
             "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
             "aws/cloudfront/docs/origin-request/" "aws/cloudfront/docs/viewer-response/" \
-            "aws/cloudfront/build-cloudfront/" "aws/lambda/update-cloudfront-lambda" \
-            "aws/cloudfront/frontend/viewer-request/")
+            "aws/cloudfront/build-cloudfront/" "aws/lambda/update-cloudfront-lambda/" \
+            "aws/cloudfront/frontend/viewer-request/" "aws/lambda/update-sitemap/")
 
 for path in "${node_paths[@]}"
 do
@@ -28,17 +28,21 @@ do
   cd -
 done
 
-python_paths=("nlp/dataload" "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
+python_paths=("nlp/dataload/" "nlp/deployment/" "nlp/training/" "aws/sagemaker/deploy/")
 
+source $(conda info --base)/etc/profile.d/conda.sh
 for path in "${python_paths[@]}"
 do
   cd "$path"
+  env_name=$(grep 'name:' environment.yml | cut -d ' ' -f 2)
+  conda activate $env_name
   conda env update --file environment.yml --prune
-  conda env export > environment.yml
+  conda env export --no-builds | grep -v "^prefix: " > environment.yml
+  conda deactivate
   cd -
 done
 
-go_paths=("fast")
+go_paths=("fast/")
 
 for path in "${go_paths[@]}"
 do

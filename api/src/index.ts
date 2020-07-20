@@ -16,6 +16,7 @@ const runAPI = async (): Promise<void> => {
   // initialize config and logger
   await initializeConfig();
   const logger = initializeLogger();
+  logger.info('logger initialized');
 
   try {
     // run checks
@@ -42,7 +43,7 @@ const runAPI = async (): Promise<void> => {
     await initializeElastic();
     logger.info('connected to elasticsearch');
     logger.info('start db initialize');
-    await initializeDB();
+    await initializeDB(configData.DB_CONNECTION_URI, configData.DB_NAME);
     logger.info('database connection set up');
     logger.info('start redis initialize');
     await initializeRedis();
