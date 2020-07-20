@@ -100,9 +100,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     && headers[renderHeader][0].value.length > 0) {
     request.origin = {
       custom: {
-        customHeaders: {
-          ...request.headers
-        },
+        customHeaders: {},
         domainName: prerenderURL,
         keepaliveTimeout: 5,
         path: '',
@@ -122,9 +120,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
   if (sitemapPaths.includes(path)) {
     request.origin = {
       custom: {
-        customHeaders: {
-          ...request.headers
-        },
+        customHeaders: {},
         domainName: apiURL,
         keepaliveTimeout: 5,
         path: '',
