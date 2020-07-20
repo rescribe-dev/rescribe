@@ -10,19 +10,19 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
   const headers = request.headers;
 
   // Redirect (301) non-root requests ending in "/" to URI without trailing slash
-	if (request.uri.match(/.+\/$/)) {
-		const response = {
-			headers: {
-				'location': [{
-					key: 'Location',
-					value: request.uri.slice(0, -1)
-				 }]
-			},
-			status: '301',
-			statusDescription: 'Moved Permanently'
-		};
-		callback(null, response);
-		return;
+  if (request.uri.match(/.+\/$/)) {
+    const response = {
+      headers: {
+        'location': [{
+          key: 'Location',
+          value: request.uri.slice(0, -1)
+        }]
+      },
+      status: '301',
+      statusDescription: 'Moved Permanently'
+    };
+    callback(null, response);
+    return;
   }
 
   let encodingPath = '/none';
@@ -38,17 +38,17 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
   request.uri = encodingPath + request.uri;
 
   // Append ".html" to origin request
-	if (request.uri.match(regexSuffixless)) {
-		request.uri = request.uri + '.html';
-		callback(null, request);
-		return;
-	}
-	// Append "index.html" to origin request
-	if (request.uri.match(regexTrailingSlash)) {
-		request.uri = request.uri + 'index.html';
-		callback(null, request);
-		return;
-	}
+  if (request.uri.match(regexSuffixless)) {
+    request.uri = request.uri + '.html';
+    callback(null, request);
+    return;
+  }
+  // Append "index.html" to origin request
+  if (request.uri.match(regexTrailingSlash)) {
+    request.uri = request.uri + 'index.html';
+    callback(null, request);
+    return;
+  }
 
   callback(null, request);
 };

@@ -1,107 +1,107 @@
 {
-	"name": "rescribe",
-	"displayName": "rescribe",
-	"description": "rescribe integration",
-	"version": "0.0.1",
-	"license": "CC-BY-NC-SA-4.0",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/rescribe-dev/rescribe.git"
-	},
-	"homepage": "https://docs.rescribe.dev",
-	"bugs": "https://github.com/rescribe/rescribe/issues",
-	"engines": {
-		"vscode": "^1.47.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "rescribe.helloWorld",
-				"title": "Hello World"
-			},
-			{
-				"command": "rescribe.login",
-				"title": "Login"
-			},
-			{
-				"command": "rescribe.getUser",
-				"title": "Get User"
-			},
-			{
-				"command": "rescribe.getFiles",
-				"title": "Get Files"
-			}
-		]
-	},
-	"publisher": "rescribe",
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "npm run codegen && tsc -p ./",
-		"lint": "eslint src --ext ts --fix",
-		"watch": "tsc-watch",
-		"dev": "yarn lint && yarn watch",
-		"pretest": "yarn compile && yarn lint",
-		"test": "node ./out/test/runTest.js",
-		"clean": "rimraf out",
-		"precommit": "yarn lint",
-		"package": "./package.sh",
-		"build:package": "npm run vscode:prepublish && npm run package",
-		"codegen": "graphql-codegen --config codegen.yml"
-	},
-	"devDependencies": {
-		"@graphql-codegen/cli": "^1.17.0",
-		"@graphql-codegen/fragment-matcher": "^1.17.0",
-		"@graphql-codegen/introspection": "1.17.0",
-		"@graphql-codegen/typescript": "1.17.0",
-		"@graphql-codegen/typescript-document-nodes": "^1.17.0",
-		"@graphql-codegen/typescript-graphql-files-modules": "^1.17.0",
-		"@graphql-codegen/typescript-operations": "^1.17.0",
-		"@graphql-codegen/typescript-type-graphql": "^1.17.0",
-		"@types/glob": "^7.1.3",
-		"@types/isomorphic-fetch": "^0.0.35",
-		"@types/mocha": "^8.0.0",
-		"@types/node": "^14.0.23",
-		"@types/vscode": "^1.47.0",
-		"@types/ws": "^7.2.6",
-		"@typescript-eslint/eslint-plugin": "^3.7.0",
-		"@typescript-eslint/parser": "^3.7.0",
-		"eslint": "^7.5.0",
-		"eslint-config-prettier": "^6.11.0",
-		"eslint-plugin-import": "^2.22.0",
-		"eslint-plugin-jsdoc": "^30.0.2",
-		"eslint-plugin-prefer-arrow": "^1.2.1",
-		"eslint-plugin-prettier": "^3.1.4",
-		"glob": "^7.1.6",
-		"mocha": "^8.0.1",
-		"prettier": "^2.0.5",
-		"rimraf": "^3.0.2",
-		"tsc-watch": "^4.2.9",
-		"typescript": "^3.9.7",
-		"vscode-test": "^1.4.0"
-	},
-	"dependencies": {
-		"apollo-cache-inmemory": "^1.6.6",
-		"apollo-client": "^2.6.10",
-		"apollo-link": "^1.2.14",
-		"apollo-link-http": "^1.5.17",
-		"apollo-link-ws": "^1.0.20",
-		"apollo-utilities": "^1.3.4",
-		"axios": "^0.19.2",
-		"cosmiconfig": "^6.0.0",
-		"form-data": "^3.0.0",
-		"graphql": "^15.3.0",
-		"graphql-tag": "^2.10.4",
-		"isomorphic-fetch": "^2.2.1",
-		"jsonwebtoken": "^8.5.1",
-		"mime-types": "^2.1.27",
-		"subscriptions-transport-ws": "^0.9.17",
-		"ws": "^7.3.1"
-	}
+  "name": "rescribe",
+  "displayName": "rescribe",
+  "description": "rescribe integration",
+  "version": "0.0.1",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rescribe-dev/rescribe.git"
+  },
+  "homepage": "https://docs.rescribe.dev",
+  "bugs": "https://github.com/rescribe/rescribe/issues",
+  "engines": {
+    "vscode": "^1.47.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rescribe.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "rescribe.login",
+        "title": "Login"
+      },
+      {
+        "command": "rescribe.getUser",
+        "title": "Get User"
+      },
+      {
+        "command": "rescribe.getFiles",
+        "title": "Get Files"
+      }
+    ]
+  },
+  "publisher": "rescribe",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run codegen && tsc -p ./",
+    "lint": "eslint src --ext ts --fix",
+    "watch": "tsc-watch",
+    "dev": "yarn lint && yarn watch",
+    "pretest": "yarn compile && yarn lint",
+    "test": "node ./out/test/runTest.js",
+    "clean": "rimraf out",
+    "precommit": "yarn lint",
+    "package": "./package.sh",
+    "build:package": "npm run vscode:prepublish && npm run package",
+    "codegen": "graphql-codegen --config codegen.yml"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^1.17.0",
+    "@graphql-codegen/fragment-matcher": "^1.17.0",
+    "@graphql-codegen/introspection": "1.17.0",
+    "@graphql-codegen/typescript": "1.17.0",
+    "@graphql-codegen/typescript-document-nodes": "^1.17.0",
+    "@graphql-codegen/typescript-graphql-files-modules": "^1.17.0",
+    "@graphql-codegen/typescript-operations": "^1.17.0",
+    "@graphql-codegen/typescript-type-graphql": "^1.17.0",
+    "@types/glob": "^7.1.3",
+    "@types/isomorphic-fetch": "^0.0.35",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^14.0.23",
+    "@types/vscode": "^1.47.0",
+    "@types/ws": "^7.2.6",
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsdoc": "^30.0.2",
+    "eslint-plugin-prefer-arrow": "^1.2.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "glob": "^7.1.6",
+    "mocha": "^8.0.1",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "tsc-watch": "^4.2.9",
+    "typescript": "^3.9.7",
+    "vscode-test": "^1.4.0"
+  },
+  "dependencies": {
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-link": "^1.2.14",
+    "apollo-link-http": "^1.5.17",
+    "apollo-link-ws": "^1.0.20",
+    "apollo-utilities": "^1.3.4",
+    "axios": "^0.19.2",
+    "cosmiconfig": "^6.0.0",
+    "form-data": "^3.0.0",
+    "graphql": "^15.3.0",
+    "graphql-tag": "^2.10.4",
+    "isomorphic-fetch": "^2.2.1",
+    "jsonwebtoken": "^8.5.1",
+    "mime-types": "^2.1.27",
+    "subscriptions-transport-ws": "^0.9.17",
+    "ws": "^7.3.1"
+  }
 }

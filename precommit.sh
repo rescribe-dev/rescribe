@@ -41,4 +41,9 @@ done
 
 git secrets --scan
 
+# run check for tabs precommit
+cd scripts
+./precommit_spaces.sh
+cd -
+
 git add -A
