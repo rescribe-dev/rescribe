@@ -4,7 +4,6 @@
     {
       "Effect": "Allow",
       "Action": [
-        "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
@@ -24,11 +23,16 @@
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "s3:PutObject",
-        "s3:GetObject"
-      ],
-      "Resource": "arn:aws:s3:::rescribe-sitemap"
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::rescribe-sitemap",
+        "arn:aws:s3:::rescribe-sitemap/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "logs:CreateLogGroup",
+      "Resource": "arn:aws:logs:*:*:*"
     }
   ]
 }

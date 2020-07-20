@@ -108,6 +108,7 @@ export const handler: ScheduledHandler = async (_event, _context, callback) => {
   initializeLogger();
   await writeAllSitemaps();
   callback(null);
+  process.exit(0);
 };
 
 const runUpdate = async (): Promise<void> => {
