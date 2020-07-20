@@ -15,6 +15,16 @@
     {
       "Effect": "Allow",
       "Action": [
+        "secretsmanager:GetSecretValue",
+        "kms:Decrypt"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:DB_CONNECTION_URI-OSzAkX"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
         "s3:PutObject",
         "s3:GetObject"
       ],

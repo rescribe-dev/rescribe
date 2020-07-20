@@ -32,7 +32,7 @@ export const initializeConfig = (requireAWSConfig: boolean): void => {
   if (process.env.AWS_ACCESS_KEY_ID) {
     AWS.config.accessKeyId = process.env.AWS_ACCESS_KEY_ID;
   }
-  if (!requireAWSConfig && process.env.AWS_SECRET_ACCESS_KEY) {
+  if (requireAWSConfig && !process.env.AWS_SECRET_ACCESS_KEY) {
     throw new Error('no aws secret access key provided');
   }
   if (process.env.AWS_SECRET_ACCESS_KEY) {
