@@ -12,7 +12,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
   const userAgent = request.headers[userAgentHeader][0].value;
   if (searchParams.has(renderQuery)) {
     request.headers[renderHeader] = [{ key: renderHeader, value: searchParams.get(renderQuery) as string }];
-  } else if (searchParams.has(renderQuery) || isBot(userAgent)) {
+  } else if (isBot(userAgent)) {
     request.headers[renderHeader] = [{ key: renderHeader, value: '' }];
   }
 

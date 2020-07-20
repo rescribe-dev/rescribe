@@ -12,9 +12,9 @@ import { UserModel } from '../schema/auth/user';
 import { SaveElasticElement, bulkSaveToElastic } from '../elastic/elastic';
 import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';
 import { FileModel } from '../schema/structure/file';
-import { WriteType } from '../files/shared';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { FolderModel } from '../schema/structure/folder';
+import { WriteType } from '../db/writeType';
 
 @ArgsType()
 class DeleteRepositoryArgs {

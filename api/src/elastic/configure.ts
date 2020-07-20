@@ -1,4 +1,4 @@
-import HttpStatus from 'http-status-codes';
+import { OK } from 'http-status-codes';
 import { getLogger } from 'log4js';
 import { elasticClient } from './init';
 import * as settings from './settings';
@@ -23,7 +23,7 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
         settings: indexSettings
       }
     });
-    logger.info(`created ${indexName} index: ${createIndexRes.statusCode === HttpStatus.OK}`);
+    logger.info(`created ${indexName} index: ${createIndexRes.statusCode === OK}`);
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error(err);
@@ -41,7 +41,7 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
   };
   try {
     const setIndexMappingsRes = await elasticClient.indices.putMapping(mappingsConfig);
-    logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === HttpStatus.OK}`);
+    logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === OK}`);
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error(err);

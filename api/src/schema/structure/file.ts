@@ -3,7 +3,7 @@ import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typ
 import { ObjectId } from 'mongodb';
 import AntlrFile from '../antlr/file';
 import { AccessLevel } from '../auth/access';
-import { Language } from '../../utils/variables';
+import { Language } from '../language';
 
 export class BaseFile {
   @Property({ required: true })
