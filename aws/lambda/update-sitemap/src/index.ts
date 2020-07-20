@@ -104,14 +104,14 @@ const writeAllSitemaps = async (): Promise<void> => {
 };
 
 export const handler: ScheduledHandler = async (_event, _context, callback) => {
-  initializeConfig(false);
+  await initializeConfig(false);
   initializeLogger();
   await writeAllSitemaps();
   callback(null);
 };
 
 const runUpdate = async (): Promise<void> => {
-  initializeConfig(true);
+  await initializeConfig(true);
   initializeLogger();
   await writeAllSitemaps();
 };
@@ -121,7 +121,7 @@ if (!module.parent) {
     logger.info('done with update');
     process.exit(0);
   }).catch((err: Error) => {
-    logger.error(err.message);
+    console.error(err.message);
     process.exit(1);
   });
 }

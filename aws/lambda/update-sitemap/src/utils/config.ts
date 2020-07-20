@@ -7,12 +7,10 @@ export let s3Bucket = 'rescribe-sitemap';
 export let dbName = 'rescribe';
 export let websiteURL = 'https://rescribe.dev';
 
-export const initializeConfig = (requireAWSConfig: boolean): void => {
+const secretsManagerStart = 'arn:aws:secretsmanager';
+
+export const initializeConfig = async (requireAWSConfig: boolean): Promise<void> => {
   config();
-  if (!process.env.DB_CONNECTION_URI) {
-    throw new Error('cannot find database uri');
-  }
-  dbConnectionURI = process.env.DB_CONNECTION_URI;
   if (process.env.DB_NAME) {
     dbName = process.env.DB_NAME;
   }
@@ -43,5 +41,20 @@ export const initializeConfig = (requireAWSConfig: boolean): void => {
   }
   if (process.env.AWS_REGION) {
     AWS.config.region = process.env.AWS_REGION;
+  }
+  if (!process.env.DB_CONNECTION_URI) {
+    throw new Error('cannot find database uri');
+  }
+  if (process.env.DB_CONNECTION_URI.substr(0, secretsManagerStart.length) === secretsManagerStart) {
+    const secretsClient = new AWS.SecretsManager();
+    const secretData = await secretsClient.getSecretValue({ SecretId: process.env.DB_CONNECTION_URI }).promise();
+    if ('SecretString' in secretData) {
+      dbConnectionURI = secretData.SecretString as string;
+    } else {
+      const secretsBuffer = new Buffer(secretData.SecretBinary as string, 'base64');
+      dbConnectionURI = secretsBuffer.toString('ascii');
+    }
+  } else {
+    dbConnectionURI = process.env.DB_CONNECTION_URI;
   }
 };
