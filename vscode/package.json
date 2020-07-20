@@ -11,7 +11,7 @@
 	"homepage": "https://docs.rescribe.dev",
 	"bugs": "https://github.com/rescribe/rescribe/issues",
 	"engines": {
-		"vscode": "^1.46.0"
+		"vscode": "^1.47.0"
 	},
 	"categories": [
 		"Other"
