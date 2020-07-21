@@ -15,8 +15,9 @@ interface data {
 }
 
 export const renderQuery = '_render';
-
 export const renderHeader = 'x-prerender';
+export const originalUserAgentHeader = 'x-user-agent';
+export const userAgentHeader = 'user-agent';
 
 const headersFile = relative(process.cwd(), './_headers');
 

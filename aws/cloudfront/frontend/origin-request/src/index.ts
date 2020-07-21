@@ -1,4 +1,4 @@
-import { parseHeadersFile, renderHeader } from './shared/headers';
+import { parseHeadersFile, renderHeader, userAgentHeader, originalUserAgentHeader } from './shared/headers';
 import { absolutePath, getPathData } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
 import { CloudFrontRequestHandler } from 'aws-lambda';
@@ -113,6 +113,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     };
     request.headers['host'] = [ { key: 'host', value: prerenderURL } ];
     request.headers[cacheControlHeader] = [ { key: cacheControlHeader, value: 'no-cache' } ];
+    request.headers[userAgentHeader] = request.headers[originalUserAgentHeader];
     callback(null, request);
     return;
   }
@@ -133,6 +134,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
     };
     request.headers['host'] = [ { key: 'host', value: apiURL } ];
     request.headers[cacheControlHeader] = [ { key: cacheControlHeader, value: 'no-cache' } ];
+    request.headers[userAgentHeader] = request.headers[originalUserAgentHeader];
     callback(null, request);
     return;
   }
