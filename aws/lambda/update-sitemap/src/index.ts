@@ -12,6 +12,7 @@ import { sitemapPaths } from './shared/sitemaps';
 import { createHash } from 'crypto';
 import axios from 'axios';
 import { OK } from 'http-status-codes';
+import { format } from 'date-fns';
 import { SitemapModel, Sitemap } from './shared/schema/utils/sitemap';
 
 const logger = getLogger();
@@ -148,7 +149,8 @@ const createSitemapIndex = async (sitemapPath: string, files: SitemapIndexInput[
   for (const fileData of files) {
     const sitemapObj = xmlFile.element('sitemap');
     sitemapObj.element('loc', websiteURL + fileData.path);
-    sitemapObj.element('lastmod', fileData.lastmod.getTime());
+    // https://www.w3.org/TR/NOTE-datetime
+    sitemapObj.element('lastmod', format(fileData.lastmod, "yyyy-MM-dd'T'hh:mm:ssXXX"));
   }
 
   const data = xmlFile.end();
