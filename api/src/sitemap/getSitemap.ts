@@ -13,8 +13,11 @@ const logger = getLogger();
 const reverseLookup = promisify(reverse);
 const forwardLookup = promisify(lookup);
 
-const userAgentHeader = 'user-agent';
 const encodingHeader = 'accept-encoding';
+const userAgentHeader = 'user-agent';
+const overrideUserAgentHeader = 'x-user-agent';
+
+const userAgentHeaders = [overrideUserAgentHeader, userAgentHeader];
 
 const supportedBots: { name: string, hostname: RegExp }[] = [
   {
@@ -25,12 +28,17 @@ const supportedBots: { name: string, hostname: RegExp }[] = [
 
 export const getSitemap = async (req: Request, res: Response): Promise<void> => {
   try {
-    let userAgent = req.headers[userAgentHeader];
-    if (!userAgent) {
+    const foundUserAgentHeaders: string[] = [];
+    for (const header of userAgentHeaders) {
+      if (header in req.headers) {
+        foundUserAgentHeaders.push(header);
+      }
+    }
+    if (foundUserAgentHeaders.length === 0) {
       throw new Error('cannot find user agent');
     }
-    userAgent = userAgent.toLowerCase();
-    logger.info(userAgent);
+    const userAgent = (req.headers[foundUserAgentHeaders[0]] as string).toLowerCase();
+    logger.info(`user agent request ${userAgent}`);
     if (!isBot(userAgent)) {
       throw new Error('user is not a bot');
     }

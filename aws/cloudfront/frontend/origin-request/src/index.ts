@@ -86,12 +86,16 @@ const handleRedirectRequest = (request: CloudFrontRequest, url: string): void =>
   };
   request.headers['host'] = [{ key: 'host', value: url }];
   request.headers[cacheControlHeader] = [{ key: cacheControlHeader, value: 'no-cache' }];
-  request.headers[userAgentHeader] = [{
-    key: userAgentHeader,
-    value: request.headers[originalUserAgentHeader][0].value
-  }];
-  delete request.headers[originalUserAgentHeader];
-}
+  if (originalUserAgentHeader in request.headers) {
+    request.headers[userAgentHeader] = [{
+      key: userAgentHeader,
+      value: request.headers[originalUserAgentHeader][0].value
+    }];
+  } else {
+    delete request.headers[userAgentHeader];
+  }
+  // cloudfront replaces the user-agent header with its own.
+};
 
 export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
