@@ -37,6 +37,7 @@ import { getSearchURL, getQuery } from 'state/search/getters';
 import { SearchActionTypes } from 'state/search/types';
 import { thunkSearch } from 'state/search/thunks';
 import { toast } from 'react-toastify';
+import logo from 'assets/images/logo.svg';
 
 import './index.scss';
 import { queryMinLength } from 'shared/variables';
@@ -106,15 +107,24 @@ const Header = (args: HeaderArgs): JSX.Element => {
   return (
     <>
       <Navbar light expand="md">
-        <NavbarBrand tag={Link} to="/">
-          {args.siteTitle}
-        </NavbarBrand>
         <Container fluid>
           <Row
             style={{
               width: '100%',
             }}
           >
+            <Col xs={'auto'}>
+              <NavbarBrand tag={Link} to="/">
+                <img
+                  src={logo}
+                  alt="Rescribe"
+                  style={{
+                    width: '10rem',
+                    marginBottom: 0,
+                  }}
+                />
+              </NavbarBrand>
+            </Col>
             {pathname === '/' ? null : (
               <Col sm={{ size: 3 }}>
                 <Formik
@@ -207,7 +217,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                 </Formik>
               </Col>
             )}
-            <Col xs={'auto'}>
+            <Col className="align-self-end text-right">
               <NavbarToggler onClick={toggleHeader} />
               <Collapse isOpen={headerIsOpen} navbar>
                 <Nav navbar className="mr-auto">

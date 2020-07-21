@@ -13,7 +13,6 @@ import {
 } from 'lib/generated/datamodel';
 // import NavCard from 'components/pages/NaviagtionCard';
 import { PageProps, navigate } from 'gatsby';
-import { FixedObject } from 'gatsby-image';
 import Newsletter from './Newsletter';
 import { client } from 'utils/apollo';
 import { toast } from 'react-toastify';
@@ -21,13 +20,7 @@ import { IndexMessages } from 'locale/pages/index/indexMessages';
 import { Helmet } from 'react-helmet-async';
 
 export interface IndexPageProps extends PageProps {
-  data: {
-    file: {
-      childImageSharp: {
-        fixed: FixedObject;
-      };
-    };
-  };
+  data: Record<string, unknown>;
 }
 
 interface IndexPageContentProps extends IndexPageProps {
@@ -76,8 +69,6 @@ const IndexPage = (args: IndexPageContentProps): JSX.Element => {
         });
     }
   }, []);
-  // const loremText =
-  //   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultricies porttitor ullamcorper. Lorem ipsum dolor sit amet, consectetur adipiscing elit';
   return (
     <>
       <Helmet>
@@ -102,23 +93,7 @@ const IndexPage = (args: IndexPageContentProps): JSX.Element => {
             title="Intuitive search"
             subtitle="optional subtitle"
             image={args.data.file.childImageSharp.fixed}
-            body={loremText}
-            linkText="read more"
-            linkSlug="/"
-          />
-          <NavCard
-            title="Write Better Code"
-            subtitle="optional subtitle"
-            image={args.data.file.childImageSharp.fixed}
-            body={loremText}
-            linkText="read more"
-            linkSlug="/"
-          />
-          <NavCard
-            title="Extendable"
-            subtitle="optional subtitle"
-            image={args.data.file.childImageSharp.fixed}
-            body={loremText}
+            body={'text'}
             linkText="read more"
             linkSlug="/"
           />*/}

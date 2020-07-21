@@ -70,7 +70,7 @@ export default {
         background_color: '#a2466c',
         theme_color: '#a2466c',
         display: 'standalone',
-        icon: 'src/assets/images/icon.png',
+        icon: 'src/assets/images/icon.svg',
       },
     },
     'gatsby-plugin-offline',
