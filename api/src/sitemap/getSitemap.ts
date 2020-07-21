@@ -6,9 +6,6 @@ import { promisify } from 'util';
 import { isProduction } from '../utils/mode';
 import { s3Client } from '../utils/aws';
 import { configData } from '../utils/config';
-import { getLogger } from 'log4js';
-
-const logger = getLogger();
 
 const reverseLookup = promisify(reverse);
 const forwardLookup = promisify(lookup);
@@ -38,7 +35,6 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
       throw new Error('cannot find user agent');
     }
     const userAgent = (req.headers[foundUserAgentHeaders[0]] as string).toLowerCase();
-    logger.info(`user agent request ${userAgent}`);
     if (!isBot(userAgent)) {
       throw new Error('user is not a bot');
     }
