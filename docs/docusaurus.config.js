@@ -6,6 +6,7 @@ module.exports = {
   favicon: 'img/favicon.ico',
   organizationName: 'rescribe', // Usually your GitHub org/user name.
   projectName: 'rescribe', // Usually your repo name.
+  plugins: ['docusaurus2-dotenv'],
   themeConfig: {
     navbar: {
       title: 'Rescribe Docs',
@@ -21,6 +22,12 @@ module.exports = {
           position: 'left',
         },
         { to: 'blog', label: 'Blog', position: 'left' },
+        {
+          to: 'playground',
+          activeBasePath: 'playground',
+          label: 'Playground',
+          position: 'left',
+        },
         {
           href: 'https://github.com/rescribe-dev/rescribe',
           label: 'GitHub',

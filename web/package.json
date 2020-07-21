@@ -84,6 +84,7 @@
     "prebuild": "yarn build:gatsby",
     "build": "yarn remove:dist && yarn codegen && gatsby build && yarn move:folder && yarn copy:headers",
     "predeploy": "yarn build",
+    "subdomain:ignore": "mv -f dist/robots_subdomain.txt dist/robots.txt",
     "move:folder": "mv public dist",
     "copy:headers": "cp dist/_headers ../aws/cloudfront/frontend",
     "dev": "yarn build:gatsby && yarn lint && gatsby develop",

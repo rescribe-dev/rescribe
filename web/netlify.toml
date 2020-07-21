@@ -1,4 +1,16 @@
 [build]
   base = "web/"
   publish = "dist/"
-  command = "yarn run predeploy"
+  command = "yarn run predeploy && yarn run subdomain:ignore"
+
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://api.rescribe.dev/sitemap.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap-users.xml"
+  to = "https://api.rescribe.dev/sitemap-users.xml"
+  status = 200
+  force = true

@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /admin/*
 Disallow: /emailtemplates/*
 Disallow: /calliback/*
-Sitemap: https://rescribe.dev/sitemap_index.xml
+Sitemap: https://rescribe.dev/sitemap.xml

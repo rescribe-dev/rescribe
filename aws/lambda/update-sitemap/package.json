@@ -38,10 +38,12 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^7.3.0",
+    "axios": "^0.19.2",
     "class-validator": "^0.12.2",
     "dotenv": "^8.2.0",
     "exit-hook": "^2.2.0",
     "graphql": "^15.3.0",
+    "http-status-codes": "^1.4.0",
     "log4js": "^6.3.0",
     "mongoose": "^5.9.25",
     "type-graphql": "^1.0.0-rc.3",
