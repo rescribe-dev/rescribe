@@ -1,7 +1,7 @@
 import { parseHeadersFile, renderHeader, userAgentHeader, originalUserAgentHeader } from './shared/headers';
 import { absolutePath, getPathData } from './shared/regex';
 import { pathToRegexp } from 'path-to-regexp';
-import { CloudFrontRequestHandler } from 'aws-lambda';
+import { CloudFrontRequestHandler, CloudFrontRequest } from 'aws-lambda';
 import { sitemapPaths } from './sitemaps';
 
 const errorPage = '/404';
@@ -70,6 +70,29 @@ const numWildcards = (path: string) => {
   return path.split(':').length - 1;
 };
 
+const handleRedirectRequest = (request: CloudFrontRequest, url: string): void => {
+  request.origin = {
+    custom: {
+      customHeaders: {},
+      domainName: url,
+      keepaliveTimeout: 5,
+      path: '',
+      port: useSecure ? 443 : 80,
+      protocol: useSecure ? 'https' : 'http',
+      readTimeout: 5,
+      sslProtocols: ['TLSv1', 'TLSv1.1']
+    },
+    s3: undefined
+  };
+  request.headers['host'] = [{ key: 'host', value: url }];
+  request.headers[cacheControlHeader] = [{ key: cacheControlHeader, value: 'no-cache' }];
+  request.headers[userAgentHeader] = [{
+    key: userAgentHeader,
+    value: request.headers[originalUserAgentHeader][0].value
+  }];
+  delete request.headers[originalUserAgentHeader];
+}
+
 export const handler: CloudFrontRequestHandler = (event, _context, callback) => {
   const request = event.Records[0].cf.request;
 
@@ -98,43 +121,14 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
 
   if (renderHeader in headers && headers[renderHeader].length > 0
     && headers[renderHeader][0].value.length > 0) {
-    request.origin = {
-      custom: {
-        customHeaders: {},
-        domainName: prerenderURL,
-        keepaliveTimeout: 5,
-        path: '',
-        port: useSecure ? 443 : 80,
-        protocol: useSecure ? 'https' : 'http',
-        readTimeout: 5,
-        sslProtocols: ['TLSv1', 'TLSv1.1']
-      },
-      s3: undefined
-    };
-    request.headers['host'] = [ { key: 'host', value: prerenderURL } ];
-    request.headers[cacheControlHeader] = [ { key: cacheControlHeader, value: 'no-cache' } ];
-    request.headers[userAgentHeader] = request.headers[originalUserAgentHeader];
+    delete request.headers[renderHeader];
+    handleRedirectRequest(request, prerenderURL);
     callback(null, request);
     return;
   }
 
   if (sitemapPaths.includes(path)) {
-    request.origin = {
-      custom: {
-        customHeaders: {},
-        domainName: apiURL,
-        keepaliveTimeout: 5,
-        path: '',
-        port: useSecure ? 443 : 80,
-        protocol: useSecure ? 'https' : 'http',
-        readTimeout: 5,
-        sslProtocols: ['TLSv1', 'TLSv1.1']
-      },
-      s3: undefined
-    };
-    request.headers['host'] = [ { key: 'host', value: apiURL } ];
-    request.headers[cacheControlHeader] = [ { key: cacheControlHeader, value: 'no-cache' } ];
-    request.headers[userAgentHeader] = request.headers[originalUserAgentHeader];
+    handleRedirectRequest(request, apiURL);
     callback(null, request);
     return;
   }
@@ -178,7 +172,7 @@ export const handler: CloudFrontRequestHandler = (event, _context, callback) => 
       region: 'us-east-1'
     }
   };
-  request.headers['host'] = [ { key: 'host', value: defaultBucket } ];
+  request.headers['host'] = [{ key: 'host', value: defaultBucket }];
 
   callback(null, request);
 };
