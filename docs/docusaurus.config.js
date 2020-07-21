@@ -9,9 +9,9 @@ module.exports = {
   plugins: ['docusaurus2-dotenv'],
   themeConfig: {
     navbar: {
-      title: 'Rescribe Docs',
+      title: '',
       logo: {
-        alt: 'Rescribe Logo',
+        alt: 'Rescribe Docs',
         src: 'img/logo.svg',
       },
       links: [
