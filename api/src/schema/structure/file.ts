@@ -19,10 +19,6 @@ export class BaseFile {
   hash: string;
 
   @Property({ required: true })
-  @Field({ description: 'project id' })
-  project: ObjectId;
-
-  @Property({ required: true })
   @Field({ description: 'repository id' })
   repository: ObjectId;
 
@@ -91,9 +87,6 @@ export default class File extends AntlrFile implements BaseFileElastic {
 
   @Field(_type => Int, { description: 'number of lines in file' })
   fileLength: number;
-
-  @Field({ description: 'project id' })
-  project: ObjectId;
 
   @Field({ description: 'repository id' })
   repository: ObjectId;

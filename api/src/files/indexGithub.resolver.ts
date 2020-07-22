@@ -10,7 +10,6 @@ import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
 import { addBranchUtil } from '../branches/addBranch.resolver';
-import { ProjectModel } from '../schema/structure/project';
 import { SaveElasticElement } from '../elastic/elastic';
 import { WriteMongoElement } from '../db/mongo';
 import { deleteFilesUtil, saveAggregates } from './deleteFiles.resolver';
@@ -55,7 +54,6 @@ const getFileName = (path: string): string => {
 
 interface GithubConfiguration {
   repository: string;
-  project: string;
 }
 
 let githubConfig: GithubConfiguration | undefined = undefined;
@@ -101,7 +99,6 @@ class IndexGithubResolver {
       githubID: args.githubRepositoryID
     });
     let repositoryID: ObjectId;
-    let projectID: ObjectId;
     // if repository or project does not exist create using client
     if (!repository) {
       try {
@@ -114,13 +111,8 @@ class IndexGithubResolver {
       if (!repository) {
         throw new Error(`cannot find repository with id ${repositoryID.toHexString()}`);
       }
-      projectID = new ObjectId(githubConfig?.project);
-      if (!(await ProjectModel.findById(projectID))) {
-        throw new Error(`cannot find project with id ${projectID.toHexString()}`);
-      }
     } else {
       repositoryID = repository._id;
-      projectID = repository.project;
     }
     if (!repository) return 'repository invalid';
     const branch = args.ref;
@@ -143,7 +135,6 @@ class IndexGithubResolver {
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       await indexFile({
         action: WriteType.add,
-        project: projectID,
         repository: repositoryID,
         branch,
         path: getFilePath(filePath).path,
@@ -161,7 +152,6 @@ class IndexGithubResolver {
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
       await indexFile({
         action: WriteType.update,
-        project: projectID,
         repository: repositoryID,
         branch,
         path: filePath,

@@ -8,9 +8,6 @@ const folderMappings = {
   branches: {
     type: 'keyword'
   },
-  project: {
-    type: 'keyword'
-  },
   repository: {
     type: 'keyword'
   },

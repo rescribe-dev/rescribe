@@ -17,10 +17,6 @@ export class BaseFolder {
   @Property({ required: true, type: String })
   branches: string[];
 
-  @Field({ description: 'project' })
-  @Property({required: true})
-  project: ObjectId;
-
   @Field({ description: 'repository' })
   @Property({ required: true })
   repository: ObjectId;

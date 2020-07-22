@@ -72,9 +72,6 @@ type BaseFolder {
   # branches
   branches: [String!]!
 
-  # project
-  project: ObjectId!
-
   # repository
   repository: ObjectId!
 
@@ -119,9 +116,6 @@ type BaseRepository {
 
   # branches
   branches: [String!]!
-
-  # project
-  project: ObjectId!
 
   # public access level
   public: AccessLevel!
@@ -225,9 +219,6 @@ type File {
   # number of lines in file
   fileLength: Int!
 
-  # project id
-  project: ObjectId!
-
   # repository id
   repository: ObjectId!
 
@@ -318,9 +309,6 @@ type Folder {
   # branches
   branches: [String!]!
 
-  # project
-  project: ObjectId!
-
   # repository
   repository: ObjectId!
 
@@ -351,9 +339,6 @@ type FolderDB {
 
   # branches
   branches: [String!]!
-
-  # project
-  project: ObjectId!
 
   # repository
   repository: ObjectId!
@@ -608,10 +593,6 @@ type Mutation {
     # project name
     name: String!
   ): String!
-  deleteRepository(
-    # repository id
-    id: ObjectId!
-  ): String!
   deleteProject(
     # project id
     id: ObjectId!
@@ -621,10 +602,14 @@ type Mutation {
     name: String!
 
     # project
-    project: ObjectId!
+    project: ObjectId
 
     # public access level
     publicAccess: AccessLevel!
+  ): String!
+  deleteRepository(
+    # repository id
+    id: ObjectId!
   ): String!
   register(
     # recaptcha token
@@ -1045,9 +1030,6 @@ type Repository {
   # branches
   branches: [String!]!
 
-  # project
-  project: ObjectId!
-
   # public access level
   public: AccessLevel!
 
@@ -1081,9 +1063,6 @@ type RepositoryDB {
 
   # branches
   branches: [String!]!
-
-  # project
-  project: ObjectId!
 
   # public access level
   public: AccessLevel!

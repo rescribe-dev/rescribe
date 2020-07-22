@@ -177,8 +177,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     } else {
       await getSaveDatastore(file.repository, repositoryData, DatastoreType.repository);
       const repository = repositoryData[file.repository.toHexString()];
-      await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-      // const project = projectData[repository.project.toHexString()];
       if (!(await checkRepositoryAccess(user, repository, AccessLevel.view))) {
         throw new Error('user does not have access to repository');
       }
@@ -214,7 +212,8 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     }
   }
 
-  const projectFilters: TermQuery[] = [];
+  const repositoryFilters: TermQuery[] = [];
+
   if (!oneFile && args.projects && args.projects.length > 0) {
     if (!user) {
       throw new Error('user must be logged in to filter on projects');
@@ -226,15 +225,16 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       if (!(await checkProjectAccess(user, project, AccessLevel.view))) {
         throw new Error('user does not have access to project');
       }
-      projectFilters.push({
-        term: {
-          project: projectID.toHexString()
-        }
-      });
+      for (const repositoryID of project.repositories) {
+        repositoryFilters.push({
+          term: {
+            repository: repositoryID.toHexString()
+          }
+        });
+      }
     }
   }
 
-  const repositoryFilters: TermQuery[] = [];
   if (!oneFile && args.repositories && args.repositories.length > 0) {
     hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
@@ -245,8 +245,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       } else if (!user) {
         throw new Error(`user must be logged in to access repository ${repositoryID.toHexString()}`);
       } else {
-        await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-        // const project = projectData[repository.project.toHexString()];
         if (!(await checkRepositoryAccess(user, repository, AccessLevel.view))) {
           throw new Error('user does not have access to repository');
         }
@@ -333,6 +331,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     for (const nestedField of nestedFields) {
       // TODO - tweak this to get it faster - boosting alternatives
       // use boost to make certain fields weighted higher than others
+      // now use nlp approach
       const currentQuery: Record<string, unknown> = args.query ? {
         multi_match: {
           query: args.query
@@ -386,11 +385,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
             { // holds language filters
               bool: {
                 should: languageFilters
-              }
-            },
-            { // holds project filters
-              bool: {
-                should: projectFilters
               }
             },
             { // holds repository filters

@@ -141,7 +141,6 @@ export interface Aggregates {
 
 export interface FileIndexArgs {
   action: WriteType;
-  project: ObjectId;
   repository: ObjectId;
   branch: string;
   path: string;
@@ -168,7 +167,6 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
   const newFileDB: FileDB = {
     _id: args.id,
     hash: args.hash,
-    project: args.project,
     hasStructure: args.hasAntlrData,
     repository: args.repository,
     branches: [args.branch],
@@ -185,7 +183,6 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
     hash: args.hash,
     content: !args.isBinary ? args.content : '',
     hasStructure: args.hasAntlrData,
-    project: args.project,
     repository: args.repository,
     branches: [args.branch],
     numBranches: 1,
@@ -194,15 +191,17 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
     path: args.path,
     public: args.public,
     fileLength: args.fileLength,
-    language: Language.none // TODO get correct language
+    language: Language.none
   };
   let elasticContent: File | BaseFileElastic;
   if (!args.hasAntlrData) {
     elasticContent = baseElasticContent;
   } else {
+    const antlrData = (args.fileData as AntlrFile);
+    baseElasticContent.language = antlrData.language;
     const fileElasticContent: File = {
       ...baseElasticContent,
-      ...(args.fileData as AntlrFile),
+      ...antlrData,
       _id: undefined
     };
     elasticContent = fileElasticContent;

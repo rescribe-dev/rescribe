@@ -80,7 +80,7 @@ class DeleteBranchResolver {
       throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
     }
     if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
-      throw new Error('user does not have edit permissions for project or repository');
+      throw new Error('user does not have edit permissions for repository');
     }
     if (!repository.branches.includes(args.name)) {
       throw new Error(`cannot find branch with name ${args.name} on repository`);

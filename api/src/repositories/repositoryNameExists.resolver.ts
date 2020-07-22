@@ -11,6 +11,7 @@ import { Matches } from 'class-validator';
 import { validRepositoryName } from '../shared/variables';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { getUser } from '../users/shared';
+import { AccessLevel } from '../schema/auth/access';
 
 @ArgsType()
 class RepositoryExistsArgs {
@@ -48,19 +49,14 @@ export const countRepositoriesUserAccess = async (user: User, name?: string): Pr
   if (user.repositories.length === 0 && user.projects.length === 0) {
     return 0;
   }
-  for (const project of user.projects) {
-    shouldParams.push({
-      term: {
-        project: project._id.toHexString()
-      }
-    });
-  }
   for (const repository of user.repositories) {
-    shouldParams.push({
-      term: {
-        _id: repository._id.toHexString()
-      }
-    });
+    if (repository.level === AccessLevel.owner) {
+      shouldParams.push({
+        term: {
+          _id: repository._id.toHexString()
+        }
+      });
+    }
   }
   const mustParams: TermQuery[] = [];
   if (name) {

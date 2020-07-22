@@ -1,5 +1,5 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { repositoryIndexName, fileIndexName, folderIndexName } from '../elastic/settings';
+import { repositoryIndexName, fileIndexName, folderIndexName, projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { RepositoryModel } from '../schema/structure/repository';
@@ -15,6 +15,7 @@ import { FileModel } from '../schema/structure/file';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { FolderModel } from '../schema/structure/folder';
 import { WriteType } from '../utils/writeType';
+import { ProjectModel } from '../schema/structure/project';
 
 @ArgsType()
 class DeleteRepositoryArgs {
@@ -95,6 +96,32 @@ export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: O
     }
   });
   await deleteAllFilesUtil(args.id);
+  await ProjectModel.updateMany({
+    repositories: args.id
+  }, {
+    $pull: {
+      repositories: args.id
+    }
+  });
+  await elasticClient.updateByQuery({
+    index: projectIndexName,
+    body: {
+      script: {
+        source: `
+          ctx._source.repositories.remove(params.repository);
+        `,
+        lang: 'painless',
+        params: {
+          repository: args.id.toHexString()
+        }
+      },
+      query: {
+        match: {
+          repositories: args.id.toHexString()
+        }
+      }
+    }
+  });
 };
 
 @Resolver()
@@ -114,7 +141,7 @@ class DeleteRepositoryResolver {
       throw new Error('cannot find user data');
     }
     if (!(await checkRepositoryAccess(user, repository, AccessLevel.admin))) {
-      throw new Error('user does not have admin permissions for project or repository');
+      throw new Error('user does not have admin permissions for repository');
     }
     await deleteRepositoryUtil(args, userID);
     return `deleted repository with id: ${args.id.toHexString()}`;

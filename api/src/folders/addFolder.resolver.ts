@@ -37,7 +37,6 @@ class AddFolderArgs {
 interface CreateFolderArgsType {
   name: string;
   path: string;
-  project: ObjectId;
   repository: ObjectId;
   public: AccessLevel;
   branches: string[];
@@ -135,7 +134,6 @@ export const addFolderRecursiveUtil = async (repository: RepositoryDB, path: str
     }
     currentFolderData = await createFolder({
       ...folderPathData,
-      project: repository.project,
       public: repository.public,
       parent: lastFolderData._id,
       repository: repository._id,

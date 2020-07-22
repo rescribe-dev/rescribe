@@ -27,7 +27,7 @@ class IndexFilesArgs {
   @Field(_type => [String], { description: 'paths' })
   paths: string[];
 
-  @Field(() => [GraphQLUpload], { description: 'files' })
+  @Field(_type => [GraphQLUpload], { description: 'files' })
   files: Promise<FileUpload>[];
 
   @Field({ description: 'repository name' })
@@ -106,7 +106,6 @@ class IndexFilesResolver {
           try {
             await indexFile({
               action: WriteType.add,
-              project: repository.project,
               repository: repositoryID,
               branch: args.branch,
               path: getFilePath(path).path,

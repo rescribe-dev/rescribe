@@ -87,6 +87,8 @@ interface NewProps extends NewPageDataProps {
 }
 
 const NewPage = (args: NewProps): JSX.Element => {
+  const noProjectLabel = 'None';
+
   const projectType: SelectTypeObject = {
     value: 'project',
     label: 'Project',
@@ -180,6 +182,10 @@ const NewPage = (args: NewProps): JSX.Element => {
           value: new ObjectID(project._id),
         };
         return newSelectItem;
+      });
+      projectOptions.push({
+        label: noProjectLabel,
+        value: new ObjectID(),
       });
       if (defaultProjectOptions.length === 0) {
         setDefaultProjectOptions(projectOptions);
@@ -339,6 +345,10 @@ const NewPage = (args: NewProps): JSX.Element => {
                   if (!formData.project) {
                     throw new Error('no project selected');
                   }
+                  const project =
+                    formData.project.label === noProjectLabel
+                      ? undefined
+                      : formData.project.value;
                   const createRepositoryRes = await client.mutate<
                     AddRepositoryMutation,
                     AddRepositoryMutationVariables
@@ -346,7 +356,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                     mutation: AddRepository,
                     variables: {
                       name: formData.name,
-                      project: formData.project.value,
+                      project,
                       publicAccess: formData.publicAccessLevel.value,
                     },
                   });

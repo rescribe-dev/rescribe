@@ -17,10 +17,6 @@ export class BaseRepository {
   @Property({ required: true, type: String })
   branches: string[];
 
-  @Field({ description: 'project' })
-  @Property({required: true})
-  project: ObjectId;
-
   @Field(_type => AccessLevel, { description: 'public access level' })
   @Property({ required: true })
   public: AccessLevel;

@@ -11,9 +11,6 @@ const fileMappings = {
   language: {
     type: 'keyword'
   },
-  project: {
-    type: 'keyword'
-  },
   repository: {
     type: 'keyword'
   },

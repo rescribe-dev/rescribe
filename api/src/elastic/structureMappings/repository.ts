@@ -8,9 +8,6 @@ const repositoryMappings = {
   nameSearch: {
     type: 'text'
   },
-  project: {
-    type: 'keyword'
-  },
   branches: {
     type: 'keyword'
   },

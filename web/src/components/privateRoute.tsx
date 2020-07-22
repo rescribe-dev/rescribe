@@ -6,7 +6,7 @@ interface PrivateRouteData {
   children?: ReactNode;
 }
 
-// TODO - try to fix order of hooks problem that occurs intermittently
+// TODO - try to fix order of react hooks problem that occurs intermittently
 // login -> account page -> logout: error should appear in browser console
 
 const PrivateRoute = (args: PrivateRouteData): JSX.Element => {

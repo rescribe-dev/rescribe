@@ -1,5 +1,5 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { repositoryIndexName } from '../elastic/settings';
+import { repositoryIndexName, projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { Repository, BaseRepository, RepositoryDB, RepositoryModel } from '../schema/structure/repository';
@@ -27,8 +27,10 @@ class AddRepositoryArgs {
     message: 'invalid characters provided for repository name'
   })
   name: string;
-  @Field(_type => ObjectId, { description: 'project' })
-  project: ObjectId;
+
+  @Field(_type => ObjectId, { description: 'project', nullable: true })
+  project?: ObjectId;
+
   @Field(_type => AccessLevel, { description: 'public access level' })
   publicAccess: AccessLevel;
 }
@@ -45,7 +47,7 @@ class AddRepositoryResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
-    if (!(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
+    if (args.project && !(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project');
     }
     if ((await countRepositoriesUserAccess(user, args.name)) > 0) {
@@ -56,7 +58,6 @@ class AddRepositoryResolver {
     const folder = await createFolder({
       name: baseFolderName,
       path: baseFolderPath,
-      project: args.project,
       public: args.publicAccess,
       parent: id,
       repository: id,
@@ -66,7 +67,6 @@ class AddRepositoryResolver {
       name: args.name,
       owner: userID,
       branches: [],
-      project: args.project,
       public: args.publicAccess,
       image: defaultRepositoryImage,
       linesOfCode: 0,
@@ -75,13 +75,30 @@ class AddRepositoryResolver {
       created: currentTime,
       updated: currentTime,
     };
-    await ProjectModel.updateOne({
-      _id: args.project
-    }, {
-      $addToSet: {
-        repositories: id
-      }
-    });
+    if (args.project) {
+      await ProjectModel.updateOne({
+        _id: args.project
+      }, {
+        $addToSet: {
+          repositories: id
+        }
+      });
+      await elasticClient.update({
+        index: projectIndexName,
+        id: args.project.toHexString(),
+        body: {
+          script: {
+            source: `
+              ctx._source.repositories.add(params.repository);
+            `,
+            lang: 'painless',
+            params: {
+              repository: id.toHexString()
+            }
+          },
+        }
+      });
+    }
     const elasticRepository: Repository = {
       ...baseRepository,
       nameSearch: args.name

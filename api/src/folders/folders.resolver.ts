@@ -107,7 +107,8 @@ export const search = async (user: User | null, args: FoldersArgs, repositoryDat
     throw new Error('name, path, branch, and repository needs to be defined and singular to get file by name');
   }
 
-  const projectFilters: TermQuery[] = [];
+  const repositoryFilters: TermQuery[] = [];
+
   if (args.projects && args.projects.length > 0) {
     if (!user) {
       throw new Error('user must be logged in to filter on projects');
@@ -119,15 +120,16 @@ export const search = async (user: User | null, args: FoldersArgs, repositoryDat
       if (!(await checkProjectAccess(user, project, AccessLevel.view))) {
         throw new Error('user does not have access to project');
       }
-      projectFilters.push({
-        term: {
-          project: projectID.toHexString()
-        }
-      });
+      for (const repositoryID of project.repositories) {
+        repositoryFilters.push({
+          term: {
+            repository: repositoryID
+          }
+        });
+      }
     }
   }
 
-  const repositoryFilters: TermQuery[] = [];
   if (args.repositories && args.repositories.length > 0) {
     hasStructureFilter = true;
     for (const repositoryID of args.repositories) {
@@ -138,8 +140,6 @@ export const search = async (user: User | null, args: FoldersArgs, repositoryDat
       } else if (!user) {
         throw new Error(`user must be logged in to access repository ${repositoryID.toHexString()}`);
       } else {
-        await getSaveDatastore(repository.project, projectData, DatastoreType.project);
-        // const project = projectData[repository.project.toHexString()];
         if (!(await checkRepositoryAccess(user, repository, AccessLevel.view))) {
           throw new Error('user does not have access to repository');
         }
@@ -235,11 +235,6 @@ export const search = async (user: User | null, args: FoldersArgs, repositoryDat
                 must: filterMustParams
               }
             }, // single category match for individuals
-            { // holds project filters
-              bool: {
-                should: projectFilters
-              }
-            },
             { // holds repository filters
               bool: {
                 should: repositoryFilters

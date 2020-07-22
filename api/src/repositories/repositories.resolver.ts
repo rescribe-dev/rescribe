@@ -12,6 +12,7 @@ import { GraphQLContext } from '../utils/context';
 import { checkProjectAccess } from '../projects/auth';
 import { Min, Max } from 'class-validator';
 import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
+import { ProjectModel } from '../schema/structure/project';
 
 const maxPerPage = 20;
 
@@ -53,13 +54,6 @@ class RepositoriesResolver {
       if (user.repositories.length === 0 && user.projects.length === 0) {
         return [];
       }
-      for (const project of user.projects) {
-        shouldParams.push({
-          term: {
-            project: project._id.toHexString()
-          }
-        });
-      }
       for (const repository of user.repositories) {
         shouldParams.push({
           term: {
@@ -69,14 +63,20 @@ class RepositoriesResolver {
       }
     } else {
       for (const projectID of args.projects) {
-        if (!(await checkProjectAccess(user, projectID, AccessLevel.view))) {
+        const project = await ProjectModel.findById(projectID);
+        if (!project) {
+          throw new Error(`cannot find project with id ${projectID.toHexString()}`);
+        }
+        if (!(await checkProjectAccess(user, project, AccessLevel.view))) {
           throw new Error('user does not have view access to project');
         }
-        shouldParams.push({
-          term: {
-            project: projectID.toHexString()
-          }
-        });
+        for (const repositoryID of project.repositories) {
+          shouldParams.push({
+            term: {
+              _id: repositoryID.toHexString()
+            }
+          });
+        }
       }
     }
     const searchParams: RequestParams.Search = {

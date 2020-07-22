@@ -269,7 +269,7 @@ class DeleteFileResolver {
       throw new Error(`cannot find repository with id ${args.repository.toHexString()}`);
     }
     if (!(await checkRepositoryAccess(user, repository, AccessLevel.edit))) {
-      throw new Error('user does not have edit permissions for project or repository');
+      throw new Error('user does not have edit permissions for repository');
     }
     const aggregates: Aggregates = {
       linesOfCode: repository.linesOfCode,
