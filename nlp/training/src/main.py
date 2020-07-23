@@ -7,6 +7,7 @@ entry point for running nlp training module
 
 import argparse
 from config import read_config
+from shared.variables import dataload_types
 from train import main as training_main
 
 
@@ -18,10 +19,13 @@ def main() -> None:
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--learning-rate", type=int, default=1)
-    parser.add_argument("--batch-size", type=int, default=64)
-    parser.add_argument("--communicator", type=str)
-    parser.add_argument("--frequency", type=int, default=20)
+    parser.add_argument('--learning-rate', type=int, default=1)
+    parser.add_argument('--batch-size', type=int, default=64)
+    parser.add_argument('--communicator', type=str)
+    parser.add_argument('--frequency', type=int, default=20)
+
+    # dataload type
+    parser.add_argument('--type', type=str, choices=dataload_types)
 
     # optional arguments
     _args = parser.parse_args()

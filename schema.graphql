@@ -207,9 +207,6 @@ type File {
   # language type
   language: Language!
 
-  # file name search
-  nameSearch: String!
-
   # sha-1 hash
   hash: String!
 
@@ -233,9 +230,6 @@ type File {
 
   # folder
   folder: ObjectId
-
-  # file content
-  content: String!
 
   # date created
   created: Float!

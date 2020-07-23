@@ -1,14 +1,11 @@
-name: Run NLP Training
+name: Run NLP Dataload Search Classifier
 on:
-  repository_dispatch:
-    types:
-      - 'train-nlp'
   push:
     branches:
       - master
     paths:
-      - "nlp/training/**"
-      - ".github/workflows/nlp-training.yml"
+      - "nlp/dataload/search-classifier/**"
+      - ".github/workflows/nlp-dataload-search-classifier.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -29,13 +26,13 @@ jobs:
             ${{ runner.os }}-pip-
       - name: install dependencies
         run: |
-          cd nlp/training
+          cd nlp/dataload/search-classifier
           conda env create --file ./environment.yml
           cd -
       - name: Run precommit
         id: precommit
         run: |
-          cd nlp/training
+          cd nlp/dataload/search-classifier
           ./precommit.sh
           cd -
       - name: Configure AWS credentials
@@ -54,22 +51,17 @@ jobs:
           username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           password: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           registry: ${{ steps.login-ecr.outputs.registry }}
-          image_name: rescribe-nlp-training
+          image_name: rescribe-nlp-dataload-search-classifier
           build_extra_args: --build-arg=CACHEBUST=$(date)
           # change image tag to ${{ github.sha }} if you want
           image_tag: latest
           context: nlp
-          dockerfile: training/Dockerfile
-      - name: Run training file content classifier
+          dockerfile: dataload/search-classifier/Dockerfile
+      - name: Run dataload job
         id: run-job
         env:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
           IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
-          # compute power for training
-          # see https://aws.amazon.com/sagemaker/pricing/
-          # and https://aws.amazon.com/sagemaker/pricing/instance-types/
-          INSTANCE_TYPE: ml.g4dn.xlarge
-          TYPE: file-content-classifier
         run: |
           cd aws/sagemaker/deploy
           if [ -z "$CONDA_DEFAULT_ENV" ]; then
@@ -80,22 +72,6 @@ jobs:
           python3 src/main.py
           conda deactivate
           cd -
-      - name: Run training search classifier
-        id: run-job
-        env:
-          ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
-          IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
-          INSTANCE_TYPE: ml.g4dn.xlarge
-          TYPE: search-classifier
-        run: |
-          cd aws/sagemaker/deploy
-          if [ -z "$CONDA_DEFAULT_ENV" ]; then
-            source $(conda info --base)/etc/profile.d/conda.sh
-          fi
-          conda env create --file ./environment.yml
-          conda activate rescribe-nlp-sagemaker
-          python3 src/main.py
-          conda deactivate
-          cd -
+
       - name: finish
         run: echo "finished!"

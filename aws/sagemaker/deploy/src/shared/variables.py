@@ -1,0 +1,1 @@
+../../../../../nlp/deployment/src/shared/variables.py

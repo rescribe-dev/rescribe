@@ -7,9 +7,9 @@ LABEL maintainer="Rescribe"
 WORKDIR /opt/ml/code/
 
 # Create the environment
-COPY training/environment.yml .
+COPY dataload/search-classifier/environment.yml .
 RUN conda env create -f environment.yml
-ARG conda_env="rescribe-nlp-training"
+ARG conda_env=rescribe-nlp-dataload-search-classifier
 ENV PATH "/opt/conda/envs/$conda_env/bin:$PATH"
 
 # install sagemaker dependencies
@@ -19,17 +19,20 @@ RUN apt-get -y update && apt-get install -y build-essential
 RUN pip install sagemaker-training
 
 # Copy app
-COPY training/src src
+COPY dataload/search-classifier/src src
+# copy folders
+COPY dataload/search-classifier/datasets datasets
+COPY dataload/search-classifier/clean_data clean_data
 # copy symlinks
 COPY deployment/src/shared src/shared
 # copy env file
-COPY training/.global.env .env
+COPY dataload/search-classifier/.global.env .env
 
 # disregard cache to activate
 ARG CACHEBUST=1
 RUN echo "$CACHEBUST"
 
-# Activate the environment
+# Activate environment
 RUN /bin/bash -c "source activate $conda_env"
 
 # Defines train.py as script entrypoint

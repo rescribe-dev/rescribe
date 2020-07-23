@@ -451,7 +451,6 @@ class FilesResolver {
           functions: [],
           importPath: '',
           imports: [],
-          language: Language.none,
         };
       }
       result.push(fileData);

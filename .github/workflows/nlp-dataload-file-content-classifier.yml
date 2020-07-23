@@ -1,11 +1,11 @@
-name: Run NLP Dataload
+name: Run NLP Dataload File Content Classifier
 on:
   push:
     branches:
       - master
     paths:
-      - "nlp/dataload/**"
-      - ".github/workflows/nlp-dataload.yml"
+      - "nlp/dataload/file-content-classifier/**"
+      - ".github/workflows/nlp-dataload-file-content-classifier.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,13 +26,13 @@ jobs:
             ${{ runner.os }}-pip-
       - name: install dependencies
         run: |
-          cd nlp/dataload
+          cd nlp/dataload/file-content-classifier
           conda env create --file ./environment.yml
           cd -
       - name: Run precommit
         id: precommit
         run: |
-          cd nlp/dataload
+          cd nlp/dataload/file-content-classifier
           ./precommit.sh
           cd -
       - name: Configure AWS credentials
@@ -51,12 +51,12 @@ jobs:
           username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           password: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           registry: ${{ steps.login-ecr.outputs.registry }}
-          image_name: rescribe-nlp-dataload
+          image_name: rescribe-nlp-dataload-file-content-classifier
           build_extra_args: --build-arg=CACHEBUST=$(date)
           # change image tag to ${{ github.sha }} if you want
           image_tag: latest
           context: nlp
-          dockerfile: dataload/Dockerfile
+          dockerfile: dataload/file-content-classifier/Dockerfile
       - name: Run dataload job
         id: run-job
         env:
@@ -72,19 +72,6 @@ jobs:
           python3 src/main.py
           conda deactivate
           cd -
-
-      # run training (runs on master branch):
-      # - name: Wait for dataload to run
-      #   uses: jakejarvis/wait-action@master
-      #   with:
-      #     time: '5m'
-      # - name: Trigger nlp training
-      #   uses: peter-evans/repository-dispatch@v1
-      #   with:
-      #     token: ${{ secrets.REPO_ACCESS_TOKEN }}
-      #     repository: rescribe-dev/rescribe
-      #     event-type: train-nlp
-      #     client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
 
       - name: finish
         run: echo "finished!"

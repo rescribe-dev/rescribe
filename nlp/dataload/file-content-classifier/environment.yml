@@ -1,4 +1,4 @@
-name: rescribe-nlp-dataload
+name: rescribe-nlp-dataload-file-content-classifier
 channels:
   - anaconda
   - conda-forge

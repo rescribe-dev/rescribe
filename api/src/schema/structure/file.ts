@@ -60,13 +60,10 @@ export class FileDB extends BaseFile {
 export const FileModel = getModelForClass(FileDB);
 
 export class BaseFileElastic extends BaseFile {
-  @Field(_type => Int, { description: 'number of branches' })
   numBranches: number;
 
-  @Field(_type => String, { description: 'file content' })
   content: string;
 
-  @Field(_type => String, { description: 'file name search' })
   nameSearch: string;
 
   @Field(_type => Language, { description: 'language type' })
@@ -76,7 +73,6 @@ export class BaseFileElastic extends BaseFile {
 // input / result from elastic
 @ObjectType({ description: 'file' })
 export default class File extends AntlrFile implements BaseFileElastic {
-  @Field(_type => String, { description: 'file name search' })
   nameSearch: string;
 
   @Field({ description: 'sha-1 hash' })
@@ -103,7 +99,6 @@ export default class File extends AntlrFile implements BaseFileElastic {
   @Field({ description: 'folder', nullable: true })
   folder?: ObjectId;
 
-  @Field(_type => String, { description: 'file content' })
   content: string;
 
   @Field({ description: 'path' })

@@ -5,14 +5,15 @@ run sagemaker
 creates custom job in sagemaker
 """
 from os import getenv
-from dotenv import load_dotenv
 from typing import Union
+from dotenv import load_dotenv
 from sagemaker.estimator import Estimator
+from shared.variables import deploy_types
 
 default_instance_type: str = 'ml.m4.xlarge'
 
 
-def main(role: Union[str, None] = None, image_name: Union[str, None] = None):
+def main(role: Union[str, None] = None, deploy_type: Union[str, None] = None, image_name: Union[str, None] = None):
     """
     main sagemaker function
     """
@@ -25,6 +26,16 @@ def main(role: Union[str, None] = None, image_name: Union[str, None] = None):
         role = getenv('ROLE')
         if role is None:
             raise ValueError('cannot find role in environment')
+    hyperparameters = None
+    if deploy_type is None:
+        deploy_type = getenv('TYPE')
+        if deploy_type is not None:
+            if deploy_type not in deploy_types:
+                raise ValueError('invalid type provided')
+            if hyperparameters is None:
+                hyperparameters = {}
+            hyperparameters['type'] = deploy_type
+
     instance_type: Union[str, None] = getenv('INSTANCE_TYPE')
     if instance_type is None:
         instance_type = default_instance_type
@@ -32,8 +43,11 @@ def main(role: Union[str, None] = None, image_name: Union[str, None] = None):
                           role=role,
                           train_instance_count=1,
                           train_volume_size=5,
-                          train_instance_type=instance_type)
+                          train_instance_type=instance_type,
+                          hyperparameters=hyperparameters)
 
+    # set wait to True to wait until the training is done (and show logs)
+    # should not be done on ci/cd job
     estimator.fit(wait=False)
 
 

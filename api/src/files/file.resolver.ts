@@ -1,5 +1,5 @@
 import { Resolver, ArgsType, Field, Args, Ctx, Query } from 'type-graphql';
-import File from '../schema/structure/file';
+import File, { BaseFileElastic, BaseFile } from '../schema/structure/file';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { ObjectId } from 'mongodb';
@@ -35,17 +35,35 @@ class FileArgs {
   owner?: string;
 }
 
+const processFile = (id: ObjectId, baseFile: File | BaseFile): File => {
+  let file: File;
+  if (baseFile.hasStructure) {
+    file = {
+      ...baseFile as File,
+      _id: id
+    };
+  } else {
+    file = {
+      ...baseFile as BaseFileElastic,
+      _id: id,
+      classes: [],
+      comments: [],
+      variables: [],
+      functions: [],
+      importPath: '',
+      imports: [],
+    };
+  }
+  return file;
+};
+
 export const getFile = async (args: FileArgs): Promise<File> => {
   if (args.id) {
     const fileData = await elasticClient.get({
       id: args.id.toHexString(),
       index: fileIndexName
     });
-    const file: File = {
-      ...fileData.body._source as File,
-      _id: new ObjectId(fileData.body._id as string)
-    };
-    return file;
+    return processFile(args.id, fileData.body._source as BaseFileElastic);
   }
   if (args.name !== undefined && args.branch !== undefined && args.path !== undefined && (args.repositoryID || (args.repository && args.owner))) {
     if (!args.repositoryID) {
@@ -89,11 +107,7 @@ export const getFile = async (args: FileArgs): Promise<File> => {
       throw new Error('no data found');
     }
     for (const hit of fileData.body.hits.hits) {
-      const file: File = {
-        ...hit._source as File,
-        _id: new ObjectId(hit._id as string)
-      };
-      return file;
+      return processFile(new ObjectId(hit._id as string), hit._source as File);
     }
     throw new Error('no file data found');
   } else {

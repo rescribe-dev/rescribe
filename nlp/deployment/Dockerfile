@@ -12,8 +12,6 @@ RUN conda env create -f environment.yml
 
 # Copy app
 COPY deployment/src src
-# copy symlinks
-COPY dataload/src/shared src/shared
 # copy env file
 COPY deployment/.global.env .env
 
