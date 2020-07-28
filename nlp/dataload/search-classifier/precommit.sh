@@ -2,8 +2,8 @@
 
 set -e
 
-cd ../../../scripts
+cd ../../../scripts/precommit
 
-./precommit_python.sh nlp/dataload/search-classifier
+./python.sh nlp/dataload/search-classifier
 
 cd -
