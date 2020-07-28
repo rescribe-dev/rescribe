@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
+=======
+import React from 'react';
+>>>>>>> 3e342f0... Began progress on delete file/folder buttons
 import { Container, Table, Row, Col, Button } from 'reactstrap';
 
 import './index.scss';
@@ -12,17 +16,25 @@ import {
   FoldersQueryVariables,
   Folders,
   DelFile,
+<<<<<<< HEAD
   DelFileMutation,
   DelFileMutationVariables,
   DelFolderMutation,
   DelFolderMutationVariables,
   DelFolder,
+=======
+>>>>>>> 3e342f0... Began progress on delete file/folder buttons
 } from 'lib/generated/datamodel';
 import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
 import { ObjectId } from 'mongodb';
 import { Link } from 'gatsby';
+<<<<<<< HEAD
 import { useMutation } from '@apollo/react-hooks';
 import { client } from 'utils/apollo';
+=======
+import { isSSR } from 'utils/checkSSR';
+import { useQuery, useMutation } from '@apollo/react-hooks';
+>>>>>>> 3e342f0... Began progress on delete file/folder buttons
 
 interface FolderProps {
   branch: string;
@@ -191,6 +203,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                           <Button
                             style={{
                               backgroundColor: '#fff',
+<<<<<<< HEAD
                               color: '#D9534F',
                               border: '0px',
                             }}
@@ -210,6 +223,11 @@ const FilesList = (args: FolderProps): JSX.Element => {
                                 },
                               });
                             }}
+=======
+                              color: '#ff0000',
+                              border: '0px',
+                            }}
+>>>>>>> 3e342f0... Began progress on delete file/folder buttons
                           >
                             Remove Folder
                           </Button>
@@ -239,6 +257,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                           <Button
                             style={{
                               backgroundColor: '#fff',
+<<<<<<< HEAD
                               color: '#D9534F',
                               border: '0px',
                             }}
@@ -257,6 +276,35 @@ const FilesList = (args: FolderProps): JSX.Element => {
                                   });
                                 },
                               });
+=======
+                              color: '#ff0000',
+                              border: '0px',
+                            }}
+                            onClick={async () => {
+                              removeFile(file._id, args.branch);
+                              // try {
+                              //   await client.mutate<
+                              //     DelFileMutation,
+                              //     DelFileMutationVariables
+                              //   >({
+                              //     mutation: DelFile,
+                              //     variables: {
+                              //       id: file._id,
+                              //       branch: args.branch,
+                              //     },
+                              //   });
+
+                              //   // update state
+                              //   // setDelFile(file._id);
+                              // } catch (err) {
+                              //   console.error(JSON.stringify(err));
+                              //   toast(err.message, {
+                              //     type: 'error',
+                              //   });
+                              // } finally {
+                              //   console.log('hello');
+                              // }
+>>>>>>> 3e342f0... Began progress on delete file/folder buttons
                             }}
                           >
                             Remove File
