@@ -5,3 +5,19 @@ query file($name: String!, $path: String!, $branch: String!, $repositoryID: Obje
     language
   }
 }
+
+mutation delFile($id: ObjectId!, $branch: String!) {
+  deleteFile(id: $id, branch: $branch)
+}
+
+
+# mutation addRepository($name: String!, $project: ObjectId!, $publicAccess: AccessLevel!) {
+#   addRepository(name: $name, project: $project, publicAccess: $publicAccess)
+# }
+
+# query repository($name: String!, $owner: String!) {
+#   repository(name: $name, owner: $owner) {
+#     _id
+#     branches
+#   }
+# }
