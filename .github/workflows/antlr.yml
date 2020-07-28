@@ -2,7 +2,7 @@ name: Upload Antlr
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "antlr/**"
       - ".github/workflows/antlr.yml"
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # checks out a copy of the repo
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

@@ -2,7 +2,7 @@ name: Docs Origin Request
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "aws/cloudfront/docs/origin-request/**"
       - "aws/lambda/update-cloudfront-lambda/**"
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # checks out a copy of the repo
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
       - name: Setup Node.js 13
         uses: actions/setup-node@v1
         with:

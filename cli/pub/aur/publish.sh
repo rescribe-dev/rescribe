@@ -9,7 +9,7 @@ public_key_file="id_rsa_rescribe_aur.pub"
 private_key_file="id_rsa_rescribe_aur"
 
 if [ -n "$PUBLIC_KEY" ]; then
-  printf "$PUBLIC_KEY" > "$public_key_file"
+  printf -- "$PUBLIC_KEY" > "$public_key_file"
 fi
 
 if [ -n "$PRIVATE_KEY" ]; then

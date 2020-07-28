@@ -2,7 +2,7 @@ name: Upload Github
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "github-app/**"
       - ".github/workflows/github.yml"
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # checks out a copy of the repo
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
       - name: Setup Node.js 12
         uses: actions/setup-node@v1
         with:
@@ -38,7 +38,7 @@ jobs:
           yarn run build:package
           cd -
       - name: default deploy
-        uses: appleboy/lambda-action@master
+        uses: appleboy/lambda-action@main
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

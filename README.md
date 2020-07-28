@@ -13,7 +13,7 @@
 
 **Note:** Netlify "failed" means either deployment failed or no applicable changes found in last commit.
 
-[![codecov](https://codecov.io/gh/rescribe-dev/rescribe/branch/master/graph/badge.svg?token=FGYV3NYN8F)](https://codecov.io/gh/rescribe-dev/rescribe)
+[![codecov](https://codecov.io/gh/rescribe-dev/rescribe/branch/main/graph/badge.svg?token=FGYV3NYN8F)](https://codecov.io/gh/rescribe-dev/rescribe)
 
 ![Upload Docs](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Docs/badge.svg)
 ![Upload Website](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Website/badge.svg)

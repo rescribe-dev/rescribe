@@ -2,7 +2,7 @@ name: Upload NLP Deployment
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "nlp/deployment/**"
       - ".github/workflows/nlp-deployment.yml"
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # checks out a copy of the repo
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
       - uses: goanpeca/setup-miniconda@v1
         with:
           auto-update-conda: true

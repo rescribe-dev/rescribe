@@ -26,7 +26,7 @@ Optionally run the antlr service, used for processing files that are going to be
 5. `./gradlew run`
 6. Install [google java format plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format) and [lombok plugin](https://plugins.jetbrains.com/plugin/6317-lombok) in intellij to make life easier
 
-View [this guide](https://github.com/com.rescribe.antlr/antlr4/blob/master/doc/getting-started.md) for getting antlr configured if there are any problems.
+View [this guide](https://github.com/com.rescribe.antlr/antlr4/blob/main/doc/getting-started.md) for getting antlr configured if there are any problems.
 
 ### nlp
 

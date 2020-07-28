@@ -2,7 +2,7 @@ name: Frontend Viewer Response
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "aws/cloudfront/frontend/_headers"
       - "aws/lambda/update-cloudfront-lambda/**"
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # checks out a copy of the repo
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
       - name: Setup Node.js 13
         uses: actions/setup-node@v1
         with:

@@ -90,13 +90,13 @@ module.exports = {
           homePageId: 'home',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: 'https://github.com/rescribe-dev/rescribe/edit/master/docs/',
+          editUrl: 'https://github.com/rescribe-dev/rescribe/edit/main/docs/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/rescribe-dev/rescribe/edit/master/docs/blog/',
+            'https://github.com/rescribe-dev/rescribe/edit/main/docs/blog/',
         },
         theme: [
           'theme-blog-bootstrap',

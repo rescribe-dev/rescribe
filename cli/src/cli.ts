@@ -65,8 +65,8 @@ export const startCLI = async (): Promise<void> => {
           alias: 'include-path',
           describe: 'include given path'
         })
-        .example('$0 index-files master "src/test.js" -i true',
-          'index test.js on master branch, including the given path (/src)');
+        .example('$0 index-files main "src/test.js" -i true',
+          'index test.js on main branch, including the given path (/src)');
     }, actionRunner(indexFiles));
   yargs
     .command('get-branch [path]', 'get current branch in repository', conf => {
@@ -88,7 +88,7 @@ export const startCLI = async (): Promise<void> => {
           alias: 'path',
           describe: 'path to git repo'
         })
-        .example('$0 index-branch master .', 'index master branch of current git repo');
+        .example('$0 index-branch main .', 'index main branch of current git repo');
     }, actionRunner(indexBranch));
   yargs.command('login', 'login to service', {}, actionRunner(login));
   yargs.command('get-user', 'get user data', {}, actionRunner(getUser));
