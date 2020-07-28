@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Table, Row, Col, Button } from 'reactstrap';
 
 import './index.scss';
@@ -12,13 +12,15 @@ import {
   FoldersQueryVariables,
   Folders,
   DelFile,
+  DelFileMutation,
+  DelFileMutationVariables,
 } from 'lib/generated/datamodel';
-import { QueryResult } from '@apollo/react-common';
 import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
 import { ObjectId } from 'mongodb';
 import { Link } from 'gatsby';
-import { isSSR } from 'utils/checkSSR';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/react-hooks';
+import { client } from 'utils/apollo';
+import { ApolloQueryResult } from 'apollo-client';
 
 interface FolderProps {
   branch: string;
@@ -32,96 +34,74 @@ interface FolderProps {
 const perPage = 10;
 
 const FilesList = (args: FolderProps): JSX.Element => {
-  let fullPath = args.path + args.name;
-  if (fullPath.length === 0 || fullPath[fullPath.length - 1] !== '/') {
-    fullPath += '/';
-  }
-  const foldersRes:
-    | QueryResult<FoldersQuery, FoldersQueryVariables>
-    | undefined = isSSR
-    ? undefined
-    : useQuery<FoldersQuery, FoldersQueryVariables>(Folders, {
-        variables: {
-          repositories: [args.repositoryID],
-          page: 0,
-          perpage: perPage,
-          branches: [args.branch],
-          path: fullPath,
-        },
-        fetchPolicy: 'no-cache',
-        onError: (err) => {
-          toast(err.message, {
-            type: 'error',
-          });
-        },
-      });
-  const filesRes:
-    | QueryResult<FilesQuery, FilesQueryVariables>
-    | undefined = isSSR
-    ? undefined
-    : useQuery<FilesQuery, FilesQueryVariables>(Files, {
-        variables: {
-          repositories: [args.repositoryID],
-          page: 0,
-          perpage: perPage,
-          branches: [args.branch],
-          path: fullPath,
-        },
-        // fetchPolicy: 'no-cache',
-      });
+  const [folders, setFolders] = useState<
+    ApolloQueryResult<FoldersQuery> | undefined
+  >(undefined);
+  const [files, setFiles] = useState<ApolloQueryResult<FilesQuery> | undefined>(
+    undefined
+  );
+  const [fullPath, setFullPath] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    let path = args.path + args.name;
+    if (path.length === 0 || path[path.length - 1] !== '/') {
+      path += '/';
+    }
+    setFullPath(path);
+    async () => {
+      try {
+        setFolders(
+          await client.query<FoldersQuery, FoldersQueryVariables>({
+            query: Folders,
+            variables: {
+              repositories: [args.repositoryID],
+              page: 0,
+              perpage: perPage,
+              branches: [args.branch],
+              path,
+            },
+            fetchPolicy: 'network-only',
+          })
+        );
+        setFiles(
+          await client.query<FilesQuery, FilesQueryVariables>({
+            query: Files,
+            variables: {
+              repositories: [args.repositoryID],
+              page: 0,
+              perpage: perPage,
+              branches: [args.branch],
+              path,
+            },
+            fetchPolicy: 'network-only',
+          })
+        );
+      } catch (err) {
+        const errObj = err as Error;
+        toast(errObj.message, {
+          type: 'error',
+        });
+      }
+    };
+  }, []);
 
-  const [deleteFileMutation] = useMutation(DelFile);
-
-  const removeFile = (id: any, branch: string) => {
-    // e.preventDefault();
-    // e.stopPropagation();
-
-    deleteFileMutation({
-      variables: { id: id, branch: branch },
-
-      // optimisticResponse: true,
-
-      // refetchQueries: ['FilesQuery'], // TODO Find correct query
-      refetchQueries: [
-        {
-          query: Files,
-        },
-      ],
-
-      // update: (cache) => {
-      //   // const existingFiles = cache.readQuery({ query: Files });
-      //   let newFiles: any;
-      //   if (filesRes !== undefined && filesRes.data !== undefined) {
-      //     newFiles = filesRes.data.files.filter(
-      //       (file: { _id: any }) => file._id !== id
-      //     );
-      //   } else {
-      //     newFiles = 'hello';
-      //   }
-
-      //   alert(newFiles);
-
-      //   cache.writeQuery({
-      //     query: Files,
-      //     data: { files: newFiles },
-      //   });
-      // },
-    });
-  };
+  const [deleteFileMutation] = useMutation<
+    DelFileMutation,
+    DelFileMutationVariables
+  >(DelFile);
 
   return (
     <Container>
-      {!foldersRes ||
-      foldersRes.loading ||
-      !foldersRes.data ||
-      !filesRes ||
-      filesRes.loading ||
-      !filesRes.data ? (
+      {!folders ||
+      folders.loading ||
+      !folders.data ||
+      !files ||
+      files.loading ||
+      !files.data ? (
         <p>loading...</p>
       ) : (
         <>
-          {foldersRes.data.folders.length === 0 &&
-          filesRes.data.files.length === 0 ? (
+          {folders.data.folders.length === 0 &&
+          files.data.files.length === 0 ? (
             <p>no files in repository {args.repositoryName}</p>
           ) : (
             <Table>
@@ -131,7 +111,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                 </tr>
               </thead>
               <tbody>
-                {foldersRes.data.folders.map((folder) => (
+                {folders.data.folders.map((folder) => (
                   <tr key={folder._id}>
                     <td>
                       <Row>
@@ -163,7 +143,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                     </td>
                   </tr>
                 ))}
-                {filesRes.data.files.map((file) => (
+                {files.data.files.map((file) => (
                   <tr key={file._id}>
                     <td>
                       <Row>
@@ -187,30 +167,28 @@ const FilesList = (args: FolderProps): JSX.Element => {
                               color: '#ff0000',
                               border: '0px',
                             }}
-                            onClick={async () => {
-                              removeFile(file._id, args.branch);
-                              // try {
-                              //   await client.mutate<
-                              //     DelFileMutation,
-                              //     DelFileMutationVariables
-                              //   >({
-                              //     mutation: DelFile,
-                              //     variables: {
-                              //       id: file._id,
-                              //       branch: args.branch,
-                              //     },
-                              //   });
-
-                              //   // update state
-                              //   // setDelFile(file._id);
-                              // } catch (err) {
-                              //   console.error(JSON.stringify(err));
-                              //   toast(err.message, {
-                              //     type: 'error',
-                              //   });
-                              // } finally {
-                              //   console.log('hello');
-                              // }
+                            onClick={() => {
+                              deleteFileMutation({
+                                variables: {
+                                  id: file._id,
+                                  branch: args.branch,
+                                },
+                                fetchPolicy: 'cache-and-network',
+                                update: () => {
+                                  // if (files !== undefined && files.data !== undefined) {
+                                  //   newFiles = filesRes.data.files.filter(
+                                  //     (file: { _id: any }) => file._id !== id
+                                  //   );
+                                  // } else {
+                                  //   newFiles = 'hello';
+                                  // }
+                                  // alert(newFiles);
+                                  // cache.writeQuery({
+                                  //   query: Files,
+                                  //   data: { files: newFiles },
+                                  // });
+                                },
+                              });
                             }}
                           >
                             Remove File
