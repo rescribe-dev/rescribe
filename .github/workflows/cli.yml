@@ -54,7 +54,7 @@ jobs:
         env:
           PUBLIC_KEY: ${{ secrets.AUR_CLI_PUBLIC_KEY }}
           PRIVATE_KEY: ${{ secrets.AUR_CLI_PRIVATE_KEY }}
-        run:
+        run: |
           cd cli/pub/aur
           ./publish.sh
           cd -
