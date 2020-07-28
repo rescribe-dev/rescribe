@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ..
+cd ../..
 
 tab_files=$(grep -R -I -n -P "\t" \
   --exclude-dir={.git,node_modules,grammars,.gradle,.cache,build,dist} \

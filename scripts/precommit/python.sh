@@ -3,7 +3,7 @@
 # abort on errors
 set -e
 
-cd "../$1"
+cd "../../$1"
 
 source $(conda info --base)/etc/profile.d/conda.sh
 

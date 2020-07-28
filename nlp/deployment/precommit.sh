@@ -2,8 +2,8 @@
 
 set -e
 
-cd ../../scripts
+cd ../../scripts/precommit
 
-./precommit_python.sh nlp/deployment
+./python.sh nlp/deployment
 
 cd -

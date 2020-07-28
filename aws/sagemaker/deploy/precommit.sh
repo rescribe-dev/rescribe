@@ -2,8 +2,8 @@
 
 set -e
 
-cd ../../../scripts
+cd ../../../scripts/precommit
 
-./precommit_python.sh aws/sagemaker/deploy
+./python.sh aws/sagemaker/deploy
 
 cd -
