@@ -19,3 +19,6 @@ lib_test
 .env
 .rescribe*
 rescriberc.yml
+
+# except for default
+!.rescriberc.default.yml

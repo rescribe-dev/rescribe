@@ -1,6 +1,9 @@
 # ignore node modules always
 node_modules/
 
+# ignore tmp folder
+tmp
+
 # mac file
 .DS_Store
 

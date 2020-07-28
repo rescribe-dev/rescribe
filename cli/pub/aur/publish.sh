@@ -34,7 +34,7 @@ if [ "$update_ssh_keys" = true ]; then
   ssh-add ~/.ssh/$private_key_file
 fi
 
-if [ ! -d $repo_name ]; then
+if [ ! -d "$repo_name" ]; then
   if [ ! -n "$(grep "^aur.archlinux.org " ~/.ssh/known_hosts)" ]; then
     ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
   fi
@@ -47,13 +47,12 @@ fi
 
 makepkg --printsrcinfo > "$repo_name/.SRCINFO"
 cp PKGBUILD "$repo_name"
-cp .default.rescriberc.yml "$repo_name/.rescriberc.yml"
 cp rescribe.install "$repo_name"
 
-temp_file="tmp.zip"
+temp_file=".tmp.zip"
 
-if [ ! -f $temp_file ]; then
-  wget $cli_url -O $temp_file
+if [ ! -f "$temp_file" ]; then
+  wget "$cli_url" -O "$temp_file"
 fi
 
 source_files=($temp_file)
@@ -66,8 +65,13 @@ done
 printf -v hashes_escaped '\"%s\" ' "${hashes[@]}"
 hashes_escaped=${hashes_escaped::-1}
 
+cd ../..
+version=$(grep '"version"' package.json | cut -d '"' -f 4)
+cd - &>/dev/null
+
 cd "$repo_name"
 sed -i "s/md5sums=()/md5sums=($hashes_escaped)/g" PKGBUILD
+sed -i "s/pkgver=/pkgver=($version)/g" PKGBUILD
 cd - &>/dev/null
 
 cd "$repo_name"

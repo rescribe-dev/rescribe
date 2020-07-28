@@ -1,4 +1,2 @@
 # ignore aur repository
 repo/
-# ignore source file
-tmp.zip
