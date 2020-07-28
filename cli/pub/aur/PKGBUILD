@@ -29,11 +29,13 @@ md5sums=()
 validpgpkeys=()
 
 package() {
-  mkdir "$pkgdir/usr"
-  mkdir "$pkgdir/usr/bin"
+  mkdir -p "$pkgdir/usr/bin"
   chmod +x rescribe
   mv rescribe "$pkgdir/usr/bin"
   mv nodegit.node "$pkgdir/usr/bin"
+
+  mkdir -p "$pkgdir/home/$USER"
+  cp .rescribe.yml "$pkgdir/home/$USER"
 
   ./add_completion $pkgdir
 }
