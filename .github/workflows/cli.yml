@@ -50,5 +50,13 @@ jobs:
           AWS_REGION: 'us-east-1'
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: publish to aur
+        env:
+          PUBLIC_KEY: ${{ secrets.AUR_CLI_PUBLIC_KEY }}
+          PRIVATE_KEY: ${{ secrets.AUR_CLI_PRIVATE_KEY }}
+        run:
+          cd cli/pub/aur
+          ./publish.sh
+          cd -
       - name: finish
         run: echo "finished!"
