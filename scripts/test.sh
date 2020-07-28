@@ -7,6 +7,12 @@ set -e
 
 cd ..
 
+# initial file tests
+cd scripts/precommit
+./spaces.sh
+./line_endings.sh
+cd -
+
 node_tests=("api/")
 
 for path in "${node_tests[@]}"
@@ -33,5 +39,4 @@ do
 done
 
 cd scripts
-
 echo "done with testing and generating coverage"
