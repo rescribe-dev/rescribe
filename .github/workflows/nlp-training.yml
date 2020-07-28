@@ -61,7 +61,7 @@ jobs:
           context: nlp
           dockerfile: training/Dockerfile
       - name: Run training file content classifier
-        id: run-job
+        id: run-training-file-content-classifier
         env:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
           IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
@@ -81,7 +81,7 @@ jobs:
           conda deactivate
           cd -
       - name: Run training search classifier
-        id: run-job
+        id: run-training-search-classifier
         env:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
           IMAGE_NAME: ${{ steps.docker-build.outputs.FULL_IMAGE_NAME }}
