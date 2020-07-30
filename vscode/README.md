@@ -1,6 +1,6 @@
 # rescribe
 
-Rescribe allows for searching through code directly in vscode.
+reScribe allows for searching through code directly in vscode.
 
 ## Features
 

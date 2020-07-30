@@ -1,7 +1,7 @@
 {
-  "name": "cli",
+  "name": "@rescribe/cli",
   "version": "0.0.1",
-  "description": "cli",
+  "description": "reScribe cli",
   "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",
@@ -13,15 +13,13 @@
   "keywords": [
     "cli"
   ],
-  "files": [
-    "lib"
-  ],
   "main": "lib/index",
   "types": "lib/index",
   "scripts": {
     "start": "node lib/index -h",
     "dev": "tsc-watch --onSuccess \"npm run postbuildWatch\"",
-    "clean": "rimraf lib && rimraf coverage && rimraf *.logs*",
+    "clean": "rimraf lib && rimraf coverage && rimraf *.logs* && npm run clean:dist",
+    "clean:dist": "rimraf dist",
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "precommit": "npm run lint && npm run format",
@@ -34,7 +32,8 @@
     "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
     "watch:test": "jest --watch",
     "package": "pkg . --out-path=dist",
-    "build:package": "npm run codegen && npm run build && ./package.sh",
+    "postinstall": "cp .rescriberc.default.yml pub && cd pub && ./postinstall.sh",
+    "build:package": "npm run build && ./package.sh",
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
@@ -114,7 +113,10 @@
   "jest": {
     "preset": "ts-jest"
   },
-  "bin": "lib/index.js",
+  "bin": {
+    "rescribe": "dist/index.js",
+    "@rescribe/cli": "dist/index.js"
+  },
   "pkg": {
     "assets": [
       "./node_modules/@types",

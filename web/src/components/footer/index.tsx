@@ -7,7 +7,7 @@ const Footer = (): JSX.Element => {
   return (
     <footer>
       <Container>
-        <p>© {new Date().getFullYear()}, Rescribe</p>
+        <p>© {new Date().getFullYear()}, reScribe</p>
       </Container>
     </footer>
   );

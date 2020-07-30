@@ -37,7 +37,7 @@ jobs:
         id: build-antlr
         run: |
           cd scripts/install
-          ./install_antlr.sh
+          ./antlr.sh
       # docker cache
       - name: Docker
         id: docker-build

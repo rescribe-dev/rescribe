@@ -1,8 +1,8 @@
 {
   "name": "rescribe-web",
-  "description": "Rescribe website",
+  "description": "reScribe website",
   "version": "1.0.0",
-  "author": "Rescribe",
+  "author": "reScribe",
   "dependencies": {
     "@apollo/client": "^3.0.2",
     "@apollo/react-hooks": "^4.0.0",

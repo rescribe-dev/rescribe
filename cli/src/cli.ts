@@ -41,7 +41,7 @@ export const startCLI = async (): Promise<void> => {
     .usage('Usage: $0 <command> [options]')
     .help('h')
     .alias('h', 'help')
-    .epilog(`© Rescribe ${new Date().getFullYear()} 🚀`);
+    .epilog(`© reScribe ${new Date().getFullYear()} 🚀`);
   yargs
     .option('d', {
       type: 'boolean',

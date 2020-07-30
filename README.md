@@ -1,4 +1,4 @@
-<img alt="Rescribe" src="./web/src/assets/images/logo.svg" style="max-width: 500px">
+<img alt="reScribe" src="./web/src/assets/images/logo.svg" style="max-width: 500px">
 
 > a better way to search code
 

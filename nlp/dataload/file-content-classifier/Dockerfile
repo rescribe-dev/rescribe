@@ -1,7 +1,7 @@
 FROM continuumio/miniconda3
 
 # Add Maintainer Info
-LABEL maintainer="Rescribe"
+LABEL maintainer="reScribe"
 
 # create app directory
 WORKDIR /opt/ml/code/

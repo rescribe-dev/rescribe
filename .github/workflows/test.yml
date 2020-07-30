@@ -76,14 +76,14 @@ jobs:
         id: go-helpers
         run: |
           cd scripts/install
-          ./install_go_helpers.sh
+          ./go_helpers.sh
           cd -
 
       - name: Install dependencies
         id: install
         run: |
           cd scripts/install
-          ./install_tests.sh
+          ./tests.sh
           cd -
       - name: run tests and coverage
         id: testing

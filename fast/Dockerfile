@@ -2,7 +2,7 @@
 FROM golang:latest
 
 # Add Maintainer Info
-LABEL maintainer="Rescribe"
+LABEL maintainer="reScribe"
 
 # Set the Current Working Directory inside the container
 WORKDIR /app

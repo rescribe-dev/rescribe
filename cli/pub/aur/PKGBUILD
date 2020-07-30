@@ -1,13 +1,13 @@
-# This is the Rescribe AUR PKGBUILD file.
+# This is the reScribe AUR PKGBUILD file.
 # For more information, see 'man PKGBUILD'.
-# Maintainer: Rescribe <rescribe.dev@gmail.com>
+# Maintainer: reScribe <rescribe.dev@gmail.com>
 
 pkgname=rescribe
 # update version in package.json, not here
 pkgver=
 pkgrel=1
 epoch=
-pkgdesc="code search engine cli"
+pkgdesc="reScribe code search engine. CLI for interacting with reScribe api."
 arch=("x86_64")
 url="https://rescribe.dev"
 license=("CC-BY-NC-SA-4.0")
@@ -33,9 +33,7 @@ package() {
   chmod +x rescribe
   mv rescribe "$pkgdir/usr/bin"
   mv nodegit.node "$pkgdir/usr/bin"
-
   mkdir -p "$pkgdir/home/$USER"
-  cp .rescribe.yml "$pkgdir/home/$USER"
 
-  ./add_completion $pkgdir
+  ./postinstall $pkgdir
 }

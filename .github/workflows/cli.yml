@@ -15,7 +15,8 @@ jobs:
       - name: Setup Node.js 12
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
+          node-version: 14.x
+          scope: "@rescribe"
       # node npm - cache
       - uses: actions/cache@v2
         with:
@@ -26,12 +27,41 @@ jobs:
       - name: install dependencies
         run: |
           cd scripts/install
-          ./install_cli.sh
+          ./cli.sh
           cd -
+      - name: copy license
+        id: license
+        run: |
+          cp LICENSE cli
       - name: build
+        id: build
         run: |
           cd cli
-          npm run build:package
+          npm run build
+          cp -R lib dist
+          cd -
+      - name: publish to npm
+        id: publish-npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Setup .npmrc file to publish to GitHub Packages
+      - uses: actions/setup-node@v1
+        with:
+          registry-url: "https://npm.pkg.github.com"
+          node-version: 14.x
+          scope: "@rescribe"
+      - name: publish to github packages
+        id: publish-github-packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: package
+        id: package
+        run: |
+          cd cli
+          npm run clean:dist
+          ./package.sh
           cd -
       - uses: jakejarvis/s3-sync-action@main
         with:
@@ -46,17 +76,21 @@ jobs:
         uses: chetan/invalidate-cloudfront-action@main
         env:
           DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_ID_CLI }}
-          PATHS: '/*'
-          AWS_REGION: 'us-east-1'
+          PATHS: "/*"
+          AWS_REGION: "us-east-1"
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: get commit message
+        id: commit-message
+        run: |
+          echo ::set-env name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
       - name: publish to aur
         env:
           PUBLIC_KEY: ${{ secrets.AUR_CLI_PUBLIC_KEY }}
           PRIVATE_KEY: ${{ secrets.AUR_CLI_PRIVATE_KEY }}
         run: |
           cd cli/pub/aur
-          ./publish.sh
+          ./publish.sh $commitmsg
           cd -
       - name: finish
         run: echo "finished!"

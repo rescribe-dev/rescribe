@@ -9,7 +9,7 @@ import IndexMessagesEnglish from 'locale/pages/index/en';
 const IndexPage = (args: IndexPageProps): JSX.Element => {
   return (
     <Layout location={args.location}>
-      <SEO title="Rescribe" />
+      <SEO title="reScribe" />
       <IndexContent {...args} messages={IndexMessagesEnglish} />
     </Layout>
   );

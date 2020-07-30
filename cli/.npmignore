@@ -1,5 +1,7 @@
-# gitignore
+# ignore logs
+*.logs*
 
+# gitignore
 coverage/
 node_modules/
 npm-debug.log*
@@ -9,8 +11,19 @@ yarn-error.log*
 lib
 lib_test
 
-# npmignore
+# ignore config files
+.env
+.rescribe*
+rescriberc.yml
 
-src/
+# except for default
+!.rescriberc.default.yml
+
+# npmignore
 __tests__/
 .vscode/
+.idea/
+pub/
+tmp
+aur
+dist/*.zip

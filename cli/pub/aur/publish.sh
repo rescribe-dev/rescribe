@@ -38,7 +38,7 @@ if [ ! -d "$repo_name" ]; then
   if [ ! -n "$(grep "^aur.archlinux.org " ~/.ssh/known_hosts)" ]; then
     ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
   fi
-  git clone ssh://aur@aur.archlinux.org/rescribe.git "$repo_name"
+  git clone ssh://aur@aur.archlinux.org/rescribe-bin.git "$repo_name"
 else
   cd "$repo_name"
   rm -rf *
@@ -48,6 +48,8 @@ fi
 makepkg --printsrcinfo > "$repo_name/.SRCINFO"
 cp PKGBUILD "$repo_name"
 cp rescribe.install "$repo_name"
+cp README.md "$repo_name"
+cp ../../LICENSE "$repo_name"
 
 temp_file=".tmp.zip"
 
@@ -78,8 +80,12 @@ cd "$repo_name"
 namcap PKGBUILD
 cd - &>/dev/null
 
+if ! [ -n "$commitmsg" ]; then
+  commitmsg="updated rescribe cli package"
+fi
+
 cd "$repo_name"
 git add -A
-git commit -m "updated rescribe cli package"
+git commit -m "$commitmsg"
 git push
 cd - &>/dev/null

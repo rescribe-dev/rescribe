@@ -117,7 +117,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
               <NavbarBrand tag={Link} to="/">
                 <img
                   src={logo}
-                  alt="Rescribe"
+                  alt="reScribe"
                   style={{
                     width: '10rem',
                     marginBottom: 0,
@@ -338,7 +338,7 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  siteTitle: 'Rescribe',
+  siteTitle: 'reScribe',
 };
 
 export default Header;

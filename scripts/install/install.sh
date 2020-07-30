@@ -44,11 +44,11 @@ done
 cd scripts/install
 
 # local packages
-./install_cli.sh
-./install_antlr.sh
+./cli.sh
+./antlr.sh
 
 # additional installs
-./install_git_secrets.sh
+./git_secrets.sh
 
 cd -
 

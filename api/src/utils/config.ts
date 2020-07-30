@@ -81,7 +81,7 @@ export const configData: ConfigType = {
   SENDGRID_MAILING_LIST_ID: '',
   SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID: 0,
   MAILING_LIST_EMAIL: 'mail@rescribe.dev',
-  MAILING_LIST_EMAIL_NAME: 'Rescribe',
+  MAILING_LIST_EMAIL_NAME: 'reScribe',
   NOREPLY_EMAIL: 'noreply@rescribe.dev',
   NOREPLY_EMAIL_NAME: 'no reply',
   RECAPTCHA_SECRET: ''

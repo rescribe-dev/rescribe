@@ -5,7 +5,7 @@ set -e
 cli_url="https://cli.rescribe.dev/linux.zip"
 temp_folder=tmp
 install_location=/usr/bin
-config_file=~/.rescribe.yml
+config_file=~/.rescriberc.yml
 
 if [ -d "$temp_folder" ]; then
   echo "folder \"$temp_folder\" already exists in current directory"
@@ -24,13 +24,7 @@ chmod +x rescribe
 sudo cp rescribe "$install_location"
 sudo cp nodegit.node "$install_location"
 
-if [ ! -f "$config_file" ]; then
-  cp .rescribe.yml "$config_file"
-fi
-
-completion_script="./add_completion.sh"
-chmod +x "$completion_script"
-"$completion_script"
+./postinstall.sh
 
 rm -rf "$temp_folder"
 

@@ -9,7 +9,7 @@ config();
 
 export default {
   siteMetadata: {
-    title: 'Rescribe',
+    title: 'reScribe',
     description: 'search engine for code',
     author: 'rescribe',
     siteUrl: process.env.GATSBY_SITE_URL,
@@ -64,7 +64,7 @@ export default {
     {
       resolve: 'gatsby-plugin-manifest',
       options: {
-        name: 'Rescribe',
+        name: 'reScribe',
         short_name: 'rescribe',
         start_url: '/',
         background_color: '#a2466c',

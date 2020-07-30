@@ -4,7 +4,7 @@ title: github permissions
 sidebar_label: github permissions
 ---
 
-Rescribe requests the following permissions from GitHub:
+reScribe requests the following permissions from GitHub:
 
 - user account read
 

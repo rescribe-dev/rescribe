@@ -17,7 +17,7 @@ RUN apt-get update \
     && chmod +x /usr/sbin/wait-for-it.sh
 
 # Add Maintainer Info
-LABEL maintainer="Rescribe"
+LABEL maintainer="reScribe"
 
 # Create app directory
 WORKDIR /app

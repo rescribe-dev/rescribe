@@ -1,4 +1,4 @@
-const name = 'Rescribe';
+const name = 'reScribe';
 const version = '0.0.1';
 const docsWebsite = 'https://docs.rescribe.dev';
 const appWebsite = 'https://github.com/apps/rescribe-github';

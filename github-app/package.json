@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "rescribe github integration",
-  "author": "Rescribe <maintainer@rescribe.com>",
+  "author": "reScribe <maintainer@rescribe.com>",
   "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",

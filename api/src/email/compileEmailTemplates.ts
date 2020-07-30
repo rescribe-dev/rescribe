@@ -53,7 +53,7 @@ export const emailTemplateFiles: TemplateFiles = {
   welcomeNewsletter: {
     file: 'welcome_newsletter.html',
     template: undefined,
-    subject: 'Welcome to Rescribe!'
+    subject: 'Welcome to reScribe!'
   },
 };
 

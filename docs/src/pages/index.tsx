@@ -10,13 +10,13 @@ const features = [
   {
     title: <>Easy to Use</>,
     imageUrl: 'img/undraw_docusaurus_mountain.svg',
-    description: <>Rescribe was designed to make it easy to index your code.</>,
+    description: <>reScribe was designed to make it easy to index your code.</>,
   },
   {
     title: <>Increases Development Speed</>,
     imageUrl: 'img/undraw_docusaurus_tree.svg',
     description: (
-      <>Rescribe lets you find the code you need, making development faster.</>
+      <>reScribe lets you find the code you need, making development faster.</>
     ),
   },
   {
@@ -24,7 +24,7 @@ const features = [
     imageUrl: 'img/undraw_docusaurus_react.svg',
     description: (
       <>
-        Build custom extensions and implementations, using Rescribe&apos;s
+        Build custom extensions and implementations, using reScribe&apos;s
         intuitive graphql api.
       </>
     ),

@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Rescribe Docs',
+  title: 'reScribe Docs',
   tagline: 'code search engine',
   url: 'https://docs.rescribe.dev',
   baseUrl: '/',
@@ -11,7 +11,7 @@ module.exports = {
     navbar: {
       title: '',
       logo: {
-        alt: 'Rescribe Docs',
+        alt: 'reScribe Docs',
         src: 'img/logo.svg',
       },
       links: [
@@ -78,7 +78,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Rescribe`,
+      copyright: `Copyright © ${new Date().getFullYear()} reScribe`,
     },
   },
   presets: [

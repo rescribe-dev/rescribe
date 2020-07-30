@@ -11,7 +11,14 @@ shell_rc_file=~/."$default_shell""rc"
 
 if [ -f $shell_rc_file ]; then
   if ! grep -q "$start_completions_str" "$shell_rc_file"; then
-    "$1/usr/bin/rescribe" completion >> ~/.bashrc
+    if [ -f "$1/usr/bin/rescribe" ]; then
+      "$1/usr/bin/rescribe" completion >> ~/.bashrc
+    elif command -v rescribe &> /dev/null; then
+      rescribe completion >> ~/.bashrc
+    else
+      echo "cannot find rescribe command"
+      exit 1
+    fi
     echo "completion added"
   else
     echo "completion already found"
