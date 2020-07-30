@@ -60,7 +60,6 @@ jobs:
         id: package
         run: |
           cd cli
-          npm run clean:dist
           ./package.sh
           cd -
       - uses: jakejarvis/s3-sync-action@main
