@@ -3,7 +3,7 @@ import { verifyGithub } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
-import { getGithubFile } from '../utils/getGithubFile';
+import { getGithubFile } from '../github/getGithubFile';
 import { UserModel } from '../schema/auth/user';
 import { indexFile, saveChanges, FileWriteData, Aggregates } from './shared';
 import { RepositoryModel } from '../schema/structure/repository';

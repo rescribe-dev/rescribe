@@ -10,6 +10,11 @@ export let pubSub: RedisPubSub;
 
 export let cache: Redis.Redis;
 
+export interface RedisKey {
+  path: string;
+  type: string;
+}
+
 export const initializeRedis = async (): Promise<void> => {
   if (configData.REDIS_HOST.length === 0) {
     const message = 'no redis host provided';

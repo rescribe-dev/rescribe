@@ -24,6 +24,7 @@ import { handleRefreshToken } from './utils/jwt';
 import { configData } from './utils/config';
 import { getSitemap } from './sitemap/getSitemap';
 import { sitemapPaths } from './sitemap/sitemaps';
+import { initializeProducts } from './products/init';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -47,8 +48,7 @@ export const initializeServer = async (): Promise<void> => {
     }],
     globalMiddlewares: [TypegooseMiddleware],
     emitSchemaFile: {
-      path: join(__dirname, '../../schema.graphql'),
-      commentDescriptions: true
+      path: join(__dirname, '../../schema.graphql')
     },
     pubSub
   });
@@ -127,6 +127,27 @@ export const initializeServer = async (): Promise<void> => {
         await initializeMappings();
         res.status(OK).json({
           message: 'initialized mappings'
+        });
+      } catch (err) {
+        const errObj = err as Error;
+        logger.error(errObj.message);
+        res.status(BAD_REQUEST).json({
+          message: errObj.message
+        });
+      }
+    });
+    app.post('/initializeProducts', async (req, res) => {
+      try {
+        const token = getToken(req);
+        if (token.length === 0) {
+          throw new Error('no authentication provided');
+        }
+        if (token !== configData.INITIALIZATION_KEY) {
+          throw new Error('invalid token provided');
+        }
+        await initializeProducts();
+        res.status(OK).json({
+          message: 'initialized products'
         });
       } catch (err) {
         const errObj = err as Error;

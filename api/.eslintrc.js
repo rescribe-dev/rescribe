@@ -28,6 +28,7 @@ module.exports = {
     }
   },
   rules: {
+    '@typescript-eslint/no-non-null-assertion': 'off',
     'prettier/prettier': ['error', { 'singleQuote': true }],
     'quotes': [2, 'single', { 'avoidEscape': true }],
     'semi': 'off',

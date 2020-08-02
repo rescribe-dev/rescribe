@@ -8,7 +8,7 @@ import { checkRepositoryAccess } from '../repositories/auth';
 import { AccessLevel } from '../schema/auth/access';
 import Location from '../schema/antlr/location';
 import { getS3FileData, getFileKey } from '../utils/aws';
-import { cache } from '../utils/redis';
+import { cache, RedisKey } from '../utils/redis';
 import { configData } from '../utils/config';
 
 const redisExpireSeconds = 60 * 20;
@@ -68,14 +68,11 @@ export const getLines = (content: string, location?: Location): string[] => {
   return content.substring(startIndex, endIndex + 1).split('\n');
 };
 
-interface RedisKey {
-  fileKey: string;
-}
-
 export const getText = async (file: FileDB, location?: Location): Promise<string[]> => {
   const fileKey = getFileKey(file.repository, file._id);
   const redisKeyObject: RedisKey = {
-    fileKey
+    path: fileKey,
+    type: 'fileText'
   };
   const redisKey = JSON.stringify(redisKeyObject);
   const redisData = await cache.get(redisKey);
