@@ -1,14 +1,14 @@
 import { EventBridgeHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { brotliCompress, gzip } from 'zlib';
-import xmlBuilder from 'xmlbuilder';
+import xml2js from 'xml2js';
 import { promisify } from 'util';
 import { getLogger } from 'log4js';
 import { initializeDB } from './shared/db/connect';
 import { UserModel } from './shared/schema/auth/user';
 import { initializeConfig, s3Bucket, websiteURL, dbConnectionURI, dbName } from './utils/config';
 import { initializeLogger } from './utils/logger';
-import { sitemapPaths } from './shared/sitemaps';
+import { sitemapPaths, staticSitemapPath } from './shared/sitemaps';
 import { createHash } from 'crypto';
 import axios from 'axios';
 import { OK } from 'http-status-codes';
@@ -16,6 +16,8 @@ import { format } from 'date-fns';
 import { SitemapModel, Sitemap } from './shared/schema/utils/sitemap';
 
 const logger = getLogger();
+
+const xmlBuilder = new xml2js.Builder();
 
 const brotliCompressPromise = promisify(brotliCompress);
 const gzipCompressPromise = promisify(gzip);
@@ -120,21 +122,35 @@ const writeSitemap = async (sitemapPath: string, data: string): Promise<CreateSi
 };
 
 const createSitemap = async (paths: string[], sitemapPath: string): Promise<CreateSitemapOutput> => {
-  const xmlFile = xmlBuilder.create('urlset')
-    .attribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
-    .attribute('xmlns:news', 'http://www.google.com/schemas/sitemap-news/0.9')
-    .attribute('xmlns:xhtml', 'http://www.w3.org/1999/xhtml')
-    .attribute('xmlns:mobile', 'http://www.google.com/schemas/sitemap-mobile/1.0')
-    .attribute('xmlns:image', 'http://www.google.com/schemas/sitemap-image/1.1')
-    .attribute('xmlns:video', 'http://www.google.com/schemas/sitemap-video/1.1');
+  const urlTags: Record<string, unknown>[] = [];
   for (const path of paths) {
-    const urlObj = xmlFile.element('url');
-    urlObj.element('loc', websiteURL + path);
-    urlObj.element('changefreq', changeFrequency);
-    urlObj.element('priority', priority);
+    const urlTag: Record<string, unknown> = {};
+    urlTag['loc'] = websiteURL + path;
+    urlTag['changefreq'] = changeFrequency;
+    urlTag['priority'] = priority;
+    urlTags.push(urlTag);
   }
-  const data = xmlFile.end();
-  return await writeSitemap(sitemapPath, data);
+  const xmlFile = xmlBuilder.buildObject({
+    urlset: {
+      $: {
+        xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9',
+        'xmlns:news': 'http://www.google.com/schemas/sitemap-news/0.9',
+        'xmlns:xhtml': 'http://www.w3.org/1999/xhtml',
+        'xmlns:mobile': 'http://www.google.com/schemas/sitemap-mobile/1.0',
+        'xmlns:image': 'http://www.google.com/schemas/sitemap-image/1.1',
+        'xmlns:video': 'http://www.google.com/schemas/sitemap-video/1.1'
+      },
+      url: urlTags
+    }
+  });
+  return await writeSitemap(sitemapPath, xmlFile);
+};
+
+const createSitemapURL = async (url: string, sitemapPath: string): Promise<CreateSitemapOutput> => {
+  const sitemapRes = await axios.get<string>(url);
+  const sitemapObj = await xml2js.parseStringPromise(sitemapRes.data) as string;
+  const sitemap = xmlBuilder.buildObject(sitemapObj);
+  return await writeSitemap(sitemapPath, sitemap);
 };
 
 interface SitemapIndexInput {
@@ -144,17 +160,23 @@ interface SitemapIndexInput {
 
 const createSitemapIndex = async (sitemapPath: string, files: SitemapIndexInput[]):
   Promise<CreateSitemapOutput> => {
-  const xmlFile = xmlBuilder.create('sitemapindex')
-    .attribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+  const sitemapTags: Record<string, unknown>[] = [];
   for (const fileData of files) {
-    const sitemapObj = xmlFile.element('sitemap');
-    sitemapObj.element('loc', websiteURL + fileData.path);
+    const sitemapTag: Record<string, unknown> = {};
+    sitemapTag['loc'] = websiteURL + fileData.path;
     // https://www.w3.org/TR/NOTE-datetime
-    sitemapObj.element('lastmod', format(fileData.lastmod, "yyyy-MM-dd'T'hh:mm:ssXXX"));
+    sitemapTag['lastmod'] = format(fileData.lastmod, "yyyy-MM-dd'T'hh:mm:ssXXX");
+    sitemapTags.push(sitemapTag);
   }
-
-  const data = xmlFile.end();
-  return await writeSitemap(sitemapPath, data);
+  const xmlFile = xmlBuilder.buildObject({
+    sitemapindex: {
+      $: {
+        xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9'
+      },
+      sitemap: sitemapTags
+    }
+  });
+  return await writeSitemap(sitemapPath, xmlFile);
 };
 
 const writeAllSitemaps = async (): Promise<void> => {
@@ -175,6 +197,14 @@ const writeAllSitemaps = async (): Promise<void> => {
   indexFiles.push({
     lastmod: userFileData.lastmod,
     path: sitemapPaths[1]
+  });
+
+  // handle main sitemap
+  const mainSitemapFileData = await createSitemapURL(websiteURL + staticSitemapPath, staticSitemapPath);
+  indexChanged = indexChanged || mainSitemapFileData.changed;
+  indexFiles.push({
+    lastmod: mainSitemapFileData.lastmod,
+    path: staticSitemapPath
   });
 
   // handle index sitemap
