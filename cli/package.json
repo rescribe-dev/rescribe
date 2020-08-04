@@ -22,7 +22,7 @@
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "precommit": "npm run lint && npm run format",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run build && cp -R lib dist",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
     "prebuild": "npm run format && npm run lint && npm run printTypescriptVersion",
     "build": "npm run codegen && tsc",

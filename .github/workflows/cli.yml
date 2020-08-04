@@ -35,13 +35,6 @@ jobs:
         id: license
         run: |
           cp LICENSE cli
-      - name: build
-        id: build
-        run: |
-          cd cli
-          npm run build
-          cp -R lib dist
-          cd -
       - name: publish to npm
         id: publish-npm
         run: |
@@ -55,7 +48,13 @@ jobs:
         with:
           registry-url: "https://npm.pkg.github.com"
           node-version: 14.x
-          scope: "@rescribe"
+          scope: "@rescribe-dev"
+      - name: change npm scope for github packages
+        id: change-scope-github-packages
+        run: |
+          cd cli
+          sed -i "s/@rescribe\/cli/@rescribe-dev\/cli/g" package.json package-lock.json
+          cd -
       - name: publish to github packages
         id: publish-github-packages
         run: |
