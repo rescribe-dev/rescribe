@@ -2,16 +2,13 @@
 
 set -e
 
-sudo apt-get install build-essential libarchive-dev bsdtar
+sudo wget -O /usr/local/bin/pacapt https://github.com/icy/pacapt/raw/ng/pacapt
+sudo chmod 755 /usr/local/bin/pacapt
+sudo ln -sv /usr/local/bin/pacapt /usr/local/bin/pacman || true
 
-tmp_dir="tmp-makepkg"
+whereis pacman
 
-git clone git://projects.archlinux.org/pacman.git "$tmp_dir"
-
-cd "$tmp_dir"
-./autogen.sh
-./configure --disable-doc
-make
-sudo make install
-
-cd - &>/dev/null
+if [ ! -x "$(command -v makepkg)" ]; then
+  echo "cannot find makepkg"
+  exit 1
+fi

@@ -13,6 +13,15 @@ jobs:
     steps:
       # checks out a copy of the repo
       - uses: actions/checkout@main
+      - name: install makepkg
+        id: install-makepkg
+        run: |
+          cd cli/pub/aur
+          if [ ! -x "$(command -v makepkg)" ]; then
+            # install makepkg if it doesn't exist
+            ./install_makepkg.sh
+          fi
+          cd -
       - name: Setup Node.js 12
         uses: actions/setup-node@v1
         with:
