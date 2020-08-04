@@ -28,7 +28,7 @@ export const configData: ConfigType = {
   useSecure: false,
   authToken: '',
   username: '',
-  cacheFilePath: `.${appName}.cache.yml`
+  cacheFilePath: `~/.${appName}.cache.yml`
 };
 
 interface CacheType {
