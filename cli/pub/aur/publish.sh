@@ -13,7 +13,7 @@ if [ -n "$PUBLIC_KEY" ]; then
 fi
 
 if [ -n "$PRIVATE_KEY" ]; then
-  printf "$PRIVATE_KEY" > "$private_key_file"
+  printf -- "$PRIVATE_KEY" > "$private_key_file"
 fi
 
 ssh_key_files=($public_key_file $private_key_file)

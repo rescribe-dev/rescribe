@@ -24,7 +24,10 @@ rescriberc.yml
 __tests__/
 .vscode/
 .idea/
-pub/
 tmp
-aur
 *.zip
+
+# pub folder
+pub/
+!pub/*.sh
+!pub/*.md
