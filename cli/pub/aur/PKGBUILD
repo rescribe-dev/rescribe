@@ -2,7 +2,7 @@
 # For more information, see 'man PKGBUILD'.
 # Maintainer: reScribe <rescribe.dev@gmail.com>
 
-pkgname=rescribe
+pkgname=rescribe-bin
 # update version in package.json, not here
 pkgver=
 pkgrel=1

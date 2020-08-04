@@ -1,12 +1,12 @@
-pkgbase = rescribe
+pkgbase = rescribe-bin
 	pkgdesc = code search engine cli
-	pkgver = 
+	pkgver =
 	pkgrel = 1
 	url = https://rescribe.dev
-	install = rescribe.install
+	install = rescribe-bin.install
 	arch = x86_64
 	license = CC-BY-NC-SA-4.0
 	options = !strip
 	source = https://cli.rescribe.dev/linux.zip
 
-pkgname = rescribe
+pkgname = rescribe-bin

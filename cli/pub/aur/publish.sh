@@ -50,7 +50,7 @@ else
 fi
 
 cp PKGBUILD "$repo_name"
-cp rescribe.install "$repo_name"
+cp rescribe-bin.install "$repo_name"
 cp README.md "$repo_name"
 cp ../../LICENSE "$repo_name"
 
@@ -84,7 +84,7 @@ else
   echo "makepkg could not be found. using default .SRCINFO"
   # otherwise copy the default
   cp ../.SRCINFO .
-  sed -i "s/pkgver = /pkgver = ($version)/g" PKGBUILD
+  sed -i "s/pkgver =/pkgver = ($version)/g" PKGBUILD
 fi
 cd - &>/dev/null
 
