@@ -15,7 +15,7 @@ else
 fi
 
 if ! [ -d node_modules ]; then
-  npm install
+  SKIP_POSTINSTALL=true npm install
 else
   echo "node_modules already exists"
 fi
