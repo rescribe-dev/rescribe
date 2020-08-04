@@ -1,2 +1,5 @@
 # ignore aur repository
 repo/
+
+# ignore tmp folder
+tmp-makepkg

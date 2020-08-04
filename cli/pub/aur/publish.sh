@@ -49,6 +49,11 @@ else
   cd - &>/dev/null
 fi
 
+if [ ! -x "$(command -v makepkg)" ]; then
+  # install makepkg if it doesn't exist
+  ./install_makepkg.sh
+fi
+
 makepkg --printsrcinfo > "$repo_name/.SRCINFO"
 cp PKGBUILD "$repo_name"
 cp rescribe.install "$repo_name"
