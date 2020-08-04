@@ -1,14 +1,24 @@
 import { sign, verify, SignOptions, VerifyOptions } from 'jsonwebtoken';
 import { Request } from 'express';
 import { nanoid } from 'nanoid';
-import User, { Plan, UserType, UserModel } from '../schema/auth/user';
+import User, { UserType, UserModel } from '../schema/auth/user';
 import { configData } from './config';
+import { getProduct, defaultProductName } from '../products/product.resolver';
+import Restrictions from '../schema/payments/restrictions';
 
 export const enum jwtType { LOCAL, GITHUB }
+
+export interface JWTAuthData {
+  id: string;
+  plan: string;
+  type: string;
+  emailVerified: boolean;
+}
 
 export interface AuthData {
   id: string;
   plan: string;
+  restrictions: Restrictions;
   type: string;
   emailVerified: boolean;
 }
@@ -65,9 +75,9 @@ export const generateJWTGuest = (): Promise<string> => {
       reject(err as Error);
       return;
     }
-    const authData: AuthData = {
+    const authData: JWTAuthData = {
       id: nanoid(),
-      plan: Plan.free,
+      plan: defaultProductName,
       type: UserType.visitor,
       emailVerified: false,
     };
@@ -86,7 +96,7 @@ export const generateJWTGuest = (): Promise<string> => {
 };
 
 export const generateJWTAccess = (user: User): Promise<string> => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     let secret: string;
     let jwtIssuer: string;
     try {
@@ -100,7 +110,7 @@ export const generateJWTAccess = (user: User): Promise<string> => {
       reject('id required');
       return;
     }
-    const authData: AuthData = {
+    const authData: JWTAuthData = {
       id: user._id.toHexString(),
       plan: user.plan,
       type: user.type,
@@ -212,22 +222,31 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
     } else {
       jwtConfig = {};
     }
-    verify(token, secret, jwtConfig, (err, res: any) => {
+    verify(token, secret, jwtConfig, async (err, res: any) => {
       if (err) {
         reject(err as Error);
       } else {
         let data: AuthData;
         if (type === jwtType.LOCAL) {
+          const inputData = res as JWTAuthData;
           data = {
-            id: res.id,
-            plan: res.plan,
-            type: res.type,
-            emailVerified: res.emailVerified
+            id: inputData.id,
+            plan: inputData.plan,
+            restrictions: {
+              ...(await getProduct({
+                name: inputData.plan
+              }))
+            },
+            type: inputData.type,
+            emailVerified: inputData.emailVerified
           };
         } else if (type === jwtType.GITHUB) {
           data = {
             id: nanoid(),
-            plan: Plan.free,
+            plan: defaultProductName,
+            restrictions: {
+              storage: Number.MAX_SAFE_INTEGER
+            },
             type: UserType.github,
             emailVerified: true
           };

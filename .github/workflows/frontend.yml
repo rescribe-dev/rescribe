@@ -44,7 +44,8 @@ jobs:
           GATSBY_GOOGLE_OPTIMIZE_ID: ${{ secrets.GATSBY_GOOGLE_OPTIMIZE_ID }}
           GATSBY_GOOGLE_EXPERIMENT_ID: ${{ secrets.GATSBY_GOOGLE_EXPERIMENT_ID }}
           GATSBY_GOOGLE_VARIATION_ID: ${{ secrets.GATSBY_GOOGLE_VARIATION_ID }}
-          GATSBY_GITHUB_CLIENT_ID: $ {{ secrets.GATSBY_GITHUB_CLIENT_ID }}
+          GATSBY_GITHUB_CLIENT_ID: ${{ secrets.GATSBY_GITHUB_CLIENT_ID }}
+          GATSBY_STRIPE_SITE_KEY: ${{ secrets.GATSBY_STRIPE_SITE_KEY }}
       - name: copy dist
         run: cp -r web/dist aws/cloudfront/build-cloudfront/dist
       - name: upload

@@ -1,10 +1,11 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { accountExistsEmail, accountExistsUsername } from '../users/shared';
 import { ObjectID } from 'mongodb';
-import User, { Plan, UserType, UserModel } from '../schema/auth/user';
+import User, { UserType, UserModel } from '../schema/auth/user';
 import { createGithubOauthClient } from './init';
 import { gql } from 'apollo-server-express';
 import { print } from 'graphql/language/printer';
+import { defaultProductName } from '../products/product.resolver';
 
 @ArgsType()
 class RegisterGithubArgs {
@@ -58,14 +59,15 @@ class RegisterGithubResolver {
       username,
       email,
       password: '',
-      plan: Plan.free,
+      plan: defaultProductName,
       type: UserType.user,
       emailVerified: true,
       tokenVersion: 0,
       githubInstallationID: -1,
       githubUsername: username,
       projects: [],
-     repositories: []
+      repositories: [],
+      paymentMethods: {}
     };
     const userCreateRes = await new UserModel(newUser).save();
     return (`created user ${userCreateRes.id}`);

@@ -33,6 +33,7 @@
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_API_KEY-RarumD",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_ID-CLvNj6",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID-P4WpnA",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:STRIPE_SECRET-Hv3bc2",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:RECAPTCHA_SECRET-tc1ajA"
       ]
     },

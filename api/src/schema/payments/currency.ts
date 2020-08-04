@@ -1,0 +1,16 @@
+import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import { ObjectType, Field, Int } from 'type-graphql';
+
+@ObjectType({ description: 'currency data' })
+@modelOptions({ schemaOptions: { collection: 'currencies' } })
+export default class Currency {
+  @Field({ description: 'currency name' })
+  @Property({ required: true })
+  name: string;
+
+  @Field(_type => Int, { description: 'exchange rate to usd' })
+  @Property({ required: true, type: Number })
+  exchangeRate: number;
+}
+
+export const CurrencyModel = getModelForClass(Currency);

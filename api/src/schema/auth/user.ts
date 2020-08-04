@@ -2,16 +2,7 @@ import { ObjectType, Field, registerEnumType } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import Access from './access';
-
-
-export enum Plan {
-  free = 'free',
-}
-
-registerEnumType(Plan, {
-  name: 'Plan',
-  description: 'user plan',
-});
+import PaymentMethod from '../payments/paymentMethod';
 
 export enum UserType {
   user = 'user',
@@ -25,7 +16,7 @@ registerEnumType(UserType, {
   description: 'user type',
 });
 
-@ObjectType({description: 'public user data'})
+@ObjectType({ description: 'public user data' })
 export class PublicUser {
   @Field({ description: 'name' })
   @Property({ required: true })
@@ -40,15 +31,15 @@ export class PublicUser {
   email: string;
 }
 
-@ObjectType({description: 'user account'})
+@ObjectType({ description: 'user account' })
 @modelOptions({ schemaOptions: { collection: 'users' } })
 export default class User extends PublicUser {
   @Field()
   readonly _id: ObjectId;
 
-  @Field({ description: 'user plan' })
+  @Field({ description: 'user plan name' })
   @Property({ required: true })
-  plan: Plan;
+  plan: string;
 
   @Field({ description: 'user type' })
   @Property({ required: true })
@@ -80,6 +71,9 @@ export default class User extends PublicUser {
   @Field(_type => [Access], { description: 'project access' })
   @Property({ required: true, type: Access })
   projects: Access[];
+
+  @Property({ required: true, type: PaymentMethod })
+  paymentMethods: Record<string, PaymentMethod>;
 }
 
 export const UserModel = getModelForClass(User);

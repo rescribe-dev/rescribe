@@ -43,6 +43,8 @@ interface ConfigType {
   NOREPLY_EMAIL: string,
   NOREPLY_EMAIL_NAME: string,
   RECAPTCHA_SECRET: string;
+  CONNECT_STRIPE: boolean;
+  STRIPE_SECRET: string;
 }
 
 export const configData: ConfigType = {
@@ -84,7 +86,9 @@ export const configData: ConfigType = {
   MAILING_LIST_EMAIL_NAME: 'reScribe',
   NOREPLY_EMAIL: 'noreply@rescribe.dev',
   NOREPLY_EMAIL_NAME: 'no reply',
-  RECAPTCHA_SECRET: ''
+  RECAPTCHA_SECRET: '',
+  CONNECT_STRIPE: true,
+  STRIPE_SECRET: ''
 };
 
 const addToConfig = (conf: any, allString: boolean): void => {
@@ -119,7 +123,7 @@ const addToConfig = (conf: any, allString: boolean): void => {
 
 export const initializeConfig = async (): Promise<void> => {
   const configRes = await cosmiconfig(appName, {
-    cache: true
+    cache: false
   }).search();
   if (!configRes || configRes.isEmpty) {
     throw new Error('no configuration found in config');

@@ -5,13 +5,16 @@ import { passwordMinLen, specialCharacterRegex, numberRegex, lowercaseLetterRege
 import { saltRounds } from '../utils/variables';
 import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID, ObjectId } from 'mongodb';
-import User, { Plan, UserType, UserModel } from '../schema/auth/user';
+import User, { UserType, UserModel } from '../schema/auth/user';
 import { verifyRecaptcha } from '../utils/recaptcha';
 import { emailTemplateFiles } from '../email/compileEmailTemplates';
 import { sendEmailUtil } from '../email/sendEmail.resolver';
 import { configData } from '../utils/config';
 import { VerifyType, getSecret, jwtType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
 import { SignOptions, sign } from 'jsonwebtoken';
+import { defaultCurrency } from '../stripe/forex';
+import { stripeClient } from '../stripe/init';
+import { getProduct } from '../products/product.resolver';
 
 @ArgsType()
 class RegisterArgs {
@@ -96,21 +99,51 @@ class RegisterResolver {
     if (await accountExistsUsername(args.username)) {
       throw new Error('user with username already exists');
     }
+    const id = new ObjectID();
+    const defaultProduct = await getProduct({
+      name: undefined
+    });
+    let planStripeID: string | undefined = undefined;
+    for (const currency in defaultProduct.plans[0].currencies) {
+      if (currency === defaultCurrency) {
+        planStripeID = defaultProduct.plans[0].currencies[currency];
+      }
+    }
+    if (!planStripeID) {
+      throw new Error(`cannot find "${defaultProduct.name}" plan id for ${defaultCurrency}`);
+    }
+    const stripeCustomer = await stripeClient.customers.create({
+      email: args.email,
+      metadata: {
+        id: id.toHexString()
+      }
+    });
+    stripeClient.subscriptions.create({
+      customer: stripeCustomer.id,
+      items: [{
+        plan: planStripeID
+      }]
+    });
     const hashedPassword = await bcrypt.hash(args.password, saltRounds);
     const newUser: User = {
-      _id: new ObjectID(),
+      _id: id,
       name: args.name,
       username: args.username,
       email: args.email,
       password: hashedPassword,
-      plan: Plan.free,
+      plan: defaultProduct.name,
       type: UserType.user,
       emailVerified: false,
       tokenVersion: 0,
       githubInstallationID: -1,
       githubUsername: '',
       projects: [],
-     repositories: []
+      repositories: [],
+      paymentMethods: {}
+    };
+    newUser.paymentMethods[defaultCurrency] = {
+      customer: stripeCustomer.id,
+      payment: ''
     };
     const emailTemplateData = emailTemplateFiles.verifyEmail;
     const template = emailTemplateData.template;

@@ -3,1174 +3,1253 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
-# access data
+"""access data"""
 type Access {
   _id: ObjectId!
 
-  # access level
+  """access level"""
   level: String!
 
-  # access type
+  """access type"""
   type: String!
 }
 
-# access level
+"""access level"""
 enum AccessLevel {
-  owner
   admin
   edit
-  view
   none
+  owner
+  view
 }
 
-# base file
+"""base file"""
 type AntlrFile {
   _id: ObjectId!
 
-  # file name
-  name: String!
-
-  # import path
-  importPath: String!
-
-  # file path
-  path: String!
-
-  # classes
+  """classes"""
   classes: [Class!]!
 
-  # functions
-  functions: [Function!]!
-
-  # variables
-  variables: [Variable!]!
-
-  # imports
-  imports: [Import!]!
-
-  # comments
+  """comments"""
   comments: [Comment!]!
 
-  # language type
+  """functions"""
+  functions: [Function!]!
+
+  """import path"""
+  importPath: String!
+
+  """imports"""
+  imports: [Import!]!
+
+  """language type"""
   language: Language!
+
+  """file name"""
+  name: String!
+
+  """file path"""
+  path: String!
+
+  """variables"""
+  variables: [Variable!]!
 }
 
-# auth notification
+"""auth notification"""
 type AuthNotification {
   id: String!
   token: String!
 }
 
-# base folder
+"""base folder"""
 type BaseFolder {
-  # name
-  name: String!
-
-  # path
-  path: String!
-
-  # branches
+  """branches"""
   branches: [String!]!
 
-  # repository
-  repository: ObjectId!
+  """date created"""
+  created: Float!
 
-  # parent folder or repository
+  """name"""
+  name: String!
+
+  """parent folder or repository"""
   parent: ObjectId!
 
-  # public access level
+  """path"""
+  path: String!
+
+  """public access level"""
   public: [Access!]!
 
-  # date created
-  created: Float!
+  """repository"""
+  repository: ObjectId!
 
-  # date updated
+  """date updated"""
   updated: Float!
 }
 
-# base project
+"""base project"""
 type BaseProject {
-  # name
+  """date created"""
+  created: Float!
+
+  """name"""
   name: String!
 
-  # repositories
+  """owner"""
+  owner: ObjectId!
+
+  """repositories"""
   repositories: [ObjectId!]!
 
-  # owner
-  owner: ObjectId!
-
-  # date created
-  created: Float!
-
-  # date updated
+  """date updated"""
   updated: Float!
 }
 
-# base repository
+"""base repository"""
 type BaseRepository {
-  # name
-  name: String!
-
-  # owner
-  owner: ObjectId!
-
-  # branches
+  """branches"""
   branches: [String!]!
 
-  # public access level
-  public: AccessLevel!
-
-  # repository image
-  image: String!
-
-  # base folder containing files
-  folder: ObjectId!
-
-  # date created
+  """date created"""
   created: Float!
 
-  # date updated
-  updated: Float!
+  """base folder containing files"""
+  folder: ObjectId!
 
-  # number of lines of code
+  """repository image"""
+  image: String!
+
+  """number of lines of code"""
   linesOfCode: Int!
 
-  # number of files
+  """name"""
+  name: String!
+
+  """number of files"""
   numberOfFiles: Int!
+
+  """owner"""
+  owner: ObjectId!
+
+  """public access level"""
+  public: AccessLevel!
+
+  """date updated"""
+  updated: Float!
 }
 
-# class
+"""class"""
 type Class {
   _id: ObjectId!
 
-  # parent
-  parent: Parent!
-
-  # location
+  """location"""
   location: Location!
 
-  # class name
+  """class name"""
   name: String!
+
+  """parent"""
+  parent: Parent!
 }
 
-# comment
+"""comment"""
 type Comment {
   _id: ObjectId!
 
-  # parent
-  parent: Parent!
-
-  # location
-  location: Location!
-
-  # data
+  """data"""
   data: String!
 
-  # type
+  """location"""
+  location: Location!
+
+  """parent"""
+  parent: Parent!
+
+  """type"""
   type: CommentType!
 }
 
-# comment type
+"""comment type"""
 enum CommentType {
   multilineComment
   singleLineComment
 }
 
-# file
+"""currency data"""
+type Currency {
+  """exchange rate to usd"""
+  exchangeRate: Int!
+
+  """currency name"""
+  name: String!
+}
+
+"""file"""
 type File {
   _id: ObjectId!
 
-  # file name
-  name: String!
+  """branches"""
+  branches: [String!]!
 
-  # import path
-  importPath: String!
-
-  # path
-  path: String!
-
-  # classes
+  """classes"""
   classes: [Class!]!
 
-  # functions
-  functions: [Function!]!
-
-  # variables
-  variables: [Variable!]!
-
-  # imports
-  imports: [Import!]!
-
-  # comments
+  """comments"""
   comments: [Comment!]!
 
-  # language type
-  language: Language!
-
-  # sha-1 hash
-  hash: String!
-
-  # has antlr data
-  hasStructure: Boolean!
-
-  # number of lines in file
-  fileLength: Int!
-
-  # repository id
-  repository: ObjectId!
-
-  # branches
-  branches: [String!]!
-
-  # number of branches
-  numBranches: Int!
-
-  # public access level
-  public: AccessLevel!
-
-  # folder
-  folder: ObjectId
-
-  # date created
+  """date created"""
   created: Float!
 
-  # date updated
-  updated: Float!
-}
+  """number of lines in file"""
+  fileLength: Int!
 
-# file owner
-type FileLocation {
-  # repository name
-  repository: String!
+  """folder"""
+  folder: ObjectId
 
-  # repository owner
-  owner: String!
+  """functions"""
+  functions: [Function!]!
 
-  # repository image
-  image: String!
-}
+  """sha-1 hash"""
+  hash: String!
 
-# file result
-type FileResult {
-  # file id
-  _id: ObjectId!
+  """has antlr data"""
+  hasStructure: Boolean!
 
-  # file name
+  """import path"""
+  importPath: String!
+
+  """imports"""
+  imports: [Import!]!
+
+  """language type"""
+  language: Language!
+
+  """file name"""
   name: String!
 
-  # file path
+  """number of branches"""
+  numBranches: Int!
+
+  """path"""
   path: String!
 
-  # search results
-  results: [SearchResult!]!
+  """public access level"""
+  public: AccessLevel!
 
-  # file search results
-  fileResult: FileSearchResult
+  """repository id"""
+  repository: ObjectId!
 
-  # language data
-  language: LanguageData!
+  """date updated"""
+  updated: Float!
 
-  # file location
-  location: FileLocation!
+  """variables"""
+  variables: [Variable!]!
+}
 
-  # lines in file
-  lines: Location!
+"""file owner"""
+type FileLocation {
+  """repository image"""
+  image: String!
 
-  # branches
+  """repository owner"""
+  owner: String!
+
+  """repository name"""
+  repository: String!
+}
+
+"""file result"""
+type FileResult {
+  """file id"""
+  _id: ObjectId!
+
+  """branches"""
   branches: [String!]!
 
-  # result score
+  """file search results"""
+  fileResult: FileSearchResult
+
+  """language data"""
+  language: LanguageData!
+
+  """lines in file"""
+  lines: Location!
+
+  """file location"""
+  location: FileLocation!
+
+  """file name"""
+  name: String!
+
+  """file path"""
+  path: String!
+
+  """search results"""
+  results: [SearchResult!]!
+
+  """result score"""
   score: Float!
 }
 
-# file result match
+"""file result match"""
 type FileSearchResult {
-  # file search results
-  results: [SearchResult!]!
-
-  # file preview
+  """file preview"""
   preview: Preview!
+
+  """file search results"""
+  results: [SearchResult!]!
 }
 
-# folder
+"""folder"""
 type Folder {
-  # name
-  name: String!
-
-  # path
-  path: String!
-
-  # branches
-  branches: [String!]!
-
-  # repository
-  repository: ObjectId!
-
-  # parent folder or repository
-  parent: ObjectId!
-
-  # public access level
-  public: [Access!]!
-
-  # date created
-  created: Float!
-
-  # date updated
-  updated: Float!
   _id: ObjectId!
 
-  # number of branches
+  """branches"""
+  branches: [String!]!
+
+  """date created"""
+  created: Float!
+
+  """name"""
+  name: String!
+
+  """number of branches"""
   numBranches: Int!
-}
 
-# folder db
-type FolderDB {
-  # name
-  name: String!
-
-  # path
-  path: String!
-
-  # branches
-  branches: [String!]!
-
-  # repository
-  repository: ObjectId!
-
-  # parent folder or repository
+  """parent folder or repository"""
   parent: ObjectId!
 
-  # public access level
+  """path"""
+  path: String!
+
+  """public access level"""
   public: [Access!]!
 
-  # date created
-  created: Float!
+  """repository"""
+  repository: ObjectId!
 
-  # date updated
+  """date updated"""
   updated: Float!
-  _id: ObjectId!
 }
 
-# baseline function
+"""folder db"""
+type FolderDB {
+  _id: ObjectId!
+
+  """branches"""
+  branches: [String!]!
+
+  """date created"""
+  created: Float!
+
+  """name"""
+  name: String!
+
+  """parent folder or repository"""
+  parent: ObjectId!
+
+  """path"""
+  path: String!
+
+  """public access level"""
+  public: [Access!]!
+
+  """repository"""
+  repository: ObjectId!
+
+  """date updated"""
+  updated: Float!
+}
+
+"""baseline function"""
 type Function {
   _id: ObjectId!
 
-  # parent
-  parent: Parent!
+  """is a constructor"""
+  isConstructor: Boolean!
 
-  # location
+  """location"""
   location: Location!
 
-  # function name
+  """function name"""
   name: String!
 
-  # return type
-  returnType: String!
+  """parent"""
+  parent: Parent!
 
-  # is a constructor
-  isConstructor: Boolean!
+  """return type"""
+  returnType: String!
 }
 
-# import
+"""import"""
 type Import {
   _id: ObjectId!
 
-  # parent
-  parent: Parent!
-
-  # location
+  """location"""
   location: Location!
 
-  # path
+  """parent"""
+  parent: Parent!
+
+  """path"""
   path: String!
 
-  # selection
+  """selection"""
   selection: String!
 }
 
-# language type
+"""language type"""
 enum Language {
-  none
   java
   javascript
+  none
 }
 
-# language data
+"""language data"""
 type LanguageData {
-  # language name
-  name: Language!
-
-  # associated color
+  """associated color"""
   color: Int!
+
+  """language name"""
+  name: Language!
 }
 
-# location
+"""location"""
 type Location {
-  # start
-  start: Float!
-
-  # end
+  """end"""
   end: Float!
+
+  """start"""
+  start: Float!
 }
 
 type Mutation {
-  deleteAccount(
-    # email
-    email: String
-  ): String!
-  login(
-    # recaptcha token
-    recaptchaToken: String!
-
-    # username or email
-    usernameEmail: String!
-
-    # password
-    password: String!
-  ): String!
-  loginGuest: String!
-  logout: String!
-  revokeRefresh(
-    # email
-    email: String
-  ): String!
   addBranch(
-    # branch name
+    """branch name"""
     name: String!
 
-    # repository id
+    """repository id"""
     repository: ObjectId!
   ): String!
-  deleteFile(
-    # file id
-    id: ObjectId!
-
-    # branch name
-    branch: String!
-  ): String!
-  deleteBranch(
-    # repository id
-    repository: ObjectId!
-
-    # branch name
+  addCurrency(
+    """currency name"""
     name: String!
-  ): String!
-  sendTestEmail(
-    # email
-    email: String!
-
-    # name
-    name: String!
-
-    # content
-    content: String
-
-    # subject
-    subject: String
-  ): String!
-  addToMailingList(
-    # recaptcha token
-    recaptchaToken: String!
-
-    # name
-    name: String!
-
-    # email
-    email: String!
-  ): String!
-  indexFiles(
-    # paths
-    paths: [String!]!
-
-    # files
-    files: [Upload!]!
-
-    # repository name
-    repository: String!
-
-    # repository owner
-    owner: String!
-
-    # branch
-    branch: String!
-
-    # create branch automatically
-    autoCreateBranch: Boolean = false
-  ): String!
-  indexGithub(
-    # github repository id
-    githubRepositoryID: Int!
-
-    # added
-    added: [String!]!
-
-    # modified
-    modified: [String!]!
-
-    # removed
-    removed: [String!]!
-
-    # branch
-    ref: String!
-
-    # repo name
-    repositoryName: String!
-
-    # repo owner
-    repositoryOwner: String!
-
-    # github installation id
-    installationID: Int!
   ): String!
   addFolder(
-    # folder name
+    """branch name"""
+    branch: String!
+
+    """folder name"""
     name: String!
 
-    # folder path
+    """owner name"""
+    owner: String
+
+    """folder path"""
     path: String!
 
-    # branch name
-    branch: String!
-
-    # repository id
-    repositoryID: ObjectId
-
-    # repository name
+    """repository name"""
     repository: String
 
-    # owner name
-    owner: String
-  ): String!
-  deleteFolder(
-    # folder id
-    id: ObjectId
-
-    # folder name
-    name: String
-
-    # folder path
-    path: String
-
-    # branch name
-    branch: String!
-
-    # repository id
+    """repository id"""
     repositoryID: ObjectId
-
-    # repository name
-    repository: String
-
-    # owner name
-    owner: String
   ): String!
-  loginGithub(
-    # github code
-    code: String!
+  addProduct(
+    """product name"""
+    name: String!
 
-    # gitub state
-    state: String!
-  ): String!
-  registerGithub(
-    # name
-    name: String
+    """plans for product"""
+    plans: PlanInput!
 
-    # username
-    username: String
-
-    # github code
-    code: String!
-
-    # gitub state
-    state: String!
+    """storage allowed (in bytes)"""
+    storage: Float!
   ): String!
   addProject(
-    # project name
+    """project name"""
+    name: String!
+  ): String!
+  addRepository(
+    """repository name"""
+    name: String!
+
+    """project"""
+    project: ObjectId
+
+    """public access level"""
+    publicAccess: AccessLevel!
+  ): String!
+  addToMailingList(
+    """email"""
+    email: String!
+
+    """name"""
+    name: String!
+
+    """recaptcha token"""
+    recaptchaToken: String!
+  ): String!
+  deleteAccount(
+    """email"""
+    email: String
+  ): String!
+  deleteBranch(
+    """branch name"""
+    name: String!
+
+    """repository id"""
+    repository: ObjectId!
+  ): String!
+  deleteCurrency(
+    """currency name"""
+    name: String!
+  ): String!
+  deleteFile(
+    """branch name"""
+    branch: String!
+
+    """file id"""
+    id: ObjectId!
+  ): String!
+  deleteFolder(
+    """branch name"""
+    branch: String!
+
+    """folder id"""
+    id: ObjectId
+
+    """folder name"""
+    name: String
+
+    """owner name"""
+    owner: String
+
+    """folder path"""
+    path: String
+
+    """repository name"""
+    repository: String
+
+    """repository id"""
+    repositoryID: ObjectId
+  ): String!
+  deleteProduct(
+    """product name"""
     name: String!
   ): String!
   deleteProject(
-    # project id
+    """project id"""
     id: ObjectId!
-  ): String!
-  addRepository(
-    # repository name
-    name: String!
-
-    # project
-    project: ObjectId
-
-    # public access level
-    publicAccess: AccessLevel!
   ): String!
   deleteRepository(
-    # repository id
+    """repository id"""
     id: ObjectId!
   ): String!
-  register(
-    # recaptcha token
+  indexFiles(
+    """create branch automatically"""
+    autoCreateBranch: Boolean = false
+
+    """branch"""
+    branch: String!
+
+    """files"""
+    files: [Upload!]!
+
+    """repository owner"""
+    owner: String!
+
+    """paths"""
+    paths: [String!]!
+
+    """repository name"""
+    repository: String!
+  ): String!
+  indexGithub(
+    """added"""
+    added: [String!]!
+
+    """github repository id"""
+    githubRepositoryID: Int!
+
+    """github installation id"""
+    installationID: Int!
+
+    """modified"""
+    modified: [String!]!
+
+    """branch"""
+    ref: String!
+
+    """removed"""
+    removed: [String!]!
+
+    """repo name"""
+    repositoryName: String!
+
+    """repo owner"""
+    repositoryOwner: String!
+  ): String!
+  login(
+    """password"""
+    password: String!
+
+    """recaptcha token"""
     recaptchaToken: String!
 
-    # name
-    name: String!
+    """username or email"""
+    usernameEmail: String!
+  ): String!
+  loginGithub(
+    """github code"""
+    code: String!
 
-    # username
-    username: String!
-
-    # email
+    """gitub state"""
+    state: String!
+  ): String!
+  loginGuest: String!
+  logout: String!
+  register(
+    """email"""
     email: String!
 
-    # password
+    """name"""
+    name: String!
+
+    """password"""
     password: String!
+
+    """recaptcha token"""
+    recaptchaToken: String!
+
+    """username"""
+    username: String!
   ): String!
-  updateAccount(
-    # name
+  registerGithub(
+    """github code"""
+    code: String!
+
+    """name"""
     name: String
 
-    # email
+    """gitub state"""
+    state: String!
+
+    """username"""
+    username: String
+  ): String!
+  revokeRefresh(
+    """email"""
+    email: String
+  ): String!
+  sendTestEmail(
+    """content"""
+    content: String
+
+    """email"""
+    email: String!
+
+    """name"""
+    name: String!
+
+    """subject"""
+    subject: String
+  ): String!
+  updateAccount(
+    """email"""
     email: String
 
-    # password
+    """name"""
+    name: String
+
+    """password"""
     password: String
   ): String!
   usernameExists(
-    # recaptcha token
+    """recaptcha token"""
     recaptchaToken: String!
 
-    # username
+    """username"""
     username: String!
   ): Boolean!
   verifyEmail(
-    # name
+    """name"""
     token: String!
   ): String!
 }
 
-# class
+"""class"""
 type NestedObject {
   _id: ObjectId!
 
-  # parent
-  parent: Parent!
-
-  # location
+  """location"""
   location: Location!
+
+  """parent"""
+  parent: Parent!
 }
 
-# Mongo object id scalar type
+"""Mongo object id scalar type"""
 scalar ObjectId
 
-# parent
+"""parent"""
 type Parent {
   _id: ObjectId!
 
-  # parent type
+  """parent type"""
   type: ParentType!
 }
 
-# parent element object
+"""parent element object"""
 type ParentElement {
-  # parent name
+  """parent name"""
   name: String!
 
-  # parent type
+  """parent type"""
   type: ResultType!
 }
 
-# parent type
+"""parent type"""
 enum ParentType {
-  File
   Class
+  File
   Function
   Variable
 }
 
-# preview data
+type Plan {
+  """amount"""
+  amount: Float!
+
+  """currencies"""
+  currencies: String!
+
+  """interval"""
+  interval: String!
+}
+
+input PlanInput {
+  """plan cost"""
+  amount: Float!
+
+  """plan interval"""
+  interval: String!
+}
+
+"""preview data"""
 type Preview {
-  # preview start line number
-  startPreviewLineNumber: Int!
+  """preview end content"""
+  endPreviewContent: [String!]!
 
-  # preview start content
-  startPreviewContent: [String!]!
-
-  # preview end line number
+  """preview end line number"""
   endPreviewLineNumber: Int!
 
-  # preview end content
-  endPreviewContent: [String!]!
+  """preview start content"""
+  startPreviewContent: [String!]!
+
+  """preview start line number"""
+  startPreviewLineNumber: Int!
 }
 
-# project
+"""products"""
+type Product {
+  """product name"""
+  name: String!
+
+  """plans"""
+  plans: [Plan!]!
+
+  """stripe id"""
+  stripeID: String!
+}
+
+"""project"""
 type Project {
-  # name
-  name: String!
+  _id: ObjectId!
 
-  # repositories
-  repositories: [ObjectId!]!
-
-  # owner
-  owner: ObjectId!
-
-  # date created
+  """date created"""
   created: Float!
 
-  # date updated
+  """name"""
+  name: String!
+
+  """owner"""
+  owner: ObjectId!
+
+  """repositories"""
+  repositories: [ObjectId!]!
+
+  """date updated"""
   updated: Float!
-  _id: ObjectId!
 }
 
-# project database
+"""project database"""
 type ProjectDB {
-  # name
-  name: String!
+  _id: ObjectId!
 
-  # repositories
-  repositories: [ObjectId!]!
-
-  # owner
-  owner: ObjectId!
-
-  # date created
+  """date created"""
   created: Float!
 
-  # date updated
-  updated: Float!
-  _id: ObjectId!
-}
-
-# public user data
-type PublicUser {
-  # name
+  """name"""
   name: String!
 
-  # username
-  username: String!
+  """owner"""
+  owner: ObjectId!
 
-  # email
+  """repositories"""
+  repositories: [ObjectId!]!
+
+  """date updated"""
+  updated: Float!
+}
+
+"""public user data"""
+type PublicUser {
+  """email"""
   email: String!
+
+  """name"""
+  name: String!
+
+  """username"""
+  username: String!
 }
 
 type Query {
   branches(
-    # repository id
+    """repository id"""
     repository: ObjectId!
   ): [String!]!
-  supportedExtensions: [String!]!
-  repositoryNameExists(
-    # repository name
-    name: String!
-
-    # repository owner
-    owner: String
-  ): Boolean!
-  folder(
-    # folder id
-    id: ObjectId
-
-    # folder name
-    name: String
-
-    # folder path
-    path: String
-
-    # folder branch
-    branch: String
-
-    # repository id
-    repositoryID: ObjectId
-
-    # repository name
-    repository: String
-
-    # owner name
-    owner: String
-  ): FolderDB!
-  filesInFolder(
-    # repository
-    repository: ObjectId!
-
-    # folder
-    folder: ObjectId!
-
-    # branch
-    branch: String!
-  ): Int!
+  countries: [String!]!
+  currencies(
+    """currency names"""
+    names: [String!]
+  ): [Currency!]!
   file(
-    # file id
-    id: ObjectId
-
-    # file name
-    name: String
-
-    # file path
-    path: String
-
-    # file branch
+    """file branch"""
     branch: String
 
-    # repository id
-    repositoryID: ObjectId
+    """file id"""
+    id: ObjectId
 
-    # repository name
+    """file name"""
+    name: String
+
+    """owner name"""
+    owner: String
+
+    """file path"""
+    path: String
+
+    """repository name"""
     repository: String
 
-    # owner name
-    owner: String
+    """repository id"""
+    repositoryID: ObjectId
   ): File!
   fileNameExists(
-    # file name
-    name: String!
-
-    # file path
-    path: String
-
-    # file branch
+    """file branch"""
     branch: String!
 
-    # repository id
+    """file name"""
+    name: String!
+
+    """file path"""
+    path: String
+
+    """repository id"""
     repository: ObjectId!
   ): Boolean!
   files(
-    # query
-    query: String
-
-    # only user files
-    onlyUser: Boolean
-
-    # file path
-    path: String
-
-    # only get base file data
+    """only get base file data"""
     baseFileOnly: Boolean = true
 
-    # programming languages
-    languages: [Language!]
-
-    # projects
-    projects: [ObjectId!]
-
-    # repositories
-    repositories: [ObjectId!]
-
-    # file id
-    file: ObjectId
-
-    # file name
-    name: String
-
-    # branches
+    """branches"""
     branches: [String!]
 
-    # page number
+    """file id"""
+    file: ObjectId
+
+    """programming languages"""
+    languages: [Language!]
+
+    """file name"""
+    name: String
+
+    """only user files"""
+    onlyUser: Boolean
+
+    """page number"""
     page: Int
 
-    # number per page
-    perpage: Int
-  ): [File!]!
-  fileText(
-    # file id
-    id: ObjectId!
+    """file path"""
+    path: String
 
-    # branch name
+    """number per page"""
+    perpage: Int
+
+    """projects"""
+    projects: [ObjectId!]
+
+    """query"""
+    query: String
+
+    """repositories"""
+    repositories: [ObjectId!]
+  ): [File!]!
+  filesInFolder(
+    """branch"""
     branch: String!
 
-    # start line
-    start: Int
+    """folder"""
+    folder: ObjectId!
 
-    # end line
+    """repository"""
+    repository: ObjectId!
+  ): Int!
+  fileText(
+    """branch name"""
+    branch: String!
+
+    """end line"""
     end: Int
+
+    """file id"""
+    id: ObjectId!
+
+    """start line"""
+    start: Int
   ): [String!]!
-  search(
-    # query
-    query: String
+  folder(
+    """folder branch"""
+    branch: String
 
-    # only user files
-    onlyUser: Boolean
+    """folder id"""
+    id: ObjectId
 
-    # file path
-    path: String
-
-    # only get base file data
-    baseFileOnly: Boolean = true
-
-    # programming languages
-    languages: [Language!]
-
-    # projects
-    projects: [ObjectId!]
-
-    # repositories
-    repositories: [ObjectId!]
-
-    # file id
-    file: ObjectId
-
-    # file name
+    """folder name"""
     name: String
 
-    # branches
-    branches: [String!]
+    """owner name"""
+    owner: String
 
-    # page number
-    page: Int
+    """folder path"""
+    path: String
 
-    # number per page
-    perpage: Int
+    """repository name"""
+    repository: String
 
-    # end line
-    maxResultsPerFile: Int
-  ): [FileResult!]!
+    """repository id"""
+    repositoryID: ObjectId
+  ): FolderDB!
   folderExists(
-    # repository name
-    repositoryName: String!
+    """repository owner"""
+    owner: String
 
-    # folder path
+    """folder path"""
     path: String!
 
-    # repository owner
-    owner: String
+    """repository name"""
+    repositoryName: String!
   ): Boolean!
   folders(
-    # query
-    query: String
-
-    # only user folders
-    onlyUser: Boolean
-
-    # folder path
-    path: String
-
-    # folder name
-    name: String
-
-    # projects
-    projects: [ObjectId!]
-
-    # repositories
-    repositories: [ObjectId!]
-
-    # branches
+    """branches"""
     branches: [String!]
 
-    # page number
+    """folder name"""
+    name: String
+
+    """only user folders"""
+    onlyUser: Boolean
+
+    """page number"""
     page: Int
 
-    # number per page
+    """folder path"""
+    path: String
+
+    """number per page"""
     perpage: Int
+
+    """projects"""
+    projects: [ObjectId!]
+
+    """query"""
+    query: String
+
+    """repositories"""
+    repositories: [ObjectId!]
   ): [Folder!]!
   hello: String!
   languages: [LanguageData!]!
-  projectNameExists(
-    # project name
-    name: String!
-
-    # repository owner
-    owner: String
-  ): Boolean!
+  product(
+    """currency names"""
+    name: String
+  ): Product!
+  products: [Product!]!
   project(
-    # project id
+    """project id"""
     id: ObjectId
 
-    # project name
+    """project name"""
     name: String
   ): Project!
+  projectNameExists(
+    """project name"""
+    name: String!
+
+    """repository owner"""
+    owner: String
+  ): Boolean!
   projects(
-    # page number
+    """page number"""
     page: Int
 
-    # number per page
+    """number per page"""
     perpage: Int
   ): [Project!]!
-  repositories(
-    # project id
-    projects: [ObjectId!]
 
-    # page number
-    page: Int
-
-    # number per page
-    perpage: Int
-  ): [Repository!]!
-  repository(
-    # repository id
-    id: ObjectId
-
-    # repository name
-    name: String
-
-    # repository owner
-    owner: String
-  ): Repository!
-
-  # public user data
+  """public user data"""
   publicUser(
-    # project id
+    """project id"""
     id: ObjectId
 
-    # project name
+    """project name"""
     username: String
   ): PublicUser!
+  repositories(
+    """page number"""
+    page: Int
 
-  # user data
+    """number per page"""
+    perpage: Int
+
+    """project id"""
+    projects: [ObjectId!]
+  ): [Repository!]!
+  repository(
+    """repository id"""
+    id: ObjectId
+
+    """repository name"""
+    name: String
+
+    """repository owner"""
+    owner: String
+  ): Repository!
+  repositoryNameExists(
+    """repository name"""
+    name: String!
+
+    """repository owner"""
+    owner: String
+  ): Boolean!
+  search(
+    """only get base file data"""
+    baseFileOnly: Boolean = true
+
+    """branches"""
+    branches: [String!]
+
+    """file id"""
+    file: ObjectId
+
+    """programming languages"""
+    languages: [Language!]
+
+    """end line"""
+    maxResultsPerFile: Int
+
+    """file name"""
+    name: String
+
+    """only user files"""
+    onlyUser: Boolean
+
+    """page number"""
+    page: Int
+
+    """file path"""
+    path: String
+
+    """number per page"""
+    perpage: Int
+
+    """projects"""
+    projects: [ObjectId!]
+
+    """query"""
+    query: String
+
+    """repositories"""
+    repositories: [ObjectId!]
+  ): [FileResult!]!
+  supportedExtensions: [String!]!
+
+  """user data"""
   user: User!
 }
 
-# repository
+"""repository"""
 type Repository {
-  # name
-  name: String!
+  _id: ObjectId!
 
-  # owner
-  owner: ObjectId!
-
-  # branches
+  """branches"""
   branches: [String!]!
 
-  # public access level
-  public: AccessLevel!
-
-  # repository image
-  image: String!
-
-  # base folder containing files
-  folder: ObjectId!
-
-  # date created
+  """date created"""
   created: Float!
 
-  # date updated
-  updated: Float!
+  """base folder containing files"""
+  folder: ObjectId!
 
-  # number of lines of code
+  """repository image"""
+  image: String!
+
+  """number of lines of code"""
   linesOfCode: Int!
 
-  # number of files
+  """name"""
+  name: String!
+
+  """number of files"""
   numberOfFiles: Int!
-  _id: ObjectId!
+
+  """owner"""
+  owner: ObjectId!
+
+  """public access level"""
+  public: AccessLevel!
+
+  """date updated"""
+  updated: Float!
 }
 
-# repository db
+"""repository db"""
 type RepositoryDB {
-  # name
-  name: String!
+  _id: ObjectId!
 
-  # owner
-  owner: ObjectId!
-
-  # branches
+  """branches"""
   branches: [String!]!
 
-  # public access level
-  public: AccessLevel!
-
-  # repository image
-  image: String!
-
-  # base folder containing files
-  folder: ObjectId!
-
-  # date created
+  """date created"""
   created: Float!
 
-  # date updated
-  updated: Float!
+  """base folder containing files"""
+  folder: ObjectId!
 
-  # number of lines of code
+  """repository image"""
+  image: String!
+
+  """number of lines of code"""
   linesOfCode: Int!
 
-  # number of files
+  """name"""
+  name: String!
+
+  """number of files"""
   numberOfFiles: Int!
-  _id: ObjectId!
+
+  """owner"""
+  owner: ObjectId!
+
+  """public access level"""
+  public: AccessLevel!
+
+  """date updated"""
+  updated: Float!
 }
 
-# result type
+"""result type"""
 enum ResultType {
-  import
   class
-  function
-  variable
   comment
+  function
+  import
+  importPath
   name
   path
-  importPath
+  variable
 }
 
-# search result
+"""search result"""
 type SearchResult {
-  # item name
+  """item name"""
   name: String!
 
-  # item type
-  type: ResultType!
-
-  # parents to current result
+  """parents to current result"""
   parents: [ParentElement!]!
 
-  # result score
+  """result preview"""
+  preview: Preview
+
+  """result score"""
   score: Float
 
-  # result preview
-  preview: Preview
+  """item type"""
+  type: ResultType!
 }
 
 type Subscription {
   authNotifications: AuthNotification!
 }
 
-# The `Upload` scalar type represents a file upload.
+"""The `Upload` scalar type represents a file upload."""
 scalar Upload
 
-# user account
+"""user account"""
 type User {
-  # name
-  name: String!
-
-  # username
-  username: String!
-
-  # email
-  email: String!
   _id: ObjectId!
 
-  # user plan
-  plan: String!
+  """email"""
+  email: String!
 
-  # user type
-  type: String!
-
-  # github installation id
-  githubInstallationID: Float!
-
-  # github username
-  githubUsername: String!
-
-  # email verified
+  """email verified"""
   emailVerified: Boolean!
 
-  # current token version
-  tokenVersion: Float!
+  """github installation id"""
+  githubInstallationID: Float!
 
-  # repository access
+  """github username"""
+  githubUsername: String!
+
+  """name"""
+  name: String!
+
+  """user plan name"""
+  plan: String!
+
+  """project access"""
+  projects: [Access!]!
+
+  """repository access"""
   repositories: [Access!]!
 
-  # project access
-  projects: [Access!]!
+  """current token version"""
+  tokenVersion: Float!
+
+  """user type"""
+  type: String!
+
+  """username"""
+  username: String!
 }
 
-# variable
+"""variable"""
 type Variable {
   _id: ObjectId!
 
-  # parent
-  parent: Parent!
+  """is function argument"""
+  isArgument: Boolean!
 
-  # location
+  """location"""
   location: Location!
 
-  # name
+  """name"""
   name: String!
 
-  # type
-  type: String!
+  """parent"""
+  parent: Parent!
 
-  # is function argument
-  isArgument: Boolean!
+  """type"""
+  type: String!
 }

@@ -19,8 +19,8 @@ import { getLogger } from 'log4js';
 import graphqlFields from 'graphql-fields';
 import { hasPagination } from '../elastic/pagination';
 import Location from '../schema/antlr/location';
-import { GraphQLResolveInfo } from 'graphql';
 import { languageColorMap } from '../utils/variables';
+import { GraphQLResolveInfo } from 'graphql';
 
 @ArgsType()
 class SearchArgs extends FilesArgs {

@@ -98,6 +98,10 @@
           "name": "SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID"
         },
         {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:STRIPE_SECRET-Hv3bc2",
+          "name": "STRIPE_SECRET"
+        },
+        {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:RECAPTCHA_SECRET-tc1ajA",
           "name": "RECAPTCHA_SECRET"
         }

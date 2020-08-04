@@ -11,6 +11,7 @@ import { initializeSendgrid } from './email/sendgrid';
 import { initializeNLP } from './nlp/nlpBridge';
 import compileEmailTemplates from './email/compileEmailTemplates';
 import { checkLanguageColors } from './utils/variables';
+import { initializeStripe } from './stripe/init';
 
 const runAPI = async (): Promise<void> => {
   // initialize config and logger
@@ -52,6 +53,12 @@ const runAPI = async (): Promise<void> => {
       logger.info('start nlp initialize');
       await initializeNLP();
       logger.info('connected to nlp');
+    }
+    // do not connect to payment system if hosting on-prem
+    if (configData.CONNECT_STRIPE) {
+      logger.info('start payment system initialize');
+      await initializeStripe();
+      logger.info('connected to payment system');
     }
     logger.info('start server initialize');
     await initializeServer();
