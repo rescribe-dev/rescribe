@@ -1,6 +1,6 @@
 # reScribe cli
 
-<img alt="reScribe" src="./web/src/assets/images/logo.svg" style="max-width: 500px">
+<img alt="reScribe" src="https://rescribe.dev/logo.svg" style="max-width: 500px">
 
 > cli for interacting with rescribe api
 
