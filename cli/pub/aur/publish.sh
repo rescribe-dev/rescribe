@@ -81,15 +81,20 @@ if [ -x "$(command -v makepkg)" ]; then
   # run makepkg if it is installed
   makepkg --printsrcinfo > .SRCINFO
 else
+  echo "makepkg could not be found. using default .SRCINFO"
   # otherwise copy the default
   cp ../.SRCINFO .
   sed -i "s/pkgver = /pkgver = ($version)/g" PKGBUILD
 fi
 cd - &>/dev/null
 
-cd "$repo_name"
-namcap PKGBUILD
-cd - &>/dev/null
+if [ -x "$(command -v namcap)" ]; then
+  cd "$repo_name"
+  namcap PKGBUILD
+  cd - &>/dev/null
+else
+  echo "namcap could not be found. not running validation"
+fi
 
 if ! [ -n "$commitmsg" ]; then
   commitmsg="updated rescribe cli package"
