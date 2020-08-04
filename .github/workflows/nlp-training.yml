@@ -62,7 +62,7 @@ jobs:
           dockerfile: training/Dockerfile
       - name: Create conda environment for deploy
         id: create-conda-env-deploy
-        run:
+        run: |
           cd aws/sagemaker/deploy
           if [ -z "$CONDA_DEFAULT_ENV" ]; then
             source $(conda info --base)/etc/profile.d/conda.sh
