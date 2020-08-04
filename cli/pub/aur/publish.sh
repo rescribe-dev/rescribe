@@ -76,7 +76,7 @@ cd - &>/dev/null
 
 cd "$repo_name"
 sed -i "s/md5sums=()/md5sums=($hashes_escaped)/g" PKGBUILD
-sed -i "s/pkgver=/pkgver=($version)/g" PKGBUILD
+sed -i "s/pkgver=/pkgver=$version/g" PKGBUILD
 if [ -x "$(command -v makepkg)" ]; then
   # run makepkg if it is installed
   makepkg --printsrcinfo > .SRCINFO
@@ -84,7 +84,7 @@ else
   echo "makepkg could not be found. using default .SRCINFO"
   # otherwise copy the default
   cp ../.SRCINFO .
-  sed -i "s/pkgver =/pkgver = ($version)/g" .SRCINFO
+  sed -i "s/pkgver =/pkgver = $version/g" .SRCINFO
 fi
 cd - &>/dev/null
 
