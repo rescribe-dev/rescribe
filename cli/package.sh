@@ -2,11 +2,19 @@
 
 set -e
 
-rm -rf dist
+rm -rf dist-bin
+
+if [ ! -d dist ]; then
+  if [ ! -d lib ]; then
+    echo "cannot find source files"
+    exit 1
+  fi
+  cp -r lib dist
+fi
 
 npm run package
 
-cd dist
+cd dist-bin
 
 cp ../node_modules/nodegit/build/Release/nodegit.node nodegit.node
 cp ../.rescriberc.default.yml .rescriberc.yml

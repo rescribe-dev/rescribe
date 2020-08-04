@@ -1,6 +1,6 @@
 {
   "name": "@rescribe/cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "reScribe cli",
   "license": "CC-BY-NC-SA-4.0",
   "repository": {
@@ -30,7 +30,7 @@
     "coverage": "jest --coverage",
     "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
     "watch:test": "jest --watch",
-    "package": "pkg . --out-path=dist",
+    "package": "pkg . --out-path=dist-bin",
     "postinstall": "./postinstall.sh",
     "build:package": "npm run build && ./package.sh",
     "codegen": "graphql-codegen --config codegen.yml"
