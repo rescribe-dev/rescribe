@@ -84,7 +84,7 @@ else
   echo "makepkg could not be found. using default .SRCINFO"
   # otherwise copy the default
   cp ../.SRCINFO .
-  sed -i "s/pkgver =/pkgver = ($version)/g" PKGBUILD
+  sed -i "s/pkgver =/pkgver = ($version)/g" .SRCINFO
 fi
 cd - &>/dev/null
 
