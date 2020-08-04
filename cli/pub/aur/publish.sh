@@ -22,7 +22,7 @@ for ssh_file in "${ssh_key_files[@]}"
 do
   if [ -f "$ssh_file" ] && [ ! -f "~/.ssh/$ssh_file" ]; then
     echo "copy $ssh_file to .ssh folder"
-    if [ ! -f ~/.ssh ]; then
+    if [ ! -d ~/.ssh ]; then
       echo "create .ssh folder in home directory"
       mkdir ~/.ssh
     fi
