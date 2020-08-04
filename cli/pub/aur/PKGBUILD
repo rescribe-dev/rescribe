@@ -35,5 +35,5 @@ package() {
   mv nodegit.node "$pkgdir/usr/bin"
   mkdir -p "$pkgdir/home/$USER"
 
-  ./postinstall $pkgdir
+  ./postinstall.sh $pkgdir
 }
