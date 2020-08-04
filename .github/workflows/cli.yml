@@ -16,6 +16,7 @@ jobs:
       - name: Setup Node.js 12
         uses: actions/setup-node@v1
         with:
+          registry-url: "https://registry.npmjs.com"
           node-version: 14.x
           scope: "@rescribe"
       # node npm - cache
