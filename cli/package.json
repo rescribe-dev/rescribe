@@ -1,5 +1,5 @@
 {
-  "name": "@rescribe/cli",
+  "name": "cli",
   "version": "0.0.1",
   "description": "reScribe cli",
   "license": "CC-BY-NC-SA-4.0",
@@ -113,8 +113,7 @@
     "preset": "ts-jest"
   },
   "bin": {
-    "rescribe": "dist/index.js",
-    "@rescribe/cli": "dist/index.js"
+    "rescribe": "dist/index.js"
   },
   "pkg": {
     "assets": [
