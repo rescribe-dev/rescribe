@@ -38,6 +38,7 @@ export const startCLI = async (): Promise<void> => {
   yargs
     .scriptName(appName)
     .version()
+    .alias('v', 'version')
     .usage('Usage: $0 <command> [options]')
     .help('h')
     .alias('h', 'help')

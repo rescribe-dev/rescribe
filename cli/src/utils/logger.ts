@@ -1,7 +1,7 @@
 import { configure, getLogger, Logger } from 'log4js';
 import { isDebug } from './mode';
 import chalk from 'chalk';
-import { appName } from './config';
+import { appName, utilPath } from './config';
 
 export let loggerInitialized = false;
 
@@ -27,7 +27,7 @@ export const writeError = (message: string): void => {
 export const initializeLogger = (): void => {
   configure({
     appenders: {
-      file: { type: 'file', filename: `${appName}.logs`, maxLogSize: 500 },
+      file: { type: 'file', filename: `${utilPath}/${appName}.logs`, maxLogSize: 500 },
       console: { type: 'console' },
       fileFilter: { type: 'logLevelFilter', appender: 'file', level: 'all' },
       consoleFilter: { type: 'logLevelFilter', appender: 'console', level: isDebug() ? 'all' : 'off' }

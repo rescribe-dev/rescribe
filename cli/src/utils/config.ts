@@ -4,10 +4,14 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import { promisify } from 'util';
 import { isLoggedIn, setAuthToken, setUsername } from './authToken';
+import { homedir } from 'os';
+
+export const utilPath = `${homedir()}/.rescribe`;
 
 const exists = promisify(fs.exists);
 const writeFile = promisify(fs.writeFile);
 const readFile = promisify(fs.readFile);
+const mkdir = promisify(fs.mkdir);
 
 export const appName = 'rescribe';
 
@@ -28,7 +32,7 @@ export const configData: ConfigType = {
   useSecure: false,
   authToken: '',
   username: '',
-  cacheFilePath: `~/.${appName}.cache.yml`
+  cacheFilePath: `${utilPath}/cache.yml`
 };
 
 interface CacheType {
@@ -100,6 +104,11 @@ const addToConfig = (conf: any, allString: boolean): void => {
 };
 
 export const initializeConfig = async (): Promise<void> => {
+  if (!(await exists(utilPath))) {
+    await mkdir(utilPath, {
+      recursive: true
+    });
+  }
   const configRes = await cosmiconfig(appName, {
     cache: true,
   }).search();
