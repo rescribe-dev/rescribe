@@ -33,7 +33,7 @@ jobs:
           yarn install
           yarn run compile-emails
           cd -
-      - uses: jakejarvis/s3-sync-action@main
+      - uses: jakejarvis/s3-sync-action@master
         env:
           AWS_S3_BUCKET: rescribe-email-templates
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
