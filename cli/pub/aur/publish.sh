@@ -22,6 +22,10 @@ for ssh_file in "${ssh_key_files[@]}"
 do
   if [ -f "$ssh_file" ] && [ ! -f "~/.ssh/$ssh_file" ]; then
     echo "copy $ssh_file to .ssh folder"
+    if [ ! -f ~/.ssh ]; then
+      echo "create .ssh folder in home directory"
+      mkdir ~/.ssh
+    fi
     cp $ssh_file ~/.ssh/$ssh_file
     chmod 600 ~/.ssh/$ssh_file
     update_ssh_keys=true
