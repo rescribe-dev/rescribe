@@ -6,6 +6,7 @@ on:
     paths:
       - "cli/**"
       - ".github/workflows/cli.yml"
+      - "scripts/install/cli.sh"
 jobs:
   deploy:
     runs-on: ubuntu-latest
