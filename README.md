@@ -2,7 +2,7 @@
 
 > a better way to search code
 
-[Web](https://rescribe.dev) | [Docs](https://docs.rescribe.dev) | [Status](https://status.rescribe.dev)
+[Web](https://rescribe.dev) | [Docs](https://docs.rescribe.dev) | [Status](https://status.rescribe.dev) | [NPM](https://www.npmjs.com/package/@rescribe/cli) | [AUR](https://aur.archlinux.org/packages/rescribe-bin)
 
 ![License](https://img.shields.io/badge/License-CC--BY--NC--SA--4.0-green)
 
