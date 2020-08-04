@@ -101,6 +101,8 @@ if ! [ -n "$commitmsg" ]; then
 fi
 
 cd "$repo_name"
+git config user.email "rescribe.dev@gmail.com"
+git config user.name "reScribe"
 git add -A
 git commit -m "$commitmsg"
 git push
