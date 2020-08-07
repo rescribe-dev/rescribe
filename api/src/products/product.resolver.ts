@@ -9,7 +9,7 @@ export const defaultProductName = 'free';
 
 @ArgsType()
 export class ProductArgs {
-  @Field(_type => String, { description: 'currency names', nullable: true })
+  @Field(_type => String, { description: 'product name', nullable: true })
   name?: string;
 }
 

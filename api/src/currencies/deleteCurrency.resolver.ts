@@ -36,11 +36,11 @@ export const deleteCurrencyUtil = async (currencyData: Currency): Promise<void> 
       $exists: true
     }
   })) {
-    const method = user.paymentMethods[currencyData.name];
-    if (method.payment.length > 0) {
-      await stripeClient.paymentMethods.detach(method.payment);
+    const paymentMethods = user.paymentMethods[currencyData.name];
+    for (const paymentMethod of paymentMethods.methods) {
+      await stripeClient.paymentMethods.detach(paymentMethod.method); 
     }
-    await stripeClient.customers.del(method.customer);
+    await stripeClient.customers.del(paymentMethods.customer);
   }
   await UserModel.updateMany({}, {
     $unset: {

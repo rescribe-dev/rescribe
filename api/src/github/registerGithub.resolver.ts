@@ -60,6 +60,7 @@ class RegisterGithubResolver {
       email,
       password: '',
       plan: defaultProductName,
+      subscriptionID: '',
       type: UserType.user,
       emailVerified: true,
       tokenVersion: 0,

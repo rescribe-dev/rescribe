@@ -41,6 +41,10 @@ export default class User extends PublicUser {
   @Property({ required: true })
   plan: string;
 
+  @Field({ description: 'subscription id' })
+  @Property({ required: false })
+  subscriptionID: string;
+
   @Field({ description: 'user type' })
   @Property({ required: true })
   type: UserType;

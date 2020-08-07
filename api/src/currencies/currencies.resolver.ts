@@ -33,9 +33,6 @@ class CurrenciesResolver {
       return getFilteredCurrencies(args, data);
     }
     const currencies = await CurrencyModel.find({});
-    if (!currencies) {
-      throw new Error('cannot find any currencies');
-    }
     await cache.set(redisKey, JSON.stringify(currencies), 'ex', redisExpireSeconds);
     return getFilteredCurrencies(args, currencies);
   }

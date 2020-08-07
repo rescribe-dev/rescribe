@@ -118,7 +118,7 @@ class RegisterResolver {
         id: id.toHexString()
       }
     });
-    stripeClient.subscriptions.create({
+    const subscription = await stripeClient.subscriptions.create({
       customer: stripeCustomer.id,
       items: [{
         plan: planStripeID
@@ -132,6 +132,7 @@ class RegisterResolver {
       email: args.email,
       password: hashedPassword,
       plan: defaultProduct.name,
+      subscriptionID: subscription.id,
       type: UserType.user,
       emailVerified: false,
       tokenVersion: 0,
@@ -143,7 +144,7 @@ class RegisterResolver {
     };
     newUser.paymentMethods[defaultCurrency] = {
       customer: stripeCustomer.id,
-      payment: ''
+      methods: []
     };
     const emailTemplateData = emailTemplateFiles.verifyEmail;
     const template = emailTemplateData.template;

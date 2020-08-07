@@ -176,6 +176,18 @@ enum CommentType {
   singleLineComment
 }
 
+"""coupons"""
+type Coupon {
+  """coupon amount"""
+  amount: Int!
+
+  """coupon is percent off"""
+  isPercent: Boolean!
+
+  """coupon name"""
+  name: String!
+}
+
 """currency data"""
 type Currency {
   """exchange rate to usd"""
@@ -399,6 +411,13 @@ type Import {
   selection: String!
 }
 
+"""interval type"""
+enum IntervalType {
+  month
+  once
+  year
+}
+
 """language type"""
 enum Language {
   java
@@ -431,6 +450,16 @@ type Mutation {
 
     """repository id"""
     repository: ObjectId!
+  ): String!
+  addCoupon(
+    """amount off for coupon"""
+    amount: Float!
+
+    """if percent off or not"""
+    isPercent: Boolean!
+
+    """coupon name"""
+    name: String!
   ): String!
   addCurrency(
     """currency name"""
@@ -499,6 +528,10 @@ type Mutation {
 
     """repository id"""
     repository: ObjectId!
+  ): String!
+  deleteCoupon(
+    """coupon name"""
+    name: String!
   ): String!
   deleteCurrency(
     """currency name"""
@@ -608,6 +641,25 @@ type Mutation {
   ): String!
   loginGuest: String!
   logout: String!
+  purchase(
+    """stripe card token"""
+    cardToken: String!
+
+    """coupon - only allow one at a time for now"""
+    coupon: String!
+
+    """currency"""
+    currency: String!
+
+    """plan interval for product"""
+    interval: IntervalType!
+
+    """product id"""
+    product: String!
+
+    """recaptcha token"""
+    recaptchaToken: String!
+  ): String!
   register(
     """email"""
     email: String!
@@ -820,6 +872,14 @@ type Query {
     repository: ObjectId!
   ): [String!]!
   countries: [String!]!
+  coupon(
+    """coupon name"""
+    name: String!
+
+    """recaptcha token"""
+    recaptchaToken: String
+  ): Coupon!
+  coupons: [Coupon!]!
   currencies(
     """currency names"""
     names: [String!]
@@ -982,7 +1042,7 @@ type Query {
   hello: String!
   languages: [LanguageData!]!
   product(
-    """currency names"""
+    """product name"""
     name: String
   ): Product!
   products: [Product!]!
@@ -1223,6 +1283,9 @@ type User {
 
   """repository access"""
   repositories: [Access!]!
+
+  """subscription id"""
+  subscriptionID: String!
 
   """current token version"""
   tokenVersion: Float!
