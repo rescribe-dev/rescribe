@@ -6,7 +6,7 @@ import { Project } from '../schema/structure/project';
 import { RequestParams } from '@elastic/elasticsearch';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { TermQuery } from '../elastic/types';
 import { Min, Max } from 'class-validator';
 import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';

@@ -1,4 +1,4 @@
-import User, { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/users/user';
 import { Ctx, Mutation, Resolver, ArgsType, Field, Args } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn, verifyAdmin } from './checkAuth';

@@ -132,4 +132,6 @@ export const initializeConfig = async (): Promise<void> => {
   addToConfig(conf, false);
   config();
   addToConfig(process.env, true);
+
+  // more validation goes here
 };

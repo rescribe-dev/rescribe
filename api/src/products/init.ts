@@ -3,7 +3,7 @@ import { deleteProductUtil } from './deleteProduct.resolver';
 import { getLogger } from 'log4js';
 import { CurrencyModel } from '../schema/payments/currency';
 import { deleteCurrencyUtil } from '../currencies/deleteCurrency.resolver';
-import { defaultCurrency } from '../stripe/forex';
+import { defaultCurrency } from '../currencies/getExchangeRate';
 import { addCurrencyUtil } from '../currencies/addCurrency.resolver';
 import { defaultProductName } from './product.resolver';
 import { addProductUtil } from './addProduct.resolver';

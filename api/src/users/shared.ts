@@ -1,4 +1,4 @@
-import User, { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/users/user';
 
 export const getUser = async (username: string): Promise<User> => {
   const user = await UserModel.findOne({

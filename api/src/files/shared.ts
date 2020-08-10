@@ -3,7 +3,7 @@ import { fileIndexName, folderIndexName } from '../elastic/settings';
 import File, { FileDB, BaseFileElastic, FileModel, } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 import { SaveElasticElement, bulkSaveToElastic } from '../elastic/elastic';
 import AntlrFile from '../schema/antlr/file';
 import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';

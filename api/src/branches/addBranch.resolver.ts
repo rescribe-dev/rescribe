@@ -6,8 +6,8 @@ import { RepositoryModel } from '../schema/structure/repository';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/auth/access';
-import { UserModel } from '../schema/auth/user';
+import { AccessLevel } from '../schema/users/access';
+import { UserModel } from '../schema/users/user';
 
 @ArgsType()
 class AddBranchArgs {

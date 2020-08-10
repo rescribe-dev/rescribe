@@ -1,7 +1,7 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { accountExistsEmail, accountExistsUsername } from '../users/shared';
 import { ObjectID } from 'mongodb';
-import User, { UserType, UserModel } from '../schema/auth/user';
+import User, { UserType, UserModel } from '../schema/users/user';
 import { createGithubOauthClient } from './init';
 import { gql } from 'apollo-server-express';
 import { print } from 'graphql/language/printer';
@@ -67,8 +67,7 @@ class RegisterGithubResolver {
       githubInstallationID: -1,
       githubUsername: username,
       projects: [],
-      repositories: [],
-      paymentMethods: {}
+      repositories: []
     };
     const userCreateRes = await new UserModel(newUser).save();
     return (`created user ${userCreateRes.id}`);

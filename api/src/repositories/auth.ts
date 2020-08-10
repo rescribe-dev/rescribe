@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { checkAccess, checkAccessLevel } from '../auth/checkAccess';
-import { AccessLevel } from '../schema/auth/access';
-import User from '../schema/auth/user';
+import { AccessLevel } from '../schema/users/access';
+import User from '../schema/users/user';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
 
 export const checkRepositoryPublic = async (repository: ObjectId | RepositoryDB, accessLevel: AccessLevel): Promise<boolean> => {

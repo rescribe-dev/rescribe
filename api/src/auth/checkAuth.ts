@@ -1,5 +1,5 @@
 import { GraphQLContext } from '../utils/context';
-import { UserType } from '../schema/auth/user';
+import { UserType } from '../schema/users/user';
 
 export const verifyGuest = (ctx: GraphQLContext): boolean => {
   return ctx.auth !== undefined;

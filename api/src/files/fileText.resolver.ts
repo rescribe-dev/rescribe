@@ -1,11 +1,11 @@
 import { Resolver, ArgsType, Args, Query, Field, Ctx, Int } from 'type-graphql';
 import { FileModel, FileDB } from '../schema/structure/file';
 import { ObjectId } from 'mongodb';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 import Location from '../schema/antlr/location';
 import { getS3FileData, getFileKey } from '../utils/aws';
 import { cache, RedisKey } from '../utils/redis';

@@ -5,12 +5,12 @@ import compression from 'compression';
 import cors, { CorsOptions } from 'cors';
 import express from 'express';
 import depthLimit from 'graphql-depth-limit';
-import { BAD_REQUEST, OK } from 'http-status-codes';
+import { BAD_REQUEST } from 'http-status-codes';
 import { getLogger } from 'log4js';
 import statusMonitor from 'express-status-monitor';
 import cookieParser from 'cookie-parser';
 import { initializeMappings } from './elastic/configure';
-import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext, getToken } from './utils/context';
+import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext } from './utils/context';
 import { enableInitialization } from './utils/mode';
 import { createServer } from 'http';
 import { buildSchema } from 'type-graphql';
@@ -25,6 +25,7 @@ import { configData } from './utils/config';
 import { getSitemap } from './sitemap/getSitemap';
 import { sitemapPaths } from './sitemap/sitemaps';
 import { initializeProducts } from './products/init';
+import { authHandler } from './utils/express';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -41,7 +42,7 @@ export const initializeServer = async (): Promise<void> => {
   // see http://expressjs.com/en/guide/behind-proxies.html
   app.set('trust proxy', true);
   const schema = await buildSchema({
-    resolvers: [join(__dirname, '/**/**/*.resolver.{ts,js}')],
+    resolvers: [join(__dirname, '/**/*.resolver.{ts,js}')],
     scalarsMap: [{
       type: ObjectId,
       scalar: ObjectIdScalar
@@ -115,48 +116,10 @@ export const initializeServer = async (): Promise<void> => {
     }
   });
   if (enableInitialization()) {
-    app.post('/initializeElastic', async (req, res) => {
-      try {
-        const token = getToken(req);
-        if (token.length === 0) {
-          throw new Error('no authentication provided');
-        }
-        if (token !== configData.INITIALIZATION_KEY) {
-          throw new Error('invalid token provided');
-        }
-        await initializeMappings();
-        res.status(OK).json({
-          message: 'initialized mappings'
-        });
-      } catch (err) {
-        const errObj = err as Error;
-        logger.error(errObj.message);
-        res.status(BAD_REQUEST).json({
-          message: errObj.message
-        });
-      }
-    });
-    app.post('/initializeProducts', async (req, res) => {
-      try {
-        const token = getToken(req);
-        if (token.length === 0) {
-          throw new Error('no authentication provided');
-        }
-        if (token !== configData.INITIALIZATION_KEY) {
-          throw new Error('invalid token provided');
-        }
-        await initializeProducts();
-        res.status(OK).json({
-          message: 'initialized products'
-        });
-      } catch (err) {
-        const errObj = err as Error;
-        logger.error(errObj.message);
-        res.status(BAD_REQUEST).json({
-          message: errObj.message
-        });
-      }
-    });
+    app.post('/initializeElastic', (req, res) =>
+      authHandler(configData.INITIALIZATION_KEY, initializeMappings, req, res));
+    app.post('/initializeProducts', (req, res) =>
+      authHandler(configData.INITIALIZATION_KEY, initializeProducts, req, res));;
   }
   const httpServer = createServer(app);
   server.installSubscriptionHandlers(httpServer);

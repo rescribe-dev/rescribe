@@ -7,7 +7,7 @@ import Import from '../schema/antlr/import';
 import { FilesArgs, search } from './files.resolver';
 import Comment from '../schema/antlr/comment';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import User, { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/users/user';
 import File, { FileModel } from '../schema/structure/file';
 import { SearchResult, ResultType, FileResult, FileLocation, Preview } from '../schema/structure/search';
 import { ObjectId } from 'mongodb';

@@ -7,7 +7,7 @@ import { MinLength, Matches } from 'class-validator';
 import { passwordMinLen, specialCharacterRegex, numberRegex, capitalLetterRegex, lowercaseLetterRegex } from '../shared/variables';
 import { authNotificationsTrigger } from './shared';
 import { AuthNotificationPayload } from './authNotificationType';
-import User, { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/users/user';
 import { setRefreshToken } from '../utils/refreshToken';
 import { verifyRecaptcha } from '../utils/recaptcha';
 

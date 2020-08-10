@@ -12,7 +12,8 @@ node_paths=("." "api/" "github-app/" "cli/" "web/" "prerender/" "vscode/" "docs/
             "aws/cloudfront/frontend/origin-request/" "aws/cloudfront/frontend/viewer-response/" \
             "aws/cloudfront/docs/origin-request/" "aws/cloudfront/docs/viewer-response/" \
             "aws/cloudfront/build-cloudfront/" "aws/lambda/update-cloudfront-lambda/" \
-            "aws/cloudfront/frontend/viewer-request/" "aws/lambda/update-sitemap/")
+            "aws/cloudfront/frontend/viewer-request/" "aws/lambda/update-sitemap/" \
+            "aws/lambda/update-currencies/")
 
 for path in "${node_paths[@]}"
 do

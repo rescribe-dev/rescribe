@@ -4,7 +4,7 @@ import { GraphQLContext } from '../utils/context';
 import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../github/getGithubFile';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { indexFile, saveChanges, FileWriteData, Aggregates } from './shared';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { Resolver, Ctx, Query, ArgsType, Field, Args } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
-import User, { UserModel, PublicUser } from '../schema/auth/user';
+import User, { UserModel, PublicUser } from '../schema/users/user';
 import { verifyLoggedIn } from '../auth/checkAuth';
 
 @ArgsType()

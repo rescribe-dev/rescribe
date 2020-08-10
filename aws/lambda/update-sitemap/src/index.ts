@@ -5,14 +5,14 @@ import xml2js from 'xml2js';
 import { promisify } from 'util';
 import { getLogger } from 'log4js';
 import { initializeDB } from './shared/db/connect';
-import { UserModel } from './shared/schema/auth/user';
+import { UserModel } from './shared/schema/users/user';
 import { initializeConfig, s3Bucket, websiteURL, dbConnectionURI, dbName } from './utils/config';
 import { initializeLogger } from './utils/logger';
 import { sitemapPaths, staticSitemapPath } from './shared/sitemaps';
 import { createHash } from 'crypto';
 import axios from 'axios';
 import { OK } from 'http-status-codes';
-import { format } from 'date-fns';
+import { formatISO } from 'date-fns';
 import { SitemapModel, Sitemap } from './shared/schema/utils/sitemap';
 
 const logger = getLogger();
@@ -165,7 +165,8 @@ const createSitemapIndex = async (sitemapPath: string, files: SitemapIndexInput[
     const sitemapTag: Record<string, unknown> = {};
     sitemapTag['loc'] = websiteURL + fileData.path;
     // https://www.w3.org/TR/NOTE-datetime
-    sitemapTag['lastmod'] = format(fileData.lastmod, "yyyy-MM-dd'T'hh:mm:ssXXX");
+    // https://date-fns.org/v2.8.1/docs/formatISO
+    sitemapTag['lastmod'] = formatISO(fileData.lastmod);
     sitemapTags.push(sitemapTag);
   }
   const xmlFile = xmlBuilder.buildObject({

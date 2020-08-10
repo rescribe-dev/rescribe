@@ -4,10 +4,10 @@ import { ObjectId } from 'mongodb';
 import { projectIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { elasticClient } from '../elastic/init';
 import { checkProjectAccess } from './auth';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 import { TermQuery } from '../elastic/types';
 import { getLogger } from 'log4js';
 

@@ -7,7 +7,7 @@ import { IsEmail, MinLength, Matches, IsOptional } from 'class-validator';
 import { passwordMinLen, specialCharacterRegex, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../shared/variables';
 import { saltRounds } from '../utils/variables';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 
 @ArgsType()
 class UpdateArgs {

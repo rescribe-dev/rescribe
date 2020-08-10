@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { projectIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { elasticClient } from '../elastic/init';
 import { TermQuery } from '../elastic/types';
 import { Matches } from 'class-validator';

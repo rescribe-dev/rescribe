@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { repositoryIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import User, { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/users/user';
 import { elasticClient } from '../elastic/init';
 import { TermQuery } from '../elastic/types';
 import { RequestParams } from '@elastic/elasticsearch';
@@ -11,7 +11,7 @@ import { Matches } from 'class-validator';
 import { validRepositoryName } from '../shared/variables';
 import { RepositoryModel, RepositoryDB } from '../schema/structure/repository';
 import { getUser } from '../users/shared';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 
 @ArgsType()
 class RepositoryExistsArgs {

@@ -3,9 +3,9 @@ import { fileIndexName, folderIndexName, repositoryIndexName } from '../elastic/
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { SaveElasticElement, bulkSaveToElastic } from '../elastic/elastic';
 import { Aggregates, FileWriteData, singleBranchRemove } from './shared';

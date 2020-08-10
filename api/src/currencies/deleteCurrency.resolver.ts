@@ -4,7 +4,8 @@ import { GraphQLContext } from '../utils/context';
 import { verifyAdmin } from '../auth/checkAuth';
 import { requirePaymentSystemInitialized, stripeClient } from '../stripe/init';
 import { ProductModel } from '../schema/payments/product';
-import { UserModel } from '../schema/auth/user';
+import { UserCurrencyModel } from '../schema/users/userCurrency';
+import { PaymentMethodModel } from '../schema/users/paymentMethod';
 
 export const defaultCountry = 'us';
 
@@ -31,21 +32,11 @@ export const deleteCurrencyUtil = async (currencyData: Currency): Promise<void> 
       [`plans.currencies.${currencyData.name}`]: true
     }
   });
-  for (const user of await UserModel.find({
-    [`paymentMethods.${currencyData.name}`]: {
-      $exists: true
-    }
-  })) {
-    const paymentMethods = user.paymentMethods[currencyData.name];
-    for (const paymentMethod of paymentMethods.methods) {
-      await stripeClient.paymentMethods.detach(paymentMethod.method); 
-    }
-    await stripeClient.customers.del(paymentMethods.customer);
-  }
-  await UserModel.updateMany({}, {
-    $unset: {
-      [`paymentMethods.${currencyData.name}`]: true
-    }
+  await UserCurrencyModel.deleteMany({
+    currency: currencyData.name
+  });
+  await PaymentMethodModel.deleteMany({
+    currency: currencyData.name
   });
   await CurrencyModel.deleteOne({
     name: currencyData.name

@@ -1,7 +1,7 @@
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { MinLength } from 'class-validator';
 import { minJWTLen } from '../shared/variables';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { VerifyTokenData } from './register.resolver';
 import { getSecret, jwtType, VerifyType } from '../utils/jwt';
 import { VerifyOptions, verify } from 'jsonwebtoken';

@@ -4,9 +4,9 @@ import { GraphQLContext } from '../utils/context';
 import { FolderDB, FolderModel } from '../schema/structure/folder';
 import { getRepositoryByOwner } from '../repositories/repositoryNameExists.resolver';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { checkRepositoryAccess, checkRepositoryPublic } from '../repositories/auth';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 
 @ArgsType()
 export class FolderArgs {

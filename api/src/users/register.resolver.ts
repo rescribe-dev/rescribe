@@ -5,16 +5,17 @@ import { passwordMinLen, specialCharacterRegex, numberRegex, lowercaseLetterRege
 import { saltRounds } from '../utils/variables';
 import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID, ObjectId } from 'mongodb';
-import User, { UserType, UserModel } from '../schema/auth/user';
+import User, { UserType, UserModel } from '../schema/users/user';
 import { verifyRecaptcha } from '../utils/recaptcha';
 import { emailTemplateFiles } from '../email/compileEmailTemplates';
 import { sendEmailUtil } from '../email/sendEmail.resolver';
 import { configData } from '../utils/config';
 import { VerifyType, getSecret, jwtType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
 import { SignOptions, sign } from 'jsonwebtoken';
-import { defaultCurrency } from '../stripe/forex';
+import { defaultCurrency } from '../currencies/getExchangeRate';
 import { stripeClient } from '../stripe/init';
 import { getProduct } from '../products/product.resolver';
+import UserCurrency, { UserCurrencyModel } from '../schema/users/userCurrency';
 
 @ArgsType()
 class RegisterArgs {
@@ -139,13 +140,15 @@ class RegisterResolver {
       githubInstallationID: -1,
       githubUsername: '',
       projects: [],
-      repositories: [],
-      paymentMethods: {}
+      repositories: []
     };
-    newUser.paymentMethods[defaultCurrency] = {
+    const newUserCurrency: UserCurrency = {
+      _id: new ObjectId(),
+      currency: defaultCurrency,
       customer: stripeCustomer.id,
-      methods: []
+      user: id
     };
+    await new UserCurrencyModel(newUserCurrency).save();
     const emailTemplateData = emailTemplateFiles.verifyEmail;
     const template = emailTemplateData.template;
     if (!template) {

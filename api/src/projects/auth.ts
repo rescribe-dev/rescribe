@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { checkAccess } from '../auth/checkAccess';
-import { AccessLevel } from '../schema/auth/access';
-import User from '../schema/auth/user';
+import { AccessLevel } from '../schema/users/access';
+import User from '../schema/users/user';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 
 export const checkProjectAccess = async (user: User, project: ObjectId | ProjectDB, accessLevel: AccessLevel): Promise<boolean> => {

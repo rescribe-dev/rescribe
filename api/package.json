@@ -20,7 +20,7 @@
   "main": "lib/index",
   "types": "lib/index",
   "scripts": {
-    "start": "node lib/index",
+    "start": "node --trace-deprecation lib/index",
     "dev": "tsc-watch --onSuccess \"npm run postbuildWatch\"",
     "clean": "rimraf lib && rimraf coverage",
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",

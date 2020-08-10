@@ -4,10 +4,10 @@ import { Repository, RepositoryDB } from '../schema/structure/repository';
 import { repositoryIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import User, { UserModel } from '../schema/auth/user';
+import User, { UserModel } from '../schema/users/user';
 import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess, checkRepositoryPublic } from './auth';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 import { TermQuery } from '../elastic/types';
 import { getUser } from '../users/shared';
 

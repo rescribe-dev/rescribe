@@ -6,8 +6,8 @@ import { ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { AccessLevel } from '../schema/auth/access';
-import { UserModel } from '../schema/auth/user';
+import { AccessLevel } from '../schema/users/access';
+import { UserModel } from '../schema/users/user';
 import { checkProjectAccess } from './auth';
 
 @ArgsType()

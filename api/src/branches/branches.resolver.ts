@@ -4,10 +4,10 @@ import { ObjectId } from 'mongodb';
 import { repositoryIndexName } from '../elastic/settings';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { elasticClient } from '../elastic/init';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 
 @ArgsType()
 class BranchesArgs {

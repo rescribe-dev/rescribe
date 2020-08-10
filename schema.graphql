@@ -23,6 +23,32 @@ enum AccessLevel {
   view
 }
 
+"""address object"""
+type Address {
+  _id: ObjectId!
+
+  """city"""
+  city: String!
+
+  """country"""
+  country: String!
+
+  """line 1"""
+  line1: String!
+
+  """line 2"""
+  line2: String
+
+  """name"""
+  name: String!
+
+  """state"""
+  state: String!
+
+  """user"""
+  user: ObjectId!
+}
+
 """base file"""
 type AntlrFile {
   _id: ObjectId!
@@ -444,6 +470,25 @@ type Location {
 }
 
 type Mutation {
+  addAddress(
+    """city"""
+    city: String!
+
+    """country"""
+    country: String!
+
+    """line 1"""
+    line1: String!
+
+    """line 2"""
+    line2: String
+
+    """name"""
+    name: String!
+
+    """state"""
+    state: String!
+  ): String!
   addBranch(
     """branch name"""
     name: String!
@@ -484,6 +529,16 @@ type Mutation {
     """repository id"""
     repositoryID: ObjectId
   ): String!
+  addPaymentMethod(
+    """stripe card token"""
+    cardToken: String!
+
+    """name"""
+    currency: String!
+
+    """set to default"""
+    setDefault: Boolean!
+  ): String!
   addProduct(
     """product name"""
     name: String!
@@ -521,6 +576,10 @@ type Mutation {
   deleteAccount(
     """email"""
     email: String
+  ): String!
+  deleteAddress(
+    """address id"""
+    id: ObjectId!
   ): String!
   deleteBranch(
     """branch name"""
@@ -565,6 +624,10 @@ type Mutation {
 
     """repository id"""
     repositoryID: ObjectId
+  ): String!
+  deletePaymentMethod(
+    """payment method id"""
+    id: ObjectId!
   ): String!
   deleteProduct(
     """product name"""
@@ -642,23 +705,17 @@ type Mutation {
   loginGuest: String!
   logout: String!
   purchase(
-    """stripe card token"""
-    cardToken: String!
-
     """coupon - only allow one at a time for now"""
-    coupon: String!
-
-    """currency"""
-    currency: String!
+    coupon: String
 
     """plan interval for product"""
     interval: IntervalType!
 
+    """payment method id"""
+    paymentMethod: ObjectId
+
     """product id"""
     product: String!
-
-    """recaptcha token"""
-    recaptchaToken: String!
   ): String!
   register(
     """email"""
@@ -705,6 +762,10 @@ type Mutation {
 
     """subject"""
     subject: String
+  ): String!
+  setDefaultPaymentMethod(
+    """payment method object id"""
+    id: ObjectId!
   ): String!
   updateAccount(
     """email"""
@@ -766,6 +827,20 @@ enum ParentType {
   File
   Function
   Variable
+}
+
+"""payment method object"""
+type PaymentMethod {
+  _id: ObjectId!
+
+  """currency"""
+  currency: String!
+
+  """payment method stripe id"""
+  method: String!
+
+  """user"""
+  user: ObjectId!
 }
 
 type Plan {
@@ -867,6 +942,10 @@ type PublicUser {
 }
 
 type Query {
+  address(
+    """address user"""
+    user: ObjectId
+  ): [Address!]!
   branches(
     """repository id"""
     repository: ObjectId!
@@ -1041,6 +1120,14 @@ type Query {
   ): [Folder!]!
   hello: String!
   languages: [LanguageData!]!
+  paymentMethod(
+    """payment method id"""
+    id: ObjectId!
+  ): PaymentMethod!
+  paymentMethods(
+    """payment methods user"""
+    user: ObjectId
+  ): [PaymentMethod!]!
   product(
     """product name"""
     name: String
@@ -1260,6 +1347,9 @@ scalar Upload
 type User {
   _id: ObjectId!
 
+  """project access"""
+  defaultPaymentMethod: ObjectId
+
   """email"""
   email: String!
 
@@ -1284,9 +1374,6 @@ type User {
   """repository access"""
   repositories: [Access!]!
 
-  """subscription id"""
-  subscriptionID: String!
-
   """current token version"""
   tokenVersion: Float!
 
@@ -1295,6 +1382,20 @@ type User {
 
   """username"""
   username: String!
+}
+
+"""user currency object"""
+type UserCurrency {
+  _id: ObjectId!
+
+  """currency"""
+  currency: String!
+
+  """stripe customer id"""
+  customer: String!
+
+  """user"""
+  user: ObjectId!
 }
 
 """variable"""

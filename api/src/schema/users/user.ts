@@ -2,7 +2,6 @@ import { ObjectType, Field, registerEnumType } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import Access from './access';
-import PaymentMethod from '../payments/paymentMethod';
 
 export enum UserType {
   user = 'user',
@@ -41,7 +40,6 @@ export default class User extends PublicUser {
   @Property({ required: true })
   plan: string;
 
-  @Field({ description: 'subscription id' })
   @Property({ required: false })
   subscriptionID: string;
 
@@ -76,8 +74,9 @@ export default class User extends PublicUser {
   @Property({ required: true, type: Access })
   projects: Access[];
 
-  @Property({ required: true, type: PaymentMethod })
-  paymentMethods: Record<string, PaymentMethod>;
+  @Field({ description: 'project access', nullable: true })
+  @Property({ required: false })
+  defaultPaymentMethod?: ObjectId;
 }
 
 export const UserModel = getModelForClass(User);

@@ -2,11 +2,11 @@ import { Resolver, ArgsType, Args, Query, Field, Ctx } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { FileModel } from '../schema/structure/file';
 import { checkRepositoryAccess, checkRepositoryPublic } from '../repositories/auth';
 import { RepositoryModel } from '../schema/structure/repository';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 
 @ArgsType()
 class FileExistsArgs {

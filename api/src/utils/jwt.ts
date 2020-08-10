@@ -1,7 +1,7 @@
 import { sign, verify, SignOptions, VerifyOptions } from 'jsonwebtoken';
 import { Request } from 'express';
 import { nanoid } from 'nanoid';
-import User, { UserType, UserModel } from '../schema/auth/user';
+import User, { UserType, UserModel } from '../schema/users/user';
 import { configData } from './config';
 import { getProduct, defaultProductName } from '../products/product.resolver';
 import Restrictions from '../schema/payments/restrictions';

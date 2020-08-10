@@ -1,6 +1,6 @@
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, PubSub, PubSubEngine, Field, Args, Ctx, Mutation } from 'type-graphql';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { print } from 'graphql/language/printer';
 import { gql } from 'apollo-server-express';
 import { createGithubOauthClient } from './init';

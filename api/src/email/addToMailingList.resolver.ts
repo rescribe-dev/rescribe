@@ -10,7 +10,7 @@ import { sign, SignOptions } from 'jsonwebtoken';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { sendEmailUtil } from './sendEmail.resolver';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 
 @ArgsType()
 class AddToMailingListArgs {

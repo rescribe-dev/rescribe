@@ -16,6 +16,7 @@ export const initializeDB = async (dbConnectionURI: string, dbName: string): Pro
   client = await connect(dbConnectionURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
     dbName
   });
   exitHook(() => {

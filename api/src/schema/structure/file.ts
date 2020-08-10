@@ -2,7 +2,7 @@ import { ObjectType, Field, Int } from 'type-graphql';
 import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import AntlrFile from '../antlr/file';
-import { AccessLevel } from '../auth/access';
+import { AccessLevel } from '../users/access';
 import { Language } from '../language';
 
 export class BaseFile {

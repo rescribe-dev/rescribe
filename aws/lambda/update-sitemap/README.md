@@ -1,3 +1,3 @@
-# edge viewer response
+# update sitemap
 
-> headers based on netlify
+> update sitemap data

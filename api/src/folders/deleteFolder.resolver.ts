@@ -7,9 +7,9 @@ import { FileDB, FileModel } from '../schema/structure/file';
 import { deleteFilesUtil, saveAggregates } from '../files/deleteFiles.resolver';
 import { baseFolderPath, baseFolderName } from '../shared/folders';
 import { getFolder, FolderArgs } from './folder.resolver';
-import { UserModel } from '../schema/auth/user';
+import { UserModel } from '../schema/users/user';
 import { checkRepositoryAccess } from '../repositories/auth';
-import { AccessLevel } from '../schema/auth/access';
+import { AccessLevel } from '../schema/users/access';
 import { RepositoryModel } from '../schema/structure/repository';
 import { Aggregates } from '../files/shared';
 
