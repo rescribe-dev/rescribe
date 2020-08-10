@@ -8,3 +8,7 @@ query folders($repositories: [ObjectId!]!, $perpage: Int!, $page: Int!, $branche
     ...folderDataFields
   }
 }
+
+mutation delFolder($id: ObjectId!, $branch: String!) {
+  deleteFolder(id: $id, branch: $branch)
+}
