@@ -14,13 +14,15 @@ import {
   DelFile,
   DelFileMutation,
   DelFileMutationVariables,
+  DelFolderMutation,
+  DelFolderMutationVariables,
+  DelFolder,
 } from 'lib/generated/datamodel';
 import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
 import { ObjectId } from 'mongodb';
 import { Link } from 'gatsby';
 import { useMutation } from '@apollo/react-hooks';
 import { client } from 'utils/apollo';
-import { ApolloQueryResult } from 'apollo-client';
 
 interface FolderProps {
   branch: string;
@@ -31,15 +33,34 @@ interface FolderProps {
   repositoryOwner: string;
 }
 
+type FileObj = {
+  loading: boolean;
+  data: any[] | undefined;
+};
+
+type FolderObj = {
+  loading: boolean;
+  data: any[] | undefined;
+};
+
 const perPage = 10;
 
 const FilesList = (args: FolderProps): JSX.Element => {
-  const [folders, setFolders] = useState<
-    ApolloQueryResult<FoldersQuery> | undefined
-  >(undefined);
-  const [files, setFiles] = useState<ApolloQueryResult<FilesQuery> | undefined>(
-    undefined
-  );
+  // const [folders, setFolders] = useState<
+  //   ApolloQueryResult<FoldersQuery> | undefined
+  // >(undefined);
+  const [folders, setFolders] = useState<FolderObj>({
+    loading: true,
+    data: undefined,
+  });
+  // const [files, setFiles] = useState<ApolloQueryResult<FilesQuery> | undefined>(
+  //   undefined
+  // );
+  const [files, setFiles] = useState<FileObj>({
+    loading: true,
+    data: undefined,
+  });
+
   const [fullPath, setFullPath] = useState<string | undefined>(undefined);
   useEffect(() => {
     let path = args.path + args.name;
@@ -47,48 +68,87 @@ const FilesList = (args: FolderProps): JSX.Element => {
       path += '/';
     }
     setFullPath(path);
-    async () => {
+    (async () => {
       try {
-        setFolders(
-          await client.query<FoldersQuery, FoldersQueryVariables>({
-            query: Folders,
-            variables: {
-              repositories: [args.repositoryID],
-              page: 0,
-              perpage: perPage,
-              branches: [args.branch],
-              path,
-            },
-            fetchPolicy: 'network-only',
-          })
-        );
-        setFiles(
-          await client.query<FilesQuery, FilesQueryVariables>({
-            query: Files,
-            variables: {
-              repositories: [args.repositoryID],
-              page: 0,
-              perpage: perPage,
-              branches: [args.branch],
-              path,
-            },
-            fetchPolicy: 'network-only',
-          })
-        );
+        // setFolders(
+        //   await client.query<FoldersQuery, FoldersQueryVariables>({
+        //     query: Folders,
+        //     variables: {
+        //       repositories: [args.repositoryID],
+        //       page: 0,
+        //       perpage: perPage,
+        //       branches: [args.branch],
+        //       path,
+        //     },
+        //     fetchPolicy: 'network-only',
+        //   })
+        // );
+
+        const folderRes = await client.query<
+          FoldersQuery,
+          FoldersQueryVariables
+        >({
+          query: Folders,
+          variables: {
+            repositories: [args.repositoryID],
+            page: 0,
+            perpage: perPage,
+            branches: [args.branch],
+            path,
+          },
+          fetchPolicy: 'network-only',
+        });
+        setFolders({
+          loading: folderRes.loading,
+          data: folderRes.data.folders,
+        });
+
+        // setFiles(
+        //   await client.query<FilesQuery, FilesQueryVariables>({
+        //     query: Files,
+        //     variables: {
+        //       repositories: [args.repositoryID],
+        //       page: 0,
+        //       perpage: perPage,
+        //       branches: [args.branch],
+        //       path,
+        //     },
+        //     fetchPolicy: 'network-only',
+        //   })
+        // );
+
+        const fileRes = await client.query<FilesQuery, FilesQueryVariables>({
+          query: Files,
+          variables: {
+            repositories: [args.repositoryID],
+            page: 0,
+            perpage: perPage,
+            branches: [args.branch],
+            path,
+          },
+          fetchPolicy: 'network-only',
+        });
+        setFiles({
+          loading: fileRes.loading,
+          data: fileRes.data.files,
+        });
       } catch (err) {
         const errObj = err as Error;
         toast(errObj.message, {
           type: 'error',
         });
       }
-    };
+    })();
   }, []);
 
   const [deleteFileMutation] = useMutation<
     DelFileMutation,
     DelFileMutationVariables
   >(DelFile);
-
+  const [deleteFolderMutation] = useMutation<
+    DelFolderMutation,
+    DelFolderMutationVariables
+  >(DelFolder);
   return (
     <Container>
       {!folders ||
@@ -100,9 +160,8 @@ const FilesList = (args: FolderProps): JSX.Element => {
         <p>loading...</p>
       ) : (
         <>
-          {folders.data.folders.length === 0 &&
-          files.data.files.length === 0 ? (
-            <p>no files in repository {args.repositoryName}</p>
+          {folders.data.length === 0 && files.data.length === 0 ? (
+            <p>no files in current directory</p>
           ) : (
             <Table>
               <thead>
@@ -111,7 +170,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                 </tr>
               </thead>
               <tbody>
-                {folders.data.folders.map((folder) => (
+                {folders.data.map((folder) => (
                   <tr key={folder._id}>
                     <td>
                       <Row>
@@ -132,8 +191,24 @@ const FilesList = (args: FolderProps): JSX.Element => {
                           <Button
                             style={{
                               backgroundColor: '#fff',
-                              color: '#ff0000',
+                              color: '#D9534F',
                               border: '0px',
+                            }}
+                            onClick={() => {
+                              deleteFolderMutation({
+                                variables: {
+                                  id: folder._id,
+                                  branch: args.branch,
+                                },
+                                update: () => {
+                                  setFolders({
+                                    data: folders.data?.filter(
+                                      (f) => f._id !== folder._id
+                                    ),
+                                    loading: false,
+                                  });
+                                },
+                              });
                             }}
                           >
                             Remove Folder
@@ -143,7 +218,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                     </td>
                   </tr>
                 ))}
-                {files.data.files.map((file) => (
+                {files.data.map((file) => (
                   <tr key={file._id}>
                     <td>
                       <Row>
@@ -164,7 +239,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                           <Button
                             style={{
                               backgroundColor: '#fff',
-                              color: '#ff0000',
+                              color: '#D9534F',
                               border: '0px',
                             }}
                             onClick={() => {
@@ -173,20 +248,13 @@ const FilesList = (args: FolderProps): JSX.Element => {
                                   id: file._id,
                                   branch: args.branch,
                                 },
-                                fetchPolicy: 'cache-and-network',
                                 update: () => {
-                                  // if (files !== undefined && files.data !== undefined) {
-                                  //   newFiles = filesRes.data.files.filter(
-                                  //     (file: { _id: any }) => file._id !== id
-                                  //   );
-                                  // } else {
-                                  //   newFiles = 'hello';
-                                  // }
-                                  // alert(newFiles);
-                                  // cache.writeQuery({
-                                  //   query: Files,
-                                  //   data: { files: newFiles },
-                                  // });
+                                  setFiles({
+                                    data: files.data?.filter(
+                                      (f) => f._id !== file._id
+                                    ),
+                                    loading: false,
+                                  });
                                 },
                               });
                             }}
