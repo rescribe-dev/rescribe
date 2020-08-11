@@ -175,7 +175,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                           <Button
                             style={{
                               color: '#818A91',
-                              backgroundColor: '#E2F4F8',
+                              backgroundColor: '#fff',
                               border: '0px',
                             }}
                             onClick={foldToggle}
@@ -240,7 +240,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                           <Button
                             style={{
                               color: '#818A91',
-                              backgroundColor: '#E2F4F8',
+                              backgroundColor: '#fff',
                               border: '0px',
                             }}
                             onClick={fileToggle}
