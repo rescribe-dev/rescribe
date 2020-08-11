@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import { getToken } from './context';
-import { UNAUTHORIZED } from 'http-status-codes';
+import { UNAUTHORIZED, OK } from 'http-status-codes';
+import { getLogger } from 'log4js';
 
-type ExpressHandlerType = (req: Request, res: Response) => Promise<void>;
+const logger = getLogger();
+
+type ExpressHandlerType = (req: Request, res: Response) => Promise<string>;
 
 export const authHandler = async (key: string, callback: ExpressHandlerType, req: Request, res: Response): Promise<void> => {
   try {
@@ -13,7 +16,11 @@ export const authHandler = async (key: string, callback: ExpressHandlerType, req
     if (token !== key) {
       throw new Error('invalid token provided');
     }
-    await callback(req, res);
+    const message = await callback(req, res);
+    logger.info(message);
+    res.status(OK).json({
+      message
+    });
   } catch (err) {
     const errObj = err as Error;
     res.status(UNAUTHORIZED).json({

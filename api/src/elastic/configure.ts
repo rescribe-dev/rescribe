@@ -51,9 +51,10 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
   }
 };
 
-export const initializeMappings = async (): Promise<void> => {
+export const initializeMappings = async (): Promise<string> => {
   await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType);
   await initializeMapping(settings.folderIndexName, settings.folderIndexSettings, folderMappings, settings.folderType);
   await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
   await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
+  return 'initialized all mappings';
 };

@@ -1,5 +1,6 @@
 import { prop as Property } from '@typegoose/typegoose';
 import { ObjectType, Field, registerEnumType } from 'type-graphql';
+import { Schema } from 'mongoose';
 
 export enum Interval {
   year = 'year',
@@ -21,7 +22,7 @@ export default class Plan {
   interval: Interval;
 
   // map of currency to stripe id
-  @Property({ required: true, type: String })
+  @Property({ required: true, type: Schema.Types.Map })
   @Field(_type => String, { description: 'currencies' })
   currencies: Record<string, string>;
 

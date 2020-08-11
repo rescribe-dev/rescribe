@@ -11,7 +11,7 @@ import { Interval } from '../schema/payments/plan';
 
 const logger = getLogger();
 
-export const initializeProducts = async (): Promise<void> => {
+export const initializeProducts = async (): Promise<string> => {
   const products = await ProductModel.find({});
   for (const product of products) {
     await deleteProductUtil(product);
@@ -45,5 +45,5 @@ export const initializeProducts = async (): Promise<void> => {
     });
   }
 
-  logger.info('done initializing currencies and products');
+  return 'done initializing currencies and products';
 };

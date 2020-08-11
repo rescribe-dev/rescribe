@@ -5,6 +5,9 @@ import { verifyAdmin } from '../auth/checkAuth';
 import { stripeClient, requirePaymentSystemInitialized } from '../stripe/init';
 import { defaultCurrency } from './getExchangeRate';
 import { getActualExchangeRate } from './getAcutalExchangeRate';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 export const defaultCountry = 'us';
 
@@ -15,7 +18,7 @@ export class AddCurrencyArgs {
 }
 
 export const addCurrencyUtil = async (args: AddCurrencyArgs): Promise<Currency> => {
-  const givenCurrency = args.name.toUpperCase();
+  const givenCurrency = args.name.toLowerCase();
   const givenCountry = defaultCountry.toLowerCase();
   const defaultCountryData = await stripeClient.countrySpecs.retrieve(givenCountry);
   if ((await CurrencyModel.countDocuments({
@@ -25,6 +28,7 @@ export const addCurrencyUtil = async (args: AddCurrencyArgs): Promise<Currency> 
   }
   let exchangeRate = 1;
   if (givenCurrency !== defaultCurrency) {
+    logger.info(defaultCountryData.supported_payment_currencies);
     if (!defaultCountryData.supported_payment_currencies.includes(givenCurrency)) {
       throw new Error(`given currency ${givenCurrency} unsupported in ${givenCountry}`);
     }
