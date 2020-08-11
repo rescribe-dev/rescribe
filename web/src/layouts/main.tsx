@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -47,6 +47,9 @@ interface IndexLayoutProps {
   };
 }
 
+const lightThemeClass = 'light';
+const darkThemeClass = 'dark';
+
 const Layout = (args: IndexLayoutArgs): JSX.Element => {
   const data: IndexLayoutProps = useStaticQuery(graphql`
     query SiteTitleQuery {
@@ -61,6 +64,8 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
       }
     }
   `);
+
+  const [themeClass, setThemeClass] = useState<string>(lightThemeClass);
 
   let currentLanguage = data.site.siteMetadata.languages.default;
   if (!isSSR) {
@@ -78,7 +83,7 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
     <HelmetProvider>
       <IntlProvider locale={currentLanguage} messages={args.i18nMessages}>
         <Fonts />
-        <div className="main-wrapper">
+        <div className={`main-wrapper ${themeClass}`}>
           <Header
             siteTitle={data.site.siteMetadata.title}
             location={args.location}

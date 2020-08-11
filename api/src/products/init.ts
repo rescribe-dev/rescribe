@@ -8,10 +8,12 @@ import { addCurrencyUtil } from '../currencies/addCurrency.resolver';
 import { defaultProductName } from './product.resolver';
 import { addProductUtil } from './addProduct.resolver';
 import { Interval } from '../schema/payments/plan';
+import { requirePaymentSystemInitialized } from '../stripe/init';
 
 const logger = getLogger();
 
 export const initializeProducts = async (): Promise<string> => {
+  requirePaymentSystemInitialized();
   const products = await ProductModel.find({});
   for (const product of products) {
     await deleteProductUtil(product);
