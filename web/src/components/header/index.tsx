@@ -107,14 +107,14 @@ const Header = (args: HeaderArgs): JSX.Element => {
   return (
     <>
       <Navbar
-        light
         expand="md"
+        color="var(--text-nav)"
         style={{
           backgroundColor: 'var(--bg-nav)',
           color: 'var(--text-nav)',
         }}
       >
-        <Container fluid>
+        <Container>
           <Row
             style={{
               width: '100%',
@@ -255,7 +255,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           className="navbar-link"
                           tag={Link}
                           to={username ? `/${username}/projects` : '#'}
-                          key="projecs"
+                          key="projects"
                         >
                           <FormattedMessage id="projects">
                             {(messages: string[]) =>
@@ -264,73 +264,77 @@ const Header = (args: HeaderArgs): JSX.Element => {
                           </FormattedMessage>
                         </NavLink>,
                       ]
-                    : [
-                        <NavLink
-                          className="navbar-link"
-                          tag={Link}
-                          key="sign-up"
-                          to="/signup"
-                        >
-                          <FormattedMessage id="sign up">
-                            {(messages: string[]) =>
-                              capitalizeFirstLetter(messages[0])
-                            }
-                          </FormattedMessage>
-                        </NavLink>,
-                        <NavLink
-                          className="navbar-link"
-                          tag={Link}
-                          to="/login"
-                          key="login"
-                        >
-                          <FormattedMessage id="login">
-                            {(messages: string[]) =>
-                              capitalizeFirstLetter(messages[0])
-                            }
-                          </FormattedMessage>
-                        </NavLink>,
-                      ]}
+                    : []}
                 </Nav>
-                {!loggedIn ? null : (
-                  <UncontrolledDropdown inNavbar>
-                    <DropdownToggle className="navbar-text" nav caret>
-                      Account
-                    </DropdownToggle>
-                    <DropdownMenu key="menu" right>
-                      <DropdownItem
-                        key="profile"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          navigate(`/${username}`);
-                        }}
+                <Nav navbar>
+                  {!loggedIn ? (
+                    [
+                      <NavLink
+                        className="navbar-link"
+                        tag={Link}
+                        key="sign-up"
+                        to="/signup"
                       >
-                        Profile
-                      </DropdownItem>
-                      <DropdownItem
-                        key="settings"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          navigate('/account');
-                        }}
+                        <FormattedMessage id="sign up">
+                          {(messages: string[]) =>
+                            capitalizeFirstLetter(messages[0]) + '  >'
+                          }
+                        </FormattedMessage>
+                      </NavLink>,
+                      <NavLink
+                        className="navbar-link"
+                        tag={Link}
+                        to="/login"
+                        key="login"
                       >
-                        Settings
-                      </DropdownItem>
-                      <DropdownItem
-                        key="logout"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          dispatchAuthThunk(thunkLogout())
-                            .catch((err: Error) => console.error(err))
-                            .then(() => {
-                              // navigate('/login')
-                            });
-                        }}
-                      >
-                        Logout
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </UncontrolledDropdown>
-                )}
+                        <FormattedMessage id="login">
+                          {(messages: string[]) =>
+                            capitalizeFirstLetter(messages[0]) + '  >'
+                          }
+                        </FormattedMessage>
+                      </NavLink>,
+                    ]
+                  ) : (
+                    <UncontrolledDropdown inNavbar>
+                      <DropdownToggle className="navbar-text" nav caret>
+                        Account
+                      </DropdownToggle>
+                      <DropdownMenu key="menu" right>
+                        <DropdownItem
+                          key="profile"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate(`/${username}`);
+                          }}
+                        >
+                          Profile
+                        </DropdownItem>
+                        <DropdownItem
+                          key="settings"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate('/account');
+                          }}
+                        >
+                          Settings
+                        </DropdownItem>
+                        <DropdownItem
+                          key="logout"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            dispatchAuthThunk(thunkLogout())
+                              .catch((err: Error) => console.error(err))
+                              .then(() => {
+                                // navigate('/login')
+                              });
+                          }}
+                        >
+                          Logout
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </UncontrolledDropdown>
+                  )}
+                </Nav>
               </Collapse>
             </Col>
           </Row>

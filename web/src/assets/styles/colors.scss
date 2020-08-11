@@ -12,6 +12,7 @@
   --red-stop: #f2453d;
 
   // grays
+  --white: #ffffff;
   --gray0: #f5f5f5;
   --gray1: #eceeef;
   --gray2: #dddddd;
@@ -22,8 +23,8 @@
 }
 
 .light {
-  --bg: var(--soft-background);
-  --bg-nav: var(--gray0);
+  --bg: var(--white);
+  --bg-nav: var(--white);
   --text: var(--gray6);
   --text-nav: var(--purple-blue);
 }

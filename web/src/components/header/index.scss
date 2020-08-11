@@ -7,3 +7,7 @@
 .navbar-link:hover {
   color: #000;
 }
+
+.navbar-nav .nav-link {
+  color: var(--text-nav) !important;
+}
