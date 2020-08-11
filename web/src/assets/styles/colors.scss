@@ -25,9 +25,12 @@
   --bg: var(--soft-background);
   --bg-nav: var(--gray0);
   --text: var(--gray6);
+  --text-nav: var(--purple-blue);
 }
 
 .dark {
   --bg: var(--gray5);
+  --bg-nav: var(--dark-blue);
   --text: var(--gray0);
+  --text-nav: var(--purple-blue);
 }

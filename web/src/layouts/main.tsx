@@ -47,8 +47,9 @@ interface IndexLayoutProps {
   };
 }
 
+// TODO - create a switcher between themes
 const lightThemeClass = 'light';
-const darkThemeClass = 'dark';
+export const darkThemeClass = 'dark';
 
 const Layout = (args: IndexLayoutArgs): JSX.Element => {
   const data: IndexLayoutProps = useStaticQuery(graphql`
@@ -65,7 +66,7 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
     }
   `);
 
-  const [themeClass, setThemeClass] = useState<string>(lightThemeClass);
+  const [themeClass] = useState<string>(lightThemeClass);
 
   let currentLanguage = data.site.siteMetadata.languages.default;
   if (!isSSR) {

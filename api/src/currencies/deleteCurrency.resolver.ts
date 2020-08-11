@@ -22,8 +22,8 @@ export const deleteCurrencyUtil = async (currencyData: Currency): Promise<void> 
   }
   for (const product of products) {
     for (const plan of product.plans) {
-      if (currencyData.name in plan.currencies) {
-        stripeClient.plans.del(plan.currencies[currencyData.name]);
+      if (plan.currencies.has(currencyData.name)) {
+        stripeClient.plans.del(plan.currencies.get(currencyData.name) as string);
       }
     }
   }

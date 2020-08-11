@@ -106,10 +106,10 @@ class PurchaseResolver {
           amount = plan.amount;
         } else {
           let foundCurrency = false;
-          for (const currency in plan.currencies) {
+          for (const currency of plan.currencies.keys()) {
             if (currency === paymentMethod.currency) {
               foundCurrency = true;
-              subscriptionPlanID = plan.currencies[currency];
+              subscriptionPlanID = plan.currencies.get(currency) as string;
             }
           }
           if (!foundCurrency) {

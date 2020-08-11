@@ -121,6 +121,8 @@ export const initializeServer = async (): Promise<void> => {
       authHandler(configData.INITIALIZATION_KEY, initializeMappings, req, res));
     app.post('/initializeProducts', (req, res) =>
       authHandler(configData.INITIALIZATION_KEY, initializeProducts, req, res));
+  } else {
+    logger.info('initialization is disabled');
   }
   const httpServer = createServer(app);
   server.installSubscriptionHandlers(httpServer);

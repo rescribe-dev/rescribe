@@ -37,3 +37,23 @@ a.link-no-style {
 .form-feedback {
   margin-bottom: 1rem;
 }
+
+// if you want to remove the gatsby spacing:
+/*
+html, body, #___gatsby {
+  height: 100%;
+}
+
+body {
+  margin: 0px;
+}
+
+#gatsby-focus-wrapper {
+  height: 100%;
+}
+*/
+
+/* remove recaptcha badge */
+.grecaptcha-badge {
+  visibility: hidden;
+}

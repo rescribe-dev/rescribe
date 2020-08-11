@@ -21,9 +21,9 @@ export default class Plan {
   interval: Interval;
 
   // map of currency to stripe id
-  @Property({ required: true, kind: Map })
+  @Property({ required: true, type: String })
   @Field(_type => String, { description: 'currencies' })
-  currencies: Record<string, string>;
+  currencies: Map<string, string>;
 
   // cost of plan in USD
   @Property({ required: true, type: Number })

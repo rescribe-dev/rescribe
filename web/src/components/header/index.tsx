@@ -106,7 +106,14 @@ const Header = (args: HeaderArgs): JSX.Element => {
 
   return (
     <>
-      <Navbar light expand="md">
+      <Navbar
+        light
+        expand="md"
+        style={{
+          backgroundColor: 'var(--bg-nav)',
+          color: 'var(--text-nav)',
+        }}
+      >
         <Container fluid>
           <Row
             style={{

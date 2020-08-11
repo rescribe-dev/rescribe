@@ -105,9 +105,9 @@ class RegisterResolver {
       name: undefined
     });
     let planStripeID: string | undefined = undefined;
-    for (const currency in defaultProduct.plans[0].currencies) {
+    for (const currency of defaultProduct.plans[0].currencies.keys()) {
       if (currency === defaultCurrency) {
-        planStripeID = defaultProduct.plans[0].currencies[currency];
+        planStripeID = defaultProduct.plans[0].currencies.get(currency) as string;
       }
     }
     if (!planStripeID) {
