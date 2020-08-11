@@ -126,7 +126,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
               </NavbarBrand>
             </Col>
             {pathname === '/' ? null : (
-              <Col sm={{ size: 3 }}>
+              <Col sm={{ size: 2 }}>
                 <Formik
                   innerRef={(formRef as unknown) as (instance: any) => void}
                   initialValues={{

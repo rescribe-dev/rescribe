@@ -41,7 +41,7 @@ const Newsletter = (): JSX.Element => {
       fluid
       style={{
         marginTop: '40rem',
-        backgroundColor: 'var(--deep-blue)',
+        backgroundColor: 'var(--dark-blue)',
         padding: '2rem',
       }}
     >

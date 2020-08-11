@@ -14,7 +14,7 @@ export class ProductArgs {
 }
 
 export const getProduct = async (args: ProductArgs): Promise<Product> => {
-  args.name = name ? name : defaultProductName;
+  args.name = args.name ? args.name : defaultProductName;
   const redisKeyObject: RedisKey = {
     path: args.name,
     type: 'product'

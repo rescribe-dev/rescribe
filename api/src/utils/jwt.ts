@@ -203,58 +203,57 @@ export const handleRefreshToken = (req: Request): Promise<string> => {
 
 export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
   return new Promise((resolve, reject) => {
-    let secret: string;
     try {
-      secret = getSecret(type);
-    } catch (err) {
-      reject(err as Error);
-      return;
-    }
-    let jwtConfig: VerifyOptions;
-    if (type === jwtType.LOCAL) {
-      jwtConfig = {
-        algorithms: ['HS256']
-      };
-    } else if (type === jwtType.GITHUB) {
-      jwtConfig = {
-        algorithms: ['RS256']
-      };
-    } else {
-      jwtConfig = {};
-    }
-    verify(token, secret, jwtConfig, async (err, res: any) => {
-      if (err) {
-        reject(err as Error);
+      const secret = getSecret(type);
+      let jwtConfig: VerifyOptions;
+      if (type === jwtType.LOCAL) {
+        jwtConfig = {
+          algorithms: ['HS256']
+        };
+      } else if (type === jwtType.GITHUB) {
+        jwtConfig = {
+          algorithms: ['RS256']
+        };
       } else {
-        let data: AuthData;
-        if (type === jwtType.LOCAL) {
-          const inputData = res as JWTAuthData;
-          data = {
-            id: inputData.id,
-            plan: inputData.plan,
-            restrictions: {
-              ...(await getProduct({
-                name: inputData.plan
-              }))
-            },
-            type: inputData.type,
-            emailVerified: inputData.emailVerified
-          };
-        } else if (type === jwtType.GITHUB) {
-          data = {
-            id: nanoid(),
-            plan: defaultProductName,
-            restrictions: {
-              storage: Number.MAX_SAFE_INTEGER
-            },
-            type: UserType.github,
-            emailVerified: true
-          };
-        } else {
-          throw new Error('invalid type for jwt');
-        }
-        resolve(data);
+        jwtConfig = {};
       }
-    });
+      verify(token, secret, jwtConfig, async (err, res: any) => {
+        if (err) {
+          throw err as Error;
+        } else {
+          let data: AuthData;
+          if (type === jwtType.LOCAL) {
+            const inputData = res as JWTAuthData;
+            data = {
+              id: inputData.id,
+              plan: inputData.plan,
+              restrictions: {
+                ...(await getProduct({
+                  name: inputData.plan
+                }))
+              },
+              type: inputData.type,
+              emailVerified: inputData.emailVerified
+            };
+          } else if (type === jwtType.GITHUB) {
+            data = {
+              id: nanoid(),
+              plan: defaultProductName,
+              restrictions: {
+                storage: Number.MAX_SAFE_INTEGER
+              },
+              type: UserType.github,
+              emailVerified: true
+            };
+          } else {
+            throw new Error('invalid type for jwt');
+          }
+          resolve(data);
+        }
+      });
+    } catch (err) {
+      const errObj = err as Error;
+      reject(errObj);
+    }
   });
 };
