@@ -228,14 +228,14 @@ const Header = (args: HeaderArgs): JSX.Element => {
                       }
                     </FormattedMessage>
                   </NavLink>
-                  <NavLink className="navbar-link" tag={Link} to="/">
+                  <NavLink className="navbar-link" tag={Link} to="/pricing">
                     <FormattedMessage id="pricing">
                       {(messages: string[]) =>
                         capitalizeFirstLetter(messages[0])
                       }
                     </FormattedMessage>
                   </NavLink>
-                  <NavLink className="navbar-link" tag={Link} to="/search">
+                  <NavLink className="navbar-link" tag={Link} to="/explore">
                     <FormattedMessage id="explore">
                       {(messages: string[]) =>
                         capitalizeFirstLetter(messages[0])

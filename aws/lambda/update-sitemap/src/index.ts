@@ -14,6 +14,7 @@ import axios from 'axios';
 import { OK } from 'http-status-codes';
 import { formatISO } from 'date-fns';
 import { SitemapModel, Sitemap } from './shared/schema/utils/sitemap';
+import languages from './languages';
 
 const logger = getLogger();
 
@@ -123,6 +124,11 @@ const writeSitemap = async (sitemapPath: string, data: string): Promise<CreateSi
 
 const createSitemap = async (paths: string[], sitemapPath: string): Promise<CreateSitemapOutput> => {
   const urlTags: Record<string, unknown>[] = [];
+  for (const path of paths) {
+    for (const key in languages) {
+      paths.push(`/${languages[key]}${path}`);
+    }
+  }
   for (const path of paths) {
     const urlTag: Record<string, unknown> = {};
     urlTag['loc'] = websiteURL + path;
