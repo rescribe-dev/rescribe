@@ -116,10 +116,11 @@ export const initializeServer = async (): Promise<void> => {
     }
   });
   if (enableInitialization()) {
+    logger.info('initialization is enabled');
     app.post('/initializeElastic', (req, res) =>
       authHandler(configData.INITIALIZATION_KEY, initializeMappings, req, res));
     app.post('/initializeProducts', (req, res) =>
-      authHandler(configData.INITIALIZATION_KEY, initializeProducts, req, res));;
+      authHandler(configData.INITIALIZATION_KEY, initializeProducts, req, res));
   }
   const httpServer = createServer(app);
   server.installSubscriptionHandlers(httpServer);
