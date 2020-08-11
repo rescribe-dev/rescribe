@@ -3,7 +3,8 @@ import Currency, { CurrencyModel } from '../schema/payments/currency';
 import { GraphQLContext } from '../utils/context';
 import { verifyAdmin } from '../auth/checkAuth';
 import { stripeClient, requirePaymentSystemInitialized } from '../stripe/init';
-import { defaultCurrency, getActualExchangeRate } from './getExchangeRate';
+import { defaultCurrency } from './getExchangeRate';
+import { getActualExchangeRate } from './getAcutalExchangeRate';
 
 export const defaultCountry = 'us';
 

@@ -3,11 +3,11 @@ import { CurrencyModel } from '../schema/payments/currency';
 import { GraphQLContext } from '../utils/context';
 import { verifyAdmin } from '../auth/checkAuth';
 import { stripeClient, requirePaymentSystemInitialized } from '../stripe/init';
-import { getActualExchangeRate } from '../currencies/getExchangeRate';
 import Plan, { Interval, singlePurchase } from '../schema/payments/plan';
 import Product, { ProductModel } from '../schema/payments/product';
 import { defaultProductName } from './product.resolver';
 import { IsInt, Min } from 'class-validator';
+import { getActualExchangeRate } from '../currencies/getAcutalExchangeRate';
 
 const maxTrialPeriod = 720; // days
 
