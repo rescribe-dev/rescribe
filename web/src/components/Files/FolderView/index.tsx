@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Row, Col, Button } from 'reactstrap';
+import {
+  Container,
+  Table,
+  Row,
+  Col,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from 'reactstrap';
 
 import './index.scss';
 
@@ -18,7 +28,7 @@ import {
   DelFolderMutationVariables,
   DelFolder,
 } from 'lib/generated/datamodel';
-import { AiFillFolder, AiOutlineFile } from 'react-icons/ai';
+import { AiFillFolder, AiOutlineFile, AiFillDelete } from 'react-icons/ai';
 import { ObjectId } from 'mongodb';
 import { Link } from 'gatsby';
 import { useMutation } from '@apollo/react-hooks';
@@ -46,16 +56,10 @@ type FolderObj = {
 const perPage = 10;
 
 const FilesList = (args: FolderProps): JSX.Element => {
-  // const [folders, setFolders] = useState<
-  //   ApolloQueryResult<FoldersQuery> | undefined
-  // >(undefined);
   const [folders, setFolders] = useState<FolderObj>({
     loading: true,
     data: undefined,
   });
-  // const [files, setFiles] = useState<ApolloQueryResult<FilesQuery> | undefined>(
-  //   undefined
-  // );
   const [files, setFiles] = useState<FileObj>({
     loading: true,
     data: undefined,
@@ -70,20 +74,6 @@ const FilesList = (args: FolderProps): JSX.Element => {
     setFullPath(path);
     (async () => {
       try {
-        // setFolders(
-        //   await client.query<FoldersQuery, FoldersQueryVariables>({
-        //     query: Folders,
-        //     variables: {
-        //       repositories: [args.repositoryID],
-        //       page: 0,
-        //       perpage: perPage,
-        //       branches: [args.branch],
-        //       path,
-        //     },
-        //     fetchPolicy: 'network-only',
-        //   })
-        // );
-
         const folderRes = await client.query<
           FoldersQuery,
           FoldersQueryVariables
@@ -102,20 +92,6 @@ const FilesList = (args: FolderProps): JSX.Element => {
           loading: folderRes.loading,
           data: folderRes.data.folders,
         });
-
-        // setFiles(
-        //   await client.query<FilesQuery, FilesQueryVariables>({
-        //     query: Files,
-        //     variables: {
-        //       repositories: [args.repositoryID],
-        //       page: 0,
-        //       perpage: perPage,
-        //       branches: [args.branch],
-        //       path,
-        //     },
-        //     fetchPolicy: 'network-only',
-        //   })
-        // );
 
         const fileRes = await client.query<FilesQuery, FilesQueryVariables>({
           query: Files,
@@ -140,6 +116,14 @@ const FilesList = (args: FolderProps): JSX.Element => {
       }
     })();
   }, []);
+
+  const [foldModal, setFoldModal] = useState(false);
+
+  const foldToggle = () => setFoldModal(!foldModal);
+
+  const [fileModal, setFileModal] = useState(false);
+
+  const fileToggle = () => setFileModal(!fileModal);
 
   const [deleteFileMutation] = useMutation<
     DelFileMutation,
@@ -190,29 +174,46 @@ const FilesList = (args: FolderProps): JSX.Element => {
                         <Col>
                           <Button
                             style={{
-                              backgroundColor: '#fff',
-                              color: '#D9534F',
+                              color: '#818A91',
+                              backgroundColor: '#E2F4F8',
                               border: '0px',
                             }}
-                            onClick={() => {
-                              deleteFolderMutation({
-                                variables: {
-                                  id: folder._id,
-                                  branch: args.branch,
-                                },
-                                update: () => {
-                                  setFolders({
-                                    data: folders.data?.filter(
-                                      (f) => f._id !== folder._id
-                                    ),
-                                    loading: false,
-                                  });
-                                },
-                              });
-                            }}
+                            onClick={foldToggle}
                           >
-                            Remove Folder
+                            <AiFillDelete />
                           </Button>
+                          <Modal isOpen={foldModal} toggle={foldToggle}>
+                            <ModalHeader toggle={foldToggle}>
+                              Delete Folder
+                            </ModalHeader>
+                            <ModalBody>Are you sure?</ModalBody>
+                            <ModalFooter>
+                              <Button
+                                color="danger"
+                                onClick={() => {
+                                  deleteFolderMutation({
+                                    variables: {
+                                      id: folder._id,
+                                      branch: args.branch,
+                                    },
+                                    update: () => {
+                                      setFolders({
+                                        data: folders.data?.filter(
+                                          (f) => f._id !== folder._id
+                                        ),
+                                        loading: false,
+                                      });
+                                    },
+                                  });
+                                }}
+                              >
+                                Delete
+                              </Button>{' '}
+                              <Button color="secondary" onClick={foldToggle}>
+                                Cancel
+                              </Button>
+                            </ModalFooter>
+                          </Modal>
                         </Col>
                       </Row>
                     </td>
@@ -238,29 +239,46 @@ const FilesList = (args: FolderProps): JSX.Element => {
                         <Col>
                           <Button
                             style={{
-                              backgroundColor: '#fff',
-                              color: '#D9534F',
+                              color: '#818A91',
+                              backgroundColor: '#E2F4F8',
                               border: '0px',
                             }}
-                            onClick={() => {
-                              deleteFileMutation({
-                                variables: {
-                                  id: file._id,
-                                  branch: args.branch,
-                                },
-                                update: () => {
-                                  setFiles({
-                                    data: files.data?.filter(
-                                      (f) => f._id !== file._id
-                                    ),
-                                    loading: false,
-                                  });
-                                },
-                              });
-                            }}
+                            onClick={fileToggle}
                           >
-                            Remove File
+                            <AiFillDelete />
                           </Button>
+                          <Modal isOpen={fileModal} toggle={fileToggle}>
+                            <ModalHeader toggle={fileToggle}>
+                              Delete File
+                            </ModalHeader>
+                            <ModalBody>Are you sure?</ModalBody>
+                            <ModalFooter>
+                              <Button
+                                color="danger"
+                                onClick={() => {
+                                  deleteFileMutation({
+                                    variables: {
+                                      id: file._id,
+                                      branch: args.branch,
+                                    },
+                                    update: () => {
+                                      setFiles({
+                                        data: files.data?.filter(
+                                          (f) => f._id !== file._id
+                                        ),
+                                        loading: false,
+                                      });
+                                    },
+                                  });
+                                }}
+                              >
+                                Delete
+                              </Button>{' '}
+                              <Button color="secondary" onClick={fileToggle}>
+                                Cancel
+                              </Button>
+                            </ModalFooter>
+                          </Modal>
                         </Col>
                       </Row>
                     </td>
