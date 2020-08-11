@@ -152,8 +152,8 @@ export const deleteFilesUtil = async (args: DeleteFilesUtilArgs): Promise<void> 
         $all: [args.branch]
       }
     });
-    if (numChildren === 1) {
-      // remove branch from folder
+    // num children is 0 if deleting empty folder directly
+    if (numChildren <= 1) {
       const folderData = await FolderModel.findById(parentFolderID);
       if (!folderData) {
         throw new Error(`cannot find folder with id ${parentFolderID.toHexString()}`);
