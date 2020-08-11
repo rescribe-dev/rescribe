@@ -11,6 +11,9 @@ import { AccessLevel } from '../schema/users/access';
 import { s3Client, fileBucket, getFileKey } from '../utils/aws';
 import { countFiles } from '../folders/countFiles.resolver';
 import { FolderModel, FolderDB } from '../schema/structure/folder';
+import { RepositoryModel } from '../schema/structure/repository';
+import { Aggregates } from './shared';
+import { saveAggregates } from './deleteFiles.resolver';
 
 @ArgsType()
 class DeleteFileArgs {
@@ -63,7 +66,7 @@ export const deleteFolderUtil = async (folder: FolderDB, branch: string): Promis
   }
 };
 
-export const deleteFileUtil = async (file: FileDB, branch: string): Promise<void> => {
+export const deleteFileUtil = async (file: FileDB, branch: string, aggregates: Aggregates): Promise<void> => {
   if (!file.branches.includes(branch)) {
     throw new Error(`file is not in branch ${branch}`);
   }
@@ -72,6 +75,9 @@ export const deleteFileUtil = async (file: FileDB, branch: string): Promise<void
       index: fileIndexName,
       id: file._id.toHexString()
     });
+    aggregates.linesOfCode -= file.fileLength;
+    aggregates.numberOfFiles--;
+    await saveAggregates(aggregates, file.repository);
   } else {
     const currentTime = new Date().getTime();
     await elasticClient.update({
@@ -128,10 +134,17 @@ class DeleteFileResolver {
     if (!user) {
       throw new Error('cannot find user data');
     }
+    const repository = await RepositoryModel.findById(file.repository);
+    if (!repository) {
+      throw new Error(`cannot find repository with id ${file.repository.toHexString()}`);
+    }
     if (!(await checkRepositoryAccess(user, file.repository, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for repository');
     }
-    await deleteFileUtil(file, args.branch);
+    await deleteFileUtil(file, args.branch, {
+      linesOfCode: repository.linesOfCode,
+      numberOfFiles: repository.numberOfFiles
+    });
     return `deleted file with id: ${args.id}`;
   }
 }

@@ -15,10 +15,7 @@ import { FolderModel } from '../schema/structure/folder';
 import { baseFolderName, baseFolderPath } from '../shared/folders';
 import { RepositoryModel } from '../schema/structure/repository';
 import { elasticClient } from '../elastic/init';
-import { getLogger } from 'log4js';
 import { WriteType } from '../utils/writeType';
-
-const logger = getLogger();
 
 @ArgsType()
 class DeleteFilesArgs {
@@ -33,6 +30,7 @@ class DeleteFilesArgs {
 }
 
 interface DeleteFilesUtilArgs {
+  deletedFolder?: ObjectId;
   repository: ObjectId;
   branch: string;
   files?: ObjectId[] | string[] | FileDB[];
@@ -140,6 +138,10 @@ export const deleteFilesUtil = async (args: DeleteFilesUtilArgs): Promise<void> 
       parentFolderIDsSet.add(fileData.folder);
     }
   }
+  if (args.deletedFolder) {
+    parentFolderIDsSet.add(args.deletedFolder);
+  }
+
   const bulkUpdateFolderElasticData: SaveElasticElement[] = [];
   const bulkUpdateFolderMongoData: WriteMongoElement[] = [];
   for (const parentFolderID of parentFolderIDsSet.values()) {
@@ -230,7 +232,6 @@ export const deleteFilesUtil = async (args: DeleteFilesUtilArgs): Promise<void> 
 
 export const saveAggregates = async (aggregates: Aggregates, repository: ObjectId): Promise<void> => {
   const currentTime = new Date().getTime();
-  logger.info('save start');
   await elasticClient.update({
     index: repositoryIndexName,
     id: repository.toHexString(),
@@ -241,7 +242,6 @@ export const saveAggregates = async (aggregates: Aggregates, repository: ObjectI
       }
     }
   });
-  logger.info('save next');
   await RepositoryModel.updateOne({
     _id: repository
   }, {

@@ -53,6 +53,7 @@ export const deleteFolderRecursiveUtil = async (folder: FolderDB, branch: string
   await deleteFilesUtil({
     repository: folder.repository,
     branch,
+    deletedFolder: folder._id,
     files: childFiles,
     aggregates
   });

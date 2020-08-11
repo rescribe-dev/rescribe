@@ -17,8 +17,6 @@ import {
   FormGroup,
   Input,
   FormFeedback,
-  Row,
-  Col,
   Container,
 } from 'reactstrap';
 import { isLoggedIn } from 'state/auth/getters';
@@ -48,6 +46,8 @@ interface HeaderArgs {
   siteTitle: string;
   location: WindowLocation | string;
 }
+
+const noQuickSearchPaths = ['/', '/search'];
 
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
 const Header = (args: HeaderArgs): JSX.Element => {
@@ -106,34 +106,67 @@ const Header = (args: HeaderArgs): JSX.Element => {
 
   return (
     <>
-      <Navbar
-        expand="md"
-        color="var(--text-nav)"
+      <Container
         style={{
-          backgroundColor: 'var(--bg-nav)',
-          color: 'var(--text-nav)',
+          padding: 0,
         }}
       >
-        <Container>
-          <Row
-            style={{
-              width: '100%',
-            }}
-          >
-            <Col xs={'auto'}>
-              <NavbarBrand tag={Link} to="/">
-                <img
-                  src={logo}
-                  alt="reScribe"
-                  style={{
-                    width: '10rem',
-                    marginBottom: 0,
-                  }}
-                />
-              </NavbarBrand>
-            </Col>
-            {pathname === '/' ? null : (
-              <Col sm={{ size: 2 }}>
+        <Navbar
+          light
+          expand="md"
+          color="var(--text-nav)"
+          style={{
+            backgroundColor: 'var(--bg-nav)',
+            color: 'var(--text-nav)',
+          }}
+        >
+          <NavbarBrand tag={Link} to="/">
+            <img
+              src={logo}
+              alt="reScribe"
+              style={{
+                width: '10rem',
+                marginBottom: 0,
+              }}
+            />
+          </NavbarBrand>
+          <NavbarToggler onClick={toggleHeader} />
+          <Collapse isOpen={headerIsOpen} navbar>
+            <Nav navbar className="mr-auto">
+              <NavLink className="navbar-link" tag={Link} to="/">
+                <FormattedMessage id="how it works">
+                  {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                </FormattedMessage>
+              </NavLink>
+              <NavLink className="navbar-link" tag={Link} to="/pricing">
+                <FormattedMessage id="pricing">
+                  {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                </FormattedMessage>
+              </NavLink>
+              <NavLink className="navbar-link" tag={Link} to="/explore">
+                <FormattedMessage id="explore">
+                  {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                </FormattedMessage>
+              </NavLink>
+              {loggedIn
+                ? [
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      to={username ? `/${username}/projects` : '#'}
+                      key="projects"
+                    >
+                      <FormattedMessage id="projects">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0])
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                  ]
+                : []}
+            </Nav>
+            <Nav navbar>
+              {noQuickSearchPaths.includes(pathname) ? null : (
                 <Formik
                   innerRef={(formRef as unknown) as (instance: any) => void}
                   initialValues={{
@@ -149,6 +182,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     dispatch(setQuery(formData.query));
                     await navigate(getSearchURL());
                     if (pathname === '/search') {
+                      // TODO - fix this
                       // hack to allow for react state to update before search
                       await sleep(50);
                       try {
@@ -180,6 +214,8 @@ const Header = (args: HeaderArgs): JSX.Element => {
                         inline
                         style={{
                           marginBottom: 0,
+                          maxWidth: '15rem',
+                          marginRight: '1rem',
                         }}
                       >
                         <FormGroup
@@ -222,124 +258,78 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     </>
                   )}
                 </Formik>
-              </Col>
-            )}
-            <Col className="align-self-end text-right">
-              <NavbarToggler onClick={toggleHeader} />
-              <Collapse isOpen={headerIsOpen} navbar>
-                <Nav navbar className="mr-auto">
-                  <NavLink className="navbar-link" tag={Link} to="/">
-                    <FormattedMessage id="how it works">
+              )}
+              {!loggedIn ? (
+                [
+                  <NavLink
+                    className="navbar-link"
+                    tag={Link}
+                    key="sign-up"
+                    to="/signup"
+                  >
+                    <FormattedMessage id="sign up">
                       {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0])
+                        capitalizeFirstLetter(messages[0]) + '  >'
                       }
                     </FormattedMessage>
-                  </NavLink>
-                  <NavLink className="navbar-link" tag={Link} to="/pricing">
-                    <FormattedMessage id="pricing">
+                  </NavLink>,
+                  <NavLink
+                    className="navbar-link"
+                    tag={Link}
+                    to="/login"
+                    key="login"
+                  >
+                    <FormattedMessage id="login">
                       {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0])
+                        capitalizeFirstLetter(messages[0]) + '  >'
                       }
                     </FormattedMessage>
-                  </NavLink>
-                  <NavLink className="navbar-link" tag={Link} to="/explore">
-                    <FormattedMessage id="explore">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0])
-                      }
-                    </FormattedMessage>
-                  </NavLink>
-                  {loggedIn
-                    ? [
-                        <NavLink
-                          className="navbar-link"
-                          tag={Link}
-                          to={username ? `/${username}/projects` : '#'}
-                          key="projects"
-                        >
-                          <FormattedMessage id="projects">
-                            {(messages: string[]) =>
-                              capitalizeFirstLetter(messages[0])
-                            }
-                          </FormattedMessage>
-                        </NavLink>,
-                      ]
-                    : []}
-                </Nav>
-                <Nav navbar>
-                  {!loggedIn ? (
-                    [
-                      <NavLink
-                        className="navbar-link"
-                        tag={Link}
-                        key="sign-up"
-                        to="/signup"
-                      >
-                        <FormattedMessage id="sign up">
-                          {(messages: string[]) =>
-                            capitalizeFirstLetter(messages[0]) + '  >'
-                          }
-                        </FormattedMessage>
-                      </NavLink>,
-                      <NavLink
-                        className="navbar-link"
-                        tag={Link}
-                        to="/login"
-                        key="login"
-                      >
-                        <FormattedMessage id="login">
-                          {(messages: string[]) =>
-                            capitalizeFirstLetter(messages[0]) + '  >'
-                          }
-                        </FormattedMessage>
-                      </NavLink>,
-                    ]
-                  ) : (
-                    <UncontrolledDropdown inNavbar>
-                      <DropdownToggle className="navbar-text" nav caret>
-                        Account
-                      </DropdownToggle>
-                      <DropdownMenu key="menu" right>
-                        <DropdownItem
-                          key="profile"
-                          onClick={(evt: React.MouseEvent) => {
-                            evt.preventDefault();
-                            navigate(`/${username}`);
-                          }}
-                        >
-                          Profile
-                        </DropdownItem>
-                        <DropdownItem
-                          key="settings"
-                          onClick={(evt: React.MouseEvent) => {
-                            evt.preventDefault();
-                            navigate('/account');
-                          }}
-                        >
-                          Settings
-                        </DropdownItem>
-                        <DropdownItem
-                          key="logout"
-                          onClick={(evt: React.MouseEvent) => {
-                            evt.preventDefault();
-                            dispatchAuthThunk(thunkLogout())
-                              .catch((err: Error) => console.error(err))
-                              .then(() => {
-                                // navigate('/login')
-                              });
-                          }}
-                        >
-                          Logout
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </UncontrolledDropdown>
-                  )}
-                </Nav>
-              </Collapse>
-            </Col>
-          </Row>
-        </Container>
-      </Navbar>
+                  </NavLink>,
+                ]
+              ) : (
+                <UncontrolledDropdown inNavbar>
+                  <DropdownToggle className="navbar-text" nav caret>
+                    Account
+                  </DropdownToggle>
+                  <DropdownMenu key="menu" right>
+                    <DropdownItem
+                      key="profile"
+                      onClick={(evt: React.MouseEvent) => {
+                        evt.preventDefault();
+                        navigate(`/${username}`);
+                      }}
+                    >
+                      Profile
+                    </DropdownItem>
+                    <DropdownItem
+                      key="settings"
+                      onClick={(evt: React.MouseEvent) => {
+                        evt.preventDefault();
+                        navigate('/account');
+                      }}
+                    >
+                      Settings
+                    </DropdownItem>
+                    <DropdownItem
+                      key="logout"
+                      onClick={(evt: React.MouseEvent) => {
+                        evt.preventDefault();
+                        dispatchAuthThunk(thunkLogout())
+                          .catch((err: Error) => console.error(err))
+                          .then(() => {
+                            // navigate('/login')
+                          });
+                      }}
+                    >
+                      Logout
+                    </DropdownItem>
+                  </DropdownMenu>
+                </UncontrolledDropdown>
+              )}
+            </Nav>
+          </Collapse>
+        </Navbar>
+      </Container>
     </>
   );
 };
