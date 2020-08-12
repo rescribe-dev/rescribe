@@ -1,14 +1,17 @@
 import { Response } from 'express';
+import { configData } from './config';
 
 const refreshCookieName = 'refreshToken';
 const refreshCookiePath = '/refreshToken';
+
+const sameSite = configData.PRODUCTION ? 'strict' : 'lax';
 
 export const setRefreshToken = (res: Response, token: string): void => {
   res.cookie(refreshCookieName, token, {
     httpOnly: true,
     path: refreshCookiePath,
     secure: true,
-    sameSite: 'strict'
+    sameSite
   });
 };
 
@@ -17,6 +20,6 @@ export const clearRefreshToken = (res: Response): void => {
     httpOnly: true,
     path: refreshCookiePath,
     secure: true,
-    sameSite: 'strict'
+    sameSite
   });
 };

@@ -58,8 +58,9 @@ export const deleteFilesUtil = async (args: DeleteFilesUtilArgs): Promise<void> 
   // get all file data within scope
   let allFileData: FileDB[] | undefined = undefined;
   if (args.files) {
-    if (args.files.length === 0) return;
-    if (args.files[0] instanceof ObjectId) {
+    if (args.files.length === 0) {
+      allFileData = [];
+    } else if (args.files[0] instanceof ObjectId) {
       // file id
       fileFilter = {
         ...fileFilter,
