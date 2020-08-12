@@ -133,8 +133,8 @@ const Header = (args: HeaderArgs): JSX.Element => {
           <NavbarToggler onClick={toggleHeader} />
           <Collapse isOpen={headerIsOpen} navbar>
             <Nav navbar className="mr-auto">
-              <NavLink className="navbar-link" tag={Link} to="/">
-                <FormattedMessage id="how it works">
+              <NavLink className="navbar-link" tag={Link} to="/about">
+                <FormattedMessage id="about">
                   {(messages: string[]) => capitalizeFirstLetter(messages[0])}
                 </FormattedMessage>
               </NavLink>
@@ -179,6 +179,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                       .min(queryMinLength),
                   })}
                   onSubmit={async (formData, { setSubmitting, setStatus }) => {
+                    setSubmitting(true);
                     dispatch(setQuery(formData.query));
                     await navigate(getSearchURL());
                     if (pathname === '/search') {

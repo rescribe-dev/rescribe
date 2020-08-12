@@ -1,0 +1,13 @@
+fragment productPlanData on Plan {
+  interval
+  amount
+}
+
+query products {
+  products {
+    name
+    plans {
+      ...productPlanData
+    }
+  }
+}

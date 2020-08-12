@@ -1,7 +1,7 @@
 const englishMessages: Record<string, string> = {
   explore: 'explore',
   pricing: 'pricing',
-  'how it works': 'how it works',
+  about: 'about',
   projects: 'projects',
   'sign up': 'sign up',
   login: 'login',

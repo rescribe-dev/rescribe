@@ -17,7 +17,7 @@ export const singlePurchase = Interval.once;
 @ObjectType()
 export default class Plan {
   @Property({ required: true })
-  @Field({ description: 'interval' })
+  @Field(_type => Interval, { description: 'interval' })
   interval: Interval;
 
   // map of currency to stripe id

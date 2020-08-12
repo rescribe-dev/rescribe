@@ -4,8 +4,7 @@ import { PageProps, Link, navigate } from 'gatsby';
 
 import './index.scss';
 
-import { useQuery } from '@apollo/react-hooks';
-import { QueryResult } from '@apollo/react-common';
+import { useQuery, QueryResult } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
 import {
   Repositories,

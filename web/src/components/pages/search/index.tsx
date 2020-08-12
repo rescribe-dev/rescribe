@@ -21,6 +21,7 @@ import { createHistory, HistorySource } from '@reach/router';
 import sleep from 'shared/sleep';
 import { toast } from 'react-toastify';
 import { SearchMessages } from 'locale/pages/search/searchMessages';
+import SearchBar from './SearchBar';
 
 const loaderCSS = css`
   display: block;
@@ -89,6 +90,7 @@ const SearchPage = (args: SearchProps): JSX.Element => {
         marginTop: '2rem',
       }}
     >
+      <SearchBar />
       <Row>
         <Col
           xs={3}

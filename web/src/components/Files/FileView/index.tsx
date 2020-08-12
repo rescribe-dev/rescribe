@@ -10,9 +10,8 @@ import {
   FileTextQueryVariables,
   FileText,
 } from 'lib/generated/datamodel';
-import { QueryResult } from '@apollo/react-common';
 import { isSSR } from 'utils/checkSSR';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, QueryResult } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
 import { ObjectId } from 'mongodb';
 import { client } from 'utils/apollo';

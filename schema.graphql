@@ -851,7 +851,7 @@ type Plan {
   currencies: String!
 
   """interval"""
-  interval: String!
+  interval: IntervalType!
 }
 
 input PlanInput {
