@@ -22,25 +22,23 @@ const getHash = (input: string): string => {
   return createHash(hashAlgorithm).update(input).digest('hex');
 };
 
-export interface FileWriteData {
+export interface CombinedWriteData {
   elastic: SaveElasticElement;
   mongo: WriteMongoElement;
 }
 
 interface CreateFoldersArgs {
-  fileWriteData: FileWriteData[];
+  folderElasticWrites: SaveElasticElement[];
+  folderMongoWrites: WriteMongoElement[];
+  folderWrites: CombinedWriteData[];
+  // this object is used to show the files written to both the elastic
+  // and mongo locations, so that they can be updated at the same time
+  fileWriteData: CombinedWriteData[];
   repositoryID: ObjectId;
   branch: string;
 }
 
-interface CreateFoldersRes {
-  folderElasticWrites: SaveElasticElement[];
-  folderWrites: WriteMongoElement[];
-}
-
-export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFoldersRes> => {
-  const folderElasticWrites: SaveElasticElement[] = [];
-  const folderWrites: WriteMongoElement[] = [];
+export const createFolders = async (args: CreateFoldersArgs): Promise<void> => {
   const baseFolder: FolderDB = await getFolder({
     repositoryID: args.repositoryID,
     path: baseFolderPath,
@@ -79,6 +77,8 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFold
           // folder does not exist. add it
         }
         const folderID = new ObjectId();
+        // update file write data
+        fileData.folder = folderID;
         const baseFolderData: BaseFolder = {
           ...fileData,
           ...folderPathData,
@@ -90,46 +90,54 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<CreateFold
           _id: undefined,
           numBranches: baseFolderData.branches.length
         };
-        folderElasticWrites.push({
+        const elasticWrite: SaveElasticElement = {
           action: WriteType.add,
           data: elasticFolder,
           id: folderID,
           index: folderIndexName
-        });
+        };
+        args.folderElasticWrites.push(elasticWrite);
         const folderDataDB: FolderDB = {
           ...baseFolderData,
           _id: folderID
         };
-        folderWrites.push({
+        const mongoWrite: WriteMongoElement = {
           data: folderDataDB as unknown as Record<string, unknown>,
           action: WriteType.add
+        };
+        args.folderMongoWrites.push(mongoWrite);
+        args.folderWrites.push({
+          mongo: mongoWrite,
+          elastic: elasticWrite
         });
       }
     }
   }
-  return {
-    folderElasticWrites,
-    folderWrites
-  };
 };
 
 interface SaveChangesArgs {
-  fileWrites: FileWriteData[];
+  fileWrites: CombinedWriteData[];
   fileElasticWrites: SaveElasticElement[];
   fileMongoWrites: WriteMongoElement[];
+  folderWrites: CombinedWriteData[];
+  folderElasticWrites: SaveElasticElement[];
+  folderMongoWrites: WriteMongoElement[];
   repositoryID: ObjectId;
   branch: string;
 }
 
 export const saveChanges = async (args: SaveChangesArgs): Promise<void> => {
   // create folders should only be run on add
-  const folderData = await createFolders({
+  await createFolders({
+    folderElasticWrites: args.folderElasticWrites,
+    folderMongoWrites: args.folderMongoWrites,
+    folderWrites: args.folderWrites,
     fileWriteData: args.fileWrites,
     repositoryID: args.repositoryID,
     branch: args.branch
   });
-  await bulkSaveToMongo(folderData.folderWrites, FolderModel);
-  await bulkSaveToElastic(folderData.folderElasticWrites);
+  await bulkSaveToMongo(args.folderMongoWrites, FolderModel);
+  await bulkSaveToElastic(args.folderElasticWrites);
   await bulkSaveToMongo(args.fileMongoWrites, FileModel);
   await bulkSaveToElastic(args.fileElasticWrites);
 };
@@ -150,7 +158,7 @@ export interface FileIndexArgs {
   isBinary: boolean;
   fileElasticWrites: SaveElasticElement[];
   fileMongoWrites: WriteMongoElement[];
-  fileWrites: FileWriteData[];
+  fileWrites: CombinedWriteData[];
   aggregates: Aggregates;
 }
 
@@ -296,7 +304,7 @@ interface SingleBranchWriteArgs {
   currentTime: number;
   fileElasticWrites: SaveElasticElement[];
   fileMongoWrites: WriteMongoElement[];
-  fileWrites?: FileWriteData[];
+  fileWrites?: CombinedWriteData[];
   aggregates?: Aggregates;
 }
 

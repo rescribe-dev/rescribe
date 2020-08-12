@@ -29,10 +29,10 @@ export const deleteFolderRecursiveUtil = async (folder: FolderDB, branch: string
     throw new Error('cannot delete base folder');
   }
   const remainingFolders: ObjectId[] = [folder._id];
-  const childFiles: FileDB[] = [];
+  let childFiles: FileDB[] = [];
   while (remainingFolders.length > 0) {
     const currentFolderID = remainingFolders.pop();
-    childFiles.concat(await FileModel.find({
+    childFiles = childFiles.concat(await FileModel.find({
       folder: currentFolderID,
       repository: folder.repository,
       branches: {
@@ -46,9 +46,7 @@ export const deleteFolderRecursiveUtil = async (folder: FolderDB, branch: string
         $all: [branch]
       }
     });
-    if (childFolders) {
-      childFolders.map(childFolder => remainingFolders.push(childFolder._id));
-    }
+    childFolders.map(childFolder => remainingFolders.push(childFolder._id));
   }
   await deleteFilesUtil({
     repository: folder.repository,

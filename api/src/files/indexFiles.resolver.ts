@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { isBinaryFile } from 'isbinaryfile';
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { indexFile, saveChanges, FileWriteData, Aggregates } from './shared';
+import { indexFile, saveChanges, CombinedWriteData, Aggregates } from './shared';
 import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
@@ -79,13 +79,18 @@ class IndexFilesResolver {
         repository: repositoryID
       });
     }
+
     const fileElasticWrites: SaveElasticElement[] = [];
     const fileMongoWrites: WriteMongoElement[] = [];
-    const fileWrites: FileWriteData[] = [];
+    const fileWrites: CombinedWriteData[] = [];
     const aggregates: Aggregates = {
       linesOfCode: 0,
       numberOfFiles: 0
     };
+    const folderElasticWrites: SaveElasticElement[] = [];
+    const folderMongoWrites: WriteMongoElement[] = [];
+    const folderWrites: CombinedWriteData[] = [];
+
     return new Promise(async (resolve, reject) => {
       let numIndexed = 0;
       for (let i = 0; i < args.files.length; i++) {
@@ -125,7 +130,10 @@ class IndexFilesResolver {
                 repositoryID,
                 fileElasticWrites,
                 fileMongoWrites,
-                fileWrites
+                fileWrites,
+                folderMongoWrites,
+                folderElasticWrites,
+                folderWrites
               });
               await saveAggregates(aggregates, repository._id);
               resolve('done indexing files');
