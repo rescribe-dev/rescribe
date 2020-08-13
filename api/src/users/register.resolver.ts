@@ -12,7 +12,7 @@ import { sendEmailUtil } from '../email/sendEmail.resolver';
 import { configData } from '../utils/config';
 import { VerifyType, getSecret, jwtType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
 import { SignOptions, sign } from 'jsonwebtoken';
-import { defaultCurrency } from '../currencies/getExchangeRate';
+import { defaultCurrency } from '../utils/variables';
 import { stripeClient } from '../stripe/init';
 import { getProduct } from '../products/product.resolver';
 import UserCurrency, { UserCurrencyModel } from '../schema/users/userCurrency';

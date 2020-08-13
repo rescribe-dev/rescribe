@@ -15,6 +15,7 @@ import {
 } from 'locale/pages/pricing/pricingMessages';
 import { IntervalType, ProductPlanDataFragment } from 'lib/generated/datamodel';
 import { capitalizeFirstLetter } from 'utils/misc';
+import { defaultCurrency } from 'utils/variables';
 
 interface PricingCardArgs {
   messages: PricingMessages;
@@ -23,13 +24,45 @@ interface PricingCardArgs {
   plans: ProductPlanDataFragment[];
 }
 
-const validIntervals = [IntervalType.Month, IntervalType.Year];
+const intervals = new Set([IntervalType.Month, IntervalType.Year]);
+
+const defaultPlan = 'free';
 
 const pricingCard = (args: PricingCardArgs): JSX.Element => {
   const [validProduct, setValidProduct] = useState<boolean>(true);
+  const isDefaultPlan = args.productInfo.name === defaultPlan;
+
+  const formatCurrency = (): string => {
+    const currentInterval =
+      args.currentlyMonthly || isDefaultPlan
+        ? IntervalType.Month
+        : IntervalType.Year;
+    const currentPlan = args.plans.find(
+      (plan) => plan.interval === currentInterval
+    );
+    if (!currentPlan) return '';
+    const currency = 'usd';
+    const exchangeRate = currency === defaultCurrency ? 1 : 1;
+    return new Intl.NumberFormat('en', {
+      style: 'currency',
+      currency,
+    }).format(exchangeRate * currentPlan.amount);
+  };
+
   useEffect(() => {
-    if (args.plans.find((plan) => !validIntervals.includes(plan.interval))) {
-      setValidProduct(false);
+    const foundIntervals = new Set<IntervalType>();
+    for (const plan of args.plans) {
+      if (!intervals.has(plan.interval)) {
+        setValidProduct(false);
+        break;
+      } else {
+        foundIntervals.add(plan.interval);
+      }
+    }
+    if (validProduct && !isDefaultPlan) {
+      if (foundIntervals.size < intervals.size) {
+        setValidProduct(false);
+      }
     }
   }, []);
   return (
@@ -42,6 +75,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
             <CardTitle>
               {capitalizeFirstLetter(args.productInfo.name)}
             </CardTitle>
+            <CardText>{formatCurrency()}</CardText>
             <Button
               onClick={(evt) => {
                 evt.preventDefault();

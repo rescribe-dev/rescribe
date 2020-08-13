@@ -2,6 +2,8 @@ export const perpageOptions: number[] = [5, 10, 15];
 
 export const githubOauthURL = 'https://github.com/login/oauth/authorize';
 
+export const defaultCurrency = 'usd';
+
 interface PerpageFiletersTypes {
   projects: number;
   repositories: number;

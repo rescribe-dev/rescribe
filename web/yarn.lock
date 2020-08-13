@@ -6667,6 +6667,11 @@ cosmiconfig@^5.0.0, cosmiconfig@^5.2.1:
     js-yaml "^3.13.1"
     parse-json "^4.0.0"
 
+countries-list@^2.5.6:
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/countries-list/-/countries-list-2.5.6.tgz#af237e7d00b2d1283fe766614a945fe5348eefbb"
+  integrity sha512-IEt6KCIzexbR1pTvSJakKCKbqlmHKkEO4oYHN6UCiNToUdN/zXy/1NxiUfZ3ktS0QO/UryCJGPoLkLdYsrAzNw==
+
 create-ecdh@^4.0.0:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/create-ecdh/-/create-ecdh-4.0.3.tgz#c9111b6f33045c4697f144787f9254cdc77c45ff"

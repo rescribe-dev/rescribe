@@ -3,6 +3,8 @@ import { Language } from '../schema/language';
 export const defaultRepositoryImage = 'https://example.com/image.jpg';
 export const saltRounds = 10;
 
+export const defaultCurrency = 'usd';
+
 export const languageColorMap: {[key: string]: number} = {};
 
 languageColorMap[Language.none] = 0xCCCCCC;

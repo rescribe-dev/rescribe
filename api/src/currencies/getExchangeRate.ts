@@ -1,8 +1,6 @@
 import { RedisKey, cache } from '../utils/redis';
 import { getActualExchangeRate } from './getAcutalExchangeRate';
 
-export const defaultCurrency = 'usd';
-
 const redisExpireSeconds = 60 * 20;
 
 export const getExchangeRate = async (currency: string, disableCache: boolean): Promise<number> => {
