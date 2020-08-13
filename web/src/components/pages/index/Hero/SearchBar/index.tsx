@@ -106,7 +106,7 @@ const SearchBar = (): JSX.Element => {
             </FormGroup>
             <Button
               style={{
-                color: '#fff',
+                color: '#ffffff',
                 backgroundColor: 'var(--pastel-red)',
                 borderColor: 'var(--pastel-red)',
                 fontSize: '0.9em',

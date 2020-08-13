@@ -120,13 +120,20 @@ const Header = (args: HeaderArgs): JSX.Element => {
           expand="md"
           className={pathname === homepagePath ? 'navbar-home' : 'navbar-other'}
         >
-          <NavbarBrand tag={Link} to="/">
+          <NavbarBrand
+            style={{
+              paddingTop: 0,
+            }}
+            tag={Link}
+            to="/"
+          >
             <img
               src={pathname === homepagePath ? logoWhite : logo}
               alt="reScribe"
               style={{
-                width: '10rem',
+                width: '9rem',
                 marginBottom: 0,
+                marginRight: '2rem',
               }}
             />
           </NavbarBrand>
