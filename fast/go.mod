@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/joho/godotenv v1.3.0
-	github.com/klauspost/compress v1.10.10 // indirect
+	github.com/klauspost/compress v1.10.11 // indirect
 	github.com/valyala/fasthttp v1.15.1
 	go.uber.org/zap v1.15.0
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
