@@ -16,11 +16,13 @@ export const deleteProductUtil = async (product: Product): Promise<void> => {
     if (plan.interval === singlePurchase) {
       continue;
     }
-    for (const currency in plan.currencies) {
-      await stripeClient.plans.del(plan.currencies[currency]);
+    for (const planID of plan.currencies.values()) {
+      await stripeClient.plans.del(planID);
     }
   }
-  await stripeClient.products.del(product.stripeID);
+  await stripeClient.products.update(product.stripeID, {
+    active: false
+  });
 };
 
 @Resolver()

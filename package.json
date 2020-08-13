@@ -4,9 +4,9 @@
   "description": "search through code easily",
   "dependencies": {},
   "devDependencies": {
-    "@types/jest": "^26.0.7",
+    "@types/jest": "^26.0.9",
     "husky": "^4.2.5",
-    "npm-check-updates": "^7.0.2"
+    "npm-check-updates": "^7.1.0"
   },
   "husky": {
     "hooks": {

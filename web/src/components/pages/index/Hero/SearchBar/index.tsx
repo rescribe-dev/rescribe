@@ -64,27 +64,30 @@ const SearchBar = (): JSX.Element => {
             style={{
               display: 'flex',
               width: '100%',
+              marginBottom: '1rem',
             }}
           >
             <FormGroup
               style={{
                 margin: 0,
                 width: '100%',
-                marginRight: '1rem',
+                marginRight: 0,
               }}
             >
               <Input
                 style={{
                   borderColor: '#CCCCCC',
                   fontSize: '0.9em',
-                  fontWeight: 600,
+                  fontWeight: 'lighter',
                   borderRadius: '0.25rem',
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
                   width: '100%',
                 }}
                 id="query"
                 name="query"
                 type="text"
-                placeholder="search term"
+                placeholder="Search for"
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.query}
@@ -94,6 +97,7 @@ const SearchBar = (): JSX.Element => {
               <FormFeedback
                 style={{
                   marginBottom: '1rem',
+                  color: 'white',
                 }}
                 type="invalid"
               >
@@ -102,12 +106,14 @@ const SearchBar = (): JSX.Element => {
             </FormGroup>
             <Button
               style={{
-                color: '#fff',
+                color: '#ffffff',
                 backgroundColor: 'var(--pastel-red)',
                 borderColor: 'var(--pastel-red)',
                 fontSize: '0.9em',
                 fontWeight: 600,
                 borderRadius: '0.25rem',
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
                 minWidth: '80px',
                 height: 'calc(1.5em + 0.75rem + 2px)',
               }}
@@ -123,7 +129,7 @@ const SearchBar = (): JSX.Element => {
             <BeatLoader
               css={loaderCSS}
               size={10}
-              color={'red'}
+              color="red"
               loading={isSubmitting}
             />
           </Form>

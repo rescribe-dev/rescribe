@@ -57,7 +57,11 @@ const RepositoryPage = (args: RepositoryProps): JSX.Element => {
         toast(err.message, {
           type: 'error',
         });
-        navigate('/404');
+        navigate('/404', {
+          state: {
+            location: window.location.href,
+          },
+        });
       });
   }, []);
   return (

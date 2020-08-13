@@ -40,7 +40,6 @@ const Newsletter = (): JSX.Element => {
     <Container
       fluid
       style={{
-        marginTop: '40rem',
         backgroundColor: 'var(--dark-blue)',
         padding: '2rem',
       }}
@@ -141,8 +140,8 @@ const Newsletter = (): JSX.Element => {
             isSubmitting,
           }) => (
             <Form>
-              <Row>
-                <Col>
+              <Row className="justify-content-center">
+                <Col md="4">
                   <FormGroup>
                     <Input
                       id="name"
@@ -168,7 +167,7 @@ const Newsletter = (): JSX.Element => {
                     </FormFeedback>
                   </FormGroup>
                 </Col>
-                <Col>
+                <Col md="4">
                   <FormGroup>
                     <Input
                       id="email"
@@ -203,6 +202,11 @@ const Newsletter = (): JSX.Element => {
                 <Col sm={1}>
                   <Button
                     type="submit"
+                    style={{
+                      color: '#ffffff',
+                      backgroundColor: 'var(--pastel-red)',
+                      borderColor: 'var(--pastel-red)',
+                    }}
                     onClick={(evt: React.MouseEvent) => {
                       evt.preventDefault();
                       handleSubmit();

@@ -4,8 +4,7 @@ import { PageProps, Link, navigate } from 'gatsby';
 
 import './index.scss';
 
-import { useQuery } from '@apollo/react-hooks';
-import { QueryResult } from '@apollo/react-common';
+import { useQuery, QueryResult } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
 import {
   Repositories,
@@ -57,7 +56,11 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
             toast(err.message, {
               type: 'error',
             });
-            navigate('/404');
+            navigate('/404', {
+              state: {
+                location: window.location.href,
+              },
+            });
           },
           onCompleted: async (data) => {
             setRepositoriesData(

@@ -1,9 +1,47 @@
 // custom styles
 
-.navbar-link {
-  color: #303030;
+.nav-container-home {
+  z-index: 5;
+  top: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.navbar-link:hover {
-  color: #000;
+.navbar-nav {
+  margin-left: 0;
+}
+
+.navbar-other {
+  background-color: var(--bg-nav);
+  color: var(--text-nav);
+
+  .navbar-link {
+    color: #303030;
+  }
+
+  .navbar-link:hover {
+    color: #000;
+  }
+
+  .navbar-nav .nav-link {
+    color: var(--text-nav) !important;
+  }
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--teal-blue) !important;
+}
+
+.navbar-home {
+  background-color: transparent;
+  color: white;
+
+  .navbar-nav .nav-link {
+    color: white !important;
+  }
+
+  .navbar-nav .nav-link:hover {
+    color: var(--turquoise) !important;
+  }
 }

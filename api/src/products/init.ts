@@ -3,15 +3,17 @@ import { deleteProductUtil } from './deleteProduct.resolver';
 import { getLogger } from 'log4js';
 import { CurrencyModel } from '../schema/payments/currency';
 import { deleteCurrencyUtil } from '../currencies/deleteCurrency.resolver';
-import { defaultCurrency } from '../currencies/getExchangeRate';
+import { defaultCurrency } from '../shared/variables';
 import { addCurrencyUtil } from '../currencies/addCurrency.resolver';
 import { defaultProductName } from './product.resolver';
 import { addProductUtil } from './addProduct.resolver';
 import { Interval } from '../schema/payments/plan';
+import { requirePaymentSystemInitialized } from '../stripe/init';
 
 const logger = getLogger();
 
 export const initializeProducts = async (): Promise<string> => {
+  requirePaymentSystemInitialized();
   const products = await ProductModel.find({});
   for (const product of products) {
     await deleteProductUtil(product);

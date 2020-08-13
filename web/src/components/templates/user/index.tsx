@@ -54,7 +54,13 @@ const UserPage = (args: UserProps): JSX.Element => {
           fetchPolicy: 'no-cache', // disable cache
         })
         .then((res) => setUser(res.data?.publicUser))
-        .catch((_err: Error) => navigate('/404'));
+        .catch((_err: Error) =>
+          navigate('/404', {
+            state: {
+              location: window.location.href,
+            },
+          })
+        );
     }
   }, []);
   return (

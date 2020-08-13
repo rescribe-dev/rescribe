@@ -31,10 +31,10 @@ export const getProduct = async (args: ProductArgs): Promise<Product> => {
     return product;
   }
   const data = await ProductModel.findOne({
-    name
+    name: args.name
   });
   if (!data) {
-    throw new Error(`could not find product with name ${name}`);
+    throw new Error(`could not find product with name ${args.name}`);
   }
   product = data;
   await cache.set(redisKey, JSON.stringify(product), 'ex', redisExpireSeconds);

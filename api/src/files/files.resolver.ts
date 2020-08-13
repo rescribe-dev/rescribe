@@ -142,7 +142,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     throw new Error('cannot get only user files when not logged in');
   }
   const filterShouldParams: TermQuery[] = [];
-  const filterMustParams: TermQuery[] = [];
+  let filterMustParams: TermQuery[] = [];
   const mustShouldParams: Record<string, unknown>[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
@@ -182,7 +182,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       }
     }
     if (args.name && args.branches && args.repositories && args.path) {
-      filterMustParams.concat([{
+      filterMustParams = filterMustParams.concat([{
         term: {
           name: args.name
         }

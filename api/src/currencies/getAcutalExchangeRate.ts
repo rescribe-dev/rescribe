@@ -1,7 +1,7 @@
 import axios from 'axios';
+import { defaultCurrency } from '../shared/variables';
 
 export const forexURL = 'https://api.exchangeratesapi.io/latest';
-export const defaultCurrency = 'usd';
 
 interface ExchangeRateOutput {
   error: string;

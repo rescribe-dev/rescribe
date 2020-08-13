@@ -1,30 +1,17 @@
 @import "../assets/styles/global.scss";
-
-// if you want to remove the gatsby spacing:
-/*
-html, body, #___gatsby {
-  height: 100%;
-}
-
-body {
-  margin: 0px;
-}
-
-#gatsby-focus-wrapper {
-  height: 100%;
-}
-*/
-
-/* remove recaptcha badge */
-.grecaptcha-badge {
-  visibility: hidden;
-}
+@import "../assets/styles/colors.scss";
+@import "../assets/styles/floatingLabels.scss";
 
 /* get footer to stick to the bottom */
 .main-wrapper {
   display: flex;
   min-height: 105vh;
   flex-direction: column;
+}
+/* colors */
+.main-wrapper {
+  background-color: var(--bg);
+  color: var(--text);
 }
 .content {
   flex: 1;

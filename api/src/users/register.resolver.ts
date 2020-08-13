@@ -12,7 +12,7 @@ import { sendEmailUtil } from '../email/sendEmail.resolver';
 import { configData } from '../utils/config';
 import { VerifyType, getSecret, jwtType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
 import { SignOptions, sign } from 'jsonwebtoken';
-import { defaultCurrency } from '../currencies/getExchangeRate';
+import { defaultCurrency } from '../shared/variables';
 import { stripeClient } from '../stripe/init';
 import { getProduct } from '../products/product.resolver';
 import UserCurrency, { UserCurrencyModel } from '../schema/users/userCurrency';
@@ -105,9 +105,9 @@ class RegisterResolver {
       name: undefined
     });
     let planStripeID: string | undefined = undefined;
-    for (const currency in defaultProduct.plans[0].currencies) {
+    for (const currency of defaultProduct.plans[0].currencies.keys()) {
       if (currency === defaultCurrency) {
-        planStripeID = defaultProduct.plans[0].currencies[currency];
+        planStripeID = defaultProduct.plans[0].currencies.get(currency) as string;
       }
     }
     if (!planStripeID) {

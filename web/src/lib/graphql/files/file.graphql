@@ -5,3 +5,7 @@ query file($name: String!, $path: String!, $branch: String!, $repositoryID: Obje
     language
   }
 }
+
+mutation delFile($id: ObjectId!, $branch: String!) {
+  deleteFile(id: $id, branch: $branch)
+}

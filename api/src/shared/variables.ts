@@ -10,3 +10,4 @@ export const blacklistedRepositoryNames = ['projects'];
 export const passwordMinLen = 6;
 export const minJWTLen = 30;
 export const queryMinLength = 3;
+export const defaultCurrency = 'usd';

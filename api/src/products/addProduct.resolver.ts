@@ -56,7 +56,7 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
   for (const plan of args.plans) {
     const currentPlan: Plan = {
       ...plan,
-      currencies: {}
+      currencies: new Map<string, string>()
     };
     if (plan.interval !== singlePurchase) {
       for (const currency of currencies) {
@@ -69,7 +69,7 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
           usage_type: 'licensed',
           amount: Math.ceil(100 * plan.amount * exchangeRates[currency.name])
         });
-        currentPlan.currencies[currency.name] = stripePlan.id;
+        currentPlan.currencies.set(currency.name, stripePlan.id);
       }
     }
     plans.push(currentPlan);

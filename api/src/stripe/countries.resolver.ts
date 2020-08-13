@@ -19,7 +19,7 @@ class CountriesResolver {
       const data = JSON.parse(redisData) as string[];
       return data;
     }
-    const countries: string[] = [];
+    let countries: string[] = [];
     const perpage = 10;
     let lastCountry: string | undefined = undefined;
     for (;;) {
@@ -27,7 +27,7 @@ class CountriesResolver {
         starting_after: lastCountry,
         limit: perpage
       });
-      countries.concat(countryData.data.map(data => data.id));
+      countries = countries.concat(countryData.data.map(data => data.id));
       if (!countryData.has_more) {
         break;
       }

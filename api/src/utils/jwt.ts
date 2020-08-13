@@ -183,19 +183,21 @@ export const handleRefreshToken = (req: Request): Promise<string> => {
       algorithms: ['HS256']
     };
     verify(token, secret, jwtConfig, async (err, res: any) => {
-      if (err) {
-        reject(err as Error);
-      } else {
+      try {
+        if (err) {
+          throw err as Error;
+        }
         const user = await UserModel.findById(res.id);
         if (!user) {
-          reject(new Error('user not found'));
-          return;
+          throw new Error('user not found');
         }
         if (user.tokenVersion !== res.tokenVersion) {
-          reject(new Error('user not found'));
-          return;
+          throw new Error('user not found');
         }
         resolve(await generateJWTAccess(user));
+      } catch (err) {
+        const errObj = err as Error;
+        reject(errObj);
       }
     });
   });
@@ -218,9 +220,10 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
         jwtConfig = {};
       }
       verify(token, secret, jwtConfig, async (err, res: any) => {
-        if (err) {
-          throw err as Error;
-        } else {
+        try {
+          if (err) {
+            throw err as Error;
+          }
           let data: AuthData;
           if (type === jwtType.LOCAL) {
             const inputData = res as JWTAuthData;
@@ -249,6 +252,9 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
             throw new Error('invalid type for jwt');
           }
           resolve(data);
+        } catch(err) {
+          const errObj = err as Error;
+          reject(errObj);
         }
       });
     } catch (err) {

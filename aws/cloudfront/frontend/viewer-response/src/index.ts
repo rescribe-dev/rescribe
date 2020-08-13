@@ -71,7 +71,7 @@ export const handler: CloudFrontResponseHandler = (event, _context, callback) =>
     if (!(headerKey in headers)) {
       headers[headerKey] = [];
     }
-    headers[headerKey].concat(newHeaders[headerKey]);
+    headers[headerKey] = headers[headerKey].concat(newHeaders[headerKey]);
   }
 
   if (!(cacheControlHeader in headers)) {

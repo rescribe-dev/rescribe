@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { Container } from 'reactstrap';
-import SearchBar from './SearchBar';
+import Hero from './Hero';
 import './index.scss';
 import { isSSR } from 'utils/checkSSR';
 import { useQuery } from '@apollo/react-hooks';
@@ -11,13 +10,13 @@ import {
   VerifyEmailMutationVariables,
   VerifyEmail,
 } from 'lib/generated/datamodel';
-// import NavCard from 'components/pages/NaviagtionCard';
 import { PageProps, navigate } from 'gatsby';
 import Newsletter from './Newsletter';
 import { client } from 'utils/apollo';
 import { toast } from 'react-toastify';
 import { IndexMessages } from 'locale/pages/index/indexMessages';
-import { Helmet } from 'react-helmet-async';
+import HowToUse from './HowToUse';
+import Intro from './Intro';
 
 export interface IndexPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -71,34 +70,28 @@ const IndexPage = (args: IndexPageContentProps): JSX.Element => {
   }, []);
   return (
     <>
-      <Helmet>
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "url": "${process.env.GATSBY_SITE_URL}",
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": "${process.env.GATSBY_SITE_URL}/search?q={query}",
-                "query-input": "required name=query"
-              }
-            }
-          `}
-        </script>
-      </Helmet>
-      <Container className="default-container">
-        <SearchBar />
-        {/*<NavCard
-            title="Intuitive search"
-            subtitle="optional subtitle"
-            image={args.data.file.childImageSharp.fixed}
-            body={'text'}
-            linkText="read more"
-            linkSlug="/"
-          />*/}
-      </Container>
-      <Newsletter />
+      <Hero />
+      <div
+        style={{
+          marginTop: '2rem',
+        }}
+      >
+        <Intro />
+      </div>
+      <div
+        style={{
+          marginTop: '3rem',
+        }}
+      >
+        <HowToUse />
+      </div>
+      <div
+        style={{
+          marginTop: '0rem',
+        }}
+      >
+        <Newsletter />
+      </div>
     </>
   );
 };

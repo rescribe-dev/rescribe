@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../github/getGithubFile';
 import { UserModel } from '../schema/users/user';
-import { indexFile, saveChanges, FileWriteData, Aggregates } from './shared';
+import { indexFile, saveChanges, CombinedWriteData, Aggregates } from './shared';
 import { RepositoryModel } from '../schema/structure/repository';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { ObjectId } from 'mongodb';
@@ -123,13 +123,18 @@ class IndexGithubResolver {
         repository: repositoryID
       });
     }
+
     const fileElasticWrites: SaveElasticElement[] = [];
     const fileMongoWrites: WriteMongoElement[] = [];
-    const fileWrites: FileWriteData[] = [];
+    const fileWrites: CombinedWriteData[] = [];
     const aggregates: Aggregates = {
       linesOfCode: repository.linesOfCode,
       numberOfFiles: repository.numberOfFiles
     };
+    const folderElasticWrites: SaveElasticElement[] = [];
+    const folderMongoWrites: WriteMongoElement[] = [];
+    const folderWrites: CombinedWriteData[] = [];
+
     // as a stopgap use the configuration file to check for this stuff
     for (const filePath of args.added) {
       const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
@@ -172,18 +177,24 @@ class IndexGithubResolver {
     await deleteFilesUtil({
       repository: repositoryID,
       branch,
-      files: deletePaths,
+      files: deletePaths, 
       aggregates,
       bulkUpdateFileElasticData: fileElasticWrites,
       bulkUpdateFileMongoData: fileMongoWrites,
-      bulkUpdateFileWrites: fileWrites
+      bulkUpdateFileWrites: fileWrites,
+      bulkUpdateFolderElasticData: folderElasticWrites,
+      bulkUpdateFolderMongoData: folderMongoWrites,
+      bulkUpdateFolderWrites: folderWrites
     });
     await saveChanges({
       branch,
       repositoryID,
       fileElasticWrites,
       fileMongoWrites,
-      fileWrites
+      fileWrites,
+      folderElasticWrites,
+      folderMongoWrites,
+      folderWrites
     });
     await saveAggregates(aggregates, repository._id);
     return `successfully processed repo ${args.repositoryName}`;
