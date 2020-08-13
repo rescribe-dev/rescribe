@@ -27,6 +27,7 @@ class AddProjectResolver {
       throw new Error('user not logged in');
     }
     const userID = new ObjectId(ctx.auth.id);
+    args.name = args.name.toLowerCase();
     if ((await countProjectsUserAccess(userID, args.name)) > 0) {
       throw new Error('project already exists');
     }

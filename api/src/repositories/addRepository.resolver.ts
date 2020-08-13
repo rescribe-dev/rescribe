@@ -50,6 +50,7 @@ class AddRepositoryResolver {
     if (args.project && !(await checkProjectAccess(user, args.project, AccessLevel.edit))) {
       throw new Error('user does not have edit permissions for project');
     }
+    args.name = args.name.toLowerCase();
     if ((await countRepositoriesUserAccess(user, args.name)) > 0) {
       throw new Error('repository already exists');
     }

@@ -38,6 +38,7 @@ export const getProject = async (args: ProjectArgs, userID: ObjectId): Promise<P
       _id: new ObjectId(projectData.body._id as string)
     };
   } else if (args.name) {
+    args.name = args.name.toLowerCase();
     const shouldParams: TermQuery[] = [];
     logger.info(user);
     logger.info(user.projects);
@@ -51,7 +52,7 @@ export const getProject = async (args: ProjectArgs, userID: ObjectId): Promise<P
     }
     const mustParams: TermQuery[] = [{
       term: {
-        name: args.name.toLowerCase()
+        name: args.name
       }
     }];
     const projectData = await elasticClient.search({

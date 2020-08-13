@@ -49,6 +49,7 @@ class RepositoryResolver {
         _id: new ObjectId(repositoryData.body._id as string)
       };
     } else if (args.name) {
+      args.name = args.name.toLowerCase();
       const shouldParams: TermQuery[] = [];
       if (user) {
         for (const repository of user.repositories) {
@@ -71,7 +72,7 @@ class RepositoryResolver {
       });
       const mustParams: TermQuery[] = [{
         term: {
-          name: args.name.toLowerCase()
+          name: args.name
         }
       }];
       if (args.owner) {
