@@ -27,6 +27,7 @@
   --bg-nav: var(--white);
   --text: var(--gray6);
   --text-nav: var(--purple-blue);
+  --secondary-header: var(--purple-blue);
 }
 
 .dark {
@@ -34,4 +35,5 @@
   --bg-nav: var(--dark-blue);
   --text: var(--gray0);
   --text-nav: var(--purple-blue);
+  --secondary-header: var(--gray1);
 }

@@ -86,7 +86,7 @@ const SearchBar = (): JSX.Element => {
                 id="query"
                 name="query"
                 type="text"
-                placeholder="search term"
+                placeholder="search for"
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.query}

@@ -1,17 +1,47 @@
 // custom styles
 
-.navbar-link {
-  color: #303030;
-}
-
-.navbar-link:hover {
-  color: #000;
-}
-
-.navbar-nav .nav-link {
-  color: var(--text-nav) !important;
+.nav-container-home {
+  z-index: 5;
+  top: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .navbar-nav {
   margin-left: 0;
+}
+
+.navbar-other {
+  background-color: var(--bg-nav);
+  color: var(--text-nav);
+
+  .navbar-link {
+    color: #303030;
+  }
+  
+  .navbar-link:hover {
+    color: #000;
+  }
+  
+  .navbar-nav .nav-link {
+    color: var(--text-nav) !important;
+  }
+}
+
+.navbar-home {
+  background-color: transparent;
+  color: white;
+
+  .navbar-link {
+    color: white;
+  }
+  
+  .navbar-link:hover {
+    color: white;
+  }
+  
+  .navbar-nav .nav-link {
+    color: white !important;
+  }
 }

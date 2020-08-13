@@ -38,6 +38,17 @@ a.link-no-style {
   margin-bottom: 1rem;
 }
 
+// remove all underlines
+.remove-underlines {
+  a:link {
+    text-decoration: none;
+  }
+  
+  a:visited {
+    text-decoration: none;
+  }
+}
+
 // if you want to remove the gatsby spacing:
 /*
 html, body, #___gatsby {

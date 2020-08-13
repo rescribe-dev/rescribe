@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { defaultCurrency } from '../utils/variables';
+import { defaultCurrency } from '../shared/variables';
 
 export const forexURL = 'https://api.exchangeratesapi.io/latest';
 

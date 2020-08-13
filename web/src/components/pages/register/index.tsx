@@ -80,7 +80,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
   return (
     <div id="fillPageContainer">
       <Container className="h-100">
-        <Row className="justify-content-center align-items-center h-100">
+        <Row className="justify-content-center h-100">
           <Col
             lg={{
               size: 4,

@@ -15,7 +15,7 @@ import {
 } from 'locale/pages/pricing/pricingMessages';
 import { IntervalType, ProductPlanDataFragment } from 'lib/generated/datamodel';
 import { capitalizeFirstLetter } from 'utils/misc';
-import { defaultCurrency } from 'utils/variables';
+import { defaultCurrency } from 'shared/variables';
 
 interface PricingCardArgs {
   messages: PricingMessages;
@@ -67,13 +67,20 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
   }, []);
   return (
     <Card>
-      <CardBody>
+      <CardBody
+        className="text-center"
+        style={{
+          paddingLeft: 0,
+          paddingRight: 0,
+          paddingBottom: 0,
+        }}
+      >
         {!validProduct ? (
           <p>invalid product provided</p>
         ) : (
           <>
             <CardTitle>
-              {capitalizeFirstLetter(args.productInfo.name)}
+              <h3>{capitalizeFirstLetter(args.productInfo.name)}</h3>
             </CardTitle>
             <CardText>{formatCurrency()}</CardText>
             <Button
@@ -84,14 +91,37 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
             >
               {capitalizeFirstLetter(args.messages.subscribe)}
             </Button>
-            <CardSubtitle>{args.productInfo.caption}</CardSubtitle>
+            <CardSubtitle
+              style={{
+                marginTop: '1rem',
+                marginBottom: '2rem',
+              }}
+            >
+              {args.productInfo.caption}
+            </CardSubtitle>
 
-            <ListGroup>
+            <ListGroup
+              className="list-group-flush"
+              style={{
+                marginLeft: 0,
+              }}
+            >
               {args.productInfo.features.map((feature, index) => (
                 <ListGroupItem
                   key={`product-${args.productInfo.name}-feature-${index}`}
+                  style={{
+                    marginBottom: 0,
+                    border: 0,
+                    textAlign: 'left',
+                  }}
                 >
-                  <CardText>{feature}</CardText>
+                  <CardText
+                    style={{
+                      paddingLeft: '4rem',
+                    }}
+                  >
+                    {feature}
+                  </CardText>
                 </ListGroupItem>
               ))}
             </ListGroup>

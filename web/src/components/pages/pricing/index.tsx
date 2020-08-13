@@ -49,14 +49,19 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
             <Col xs="auto">
               <CardText>{args.messages.monthly}</CardText>
             </Col>
-            <Col xs="auto">
+            <Col
+              xs="auto"
+              style={{
+                padding: 0,
+              }}
+            >
               <CustomInput
                 style={{
                   display: 'inline',
                 }}
                 type="switch"
-                id="exampleCustomSwitch"
-                name="customSwitch"
+                id="switchMonthly"
+                name="switchType"
                 onChange={() => setCurrentlyMonthly(!currentlyMonthly)}
               />
             </Col>

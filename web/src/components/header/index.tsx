@@ -36,6 +36,7 @@ import { SearchActionTypes } from 'state/search/types';
 import { thunkSearch } from 'state/search/thunks';
 import { toast } from 'react-toastify';
 import logo from 'assets/images/logo.svg';
+import logoWhite from 'assets/images/logo-white.svg';
 
 import './index.scss';
 import { queryMinLength } from 'shared/variables';
@@ -48,6 +49,8 @@ interface HeaderArgs {
 }
 
 const noQuickSearchPaths = ['/', '/search'];
+
+const homepagePath = '/';
 
 // https://www.apollographql.com/docs/react/api/react-hooks/#usequery
 const Header = (args: HeaderArgs): JSX.Element => {
@@ -107,6 +110,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
   return (
     <>
       <Container
+        className={pathname === homepagePath ? 'nav-container-home' : ''}
         style={{
           padding: 0,
         }}
@@ -114,15 +118,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
         <Navbar
           light
           expand="md"
-          color="var(--text-nav)"
-          style={{
-            backgroundColor: 'var(--bg-nav)',
-            color: 'var(--text-nav)',
-          }}
+          className={pathname === homepagePath ? 'navbar-home' : 'navbar-other'}
         >
           <NavbarBrand tag={Link} to="/">
             <img
-              src={logo}
+              src={pathname === homepagePath ? logoWhite : logo}
               alt="reScribe"
               style={{
                 width: '10rem',
@@ -229,7 +229,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                             id="query"
                             name="query"
                             type="text"
-                            placeholder="search term"
+                            placeholder="search for"
                             onChange={handleChange}
                             onBlur={handleBlur}
                             value={values.query}
