@@ -41,7 +41,7 @@ do
   fi
 done
 
-git secrets --scan
+sudo git secrets --scan
 
 # run check for tabs precommit
 cd scripts/precommit
