@@ -1,3 +1,3 @@
 # Docs
 
-> Main docs for rescribe.
+> docs for rescribe

@@ -80,9 +80,9 @@
   "main": "n/a",
   "scripts": {
     "build:gatsby": "cd gatsby && tsc",
-    "prebuild": "yarn build:gatsby",
+    "prebuild": "yarn codegen && yarn build:gatsby",
     "gatsby:build": "gatsby build",
-    "build": "yarn remove:dist && yarn codegen && yarn run gatsby:build && yarn move:folder && yarn copy:headers",
+    "build": "yarn remove:dist && yarn gatsby:build && yarn move:folder && yarn copy:headers",
     "predeploy": "yarn build",
     "subdomain:ignore": "mv -f dist/robots_subdomain.txt dist/robots.txt",
     "move:folder": "mv public dist",
