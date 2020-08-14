@@ -1,13 +1,10 @@
 # images
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
-
 # lock files
 yarn.lock filter=lfs diff=lfs merge=lfs -text
 package-lock.json filter=lfs diff=lfs merge=lfs -text
-
 # headers file
 aws/cloudfront/frontend/_headers filter=lfs diff=lfs merge=lfs -text
-
 # schema file
-schema.graphql
+schema.graphql filter=lfs diff=lfs merge=lfs -text
