@@ -11,7 +11,7 @@ import { WindowLocation } from '@reach/router';
 
 interface SocialButtonsArgs {
   signUp: boolean;
-  location: WindowLocation;
+  location: WindowLocation | string;
 }
 
 const githubScopes = ['read:user'];
@@ -23,8 +23,19 @@ const SocialButtons = (args: SocialButtonsArgs): JSX.Element => {
   const [cliLogin, setCliLogin] = useState<boolean>(false);
   const [vscodeLogin, setVSCodeLogin] = useState<boolean>(false);
   useEffect(() => {
-    if (args.location.search.length > 0) {
-      const searchParams = new URLSearchParams(args.location.search);
+    let searchString: string;
+    if (typeof args.location === 'string') {
+      const queryLocation = args.location.indexOf('?');
+      if (queryLocation < 0) {
+        searchString = '';
+      } else {
+        searchString = args.location.substring(queryLocation);
+      }
+    } else {
+      searchString = args.location.search;
+    }
+    if (searchString.length > 0) {
+      const searchParams = new URLSearchParams(searchString);
       if (!args.signUp) {
         if (searchParams.has('token')) {
           setLocalToken(searchParams.get('token') as string);

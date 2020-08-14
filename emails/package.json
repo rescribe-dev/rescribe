@@ -21,7 +21,7 @@
     "save": "./save_emails.sh",
     "compile-emails": "mjml src/*.mjml -o dist",
     "watch-emails": "mjml --watch src/*.mjml -o dist",
-    "serve": "node static-server",
+    "serve": "node static-server.js",
     "watch": "concurrently \"yarn watch-emails\" \"yarn serve\""
   },
   "dependencies": {

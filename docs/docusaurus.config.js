@@ -1,7 +1,13 @@
+require('dotenv').config();
+
+const fullURL = `http${process.env.USE_SECURE === 'true' ? 's' : ''}://${
+  process.env.CURRENT_URL
+}`;
+
 module.exports = {
   title: 'reScribe Docs',
   tagline: 'code search engine',
-  url: 'https://docs.rescribe.dev',
+  url: fullURL,
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'rescribe', // Usually your GitHub org/user name.
@@ -14,7 +20,7 @@ module.exports = {
         alt: 'reScribe Docs',
         src: 'img/logo.svg',
       },
-      links: [
+      items: [
         {
           to: 'docs/',
           activeBasePath: 'docs',
@@ -26,6 +32,11 @@ module.exports = {
           to: 'playground',
           activeBasePath: 'playground',
           label: 'Playground',
+          position: 'left',
+        },
+        {
+          href: `${fullURL}/storybook/`,
+          label: 'Storybook',
           position: 'left',
         },
         {

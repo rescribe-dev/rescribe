@@ -3,11 +3,20 @@ const tsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   stories: ['../src/**/*.stories.tsx'],
+  typescript: {
+    check: false,
+    checkOptions: {},
+    reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+    },
+  },
   addons: [
-    '@storybook/addon-actions/register',
     '@storybook/addon-links/register',
     '@storybook/addon-notes/register',
     '@storybook/addon-knobs/register',
+    '@storybook/addon-essentials',
     // '@storybook/addon-viewport/register'
   ],
   webpackFinal: async config => {

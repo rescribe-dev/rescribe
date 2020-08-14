@@ -94,7 +94,8 @@
     "clean": "gatsby clean && yarn remove:dist && rimraf gatsby/.gatsby",
     "precommit": "yarn lint",
     "storybook": "start-storybook -p 9000 -c .storybook",
-    "build:storybook": "build-storybook -c .storybook -o dist-storybook",
+    "build:storybook": "build-storybook --static-dir storybook -c .storybook -o dist-storybook",
+    "serve:storybook": "node static-server.js dist-storybook",
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "devDependencies": {
@@ -107,7 +108,8 @@
     "@graphql-codegen/typescript-operations": "^1.17.8",
     "@graphql-codegen/typescript-react-apollo": "^2.0.6",
     "@graphql-codegen/typescript-type-graphql": "^1.17.8",
-    "@storybook/addon-actions": "^6.0.7",
+    "@storybook/addon-a11y": "^6.0.7",
+    "@storybook/addon-essentials": "^6.0.7",
     "@storybook/addon-knobs": "^6.0.7",
     "@storybook/addon-links": "^6.0.7",
     "@storybook/addon-notes": "^5.3.19",

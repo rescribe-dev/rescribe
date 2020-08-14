@@ -4,14 +4,14 @@ const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
 require('dotenv').config();
 
-let PORT = process.env.PORT || 8001;
+let PORT = process.env.PORT || 3001;
 
 let directory = 'dist';
 
 if (process.argv.length > 2) {
   directory = process.argv[2];
   if (!process.env.PORT) {
-    PORT = 8002;
+    PORT = 3002;
   }
 }
 

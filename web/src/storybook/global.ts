@@ -1,9 +1,13 @@
 import { action } from '@storybook/addon-actions';
 import 'assets/styles/global.scss';
+import './index.scss';
 
 declare global {
   // eslint-disable-next-line no-var
   var __PATH_PREFIX__: string;
+  // eslint-disable-next-line no-var
+  var __BASE_PATH__: string;
+
   interface Window {
     ___navigate: any;
   }
@@ -14,6 +18,8 @@ declare global {
 
 // eslint-disable-next-line no-undef
 globalThis.__PATH_PREFIX__ = '';
+// eslint-disable-next-line no-undef
+globalThis.__BASE_PATH__ = '';
 
 // window.___push was renamed to window.___navigate, has to do this renaming too or storybook would error on clicking links
 
