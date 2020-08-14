@@ -12,6 +12,8 @@ jobs:
     steps:
       # checks out a copy of the repo
       - uses: actions/checkout@main
+        with:
+          lfs: true
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

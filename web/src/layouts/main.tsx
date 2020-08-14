@@ -6,8 +6,8 @@ import { useStaticQuery, graphql } from 'gatsby';
 import Loadable from '@loadable/component';
 import { HelmetProvider } from 'react-helmet-async';
 
-import Header from 'components/header';
-import Footer from 'components/footer';
+import Header from 'components/Header';
+import Footer from 'components/Footer';
 
 import { IntlProvider } from 'react-intl';
 

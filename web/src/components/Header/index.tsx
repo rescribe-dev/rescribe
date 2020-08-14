@@ -140,8 +140,8 @@ const Header = (args: HeaderArgs): JSX.Element => {
           <NavbarToggler onClick={toggleHeader} />
           <Collapse isOpen={headerIsOpen} navbar>
             <Nav navbar className="mr-auto">
-              <NavLink className="navbar-link" tag={Link} to="/about">
-                <FormattedMessage id="about">
+              <NavLink className="navbar-link" tag={Link} to="/start">
+                <FormattedMessage id="start">
                   {(messages: string[]) => capitalizeFirstLetter(messages[0])}
                 </FormattedMessage>
               </NavLink>

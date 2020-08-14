@@ -10,7 +10,7 @@ import {
   CardTitle,
   CardText,
 } from 'reactstrap';
-import { useStaticQuery, graphql } from 'gatsby';
+import { useStaticQuery, graphql, Link } from 'gatsby';
 import Img, { FluidObject } from 'gatsby-image';
 
 interface QueryData {
@@ -98,6 +98,9 @@ const HowToUse = (): JSX.Element => {
                     Integer malesuada dolor sed arcu faucibus, a rhoncus turpis
                     volutpat. Integer congue nisl eu congue gravida. Cras non
                     viverra velit.
+                  </CardText>
+                  <CardText className="remove-underlines">
+                    <Link to="/start">Get Started {'>'}</Link>
                   </CardText>
                 </CardBody>
               </Card>

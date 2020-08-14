@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "ms-vsliveshare.vsliveshare-pack",
+    "mikestead.dotenv",
+    "eamodio.gitlens",
+    "prisma.vscode-graphql",
+    "ms-python.python",
+    "sibiraj-s.vscode-scss-formatter",
+    "redhat.vscode-yaml"
+  ]
+}

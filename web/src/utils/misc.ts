@@ -1,3 +1,5 @@
+import { isSSR } from './checkSSR';
+
 export const capitalizeFirstLetter = (elem: string): string => {
   return elem
     .split(' ')
@@ -6,5 +8,5 @@ export const capitalizeFirstLetter = (elem: string): string => {
 };
 
 export const getBaseURL = (): string => {
-  return `${window.location.protocol}//${window.location.host}`;
+  return isSSR ? '' : `${window.location.protocol}//${window.location.host}`;
 };
