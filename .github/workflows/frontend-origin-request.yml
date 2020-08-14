@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@main
         with:
           lfs: true
+      - name: Checkout lfs objects
+        run: git lfs checkout
       - name: Setup Node.js 13
         uses: actions/setup-node@v1
         with:
