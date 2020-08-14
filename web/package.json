@@ -96,7 +96,7 @@
     "precommit": "yarn lint",
     "storybook": "start-storybook -p 9000 -c .storybook",
     "build:storybook": "build-storybook --static-dir storybook -c .storybook -o dist-storybook",
-    "serve:storybook": "node static-server.js dist-storybook",
+    "serve:storybook": "node static-server.js dist-storybook 9001",
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "devDependencies": {

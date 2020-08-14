@@ -9,7 +9,7 @@
     "build:storybook": "./build_storybook.sh",
     "build": "yarn build:storybook && docusaurus build && mv build dist",
     "serve": "node static-server.js",
-    "serve:storybook": "node static-server.js static/storybook",
+    "serve:storybook": "node static-server.js static/storybook 3002",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "lint": "eslint --ignore-path .gitignore . --ext ts --ext tsx --ext js --ext jsx --fix",
