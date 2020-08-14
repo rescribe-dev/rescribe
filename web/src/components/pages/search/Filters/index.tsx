@@ -14,7 +14,7 @@ import { setLanguages } from 'state/search/actions';
 import { isSSR } from 'utils/checkSSR';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from 'state';
-import UserFilters from '../userFilters';
+import UserFilters from '../UserFilters';
 import isDebug from 'utils/mode';
 import { useQuery } from '@apollo/react-hooks';
 import {

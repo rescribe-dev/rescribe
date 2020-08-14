@@ -7,8 +7,8 @@ import { PageProps } from 'gatsby';
 import './index.scss';
 
 import { SearchQuery } from 'lib/generated/datamodel';
-import Filters from './filters';
-import { FileResultComponent } from './fileResult';
+import Filters from './Filters';
+import { FileResultComponent } from './FileResult';
 import { useSelector, useDispatch } from 'react-redux';
 import { isSSR } from 'utils/checkSSR';
 import { RootState } from 'state';

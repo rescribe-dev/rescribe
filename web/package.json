@@ -81,7 +81,8 @@
   "scripts": {
     "build:gatsby": "cd gatsby && tsc",
     "prebuild": "yarn build:gatsby",
-    "build": "yarn remove:dist && yarn codegen && gatsby build && yarn move:folder && yarn copy:headers",
+    "gatsby:build": "gatsby build",
+    "build": "yarn remove:dist && yarn codegen && yarn run gatsby:build && yarn move:folder && yarn copy:headers",
     "predeploy": "yarn build",
     "subdomain:ignore": "mv -f dist/robots_subdomain.txt dist/robots.txt",
     "move:folder": "mv public dist",
@@ -91,7 +92,7 @@
     "lint": "eslint --ignore-path .gitignore . --ext ts --ext tsx --ext js --ext jsx --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
     "remove:dist": "rimraf dist",
-    "clean": "gatsby clean && yarn remove:dist && rimraf gatsby/.gatsby",
+    "clean": "gatsby clean && yarn remove:dist && rimraf gatsby/.gatsby && rimraf dist-storybook",
     "precommit": "yarn lint",
     "storybook": "start-storybook -p 9000 -c .storybook",
     "build:storybook": "build-storybook --static-dir storybook -c .storybook -o dist-storybook",
