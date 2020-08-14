@@ -35,7 +35,7 @@ module.exports = {
           position: 'left',
         },
         {
-          href: `${fullURL}/storybook/`,
+          href: `${fullURL}/storybook/index.html`,
           label: 'Storybook',
           position: 'left',
         },

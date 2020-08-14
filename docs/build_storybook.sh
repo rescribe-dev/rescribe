@@ -9,7 +9,7 @@ cd ../web
 
 # run gatsby build to prevent errors with babel config
 yarn run prebuild
-yarn run gatsby:build || true
+yarn run gatsby:build
 
 # build storybook
 yarn run build:storybook

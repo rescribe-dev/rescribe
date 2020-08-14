@@ -15,7 +15,7 @@ export const handler: CloudFrontResponseHandler = (event, _context, callback) =>
   }];
   headers['x-frame-options'] = [{
     key: 'X-Frame-Options',
-    value: 'DENY'
+    value: 'SAMEORIGIN'
   }];
   headers['x-xss-protection'] = [{
     key: 'X-XSS-Protection',

@@ -38,6 +38,8 @@ jobs:
           yarn install
           cd -
           cd web
+          # create environment file
+          cp .default.env .env.production
           yarn install
           cd -
       - name: build

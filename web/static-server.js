@@ -10,12 +10,19 @@ if (process.argv.length > 2) {
   directory = process.argv[2];
 }
 
-let PORT = process.env.PORT || 8001;
+let PORT = 8001;
+
+if (process.env.PORT) {
+  const givenPort = new Number(process.env.PORT);
+  if (givenPort) {
+    PORT = givenPort.valueOf();
+  }
+}
 
 if (process.argv.length > 3) {
   const givenPort = new Number(process.argv[3]);
   if (givenPort) {
-    PORT = givenPort;
+    PORT = givenPort.valueOf();
   }
 }
 
