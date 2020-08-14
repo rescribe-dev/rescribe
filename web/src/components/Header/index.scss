@@ -17,11 +17,7 @@
   color: var(--text-nav);
 
   .navbar-link {
-    color: #303030;
-  }
-
-  .navbar-link:hover {
-    color: #000;
+    color: var(--text-nav) !important;
   }
 
   .navbar-nav .nav-link {

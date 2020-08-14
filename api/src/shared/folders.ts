@@ -8,7 +8,7 @@ export interface PathData {
 
 export const getParentFolderPath = (filePath: string): PathData => {
   // file path is something like /folder1/folder2/test.txt
-  //                             /folder1/asdf.txt
+  //                             /folder1/test2.txt
   // for a file in those 2 folders
   if (filePath.length === 0) {
     return {

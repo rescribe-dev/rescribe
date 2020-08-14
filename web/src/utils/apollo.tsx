@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-client';
 import fetch from 'isomorphic-fetch';
@@ -13,40 +13,39 @@ import ws from 'ws';
 import { getAuthToken, isLoggedIn } from 'state/auth/getters';
 import { isSSR } from './checkSSR';
 import { useSecure } from './useSecure';
-
-const link = new HttpLink({
-  uri: `${useSecure ? 'https' : 'http'}://${
-    process.env.GATSBY_API_URL
-  }/graphql`,
-  fetch,
-  credentials: 'include',
-});
-
-const httpMiddleware = setContext(async (_operation) => {
-  try {
-    const authToken = getAuthToken();
-    return {
-      headers: {
-        authorization: authToken.length > 0 ? `Bearer ${authToken}` : null,
-      },
-    };
-  } catch (_err) {
-    // handle error
-  }
-});
-
-const httpLink = from([httpMiddleware, link]);
+import { toast } from 'react-toastify';
 
 export let client: ApolloClient<any>;
 
-const wsForNode = isSSR ? ws : null;
-
 export const initializeApolloClient = async (): Promise<void> => {
+  const defaultLink = new HttpLink({
+    uri: `${useSecure ? 'https' : 'http'}://${
+      process.env.GATSBY_API_URL
+    }/graphql`,
+    fetch,
+    credentials: 'include',
+  });
+
+  const httpMiddleware = setContext(async (_operation) => {
+    try {
+      const authToken = getAuthToken();
+      return {
+        headers: {
+          authorization: authToken.length > 0 ? `Bearer ${authToken}` : null,
+        },
+      };
+    } catch (_err) {
+      // handle error
+    }
+  });
+
+  const httpLink = from([httpMiddleware, defaultLink]);
   if (!process.env.GATSBY_API_URL) {
-    console.error('no api url provided');
+    throw new Error('no api url provided');
   }
   let link = httpLink;
   const authToken = getAuthToken();
+  const wsForNode = isSSR ? ws : null;
   if (await isLoggedIn()) {
     const wsClient = new SubscriptionClient(
       `${useSecure ? 'wss' : 'ws'}://${process.env.GATSBY_API_URL}/graphql`,
@@ -75,12 +74,31 @@ export const initializeApolloClient = async (): Promise<void> => {
   });
 };
 
-initializeApolloClient();
-
-interface input {
-  element: JSX.Element;
+interface WrapApolloArgs {
+  children?: ReactNode;
 }
 
-export const WrapApollo = (element: input): JSX.Element => {
-  return <ApolloProvider client={client}>{element}</ApolloProvider>;
+export const WrapApollo = (args: WrapApolloArgs): JSX.Element => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    (async () => {
+      try {
+        await initializeApolloClient();
+        setLoading(false);
+      } catch (err) {
+        const errObj = err as Error;
+        toast(errObj.message, {
+          type: 'error',
+        });
+      }
+    })();
+  }, []);
+  return (
+    <>
+      {loading ? null : (
+        // @ts-ignore TODO - fix this
+        <ApolloProvider client={client}>{args.children}</ApolloProvider>
+      )}
+    </>
+  );
 };

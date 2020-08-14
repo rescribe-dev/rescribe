@@ -128,11 +128,11 @@ public class JavaScriptDeclarationListener extends JavaScriptParserBaseListener
   }
 
   // three parent children gives you all of the expression with the syntax
-  // something = document.getwhatever(adasfd).asdf
+  // something = document.getwhatever(test).test
   // two parent children gives you all of the standalone expressions with no
   // further frills
   // math.pow(thing)
-  // document.getwhatever(asdfd)
+  // document.getwhatever(test)
   // it also may give you a massively long dot expression if there is a callback
   // internal to it
   // in that case it will give you the entire callback. I recommend three parent

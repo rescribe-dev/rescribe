@@ -60,15 +60,10 @@ const Header = (args: HeaderArgs): JSX.Element => {
   const pathname =
     typeof location === 'string'
       ? location
+      : typeof args.location === 'string'
+      ? args.location
       : (args.location as WindowLocation).pathname;
 
-  isLoggedIn()
-    .then((_loggedIn) => {
-      // user logged in
-    })
-    .catch((_err) => {
-      // handle error
-    });
   const loggedIn = isSSR
     ? undefined
     : useSelector<RootState, boolean | undefined>(
@@ -90,21 +85,30 @@ const Header = (args: HeaderArgs): JSX.Element => {
 
   const formRef = useRef<FormikValues>();
   useEffect(() => {
-    // only run on component mount
-    // on back button push run search again
-    // hack to get typescript working:
-    const history = createHistory((window as unknown) as HistorySource);
-    return history.listen(async (listener) => {
-      // wait for react to update state
-      await sleep(50);
-      if (
-        listener.location.pathname === '/search' &&
-        formRef &&
-        formRef.current
-      ) {
-        formRef.current.setFieldValue('query', getQuery());
+    (async () => {
+      // trigger check to see if user is logged in
+      try {
+        await isLoggedIn();
+      } catch (_err) {
+        // handle error
       }
-    });
+
+      // only run on component mount
+      // on back button push run search again
+      // hack to get typescript working:
+      const history = createHistory((window as unknown) as HistorySource);
+      return history.listen(async (listener) => {
+        // wait for react to update state
+        await sleep(50);
+        if (
+          listener.location.pathname === '/search' &&
+          formRef &&
+          formRef.current
+        ) {
+          formRef.current.setFieldValue('query', getQuery());
+        }
+      });
+    })();
   }, []);
 
   return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container } from 'reactstrap';
 import { PageProps } from 'gatsby';
 
@@ -27,14 +27,16 @@ const AccountPage = (_args: AccountProps): JSX.Element => {
     : useSelector<RootState, UserFieldsFragment | undefined>(
         (state) => state.authReducer.user
       );
-  if (!isSSR) {
-    const dispatchAuthThunk = useDispatch<AppThunkDispatch<AuthActionTypes>>();
-    if (!user && isLoggedIn()) {
+  const dispatchAuthThunk = isSSR
+    ? undefined
+    : useDispatch<AppThunkDispatch<AuthActionTypes>>();
+  useEffect(() => {
+    if (dispatchAuthThunk && !user && isLoggedIn()) {
       dispatchAuthThunk(thunkGetUser()).catch((err: Error) =>
         console.error(err.message)
       );
     }
-  }
+  }, []);
   return (
     <Container className="default-container">
       <div>

@@ -14,6 +14,7 @@ import { IntlProvider } from 'react-intl';
 import './index.scss';
 import { WindowLocation } from '@reach/router';
 import { isSSR } from 'utils/checkSSR';
+import { lightThemeClass } from 'utils/theme';
 
 const Fonts = Loadable(() => import('components/fontloader'));
 
@@ -48,8 +49,6 @@ interface IndexLayoutProps {
 }
 
 // TODO - create a switcher between themes
-const lightThemeClass = 'light';
-export const darkThemeClass = 'dark';
 
 const Layout = (args: IndexLayoutArgs): JSX.Element => {
   const data: IndexLayoutProps = useStaticQuery(graphql`

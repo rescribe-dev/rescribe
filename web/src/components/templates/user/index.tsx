@@ -41,10 +41,8 @@ const UserPage = (args: UserProps): JSX.Element => {
   );
   useEffect(() => {
     if (currentUser && username === currentUser.username) {
-      console.log('set current user');
       setUser(currentUser as PublicUserFieldsFragment);
     } else if (!isSSR) {
-      console.log('get user');
       client
         .query<PublicUserQuery | undefined, PublicUserQueryVariables>({
           query: PublicUser,
