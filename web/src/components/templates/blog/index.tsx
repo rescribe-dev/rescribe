@@ -14,9 +14,6 @@ interface BlogData {
 }
 
 export interface BlogPageDataProps extends PageProps {
-  pageContext: {
-    id: string;
-  };
   data: {
     blogPost: {
       data: BlogData;

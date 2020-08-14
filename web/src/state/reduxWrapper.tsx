@@ -7,6 +7,7 @@ import { createWhitelistFilter } from 'redux-persist-transform-filter';
 import storage from 'redux-persist/lib/storage';
 import rootReducer from '.';
 import thunk from 'redux-thunk';
+import { isSSR } from 'utils/checkSSR';
 
 declare global {
   interface Window {
@@ -16,7 +17,10 @@ declare global {
 }
 
 const loadDevTools = (): any =>
-  process.env.NODE_ENV === 'development' && window && window.devToolsExtension
+  process.env.NODE_ENV === 'development' &&
+  !isSSR &&
+  window &&
+  window.devToolsExtension
     ? window.__REDUX_DEVTOOLS_EXTENSION__ &&
       window.__REDUX_DEVTOOLS_EXTENSION__()
     : (f: any) => f;
