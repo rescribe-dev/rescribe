@@ -30,3 +30,6 @@ coverage/
 .coverage
 coverage.txt
 coverage.xml
+
+# Local Netlify folder
+.netlify
