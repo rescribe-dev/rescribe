@@ -13,6 +13,8 @@ jobs:
     steps:
       # checks out a copy of the repo
       - uses: actions/checkout@main
+        with:
+          lfs: true
       - name: Setup Node.js 12
         uses: actions/setup-node@v1
         with:
