@@ -37,6 +37,7 @@ import { thunkSearch } from 'state/search/thunks';
 import { toast } from 'react-toastify';
 import logo from 'assets/images/logo.svg';
 import logoWhite from 'assets/images/logo-white.svg';
+import VisibilitySensor from 'react-visibility-sensor';
 
 import './index.scss';
 import { queryMinLength } from 'shared/variables';
@@ -56,6 +57,8 @@ const homepagePath = '/';
 const Header = (args: HeaderArgs): JSX.Element => {
   const [headerIsOpen, setHeaderIsOpen] = useState(false);
   const toggleHeader = () => setHeaderIsOpen(!headerIsOpen);
+
+  const [hamburgerIsVisible, setHamburgerVisible] = useState(false);
 
   const pathname =
     typeof location === 'string'
@@ -114,7 +117,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
   return (
     <>
       <Container
-        className={pathname === homepagePath ? 'nav-container-home' : ''}
+        className={
+          pathname === homepagePath && !hamburgerIsVisible
+            ? 'nav-container-home'
+            : ''
+        }
         style={{
           padding: 0,
         }}
@@ -122,7 +129,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
         <Navbar
           light
           expand="md"
-          className={pathname === homepagePath ? 'navbar-home' : 'navbar-other'}
+          className={
+            pathname === homepagePath && !hamburgerIsVisible
+              ? 'navbar-home'
+              : 'navbar-other'
+          }
         >
           <NavbarBrand
             style={{
@@ -132,7 +143,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
             to="/"
           >
             <img
-              src={pathname === homepagePath ? logoWhite : logo}
+              src={
+                pathname === homepagePath && !hamburgerIsVisible
+                  ? logoWhite
+                  : logo
+              }
               alt="reScribe"
               style={{
                 width: '9rem',
@@ -141,7 +156,9 @@ const Header = (args: HeaderArgs): JSX.Element => {
               }}
             />
           </NavbarBrand>
-          <NavbarToggler onClick={toggleHeader} />
+          <VisibilitySensor onChange={setHamburgerVisible}>
+            <NavbarToggler onClick={toggleHeader} />
+          </VisibilitySensor>
           <Collapse isOpen={headerIsOpen} navbar>
             <Nav navbar className="mr-auto">
               <NavLink className="navbar-link" tag={Link} to="/start">

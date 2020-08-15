@@ -32,6 +32,7 @@ const NavigationCard = (args: NavCardArgs): JSX.Element => {
           style={{
             maxWidth: '200px',
             margin: 'auto',
+            marginTop: '1rem',
           }}
           alt={`image-${args.title.replace(' ', '-')}`}
         />
