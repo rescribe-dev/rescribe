@@ -5,16 +5,18 @@ import Highlight, {
 } from 'prism-react-renderer';
 import githubTheme from 'prism-react-renderer/themes/github';
 
+export type ExtendedLanguage = Language | 'java';
+
 const CodeHighlight = (args: {
   code: string[];
   startIndex: number;
-  language: Language;
+  language: ExtendedLanguage;
 }): JSX.Element => {
   return (
     <Highlight
       {...defaultHighlightProps}
       code={args.code.join('\n')}
-      language={args.language}
+      language={(args.language as unknown) as Language}
       theme={githubTheme}
     >
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
