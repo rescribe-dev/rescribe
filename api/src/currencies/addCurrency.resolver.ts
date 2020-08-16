@@ -3,32 +3,21 @@ import Currency, { CurrencyModel } from '../schema/payments/currency';
 import { GraphQLContext } from '../utils/context';
 import { verifyAdmin } from '../auth/checkAuth';
 import { stripeClient, requirePaymentSystemInitialized } from '../stripe/init';
-import { defaultCurrency } from '../shared/variables';
-import { getActualExchangeRate } from './getAcutalExchangeRate';
-import { getLogger } from 'log4js';
-
-const logger = getLogger();
-
-export const defaultCountry = 'us';
+import { defaultCurrency, defaultCountry } from '../shared/variables';
+import { getActualExchangeRate } from './getForexData';
 
 @ArgsType()
 export class AddCurrencyArgs {
-  @Field({ description: 'currency name' })
+  @Field({ description: 'add currency to accepted for payments' })
   name: string;
 }
 
-export const addCurrencyUtil = async (args: AddCurrencyArgs): Promise<Currency> => {
+export const addCurrencyUtil = async (args: AddCurrencyArgs, acceptedPayment: boolean): Promise<Currency> => {
   const givenCurrency = args.name.toLowerCase();
   const givenCountry = defaultCountry.toLowerCase();
   const defaultCountryData = await stripeClient.countrySpecs.retrieve(givenCountry);
-  if ((await CurrencyModel.countDocuments({
-    name: givenCurrency
-  })) > 0) {
-    throw new Error(`currency ${givenCurrency} already exists`);
-  }
   let exchangeRate = 1;
   if (givenCurrency !== defaultCurrency) {
-    logger.info(defaultCountryData.supported_payment_currencies);
     if (!defaultCountryData.supported_payment_currencies.includes(givenCurrency)) {
       throw new Error(`given currency ${givenCurrency} unsupported in ${givenCountry}`);
     }
@@ -36,9 +25,16 @@ export const addCurrencyUtil = async (args: AddCurrencyArgs): Promise<Currency> 
   }
   const newCurrency: Currency = {
     name: givenCurrency,
-    exchangeRate
+    exchangeRate,
+    acceptedPayment
   };
-  await new CurrencyModel(newCurrency).save();
+  await CurrencyModel.updateOne({
+    name: givenCurrency,
+  }, {
+    $set: newCurrency
+  }, {
+    upsert: true
+  });
   return newCurrency;
 };
 
@@ -50,7 +46,7 @@ class AddCurrencyResolver {
     if (!verifyAdmin(ctx)) {
       throw new Error('user must be admin to add a currency');
     }
-    const newCurrency = await addCurrencyUtil(args);
+    const newCurrency = await addCurrencyUtil(args, true);
     return `added currency ${newCurrency.name} with exchange rate ${newCurrency.exchangeRate}`;
   }
 }

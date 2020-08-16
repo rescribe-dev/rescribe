@@ -23,6 +23,9 @@ export const deleteProductUtil = async (product: Product): Promise<void> => {
   await stripeClient.products.update(product.stripeID, {
     active: false
   });
+  await ProductModel.deleteOne({
+    name: product.name
+  });
 };
 
 @Resolver()

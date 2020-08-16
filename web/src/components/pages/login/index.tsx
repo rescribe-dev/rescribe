@@ -158,7 +158,12 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
   }, []);
   return (
     <div id="fillPageContainer">
-      <Container className="h-100">
+      <Container
+        style={{
+          marginTop: '4rem',
+        }}
+        className="h-100"
+      >
         <Row className="justify-content-center h-100">
           <Col
             lg={{

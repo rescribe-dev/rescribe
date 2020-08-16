@@ -2,6 +2,7 @@
 export interface ProductInfo {
   name: string;
   caption: string;
+  buttonColor: string;
   features: string[];
 }
 

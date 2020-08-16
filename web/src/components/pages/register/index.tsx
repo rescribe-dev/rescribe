@@ -79,7 +79,11 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
     });
   return (
     <div id="fillPageContainer">
-      <Container className="h-100">
+      <Container
+        style={{
+          marginTop: '4rem',
+        }}
+      >
         <Row className="justify-content-center h-100">
           <Col
             lg={{

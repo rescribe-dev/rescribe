@@ -42,14 +42,14 @@ const Hero = (_messages: IndexMessages): JSX.Element => {
             padding: 0,
           }}
         >
-          <h1
+          <h2
             className="display-4"
             style={{
               margin: '2rem',
             }}
           >
             reScribe
-          </h1>
+          </h2>
           <Container
             style={{
               marginBottom: '1rem',

@@ -1,3 +1,9 @@
-// available themes
-export const lightThemeClass = 'light';
-export const darkThemeClass = 'dark';
+export enum Theme {
+  light = 'light',
+  dark = 'dark',
+}
+
+export const themeMap: Record<Theme, string> = {
+  [Theme.light]: 'light',
+  [Theme.dark]: 'dark',
+};

@@ -216,6 +216,9 @@ type Coupon {
 
 """currency data"""
 type Currency {
+  """accepted as payment"""
+  acceptedPayment: Boolean!
+
   """exchange rate to usd"""
   exchangeRate: Int!
 
@@ -507,7 +510,7 @@ type Mutation {
     name: String!
   ): String!
   addCurrency(
-    """currency name"""
+    """add currency to accepted for payments"""
     name: String!
   ): String!
   addFolder(
@@ -593,7 +596,7 @@ type Mutation {
     name: String!
   ): String!
   deleteCurrency(
-    """currency name"""
+    """remove currency from accepted for payments"""
     name: String!
   ): String!
   deleteFile(
@@ -1132,7 +1135,10 @@ type Query {
     """product name"""
     name: String
   ): Product!
-  products: [Product!]!
+  products(
+    """product names"""
+    names: [String!]
+  ): [Product!]!
   project(
     """project id"""
     id: ObjectId

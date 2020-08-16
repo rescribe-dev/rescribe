@@ -1,5 +1,5 @@
 import { RedisKey, cache } from '../utils/redis';
-import { getActualExchangeRate } from './getAcutalExchangeRate';
+import { getActualExchangeRate } from './getForexData';
 
 const redisExpireSeconds = 60 * 20;
 

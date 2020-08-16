@@ -7,7 +7,7 @@ import Plan, { Interval, singlePurchase } from '../schema/payments/plan';
 import Product, { ProductModel } from '../schema/payments/product';
 import { defaultProductName } from './product.resolver';
 import { IsInt, Min } from 'class-validator';
-import { getActualExchangeRate } from '../currencies/getAcutalExchangeRate';
+import { getActualExchangeRate } from '../currencies/getForexData';
 
 const maxTrialPeriod = 720; // days
 
@@ -44,7 +44,9 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
     active: true,
     type: 'service'
   });
-  const currencies = await CurrencyModel.find({});
+  const currencies = await CurrencyModel.find({
+    acceptedPayment: true
+  });
   if (!currencies) {
     throw new Error('cannot find any currencies');
   }

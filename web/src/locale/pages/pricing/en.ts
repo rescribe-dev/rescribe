@@ -8,6 +8,7 @@ const englishMessages: PricingMessages = {
   subscribe: 'subscribe now',
   products: {
     free: {
+      buttonColor: '#F0AD4E',
       name: 'free',
       caption: 'Use reScribe for free forever, with the following features',
       features: [

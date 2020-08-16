@@ -3,12 +3,11 @@ import { deleteProductUtil } from './deleteProduct.resolver';
 import { getLogger } from 'log4js';
 import { CurrencyModel } from '../schema/payments/currency';
 import { deleteCurrencyUtil } from '../currencies/deleteCurrency.resolver';
-import { defaultCurrency } from '../shared/variables';
 import { addCurrencyUtil } from '../currencies/addCurrency.resolver';
-import { defaultProductName } from './product.resolver';
 import { addProductUtil } from './addProduct.resolver';
-import { Interval } from '../schema/payments/plan';
 import { requirePaymentSystemInitialized } from '../stripe/init';
+import { getCurrencies } from '../currencies/getForexData';
+import { defaultAcceptedCurrencies, defaultProducts } from './defaults';
 
 const logger = getLogger();
 
@@ -22,30 +21,21 @@ export const initializeProducts = async (): Promise<string> => {
 
   const currencies = await CurrencyModel.find({});
   for (const currency of currencies) {
-    await deleteCurrencyUtil(currency);
+    await deleteCurrencyUtil(currency, true);
   }
   logger.info('deleted all currencies');
 
-  if ((await CurrencyModel.countDocuments({
-    name: defaultCurrency
-  })) === 0) {
+  for (const currency of await getCurrencies()) {
     await addCurrencyUtil({
-      name: defaultCurrency
-    });
+      name: currency
+    }, defaultAcceptedCurrencies.includes(currency));
   }
+  logger.info('added all currencies');
 
-  if ((await ProductModel.countDocuments({
-    name: defaultProductName
-  })) === 0) {
-    await addProductUtil({
-      name: defaultProductName,
-      plans: [{
-        amount: 0,
-        interval: Interval.month
-      }],
-      storage: Number.MAX_SAFE_INTEGER
-    });
+  for (const product of defaultProducts) {
+    await addProductUtil(product); 
   }
+  logger.info('added all default products');
 
   return 'done initializing currencies and products';
 };

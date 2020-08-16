@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,7 +14,10 @@ import { IntlProvider } from 'react-intl';
 import './index.scss';
 import { WindowLocation } from '@reach/router';
 import { isSSR } from 'utils/checkSSR';
-import { lightThemeClass } from 'utils/theme';
+import { themeMap } from 'utils/theme';
+import { useSelector } from 'react-redux';
+import { RootState } from 'state';
+import { Theme } from 'utils/theme';
 
 const Fonts = Loadable(() => import('components/fontloader'));
 
@@ -65,7 +68,11 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
     }
   `);
 
-  const [themeClass] = useState<string>(lightThemeClass);
+  const currentTheme = isSSR
+    ? undefined
+    : useSelector<RootState, Theme | undefined>(
+        (state) => state.authReducer.theme
+      );
 
   let currentLanguage = data.site.siteMetadata.languages.default;
   if (!isSSR) {
@@ -83,7 +90,11 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
     <HelmetProvider>
       <IntlProvider locale={currentLanguage} messages={args.i18nMessages}>
         <Fonts />
-        <div className={`main-wrapper ${themeClass}`}>
+        <div
+          className={`main-wrapper ${
+            currentTheme ? themeMap[currentTheme] : ''
+          }`}
+        >
           <Header
             siteTitle={data.site.siteMetadata.title}
             location={args.location}

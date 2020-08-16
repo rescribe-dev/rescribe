@@ -3,8 +3,8 @@ fragment productPlanData on Plan {
   amount
 }
 
-query products {
-  products {
+query products($names: [String!]) {
+  products(names: $names) {
     name
     plans {
       ...productPlanData

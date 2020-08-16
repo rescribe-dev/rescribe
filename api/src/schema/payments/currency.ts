@@ -11,6 +11,10 @@ export default class Currency {
   @Field(_type => Int, { description: 'exchange rate to usd' })
   @Property({ required: true, type: Number })
   exchangeRate: number;
+
+  @Field({ description: 'accepted as payment' })
+  @Property({ required: true })
+  acceptedPayment: boolean;
 }
 
 export const CurrencyModel = getModelForClass(Currency);
