@@ -220,7 +220,7 @@ type Currency {
   acceptedPayment: Boolean!
 
   """exchange rate to usd"""
-  exchangeRate: Int!
+  exchangeRate: Float!
 
   """currency name"""
   name: String!
