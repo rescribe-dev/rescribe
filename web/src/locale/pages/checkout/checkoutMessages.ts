@@ -1,2 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CheckoutMessages {}
+export interface CheckoutMessages {
+  'place your order': string;
+}

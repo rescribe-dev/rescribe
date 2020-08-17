@@ -146,7 +146,6 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
         style={{
           paddingLeft: 0,
           paddingRight: 0,
-          paddingBottom: 0,
         }}
       >
         {!validProduct ? (
@@ -223,6 +222,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
                 dispatch(
                   addToCart({
                     name: args.productData.name,
+                    displayName: args.productInfo.name,
                     interval: currentInterval,
                     price: currentPlan.amount,
                   })

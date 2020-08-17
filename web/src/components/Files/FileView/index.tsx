@@ -13,7 +13,7 @@ import {
 import { isSSR } from 'utils/checkSSR';
 import { useQuery, QueryResult } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
-import { ObjectId } from 'mongodb';
+import ObjectId from 'bson-objectid';
 import { client } from 'utils/apollo';
 import { ApolloQueryResult } from 'apollo-client';
 

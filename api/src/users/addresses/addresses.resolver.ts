@@ -14,7 +14,7 @@ export class AddressesArgs {
 @Resolver()
 class AddressesResolver {
   @Query(_returns => [Address])
-  async address(@Args() args: AddressesArgs, @Ctx() ctx: GraphQLContext): Promise<Address[]> {
+  async addresses(@Args() args: AddressesArgs, @Ctx() ctx: GraphQLContext): Promise<Address[]> {
     requirePaymentSystemInitialized();
     if (!verifyLoggedIn(ctx)) {
       throw new Error('user must be logged in');

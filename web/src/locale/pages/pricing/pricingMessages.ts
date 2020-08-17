@@ -6,7 +6,7 @@ import {
 
 // info for product, written in specific language
 export interface ProductInfo {
-  name: string;
+  name: string; // displayed name of the product
   caption: string;
   buttonColor: string;
   features: string[];

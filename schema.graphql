@@ -964,6 +964,10 @@ type PublicUser {
 
 type Query {
   address(
+    """address id"""
+    id: ObjectId!
+  ): Address!
+  addresses(
     """address user"""
     user: ObjectId
   ): [Address!]!

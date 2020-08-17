@@ -7,6 +7,7 @@ export interface CurrencyData {
 
 export interface CartObject {
   name: string;
+  displayName: string;
   interval: IntervalType;
   price: number;
 }

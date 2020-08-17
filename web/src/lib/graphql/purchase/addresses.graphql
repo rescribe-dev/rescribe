@@ -1,0 +1,11 @@
+query addresses {
+  addresses {
+    _id
+    name
+    line1
+    line2
+    city
+    state
+    country
+  }
+}
