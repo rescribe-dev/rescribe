@@ -5,7 +5,7 @@ import User, { UserType, UserModel } from '../schema/users/user';
 import { configData } from './config';
 import { getProduct } from '../products/product.resolver';
 import Restrictions from '../schema/payments/restrictions';
-import { defaultProductName } from '../products/defaults';
+import { defaultProductName } from '../shared/variables';
 
 export const enum jwtType { LOCAL, GITHUB }
 

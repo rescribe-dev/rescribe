@@ -1,13 +1,16 @@
 import { PricingMessages } from './pricingMessages';
+import {
+  defaultProductName,
+  teamProductName,
+  enterpriseProductName,
+} from 'shared/variables';
 
 const englishMessages: PricingMessages = {
-  month: 'month',
-  year: 'year',
   monthly: 'Monthly',
   yearly: 'Yearly (Best Value)',
   subscribe: 'subscribe now',
   products: {
-    free: {
+    [defaultProductName]: {
       buttonColor: 'var(--light-orange)',
       name: 'free',
       caption: 'Use reScribe for free forever',
@@ -18,7 +21,7 @@ const englishMessages: PricingMessages = {
         'up to {{storage}} of storage',
       ],
     },
-    team: {
+    [teamProductName]: {
       buttonColor: 'var(--secondary-green)',
       name: 'team',
       caption: 'Best for small teams, with private repositories',
@@ -29,7 +32,7 @@ const englishMessages: PricingMessages = {
         'up to {{storage}} of storage',
       ],
     },
-    enterprise: {
+    [enterpriseProductName]: {
       buttonColor: 'var(--secondary-blue)',
       name: 'enterprise',
       caption: 'For larger companies',

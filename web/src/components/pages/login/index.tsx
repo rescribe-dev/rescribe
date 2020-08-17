@@ -103,7 +103,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
         setLocalToken(localToken);
       }
       if (searchParams.has('redirect')) {
-        setRedirect(searchParams.get('redirect') as string);
+        setRedirect(decodeURIComponent(searchParams.get('redirect') as string));
       }
       if (searchParams.has('verify_email')) {
         verifyEmail = true;

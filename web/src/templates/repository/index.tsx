@@ -10,7 +10,7 @@ import RepositoryMessagesEnglish from 'locale/templates/repository/en';
 
 const RepositoryPage = (args: RepositoryPageDataProps): JSX.Element => {
   return (
-    <PrivateRoute>
+    <PrivateRoute location={args.location}>
       <Layout location={args.location}>
         <SEO title="Repository" />
         <RepositoryContent {...args} messages={RepositoryMessagesEnglish} />

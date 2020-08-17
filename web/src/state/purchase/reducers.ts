@@ -3,6 +3,8 @@ import {
   SET_DISPLAY_CURRENCY,
   SET_PAYMENT_CURRENCY,
   PurchaseActionTypes,
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
 } from './types';
 import { defaultCurrency } from 'shared/variables';
 
@@ -32,6 +34,20 @@ export const purchaseReducer = (
       return {
         ...state,
         paymentCurrency: action.payload,
+      };
+    case ADD_TO_CART:
+      if (!state.cart.find((item) => item.name === action.payload.name)) {
+        state.cart.push(action.payload);
+      }
+      return {
+        ...state,
+      };
+    case REMOVE_FROM_CART:
+      if (action.payload >= 0) {
+        state.cart.splice(action.payload, 1);
+      }
+      return {
+        ...state,
       };
     default:
       return state;

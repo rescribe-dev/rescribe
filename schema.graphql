@@ -204,6 +204,8 @@ enum CommentType {
 
 """coupons"""
 type Coupon {
+  _id: ObjectId!
+
   """coupon amount"""
   amount: Int!
 
@@ -216,6 +218,8 @@ type Coupon {
 
 """currency data"""
 type Currency {
+  _id: ObjectId!
+
   """accepted as payment"""
   acceptedPayment: Boolean!
 
@@ -885,6 +889,8 @@ type Preview {
 
 """products"""
 type Product {
+  _id: ObjectId!
+
   """product name"""
   name: String!
 

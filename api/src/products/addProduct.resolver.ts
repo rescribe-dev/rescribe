@@ -7,7 +7,8 @@ import Plan, { Interval, singlePurchase } from '../schema/payments/plan';
 import Product, { ProductModel } from '../schema/payments/product';
 import { IsInt, Min } from 'class-validator';
 import { getActualExchangeRate } from '../currencies/getForexData';
-import { defaultProductName } from './defaults';
+import { defaultProductName } from '../shared/variables';
+import { ObjectId } from 'mongodb';
 
 const maxTrialPeriod = 720; // days
 
@@ -95,6 +96,7 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
     plans.push(currentPlan);
   }
   const newProduct: Product = {
+    _id: new ObjectId(),
     name: args.name,
     plans,
     storage: args.storage,

@@ -1,10 +1,14 @@
-const englishMessages: Record<string, string> = {
+import CommonMessages from './type';
+
+const englishMessages: CommonMessages = {
   explore: 'explore',
   pricing: 'pricing',
   start: 'get started',
   projects: 'projects',
   'sign up': 'sign up',
   login: 'login',
+  month: 'month',
+  year: 'year',
 };
 
 export default englishMessages;

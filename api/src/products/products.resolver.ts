@@ -34,7 +34,7 @@ class ProductResolver {
       name: {
         $in: args.names
       }
-    });
+    }).sort({ _id: 1 });
     if (!data) {
       throw new Error('could not find products');
     }

@@ -4,9 +4,11 @@ import React, { useState, ReactNode, useEffect } from 'react';
 import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
+import { WindowLocation } from '@reach/router';
 
 interface PrivateRouteData {
   children?: ReactNode;
+  location: WindowLocation;
 }
 
 const PrivateRoute = (args: PrivateRouteData): JSX.Element => {
@@ -14,16 +16,18 @@ const PrivateRoute = (args: PrivateRouteData): JSX.Element => {
   useEffect(() => {
     (async () => {
       // trigger check to see if user is logged in
+      const currentPath = args.location.pathname + args.location.search;
+      const redirectParams = `?redirect=${encodeURIComponent(currentPath)}`;
       try {
         const loggedIn = await isLoggedIn();
         if (!loggedIn) {
-          navigate('/login');
+          navigate('/login' + redirectParams);
         } else {
           setLoading(false);
         }
       } catch (_err) {
         // handle error
-        navigate('/login');
+        navigate('/login' + redirectParams);
       }
     })();
   }, []);

@@ -1,10 +1,8 @@
-import { defaultCurrency } from '../shared/variables';
+import { defaultCurrency, defaultProductName, teamProductName, enterpriseProductName } from '../shared/variables';
 import { AddProductArgs } from './addProduct.resolver';
 import { Interval } from '../schema/payments/plan';
 
 export const defaultAcceptedCurrencies: string[] = [defaultCurrency];
-
-export const defaultProductName = 'free';
 
 export const defaultProducts: AddProductArgs[] = [
   {
@@ -18,7 +16,7 @@ export const defaultProducts: AddProductArgs[] = [
     publicRepositories: Number.MAX_SAFE_INTEGER
   },
   {
-    name: 'team',
+    name: teamProductName,
     plans: [{
       amount: 15,
       interval: Interval.month
@@ -31,7 +29,7 @@ export const defaultProducts: AddProductArgs[] = [
     publicRepositories: Number.MAX_SAFE_INTEGER
   },
   {
-    name: 'enterprise',
+    name: enterpriseProductName,
     plans: [{
       amount: 150,
       interval: Interval.month

@@ -18,15 +18,23 @@ import {
 } from 'locale/pages/pricing/pricingMessages';
 import { IntervalType, ProductDataFragment } from 'lib/generated/datamodel';
 import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
-import { isLoggedIn } from 'state/auth/getters';
 import { navigate } from '@reach/router';
-import { CurrencyData } from 'state/purchase/types';
+import { CurrencyData, CartObject } from 'state/purchase/types';
 import { isSSR } from 'utils/checkSSR';
 import { RootState } from 'state';
-import { useSelector } from 'react-redux';
+import { Dispatch } from 'redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { render } from 'mustache';
 import prettyBytes from 'pretty-bytes';
 import getCurrentLanguage from 'utils/language';
+import formatCurrency from 'utils/currency';
+import { FormattedMessage } from 'react-intl';
+import { addToCart, removeFromCart } from 'state/purchase/actions';
+import {
+  defaultProductName,
+  teamProductName,
+  enterpriseProductName,
+} from 'shared/variables';
 
 interface PricingCardArgs {
   messages: PricingMessages;
@@ -38,14 +46,18 @@ interface PricingCardArgs {
 
 const intervals = new Set([IntervalType.Month, IntervalType.Year]);
 
-const defaultPlan = 'free';
+const mutuallyExclusivePlans = new Set([
+  defaultProductName,
+  teamProductName,
+  enterpriseProductName,
+]);
 
 const storageKey = 'storage';
 const keysWithStorageUnits = [storageKey];
 
 const pricingCard = (args: PricingCardArgs): JSX.Element => {
   const [validProduct, setValidProduct] = useState<boolean>(true);
-  const isDefaultPlan = args.productInfo.name === defaultPlan;
+  const isDefaultPlan = args.productInfo.name === defaultProductName;
 
   const currentCurrency: CurrencyData | undefined = isSSR
     ? undefined
@@ -53,7 +65,13 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
         (state) => state.purchaseReducer.displayCurrency
       );
 
-  const formatCurrency = (): string => {
+  const currentCart: CartObject[] | undefined = isSSR
+    ? undefined
+    : useSelector<RootState, CartObject[]>(
+        (state) => state.purchaseReducer.cart
+      );
+
+  const formatPrice = (): string => {
     const currentInterval =
       args.currentlyMonthly || isDefaultPlan
         ? IntervalType.Month
@@ -62,10 +80,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
       (plan) => plan.interval === currentInterval
     );
     if (!currentPlan || !currentCurrency) return '';
-    return new Intl.NumberFormat('en', {
-      style: 'currency',
-      currency: currentCurrency.name,
-    }).format(currentCurrency.exchangeRate * currentPlan.amount);
+    return formatCurrency(currentPlan.amount, currentCurrency);
   };
 
   const replaceValues: Record<string, number | string> = {
@@ -98,6 +113,11 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
     }
     return capitalizeOnlyFirstLetter(feature);
   };
+
+  let dispatch: Dispatch<any>;
+  if (!isSSR) {
+    dispatch = useDispatch();
+  }
 
   useEffect(() => {
     const foundIntervals = new Set<IntervalType>();
@@ -153,7 +173,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
                       margin: 0,
                     }}
                   >
-                    {formatCurrency()}
+                    {formatPrice()}
                   </h3>
                 </Col>
                 <Col
@@ -165,10 +185,11 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
                   }}
                 >
                   <CardText>
-                    /{' '}
-                    {args.currentlyMonthly
-                      ? args.messages.month
-                      : args.messages.year}
+                    <FormattedMessage
+                      id={args.currentlyMonthly ? 'month' : 'year'}
+                    >
+                      {(messages: string[]) => '/ ' + messages[0]}
+                    </FormattedMessage>
                   </CardText>
                 </Col>
               </Row>
@@ -180,11 +201,33 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
               }}
               onClick={async (evt) => {
                 evt.preventDefault();
-                if (!(await isLoggedIn())) {
-                  navigate('/login');
+                if (typeof currentCart === 'undefined') {
                   return;
                 }
-                console.log(`subscribe to ${args.productInfo.name}`);
+                const currentInterval =
+                  args.currentlyMonthly || isDefaultPlan
+                    ? IntervalType.Month
+                    : IntervalType.Year;
+                const currentPlan = args.productData.plans.find(
+                  (plan) => plan.interval === currentInterval
+                );
+                if (!currentPlan) {
+                  return;
+                }
+                const currentCartItem = currentCart.find((item) =>
+                  mutuallyExclusivePlans.has(item.name)
+                );
+                if (currentCartItem) {
+                  dispatch(removeFromCart(currentCartItem.name));
+                }
+                dispatch(
+                  addToCart({
+                    name: args.productData.name,
+                    interval: currentInterval,
+                    price: currentPlan.amount,
+                  })
+                );
+                navigate('/checkout');
               }}
               disabled={args.currentPlan === args.productData.name}
             >

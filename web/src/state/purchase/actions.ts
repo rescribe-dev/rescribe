@@ -3,7 +3,12 @@ import {
   SET_DISPLAY_CURRENCY,
   SET_PAYMENT_CURRENCY,
   CurrencyData,
+  CartObject,
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
 } from './types';
+import { store } from 'state/reduxWrapper';
+import { RootState } from 'state';
 
 export const setDisplayCurrency = (
   displayCurrency: CurrencyData
@@ -20,5 +25,23 @@ export const setPaymentCurrency = (
   return {
     type: SET_PAYMENT_CURRENCY,
     payload: paymentCurrency,
+  };
+};
+
+export const addToCart = (item: CartObject): PurchaseActionTypes => {
+  return {
+    type: ADD_TO_CART,
+    payload: item,
+  };
+};
+
+export const removeFromCart = (name: string): PurchaseActionTypes => {
+  const state = store.getState() as RootState;
+  const index = state.purchaseReducer.cart.findIndex(
+    (current) => current.name === name
+  );
+  return {
+    type: REMOVE_FROM_CART,
+    payload: index,
   };
 };

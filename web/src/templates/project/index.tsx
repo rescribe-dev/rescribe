@@ -10,7 +10,7 @@ import ProjectMessagesEnglish from 'locale/templates/project/en';
 
 const ProjectPage = (args: ProjectPageDataProps): JSX.Element => {
   return (
-    <PrivateRoute>
+    <PrivateRoute location={args.location}>
       <Layout location={args.location}>
         <SEO title="Project" />
         <ProjectContent {...args} messages={ProjectMessagesEnglish} />

@@ -5,6 +5,7 @@ import { verifyAdmin } from '../auth/checkAuth';
 import { stripeClient, requirePaymentSystemInitialized } from '../stripe/init';
 import { defaultCurrency, defaultCountry } from '../shared/variables';
 import { getActualExchangeRate } from './getForexData';
+import { ObjectId } from 'mongodb';
 
 @ArgsType()
 export class AddCurrencyArgs {
@@ -24,6 +25,7 @@ export const addCurrencyUtil = async (args: AddCurrencyArgs, acceptedPayment: bo
     exchangeRate = await getActualExchangeRate(givenCurrency);
   }
   const newCurrency: Currency = {
+    _id: new ObjectId(),
     name: givenCurrency,
     exchangeRate,
     acceptedPayment
