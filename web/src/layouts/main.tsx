@@ -18,6 +18,7 @@ import { themeMap } from 'utils/theme';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { Theme } from 'utils/theme';
+import getCurrentLanguage from 'utils/language';
 
 const Fonts = Loadable(() => import('components/fontloader'));
 
@@ -59,10 +60,6 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
       site {
         siteMetadata {
           title
-          languages {
-            default
-            options
-          }
         }
       }
     }
@@ -74,17 +71,7 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
         (state) => state.authReducer.theme
       );
 
-  let currentLanguage = data.site.siteMetadata.languages.default;
-  if (!isSSR) {
-    const url = window.location.pathname;
-    const splitURL = url.split('/');
-    if (splitURL.length >= 2) {
-      const urlLanguage = splitURL[1];
-      if (data.site.siteMetadata.languages.options.includes(urlLanguage)) {
-        currentLanguage = urlLanguage;
-      }
-    }
-  }
+  const currentLanguage = getCurrentLanguage();
 
   return (
     <HelmetProvider>

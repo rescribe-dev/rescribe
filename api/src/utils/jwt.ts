@@ -3,8 +3,9 @@ import { Request } from 'express';
 import { nanoid } from 'nanoid';
 import User, { UserType, UserModel } from '../schema/users/user';
 import { configData } from './config';
-import { getProduct, defaultProductName } from '../products/product.resolver';
+import { getProduct } from '../products/product.resolver';
 import Restrictions from '../schema/payments/restrictions';
+import { defaultProductName } from '../products/defaults';
 
 export const enum jwtType { LOCAL, GITHUB }
 
@@ -243,7 +244,9 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
               id: nanoid(),
               plan: defaultProductName,
               restrictions: {
-                storage: Number.MAX_SAFE_INTEGER
+                ...(await getProduct({
+                  name: defaultProductName
+                }))
               },
               type: UserType.github,
               emailVerified: true

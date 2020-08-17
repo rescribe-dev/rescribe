@@ -2,10 +2,9 @@ import Product, { ProductModel } from '../schema/payments/product';
 import { RedisKey, cache } from '../utils/redis';
 import { configData } from '../utils/config';
 import { ArgsType, Field, Args, Resolver, Query } from 'type-graphql';
+import { defaultProductName } from './defaults';
 
 const redisExpireSeconds = 60 * 20;
-
-export const defaultProductName = 'free';
 
 @ArgsType()
 export class ProductArgs {

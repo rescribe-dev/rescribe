@@ -16,27 +16,32 @@ import {
   PricingMessages,
   ProductInfo,
 } from 'locale/pages/pricing/pricingMessages';
-import { IntervalType, ProductPlanDataFragment } from 'lib/generated/datamodel';
-import { capitalizeFirstLetter } from 'utils/misc';
+import { IntervalType, ProductDataFragment } from 'lib/generated/datamodel';
+import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
 import { isLoggedIn } from 'state/auth/getters';
 import { navigate } from '@reach/router';
 import { CurrencyData } from 'state/purchase/types';
 import { isSSR } from 'utils/checkSSR';
 import { RootState } from 'state';
 import { useSelector } from 'react-redux';
+import { render } from 'mustache';
+import prettyBytes from 'pretty-bytes';
+import getCurrentLanguage from 'utils/language';
 
 interface PricingCardArgs {
   messages: PricingMessages;
   productInfo: ProductInfo;
   currentlyMonthly: boolean;
-  plans: ProductPlanDataFragment[];
+  productData: ProductDataFragment;
   currentPlan: string | undefined;
-  name: string;
 }
 
 const intervals = new Set([IntervalType.Month, IntervalType.Year]);
 
 const defaultPlan = 'free';
+
+const storageKey = 'storage';
+const keysWithStorageUnits = [storageKey];
 
 const pricingCard = (args: PricingCardArgs): JSX.Element => {
   const [validProduct, setValidProduct] = useState<boolean>(true);
@@ -53,7 +58,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
       args.currentlyMonthly || isDefaultPlan
         ? IntervalType.Month
         : IntervalType.Year;
-    const currentPlan = args.plans.find(
+    const currentPlan = args.productData.plans.find(
       (plan) => plan.interval === currentInterval
     );
     if (!currentPlan || !currentCurrency) return '';
@@ -63,9 +68,40 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
     }).format(currentCurrency.exchangeRate * currentPlan.amount);
   };
 
+  const replaceValues: Record<string, number | string> = {
+    numPublicRepositories: args.productData.publicRepositories,
+    numPrivateRepositories: args.productData.privateRepositories,
+    [storageKey]: args.productData.storage,
+  };
+
+  const renderFeature = (feature: string): string => {
+    for (const key in replaceValues) {
+      if (feature.includes(key)) {
+        let value = replaceValues[key];
+        if (
+          typeof value === 'number' &&
+          (value as number) === Number.MAX_SAFE_INTEGER
+        ) {
+          value = 'unlimited';
+        } else if (keysWithStorageUnits.includes(key)) {
+          value = prettyBytes(value as number, {
+            locale: getCurrentLanguage(),
+          });
+        } else {
+          value = replaceValues[key];
+        }
+        feature = render(feature, {
+          [key]: value,
+        });
+        break;
+      }
+    }
+    return capitalizeOnlyFirstLetter(feature);
+  };
+
   useEffect(() => {
     const foundIntervals = new Set<IntervalType>();
-    for (const plan of args.plans) {
+    for (const plan of args.productData.plans) {
       if (!intervals.has(plan.interval)) {
         setValidProduct(false);
         break;
@@ -150,7 +186,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
                 }
                 console.log(`subscribe to ${args.productInfo.name}`);
               }}
-              disabled={args.currentPlan === args.name}
+              disabled={args.currentPlan === args.productData.name}
             >
               {capitalizeFirstLetter(args.messages.subscribe)}
             </Button>
@@ -180,7 +216,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
                     <Row>
                       <Col xs="auto">✓</Col>
                       <Col xs="auto">
-                        <CardText>{feature}</CardText>
+                        <CardText>{renderFeature(feature)}</CardText>
                       </Col>
                     </Row>
                   </ListGroupItem>

@@ -30,10 +30,10 @@ class ProductResolver {
       products = data;
       return products;
     }
-    const data = await ProductModel.find({
-      name: args.names ? {
+    const data = await ProductModel.find(!args.names ? {} : {
+      name: {
         $in: args.names
-      } : undefined
+      }
     });
     if (!data) {
       throw new Error('could not find products');

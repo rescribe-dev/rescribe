@@ -5,7 +5,7 @@ import User, { UserType, UserModel } from '../schema/users/user';
 import { createGithubOauthClient } from './init';
 import { gql } from 'apollo-server-express';
 import { print } from 'graphql/language/printer';
-import { defaultProductName } from '../products/product.resolver';
+import { defaultProductName } from '../products/defaults';
 
 @ArgsType()
 class RegisterGithubArgs {

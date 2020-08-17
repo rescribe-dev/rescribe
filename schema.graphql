@@ -549,6 +549,12 @@ type Mutation {
     """plans for product"""
     plans: PlanInput!
 
+    """number of private repositories allowed"""
+    privateRepositories: Float!
+
+    """number of public repositories allowed"""
+    publicRepositories: Float!
+
     """storage allowed (in bytes)"""
     storage: Float!
   ): String!
@@ -850,9 +856,6 @@ type Plan {
   """amount"""
   amount: Float!
 
-  """currencies"""
-  currencies: String!
-
   """interval"""
   interval: IntervalType!
 }
@@ -887,6 +890,15 @@ type Product {
 
   """plans"""
   plans: [Plan!]!
+
+  """number of private repositories allowed"""
+  privateRepositories: Float!
+
+  """number of public repositories allowed"""
+  publicRepositories: Float!
+
+  """storage restrictions"""
+  storage: Float!
 
   """stripe id"""
   stripeID: String!
@@ -1313,6 +1325,18 @@ type RepositoryDB {
 
   """date updated"""
   updated: Float!
+}
+
+"""restrictions"""
+type Restrictions {
+  """number of private repositories allowed"""
+  privateRepositories: Float!
+
+  """number of public repositories allowed"""
+  publicRepositories: Float!
+
+  """storage restrictions"""
+  storage: Float!
 }
 
 """result type"""

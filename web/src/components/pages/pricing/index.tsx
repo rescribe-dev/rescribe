@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, CustomInput, CardText } from 'reactstrap';
+import {
+  Container,
+  Row,
+  Col,
+  CustomInput,
+  CardText,
+  CardDeck,
+} from 'reactstrap';
 import './index.scss';
 import { PageProps } from 'gatsby';
 import { PricingMessages } from 'locale/pages/pricing/pricingMessages';
@@ -121,20 +128,18 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
               </CardText>
             </Col>
           </Row>
-          <Row className="justify-content-center">
+          <CardDeck className="justify-content-center">
             {productsQueryRes.data.products.map((product) => (
-              <Col xs="auto" key={`product-${product.name}-pricing-card`}>
-                <PricingCard
-                  messages={args.messages}
-                  currentlyMonthly={currentlyMonthly}
-                  plans={product.plans}
-                  name={product.name}
-                  productInfo={args.messages.products[product.name]}
-                  currentPlan={user ? user.plan : undefined}
-                />
-              </Col>
+              <PricingCard
+                key={`product-${product.name}-pricing-card`}
+                messages={args.messages}
+                currentlyMonthly={currentlyMonthly}
+                productData={product}
+                productInfo={args.messages.products[product.name]}
+                currentPlan={user ? user.plan : undefined}
+              />
             ))}
-          </Row>
+          </CardDeck>
           <Row
             style={{
               marginTop: '2rem',

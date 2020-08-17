@@ -4,7 +4,7 @@ import { initializeDB } from './shared/db/connect';
 import { initializeConfig, dbConnectionURI, dbName } from './utils/config';
 import { initializeLogger } from './utils/logger';
 import { CurrencyModel } from './shared/schema/payments/currency';
-import { getActualExchangeRate } from './shared/currencies/getAcutalExchangeRate';
+import { getActualExchangeRate } from './shared/currencies/getForexData';
 
 const logger = getLogger();
 

@@ -7,6 +7,10 @@ export const capitalizeFirstLetter = (elem: string): string => {
     .join(' ');
 };
 
+export const capitalizeOnlyFirstLetter = (elem: string): string => {
+  return elem.charAt(0).toUpperCase() + elem.slice(1);
+};
+
 export const getBaseURL = (): string => {
   return isSSR ? '' : `${window.location.protocol}//${window.location.host}`;
 };

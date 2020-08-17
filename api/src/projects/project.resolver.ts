@@ -9,9 +9,6 @@ import { elasticClient } from '../elastic/init';
 import { checkProjectAccess } from './auth';
 import { AccessLevel } from '../schema/users/access';
 import { TermQuery } from '../elastic/types';
-import { getLogger } from 'log4js';
-
-const logger = getLogger();
 
 @ArgsType()
 class ProjectArgs {
@@ -40,10 +37,7 @@ export const getProject = async (args: ProjectArgs, userID: ObjectId): Promise<P
   } else if (args.name) {
     args.name = args.name.toLowerCase();
     const shouldParams: TermQuery[] = [];
-    logger.info(user);
-    logger.info(user.projects);
     for (const project of user.projects) {
-      logger.info(project);
       shouldParams.push({
         term: {
           _id: project._id.toHexString()
