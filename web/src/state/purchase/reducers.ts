@@ -7,8 +7,14 @@ import {
 import { defaultCurrency } from 'shared/variables';
 
 const initialState: PurchaseState = {
-  displayCurrency: defaultCurrency,
-  paymentCurrency: defaultCurrency,
+  displayCurrency: {
+    exchangeRate: 1,
+    name: defaultCurrency,
+  },
+  paymentCurrency: {
+    exchangeRate: 1,
+    name: defaultCurrency,
+  },
   cart: [],
 };
 

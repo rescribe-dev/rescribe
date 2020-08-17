@@ -18,9 +18,12 @@ import {
 } from 'locale/pages/pricing/pricingMessages';
 import { IntervalType, ProductPlanDataFragment } from 'lib/generated/datamodel';
 import { capitalizeFirstLetter } from 'utils/misc';
-import { defaultCurrency } from 'shared/variables';
 import { isLoggedIn } from 'state/auth/getters';
 import { navigate } from '@reach/router';
+import { CurrencyData } from 'state/purchase/types';
+import { isSSR } from 'utils/checkSSR';
+import { RootState } from 'state';
+import { useSelector } from 'react-redux';
 
 interface PricingCardArgs {
   messages: PricingMessages;
@@ -39,6 +42,12 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
   const [validProduct, setValidProduct] = useState<boolean>(true);
   const isDefaultPlan = args.productInfo.name === defaultPlan;
 
+  const currentCurrency: CurrencyData | undefined = isSSR
+    ? undefined
+    : useSelector<RootState, CurrencyData>(
+        (state) => state.purchaseReducer.displayCurrency
+      );
+
   const formatCurrency = (): string => {
     const currentInterval =
       args.currentlyMonthly || isDefaultPlan
@@ -47,13 +56,11 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
     const currentPlan = args.plans.find(
       (plan) => plan.interval === currentInterval
     );
-    if (!currentPlan) return '';
-    const currency = 'usd';
-    const exchangeRate = currency === defaultCurrency ? 1 : 1;
+    if (!currentPlan || !currentCurrency) return '';
     return new Intl.NumberFormat('en', {
       style: 'currency',
-      currency,
-    }).format(exchangeRate * currentPlan.amount);
+      currency: currentCurrency.name,
+    }).format(currentCurrency.exchangeRate * currentPlan.amount);
   };
 
   useEffect(() => {

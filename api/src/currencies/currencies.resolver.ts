@@ -2,6 +2,9 @@ import { Resolver, Query, ArgsType, Field, Args } from 'type-graphql';
 import Currency, { CurrencyModel } from '../schema/payments/currency';
 import { configData } from '../utils/config';
 import { RedisKey, cache } from '../utils/redis';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 const redisExpireSeconds = 60 * 20;
 
@@ -9,6 +12,9 @@ const redisExpireSeconds = 60 * 20;
 export class CurrenciesArgs {
   @Field(_type => [String], { description: 'currency names', nullable: true })
   names?: string[];
+
+  @Field({ description: 'currency is accepted as payment method', nullable: true })
+  acceptedPayment?: boolean;
 }
 
 const getFilteredCurrencies = (args: CurrenciesArgs, currencies: Currency[]): Currency[] => {
@@ -23,8 +29,8 @@ class CurrenciesResolver {
   @Query(_returns => [Currency])
   async currencies(@Args() args: CurrenciesArgs): Promise<Currency[]> {
     const redisKeyObject: RedisKey = {
-      path: '',
-      type: 'currencies'
+      path: 'currencies',
+      type: `accept-payment-${args.acceptedPayment}`
     };
     const redisKey = JSON.stringify(redisKeyObject);
     const redisData = await cache.get(redisKey);
@@ -32,7 +38,11 @@ class CurrenciesResolver {
       const data = JSON.parse(redisData) as Currency[];
       return getFilteredCurrencies(args, data);
     }
-    const currencies = await CurrencyModel.find({});
+    logger.info(args.acceptedPayment);
+    const currencies = await CurrencyModel.find(
+      args.acceptedPayment === undefined ? {} : {
+        acceptedPayment: args.acceptedPayment
+      });
     await cache.set(redisKey, JSON.stringify(currencies), 'ex', redisExpireSeconds);
     return getFilteredCurrencies(args, currencies);
   }

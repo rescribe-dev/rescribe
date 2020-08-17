@@ -47,11 +47,6 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
     : useSelector<RootState, boolean | undefined>(
         (state) => state.authReducer.loggedIn
       );
-  // // useEffect needs to be top-level (not in if statement)
-  // useEffect(() => {
-  //   // run unsubscribe on unmount
-  //   return store.subscribe(() => loggedIn);
-  // }, []);
   const [selectedLanguages, setSelectedLanguages] = useState<SelectObject[]>(
     []
   );

@@ -1,9 +1,14 @@
 import ObjectID from 'bson-objectid';
 import { IntervalType } from 'lib/generated/datamodel';
 
+export interface CurrencyData {
+  name: string;
+  exchangeRate: number;
+}
+
 export interface PurchaseState {
-  displayCurrency: string;
-  paymentCurrency: string;
+  displayCurrency: CurrencyData;
+  paymentCurrency: CurrencyData;
   cart: {
     id: ObjectID;
     name: string;
@@ -17,11 +22,11 @@ export const SET_PAYMENT_CURRENCY = 'SET_PAYMENT_CURRENCY';
 
 interface SetDisplayCurrencyAction {
   type: typeof SET_DISPLAY_CURRENCY;
-  payload: string;
+  payload: CurrencyData;
 }
 interface SetPaymentCurrencyAction {
   type: typeof SET_PAYMENT_CURRENCY;
-  payload: string;
+  payload: CurrencyData;
 }
 
 export type PurchaseActionTypes =

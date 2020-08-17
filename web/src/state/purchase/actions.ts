@@ -2,10 +2,11 @@ import {
   PurchaseActionTypes,
   SET_DISPLAY_CURRENCY,
   SET_PAYMENT_CURRENCY,
+  CurrencyData,
 } from './types';
 
 export const setDisplayCurrency = (
-  displayCurrency: string
+  displayCurrency: CurrencyData
 ): PurchaseActionTypes => {
   return {
     type: SET_DISPLAY_CURRENCY,
@@ -14,7 +15,7 @@ export const setDisplayCurrency = (
 };
 
 export const setPaymentCurrency = (
-  paymentCurrency: string
+  paymentCurrency: CurrencyData
 ): PurchaseActionTypes => {
   return {
     type: SET_PAYMENT_CURRENCY,

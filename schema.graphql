@@ -963,6 +963,9 @@ type Query {
   ): Coupon!
   coupons: [Coupon!]!
   currencies(
+    """currency is accepted as payment method"""
+    acceptedPayment: Boolean
+
     """currency names"""
     names: [String!]
   ): [Currency!]!

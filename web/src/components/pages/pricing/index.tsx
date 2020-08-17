@@ -20,6 +20,7 @@ import { AppThunkDispatch } from 'state/thunk';
 import { AuthActionTypes } from 'state/auth/types';
 import { isLoggedIn } from 'state/auth/getters';
 import { thunkGetUser } from 'state/auth/thunks';
+import CurrencySelector from 'components/CurrencySelector';
 
 export interface PricingPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -133,6 +134,17 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
                 />
               </Col>
             ))}
+          </Row>
+          <Row
+            style={{
+              marginTop: '2rem',
+              marginBottom: '2rem',
+            }}
+            className="justify-content-center"
+          >
+            <Col md="5">
+              <CurrencySelector setPaymentCurrency={false} />
+            </Col>
           </Row>
         </>
       )}
