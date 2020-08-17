@@ -4,10 +4,10 @@
   --dark-blue: #20489e;
   --teal-blue: #0d98a3;
   --turquoise: #43c2cc;
-  --light-green: #2Cda96;
+  --light-green: #2cda96;
   --pastel-red: #d9534f;
   --link-blue: #1373f5;
-  --soft-background: #E2f4F8;
+  --soft-background: #e2f4f8;
   --green-go: #31bc80;
   --red-stop: #f2453d;
 
@@ -26,6 +26,11 @@
   --secondary-blue: #4e87f0;
 }
 
+// bootstrap overrides
+$primary: #20489e;
+$danger: #f2453d;
+$success: #31bc80;
+
 .light {
   --bg: white;
   --bg-nav: white;
@@ -41,3 +46,27 @@
   --text-nav: var(--purple-blue);
   --secondary-header: var(--gray1);
 }
+
+// toast overrides
+.Toastify__toast-container {
+  width: 320px;
+}
+.Toastify__toast--default {
+  background: var(--gray3);
+  color: var(--gray0);
+}
+.Toastify__toast--info {
+  background: var(--gray4);
+}
+.Toastify__toast--success {
+  background: var(--green-go);
+}
+.Toastify__toast--warning {
+  // put warning color here
+  color: var(--gray0);
+}
+.Toastify__toast--error {
+  background: var(--red-stop);
+}
+
+@import "bootstrap";

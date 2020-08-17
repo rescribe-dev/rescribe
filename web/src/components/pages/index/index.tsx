@@ -28,7 +28,10 @@ interface IndexPageContentProps extends IndexPageProps {
 
 const IndexPage = (args: IndexPageContentProps): JSX.Element => {
   if (!isSSR) {
-    console.log(useQuery<HelloQuery | undefined>(Hello).data?.hello);
+    const helloRes = useQuery<HelloQuery | undefined>(Hello);
+    if (helloRes.data) {
+      console.log(helloRes.data.hello);
+    }
   }
   useEffect(() => {
     let verifyEmail = false;

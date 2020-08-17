@@ -433,7 +433,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                         ...styles,
                         borderColor:
                           touched.type && errors.type
-                            ? 'red'
+                            ? 'var(--red-stop)'
                             : styles.borderColor,
                       }),
                     }}
@@ -483,7 +483,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                         ...styles,
                         borderColor:
                           touched.owner && errors.owner
-                            ? 'red'
+                            ? 'var(--red-stop)'
                             : styles.borderColor,
                       }),
                     }}
@@ -539,7 +539,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                             ...styles,
                             borderColor:
                               touched.project && errors.project
-                                ? 'red'
+                                ? 'var(--red-stop)'
                                 : styles.borderColor,
                           }),
                         }}
@@ -595,7 +595,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                             borderColor:
                               touched.publicAccessLevel &&
                               errors.publicAccessLevel
-                                ? 'red'
+                                ? 'var(--red-stop)'
                                 : styles.borderColor,
                           }),
                         }}
@@ -658,7 +658,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                 <BeatLoader
                   css={loaderCSS}
                   size={10}
-                  color={'red'}
+                  color="var(--red-stop)"
                   loading={isSubmitting}
                 />
               </Form>

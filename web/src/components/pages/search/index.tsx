@@ -136,7 +136,7 @@ const SearchPage = (args: SearchProps): JSX.Element => {
               <BeatLoader
                 css={loaderCSS}
                 size={10}
-                color={'red'}
+                color="var(--red-stop)"
                 loading={searching}
               />
             ) : !searchResult || searchResult.search.length === 0 ? (

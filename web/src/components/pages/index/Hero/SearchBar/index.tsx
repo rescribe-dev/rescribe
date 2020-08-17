@@ -129,7 +129,7 @@ const SearchBar = (): JSX.Element => {
             <BeatLoader
               css={loaderCSS}
               size={10}
-              color="red"
+              color="var(--red-stop)"
               loading={isSubmitting}
             />
           </Form>
