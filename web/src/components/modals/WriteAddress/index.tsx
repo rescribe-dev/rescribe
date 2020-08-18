@@ -254,7 +254,7 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
           setTouched,
           isSubmitting,
         }) => (
-          <Form className="underline-inputs">
+          <Form>
             <ModalBody>
               <FormGroup>
                 <Label for="name">Name</Label>

@@ -76,6 +76,9 @@ const FilesList = (args: FolderProps): JSX.Element => {
           },
           fetchPolicy: 'network-only',
         });
+        foldersRes.data.folders.map((folder) => {
+          folder._id = new ObjectId(folder._id);
+        });
         setFolders(foldersRes);
 
         const filesRes = await client.query<FilesQuery, FilesQueryVariables>({
@@ -88,6 +91,9 @@ const FilesList = (args: FolderProps): JSX.Element => {
             path,
           },
           fetchPolicy: 'network-only',
+        });
+        filesRes.data.files.map((file) => {
+          file._id = new ObjectId(file._id);
         });
         setFiles(filesRes);
       } catch (err) {

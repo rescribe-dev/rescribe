@@ -7,6 +7,9 @@ import { ObjectId } from 'mongodb';
 import { UserModel } from '../../schema/users/user';
 import { Status, AddressType, GeocodingAddressComponentType } from '@googlemaps/google-maps-services-js';
 import { mapsClient, apiKey } from './init';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 @ArgsType()
 class AddAddressArgs {
@@ -33,6 +36,10 @@ class AddAddressArgs {
 
   @Field({ description: 'country', nullable: true })
   country?: string;
+
+  // TODO - handle setting default
+  @Field({ description: 'set to default', defaultValue: true, nullable: true })
+  setDefault: boolean;
 }
 
 @Resolver()
@@ -72,14 +79,17 @@ class AddAddressResolver {
         country: ''
       };
       for (const addressComponent of placeData.address_components) {
+        logger.info(addressComponent);
         if (addressComponent.types.includes(GeocodingAddressComponentType.street_number)) {
           newAddress.line1 = addressComponent.long_name;
         } else if (addressComponent.types.includes(AddressType.route)) {
           newAddress.line1 += ` ${addressComponent.long_name}`;
-        } else if (addressComponent.types.includes(AddressType.sublocality_level_1)) {
+        } else if (addressComponent.types.includes(AddressType.locality)) {
           newAddress.city = addressComponent.long_name;
         } else if (addressComponent.types.includes(AddressType.administrative_area_level_1)) {
           newAddress.state = addressComponent.short_name;
+        } else if (addressComponent.types.includes(AddressType.postal_code)) {
+          newAddress.postal_code = addressComponent.long_name;
         } else if (addressComponent.types.includes(AddressType.country)) {
           newAddress.country = addressComponent.short_name;
         }

@@ -1,0 +1,10 @@
+fragment paymentMethodData on PaymentMethod {
+  _id
+  currency
+}
+
+query paymentMethods {
+  paymentMethods {
+    ...paymentMethodData
+  }
+}

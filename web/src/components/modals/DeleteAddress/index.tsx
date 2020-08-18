@@ -4,21 +4,21 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import './index.scss';
 
 interface ModalArgs {
-  deleteFile: () => Promise<void>;
+  deleteAddress: () => Promise<void>;
   toggle: () => void;
   isOpen: boolean;
 }
 
-const DeleteFileModal = (args: ModalArgs): JSX.Element => {
+const DeleteAddressModal = (args: ModalArgs): JSX.Element => {
   return (
     <Modal isOpen={args.isOpen} toggle={args.toggle}>
-      <ModalHeader toggle={args.toggle}>Delete File</ModalHeader>
+      <ModalHeader toggle={args.toggle}>Delete Address</ModalHeader>
       <ModalBody>Are you sure?</ModalBody>
       <ModalFooter>
         <Button
           color="danger"
           onClick={async () => {
-            await args.deleteFile();
+            await args.deleteAddress();
             args.toggle();
           }}
         >
@@ -32,4 +32,4 @@ const DeleteFileModal = (args: ModalArgs): JSX.Element => {
   );
 };
 
-export default DeleteFileModal;
+export default DeleteAddressModal;

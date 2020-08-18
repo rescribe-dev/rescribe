@@ -1,3 +1,0 @@
-mutation addAddress($name: String!, $place_id: String!) {
-  addAddress(name: $name, place_id: $place_id)
-}

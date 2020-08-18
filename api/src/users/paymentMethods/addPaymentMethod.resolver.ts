@@ -16,7 +16,8 @@ class AddPaymentMethodArgs {
   @Field({ description: 'stripe card token' })
   cardToken: string;
 
-  @Field({ description: 'set to default' })
+  // TODO - handle setting default
+  @Field({ description: 'set to default', defaultValue: true, nullable: true })
   setDefault: boolean;
 }
 

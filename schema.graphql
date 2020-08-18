@@ -502,6 +502,9 @@ type Mutation {
     """postal code"""
     postal_code: String
 
+    """set to default"""
+    setDefault: Boolean = true
+
     """state"""
     state: String
   ): String!
@@ -553,7 +556,7 @@ type Mutation {
     currency: String!
 
     """set to default"""
-    setDefault: Boolean!
+    setDefault: Boolean = true
   ): String!
   addProduct(
     """product name"""
