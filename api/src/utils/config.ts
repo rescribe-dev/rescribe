@@ -45,6 +45,7 @@ interface ConfigType {
   RECAPTCHA_SECRET: string;
   CONNECT_STRIPE: boolean;
   STRIPE_SECRET: string;
+  GOOGLE_MAPS_API_KEY: string;
 }
 
 export const configData: ConfigType = {
@@ -88,7 +89,8 @@ export const configData: ConfigType = {
   NOREPLY_EMAIL_NAME: 'no reply',
   RECAPTCHA_SECRET: '',
   CONNECT_STRIPE: true,
-  STRIPE_SECRET: ''
+  STRIPE_SECRET: '',
+  GOOGLE_MAPS_API_KEY: '',
 };
 
 const addToConfig = (conf: any, allString: boolean): void => {

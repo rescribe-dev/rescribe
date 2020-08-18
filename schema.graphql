@@ -482,13 +482,13 @@ type Location {
 type Mutation {
   addAddress(
     """city"""
-    city: String!
+    city: String
 
     """country"""
-    country: String!
+    country: String
 
     """line 1"""
-    line1: String!
+    line1: String
 
     """line 2"""
     line2: String
@@ -496,11 +496,14 @@ type Mutation {
     """name"""
     name: String!
 
+    """google places place id"""
+    place_id: String
+
     """postal code"""
-    postal_code: String!
+    postal_code: String
 
     """state"""
-    state: String!
+    state: String
   ): String!
   addBranch(
     """branch name"""

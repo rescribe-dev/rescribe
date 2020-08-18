@@ -12,6 +12,7 @@ import { initializeNLP } from './nlp/nlpBridge';
 import compileEmailTemplates from './email/compileEmailTemplates';
 import { checkLanguageColors } from './utils/variables';
 import { initializeStripe } from './stripe/init';
+import { initializeGoogleMaps } from './users/addresses/init';
 
 const runAPI = async (): Promise<void> => {
   // initialize config and logger
@@ -31,6 +32,9 @@ const runAPI = async (): Promise<void> => {
     logger.info('start github initialize');
     initializeGithub();
     logger.info('github client initialized');
+    logger.info('start google maps initialize');
+    initializeGoogleMaps();
+    logger.info('google maps initialized');
     logger.info('start aws initialize');
     await initializeAWS();
     logger.info('aws initialized');

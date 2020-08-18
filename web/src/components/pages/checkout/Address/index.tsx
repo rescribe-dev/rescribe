@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import { ListGroup, ListGroupItem, Button } from 'reactstrap';
 import ObjectId from 'bson-objectid';
 import getCurrentLanguage from 'utils/language';
+import useScript from 'react-script-hook';
 
 interface AddressArgs {
   messages: CheckoutMessages;
@@ -28,6 +29,8 @@ const Address = (_args: AddressArgs): JSX.Element => {
 
   // add vs edit
   const [addAddress, setAddAddress] = useState(true);
+
+  const language = getCurrentLanguage();
 
   const updateAddresses = async (): Promise<void> => {
     try {
@@ -52,6 +55,11 @@ const Address = (_args: AddressArgs): JSX.Element => {
     (async () => {
       await updateAddresses();
     })();
+  });
+
+  useScript({
+    src: `https://maps.googleapis.com/maps/api/js?key=${process.env.GATSBY_GOOGLE_PLACES_AUTOCOMPLETE_KEY}&libraries=places&language=${language}`,
+    checkForExisting: true,
   });
 
   return (
@@ -81,11 +89,6 @@ const Address = (_args: AddressArgs): JSX.Element => {
               ))}
             </ListGroup>
           )}
-          <script
-            src={`https://maps.googleapis.com/maps/api/js?key=${
-              process.env.GATSBY_GOOGLE_PLACES_AUTOCOMPLETE_KEY
-            }&libraries=places&language=${getCurrentLanguage()}`}
-          ></script>
           <WriteAddress
             add={addAddress}
             isOpen={modalIsOpen}

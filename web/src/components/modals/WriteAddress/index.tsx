@@ -36,7 +36,6 @@ import {
   AddAddressMutationVariables,
   AddAddress,
 } from 'lib/generated/datamodel';
-// import PlacesAutocomplete from 'react-places-autocomplete';
 
 const loaderCSS = css`
   display: block;
@@ -47,6 +46,11 @@ const loaderCSS = css`
 interface SelectCountryObject {
   value: string;
   code: string;
+  label: JSX.Element;
+}
+
+interface SelectAddressObject {
+  value: string;
   label: JSX.Element;
 }
 
@@ -78,6 +82,10 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
       </Container>
     );
   };
+
+  const [selectedAddress, setSelectedAddress] = useState<
+    SelectAddressObject | undefined
+  >(undefined);
 
   const getCountryOptions = async (
     inputValue: string
@@ -116,6 +124,11 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
     }
   };
 
+  const [addressAutocomplete, setAddressAutocomplete] = useState<
+    google.maps.places.AutocompleteService | undefined
+  >(undefined);
+  const { google } = window;
+
   useEffect(() => {
     (async (): Promise<void> => {
       try {
@@ -126,6 +139,11 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
         );
         setDefaultCountry(newDefaultCountry);
         setSelectedCountry(newDefaultCountry);
+        if (!google || !google.maps.places) {
+          throw new Error('cannot find autocomplete service');
+        }
+        const autocompleteClient = new google.maps.places.AutocompleteService();
+        setAddressAutocomplete(autocompleteClient);
       } catch (err) {
         const errObj = err as Error;
         toast(errObj.message, {
@@ -134,6 +152,51 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
       }
     })();
   }, []);
+
+  const getAddressOptions = async (
+    inputValue: string
+  ): Promise<SelectAddressObject[]> => {
+    if (!addressAutocomplete) {
+      throw new Error('autocomplete not initialized');
+    }
+    return new Promise((resolve, reject) => {
+      addressAutocomplete.getPlacePredictions(
+        {
+          input: inputValue,
+          componentRestrictions: {
+            country: selectedCountry ? selectedCountry.code : '',
+          },
+        },
+        (res, status) => {
+          try {
+            if (status !== google.maps.places.PlacesServiceStatus.OK) {
+              throw new Error('problem getting autocomplete data');
+            }
+            resolve(
+              res.map((suggestion) => {
+                const {
+                  main_text,
+                  secondary_text,
+                } = suggestion.structured_formatting;
+                return {
+                  label: (
+                    <>
+                      <strong>{main_text}</strong>{' '}
+                      <small>{secondary_text}</small>
+                    </>
+                  ),
+                  value: suggestion.place_id,
+                };
+              })
+            );
+          } catch (err) {
+            reject(err as Error);
+          }
+        }
+      );
+    });
+  };
+
   return (
     <Modal isOpen={args.isOpen} toggle={args.toggle}>
       <ModalHeader toggle={args.toggle}>
@@ -162,11 +225,8 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
             >({
               mutation: AddAddress,
               variables: {
-                ...formData,
-                city: '',
-                line1: '',
-                postal_code: '',
-                state: '',
+                name: formData.name,
+                place_id: formData.address,
               },
             });
             if (addAddressRes.errors) {
@@ -274,24 +334,44 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
               </FormGroup>
               <FormGroup>
                 <Label for="address">Address</Label>
-                {/* <PlacesAutocomplete
-                    value={values.address}
-                  >
-                    {() => (
-                      <div>asdf123</div>
-                    )}
-                  </PlacesAutocomplete> */}
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="Name"
-                  className="form-input"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.name}
-                  invalid={!!(touched.name && errors.name)}
-                  disabled={isSubmitting}
+                <AsyncSelect
+                  id="address"
+                  name="address"
+                  isMulti={false}
+                  cacheOptions={false}
+                  loadOptions={getAddressOptions}
+                  value={selectedAddress}
+                  onChange={(
+                    selectedOption: ValueType<SelectAddressObject>
+                  ) => {
+                    if (!selectedOption) {
+                      return;
+                    }
+                    const selected = selectedOption as SelectAddressObject;
+                    setSelectedAddress(selected);
+                    setFieldValue('address', selected.value);
+                  }}
+                  onBlur={(evt) => {
+                    handleBlur(evt);
+                    setTouched({
+                      ...touched,
+                      address: true,
+                    });
+                  }}
+                  className={
+                    touched.address && errors.address ? 'is-invalid' : ''
+                  }
+                  styles={{
+                    control: (styles) => ({
+                      ...styles,
+                      borderColor:
+                        touched.address && errors.address
+                          ? 'var(--red-stop)'
+                          : styles.borderColor,
+                    }),
+                  }}
+                  invalid={!!(touched.address && errors.address)}
+                  disabled={isSubmitting || !values.country}
                 />
                 <FormFeedback
                   style={{
