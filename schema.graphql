@@ -42,6 +42,9 @@ type Address {
   """name"""
   name: String!
 
+  """postal code"""
+  postal_code: String!
+
   """state"""
   state: String!
 
@@ -492,6 +495,9 @@ type Mutation {
 
     """name"""
     name: String!
+
+    """postal code"""
+    postal_code: String!
 
     """state"""
     state: String!

@@ -34,6 +34,8 @@ interface TemplateFiles {
   }
 }
 
+const propertyOf = <TObj>(name: string): keyof TObj => name as keyof TObj;
+
 export const emailTemplateFiles: TemplateFiles = {
   hello: {
     file: 'hello.html',
@@ -59,7 +61,7 @@ export const emailTemplateFiles: TemplateFiles = {
 
 const compileEmailTemplates = async (): Promise<void> => {
   for (const emailTemplateKey in emailTemplateFiles) {
-    const currentTemplateElement = emailTemplateFiles[emailTemplateKey as keyof TemplateFiles];
+    const currentTemplateElement = emailTemplateFiles[propertyOf<TemplateFiles>(emailTemplateKey)];
     const emailTemplate = await getS3EmailData(getEmailKey(currentTemplateElement.file));
     currentTemplateElement.template = Handlebars.compile(emailTemplate);
   }

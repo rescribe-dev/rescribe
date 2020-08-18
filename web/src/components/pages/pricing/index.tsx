@@ -28,6 +28,7 @@ import { AuthActionTypes } from 'state/auth/types';
 import { isLoggedIn } from 'state/auth/getters';
 import { thunkGetUser } from 'state/auth/thunks';
 import CurrencySelector from 'components/CurrencySelector';
+import { propertyOf } from 'utils/misc';
 
 export interface PricingPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -83,14 +84,14 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
               padding: 0,
             }}
           >
-            <h1
+            <h2
               className="display-4"
               style={{
                 margin: '2rem',
               }}
             >
               pricing
-            </h1>
+            </h2>
           </Container>
           <Row
             style={{
@@ -135,7 +136,11 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
                 messages={args.messages}
                 currentlyMonthly={currentlyMonthly}
                 productData={product}
-                productInfo={args.messages.products[product.name]}
+                productInfo={
+                  args.messages.products[
+                    propertyOf<typeof args.messages.products>(product.name)
+                  ]
+                }
                 currentPlan={user ? user.plan : undefined}
               />
             ))}

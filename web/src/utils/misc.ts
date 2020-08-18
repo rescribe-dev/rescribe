@@ -11,3 +11,6 @@ export const capitalizeFirstLetter = (elem: string): string => {
 export const getBaseURL = (): string => {
   return isSSR ? '' : `${window.location.protocol}//${window.location.host}`;
 };
+
+export const propertyOf = <TObj>(name: string): keyof TObj =>
+  name as keyof TObj;

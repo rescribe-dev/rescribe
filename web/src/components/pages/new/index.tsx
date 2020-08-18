@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import { Formik } from 'formik';
 import { toast } from 'react-toastify';
@@ -27,8 +27,7 @@ import {
 import { perpageFilters } from 'utils/variables';
 import ObjectID from 'bson-objectid';
 import AsyncSelect from 'react-select/async';
-import Select from 'react-select';
-import { ValueType } from 'react-select';
+import Select, { ValueType } from 'react-select';
 import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
@@ -114,21 +113,6 @@ const NewPage = (args: NewProps): JSX.Element => {
   ];
   const defaultPublicAccessLevel = publicAccessType;
 
-  let defaultProjectName: string | undefined = undefined;
-  if (args.location.search.length > 0) {
-    const searchParams = new URLSearchParams(args.location.search);
-    if (searchParams.has('type')) {
-      const givenType = searchParams.get('type') as string;
-      for (const option of typeOptions) {
-        if (givenType === option.value) {
-          defaultType = option;
-        }
-      }
-    }
-    if (searchParams.has('project')) {
-      defaultProjectName = searchParams.get('project') as string;
-    }
-  }
   let defaultOwner: SelectOwnerObject | undefined = undefined;
   let username: string | undefined = undefined;
   if (!isSSR) {
@@ -153,6 +137,7 @@ const NewPage = (args: NewProps): JSX.Element => {
   const [defaultProject, setDefaultProject] = useState<
     SelectProjectObject | undefined
   >(undefined);
+
   const getProjects = async (
     inputValue: string
   ): Promise<SelectProjectObject[]> => {
@@ -195,24 +180,44 @@ const NewPage = (args: NewProps): JSX.Element => {
       throw new Error('cannot find projects data');
     }
   };
-  if (defaultProjectName) {
-    getProjects(defaultProjectName)
-      .then(() => {
-        setSelectedProject(
-          defaultProjectOptions.find(
-            (project) => project.label === defaultProjectName
-          )
+
+  useEffect(() => {
+    (async (): Promise<void> => {
+      let defaultProjectName: string | undefined = undefined;
+      if (args.location.search.length > 0) {
+        const searchParams = new URLSearchParams(args.location.search);
+        if (searchParams.has('type')) {
+          const givenType = searchParams.get('type') as string;
+          for (const option of typeOptions) {
+            if (givenType === option.value) {
+              defaultType = option;
+            }
+          }
+        }
+        if (searchParams.has('project')) {
+          defaultProjectName = searchParams.get('project') as string;
+        }
+      }
+      try {
+        const newProjectOptions = await getProjects(
+          defaultProjectName ? defaultProjectName : ''
         );
-        setDefaultProject(selectedProject);
-      })
-      .catch((_err) => {
-        // handle error
-      });
-  } else {
-    getProjects('').catch((_err) => {
-      // handle error
-    });
-  }
+        if (defaultProjectName) {
+          const newDefaultProject = newProjectOptions.find(
+            (project) => project.label === defaultProjectName
+          );
+          setSelectedProject(newDefaultProject);
+          setDefaultProject(newDefaultProject);
+        }
+      } catch (err) {
+        const errObj = err as Error;
+        toast(errObj.message, {
+          type: 'error',
+        });
+      }
+    })();
+  }, []);
+
   return (
     <Container className="input-container mt-4">
       <Card>
@@ -322,11 +327,10 @@ const NewPage = (args: NewProps): JSX.Element => {
                     ),
                 }),
             })}
-            onSubmit={async (formData, { setSubmitting, setStatus }) => {
-              const onError = () => {
-                setStatus({ success: false });
-                setSubmitting(false);
-              };
+            onSubmit={async (
+              formData,
+              { setSubmitting, setStatus }
+            ): Promise<void> => {
               try {
                 if (formData.type === projectType.value) {
                   const createProjectRes = await client.mutate<
@@ -384,11 +388,11 @@ const NewPage = (args: NewProps): JSX.Element => {
                   }, 1000)
                 ); // wait for creation before routing
               } catch (err) {
-                console.error(JSON.stringify(err));
                 toast(err.message, {
                   type: 'error',
                 });
-                onError();
+                setStatus({ success: false });
+                setSubmitting(false);
               }
             }}
           >

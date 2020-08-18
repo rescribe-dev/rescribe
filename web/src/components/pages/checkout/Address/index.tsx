@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
-import WriteAddress from 'components/modals/WriteAddress/WriteAddress';
+import WriteAddress from 'components/modals/WriteAddress';
 import { client } from 'utils/apollo';
 import { ApolloQueryResult } from 'apollo-client';
 import {
@@ -12,6 +12,7 @@ import {
 import { toast } from 'react-toastify';
 import { ListGroup, ListGroupItem, Button } from 'reactstrap';
 import ObjectId from 'bson-objectid';
+import getCurrentLanguage from 'utils/language';
 
 interface AddressArgs {
   messages: CheckoutMessages;
@@ -28,24 +29,28 @@ const Address = (_args: AddressArgs): JSX.Element => {
   // add vs edit
   const [addAddress, setAddAddress] = useState(true);
 
+  const updateAddresses = async (): Promise<void> => {
+    try {
+      const addressesRes = await client.query<
+        AddressesQuery,
+        AddressesQueryVariables
+      >({
+        query: Addresses,
+        variables: {},
+        fetchPolicy: 'network-only',
+      });
+      setAddresses(addressesRes);
+    } catch (err) {
+      const errObj = err as Error;
+      toast(errObj.message, {
+        type: 'error',
+      });
+    }
+  };
+
   useEffect(() => {
     (async () => {
-      try {
-        const addressesRes = await client.query<
-          AddressesQuery,
-          AddressesQueryVariables
-        >({
-          query: Addresses,
-          variables: {},
-          fetchPolicy: 'network-only',
-        });
-        setAddresses(addressesRes);
-      } catch (err) {
-        const errObj = err as Error;
-        toast(errObj.message, {
-          type: 'error',
-        });
-      }
+      await updateAddresses();
     })();
   });
 
@@ -53,32 +58,42 @@ const Address = (_args: AddressArgs): JSX.Element => {
     <>
       {addresses === undefined || addresses.loading ? (
         <p>loading</p>
-      ) : addresses.data.addresses.length === 0 ? (
-        <Button
-          onClick={(evt) => {
-            evt.preventDefault();
-            setAddAddress(true);
-            toggleModal();
-          }}
-        >
-          New Address
-        </Button>
       ) : (
-        <ListGroup>
-          {addresses.data.addresses.map((address) => (
-            <ListGroupItem
-              key={`address-${(address._id as ObjectId).toHexString()}`}
+        <>
+          {addresses.data.addresses.length === 0 ? (
+            <Button
+              onClick={(evt) => {
+                evt.preventDefault();
+                setAddAddress(true);
+                toggleModal();
+              }}
             >
-              {address.name}
-            </ListGroupItem>
-          ))}
-        </ListGroup>
+              New Address
+            </Button>
+          ) : (
+            <ListGroup>
+              {addresses.data.addresses.map((address) => (
+                <ListGroupItem
+                  key={`address-${(address._id as ObjectId).toHexString()}`}
+                >
+                  {address.name}
+                </ListGroupItem>
+              ))}
+            </ListGroup>
+          )}
+          <script
+            src={`https://maps.googleapis.com/maps/api/js?key=${
+              process.env.GATSBY_GOOGLE_PLACES_AUTOCOMPLETE_KEY
+            }&libraries=places&language=${getCurrentLanguage()}`}
+          ></script>
+          <WriteAddress
+            add={addAddress}
+            isOpen={modalIsOpen}
+            toggle={toggleModal}
+            updateAddresses={updateAddresses}
+          />
+        </>
       )}
-      <WriteAddress
-        add={addAddress}
-        isOpen={modalIsOpen}
-        toggle={toggleModal}
-      />
     </>
   );
 };

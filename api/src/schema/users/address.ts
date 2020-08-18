@@ -32,6 +32,10 @@ export default class Address {
   @Property({ required: true })
   state: string;
 
+  @Field({ description: 'postal code' })
+  @Property({ required: true })
+  postal_code: string;
+
   @Field({ description: 'country' })
   @Property({ required: true })
   country: string;

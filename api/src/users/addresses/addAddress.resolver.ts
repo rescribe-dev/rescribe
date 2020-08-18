@@ -23,6 +23,9 @@ class AddAddressArgs {
   @Field({ description: 'state' })
   state: string;
 
+  @Field({ description: 'postal code' })
+  postal_code: string;
+
   @Field({ description: 'country' })
   country: string;
 }

@@ -24,7 +24,7 @@ import {
   Languages,
   Language,
 } from 'lib/generated/datamodel';
-import { capitalizeFirstLetter } from 'utils/misc';
+import { capitalizeFirstLetter, propertyOf } from 'utils/misc';
 import { navigate } from 'gatsby';
 import { getSearchURL } from 'state/search/getters';
 import { toast } from 'react-toastify';
@@ -85,7 +85,9 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
                 (elem) => elem.name === name
               );
               const language =
-                Language[capitalizeFirstLetter(name) as keyof typeof Language];
+                Language[
+                  propertyOf<typeof Language>(capitalizeFirstLetter(name))
+                ];
               if (!languageObject)
                 return {
                   label: name,
