@@ -74,6 +74,7 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
     exchangeRates[currency.name] = await getActualExchangeRate(currency.name);
   }
   const plans: Plan[] = [];
+  let isFree = true;
   for (const plan of args.plans) {
     const currentPlan: Plan = {
       ...plan,
@@ -93,6 +94,9 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
         currentPlan.currencies.set(currency.name, stripePlan.id);
       }
     }
+    if (plan.amount > 0) {
+      isFree = false;
+    }
     plans.push(currentPlan);
   }
   const newProduct: Product = {
@@ -102,7 +106,8 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
     storage: args.storage,
     privateRepositories: args.privateRepositories,
     publicRepositories: args.publicRepositories,
-    stripeID: stripeProduct.id
+    stripeID: stripeProduct.id,
+    isFree,
   };
   await new ProductModel(newProduct).save();
   return newProduct;

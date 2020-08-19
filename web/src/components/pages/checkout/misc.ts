@@ -12,6 +12,11 @@ export type UpdateMethod = (args?: {
   init?: boolean;
 }) => Promise<void>;
 
+export interface CheckoutValues {
+  address: ObjectId | null;
+  paymentMethod: ObjectId | null;
+}
+
 export const creditCardBrandToString = (brand: CreditCardBrand): string => {
   switch (brand) {
     case CreditCardBrand.Amex:

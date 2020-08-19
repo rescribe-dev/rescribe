@@ -753,7 +753,7 @@ type Mutation {
 
     """product id"""
     product: String!
-  ): String!
+  ): ReturnObj!
   register(
     """email"""
     email: String!
@@ -920,6 +920,9 @@ type Preview {
 """products"""
 type Product {
   _id: ObjectId!
+
+  """if product is free"""
+  isFree: Boolean!
 
   """product name"""
   name: String!

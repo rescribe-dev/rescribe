@@ -13,30 +13,27 @@ import {
 } from 'reactstrap';
 import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
-import { isSSR } from 'utils/checkSSR';
-import { useSelector } from 'react-redux';
-import { RootState } from 'state';
 import { CartObject, CurrencyData } from 'state/purchase/types';
 import formatCurrency from 'utils/currency';
 import { IntervalType } from 'lib/generated/datamodel';
 import { FormattedMessage } from 'react-intl';
 import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
+import { CheckoutValues } from '../misc';
 
 interface SummaryArgs {
   messages: CheckoutMessages;
   currency: CurrencyData;
+  formData: CheckoutValues;
+  cart: CartObject[] | undefined;
 }
 
 const Summary = (args: SummaryArgs): JSX.Element => {
-  const cart = isSSR
-    ? undefined
-    : useSelector<RootState, CartObject[] | undefined>(
-        (state) => state.purchaseReducer.cart
-      );
   const formatPrice = (amount: number): string => {
     return formatCurrency(amount, args.currency);
   };
-  const total = !cart ? 0 : cart.reduce((prev, curr) => prev + curr.price, 0);
+  const total = !args.cart
+    ? 0
+    : args.cart.reduce((prev, curr) => prev + curr.price, 0);
   return (
     <Card>
       <CardBody
@@ -53,7 +50,7 @@ const Summary = (args: SummaryArgs): JSX.Element => {
         >
           <h4>Order Summary</h4>
         </CardTitle>
-        {!(cart && cart.length > 0) ? (
+        {!(args.cart && args.cart.length > 0) ? (
           <CardText>Nothing in cart</CardText>
         ) : (
           <>
@@ -63,7 +60,7 @@ const Summary = (args: SummaryArgs): JSX.Element => {
                 marginLeft: 0,
               }}
             >
-              {cart.map((item) => {
+              {args.cart.map((item) => {
                 return (
                   <ListGroupItem key={`product-${item.displayName}`}>
                     <Container>
@@ -111,16 +108,19 @@ const Summary = (args: SummaryArgs): JSX.Element => {
               <b>Total: {formatPrice(total)}</b>
             </h5>
             <Button
-              disabled={!cart || cart.length === 0 /* TODO or... */}
+              disabled={
+                !args.cart ||
+                args.cart.length === 0 ||
+                args.formData.address === null ||
+                args.formData.paymentMethod === null
+              }
+              color="primary"
               style={{
+                marginTop: '2rem',
                 backgroundColor: 'var(--light-orange)',
                 borderColor: 'var(--light-orange)',
-                marginTop: '2rem',
               }}
-              onClick={(evt) => {
-                evt.preventDefault();
-                console.log('submit order');
-              }}
+              type="submit"
             >
               {capitalizeOnlyFirstLetter(args.messages['place your order'])}
             </Button>

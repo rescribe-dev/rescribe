@@ -21,6 +21,10 @@ export default class Product extends Restrictions {
   @Field(_type => [Plan], { description: 'plans' })
   @Property({ required: true, type: Plan })
   plans: Plan[];
+
+  @Field({ description: 'if product is free' })
+  @Property({ required: true })
+  isFree: boolean;
 }
 
 export const ProductModel = getModelForClass(Product);

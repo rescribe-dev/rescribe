@@ -57,7 +57,7 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
 
   const [currentCurrency, setCurrentCurrency] = useState<
     SelectObject | undefined
-  >(currentDisplayCurrency ? currentDisplayCurrency : undefined);
+  >(args.displayCurrency ? currentDisplayCurrency : undefined);
 
   let dispatch: Dispatch<any>;
   if (!isSSR) {

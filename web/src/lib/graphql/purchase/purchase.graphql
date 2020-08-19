@@ -1,0 +1,5 @@
+mutation purchase($product: String!, $interval: IntervalType!, $coupon: String, $paymentMethod: ObjectId) {
+  purchase(product: $product, interval: $interval, coupon: $coupon, paymentMethod: $paymentMethod) {
+    data
+  }
+}

@@ -23,6 +23,9 @@ import {
   DeletePaymentMethodMutation,
   DeletePaymentMethodMutationVariables,
   DeletePaymentMethod,
+  PurchaseMutation,
+  PurchaseMutationVariables,
+  Purchase,
 } from 'lib/generated/datamodel';
 import { toast } from 'react-toastify';
 import { ApolloQueryResult } from 'apollo-client';
@@ -38,9 +41,12 @@ import DeletePaymentMethodModal from 'components/modals/DeletePaymentMethod';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import WritePaymentMethod from 'components/modals/WritePaymentMethod';
-import { CurrencyData } from 'state/purchase/types';
+import { CurrencyData, CartObject } from 'state/purchase/types';
 import { defaultCurrencyData } from 'state/purchase/reducers';
-import { UpdateMethod, creditCardBrandToString } from './misc';
+import { UpdateMethod, creditCardBrandToString, CheckoutValues } from './misc';
+import { isSSR } from 'utils/checkSSR';
+import { useSelector } from 'react-redux';
+import { RootState } from 'state';
 
 export interface CheckoutPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -48,11 +54,6 @@ export interface CheckoutPageProps extends PageProps {
 
 interface CheckoutPageContentProps extends CheckoutPageProps {
   messages: CheckoutMessages;
-}
-
-interface CheckoutValues {
-  address: ObjectId | null;
-  paymentMethod: ObjectId | null;
 }
 
 const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
@@ -227,6 +228,13 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
     paymentMethod: null,
   });
 
+  const cart = isSSR
+    ? undefined
+    : useSelector<RootState, CartObject[] | undefined>(
+        (state) => state.purchaseReducer.cart
+      );
+  const [coupon] = useState<string | undefined>(undefined);
+
   const [
     stripeElement,
     setStripeElement,
@@ -276,6 +284,31 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
             try {
               // run checkout
               console.log(formData);
+              if (!cart || cart.length === 0) {
+                throw new Error('cart is empty');
+              }
+              const itemToPurchase = cart[0];
+              const purchaseRes = await client.mutate<
+                PurchaseMutation,
+                PurchaseMutationVariables
+              >({
+                mutation: Purchase,
+                variables: {
+                  paymentMethod: formData.paymentMethod,
+                  interval: itemToPurchase.interval,
+                  product: itemToPurchase.name,
+                  coupon,
+                },
+              });
+              if (purchaseRes.errors) {
+                throw new Error(purchaseRes.errors.join(', '));
+              }
+              if (!purchaseRes.data) {
+                throw new Error('cannot find purchase data');
+              }
+              toast(`Successfully purchased ${itemToPurchase.displayName}`, {
+                type: 'success',
+              });
             } catch (err) {
               toast(err.message, {
                 type: 'error',
@@ -371,6 +404,8 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                     <Summary
                       messages={args.messages}
                       currency={currentCurrency}
+                      formData={values}
+                      cart={cart}
                     />
                   </Col>
                 </Row>
@@ -386,7 +421,13 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                         id: currentAddress,
                       },
                       update: () => {
-                        if (
+                        const newAddresses = addresses.data.addresses.filter(
+                          (elem) =>
+                            !(elem._id as ObjectId).equals(currentAddress)
+                        );
+                        if (newAddresses.length === 1) {
+                          setFieldValue('address', newAddresses[0]._id);
+                        } else if (
                           values.address &&
                           values.address.equals(currentAddress)
                         ) {
@@ -396,10 +437,7 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                           ...addresses,
                           loading: false,
                           data: {
-                            addresses: addresses.data.addresses.filter(
-                              (elem) =>
-                                !(elem._id as ObjectId).equals(currentAddress)
-                            ),
+                            addresses: newAddresses,
                           },
                         });
                       },
@@ -423,9 +461,18 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                         id: currentPaymentMethod,
                       },
                       update: () => {
-                        if (
-                          values.address &&
-                          values.address.equals(currentPaymentMethod)
+                        const newPaymentMethods = paymentMethods.data.paymentMethods.filter(
+                          (elem) =>
+                            !(elem._id as ObjectId).equals(currentPaymentMethod)
+                        );
+                        if (newPaymentMethods.length === 1) {
+                          setFieldValue(
+                            'paymentMethod',
+                            newPaymentMethods[0]._id
+                          );
+                        } else if (
+                          values.paymentMethod &&
+                          values.paymentMethod.equals(currentPaymentMethod)
                         ) {
                           setFieldValue('paymentMethod', null);
                         }
@@ -433,12 +480,7 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                           ...paymentMethods,
                           loading: false,
                           data: {
-                            paymentMethods: paymentMethods.data.paymentMethods.filter(
-                              (elem) =>
-                                !(elem._id as ObjectId).equals(
-                                  currentPaymentMethod
-                                )
-                            ),
+                            paymentMethods: newPaymentMethods,
                           },
                         });
                       },
