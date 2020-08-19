@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Button,
   Modal,
@@ -17,7 +17,7 @@ import {
 import * as yup from 'yup';
 
 import './index.scss';
-import { Formik } from 'formik';
+import { Formik, FormikValues } from 'formik';
 import { defaultCountry as defaultCountryCode } from 'shared/variables';
 import { css } from '@emotion/core';
 import { countries, Country } from 'countries-list';
@@ -92,7 +92,7 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
   const getCountryOptions = async (
     inputValue: string
   ): Promise<SelectCountryObject[]> => {
-    const countryData = await client.query<
+    const countryRes = await client.query<
       CountriesQuery,
       CountriesQueryVariables
     >({
@@ -100,16 +100,23 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
       variables: {},
       fetchPolicy: 'cache-first', // disable cache
     });
-    if (countryData.data) {
+    if (countryRes.data) {
+      const countryData: Record<string, Country> = {};
+      for (const countryCode of countryRes.data.countries) {
+        countryData[countryCode] =
+          countries[propertyOf<typeof countries>(countryCode)];
+      }
       const filteredCountries =
         inputValue.length === 0
-          ? countryData.data.countries
-          : countryData.data.countries.filter((country) => {
-              return country.toLowerCase().includes(inputValue.toLowerCase());
+          ? countryRes.data.countries
+          : countryRes.data.countries.filter((countryCode) => {
+              const currentCountry = countryData[countryCode];
+              return currentCountry.name
+                .toLowerCase()
+                .includes(inputValue.toLowerCase());
             });
       const countryOptions = filteredCountries.map((countryCode) => {
-        const currentCountry =
-          countries[propertyOf<typeof countries>(countryCode)];
+        const currentCountry = countryData[countryCode];
         const newSelectItem: SelectCountryObject = {
           label: getCountryLabel(currentCountry),
           code: countryCode.toLowerCase(),
@@ -140,6 +147,7 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
           (country) => country.code === defaultCountryCodeLowerCase
         );
         setDefaultCountry(newDefaultCountry);
+        setSelectedCountry(newDefaultCountry);
         if (!google || !google.maps.places) {
           throw new Error('cannot find autocomplete service');
         }
@@ -198,11 +206,16 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
     });
   };
 
+  const formRef = useRef<FormikValues>();
+
   return (
     <Modal
-      onOpened={() => {
+      onClosed={() => {
         setSelectedCountry(defaultCountry);
         setSelectedAddress(undefined);
+        if (formRef.current) {
+          formRef.current.resetForm();
+        }
       }}
       isOpen={args.isOpen}
       toggle={args.toggle}
@@ -211,6 +224,7 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
         {args.add ? 'Add' : 'Edit'} Address
       </ModalHeader>
       <Formik
+        innerRef={(formRef as unknown) as (instance: any) => void}
         enableReinitialize={true}
         initialValues={{
           name: '',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Button,
   Modal,
@@ -11,7 +11,7 @@ import {
 } from 'reactstrap';
 
 import './index.scss';
-import { Formik } from 'formik';
+import { Formik, FormikValues } from 'formik';
 import { css } from '@emotion/core';
 
 import BeatLoader from 'react-spinners/BeatLoader';
@@ -46,12 +46,23 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
 
   const [validMethod, setValidMethod] = useState(false);
 
+  const formRef = useRef<FormikValues>();
+
   return (
-    <Modal isOpen={args.isOpen} toggle={args.toggle}>
+    <Modal
+      isOpen={args.isOpen}
+      toggle={args.toggle}
+      onClosed={() => {
+        if (formRef.current) {
+          formRef.current.resetForm();
+        }
+      }}
+    >
       <ModalHeader toggle={args.toggle}>
         {args.add ? 'Add' : 'Edit'} Payment Method
       </ModalHeader>
       <Formik
+        innerRef={(formRef as unknown) as (instance: any) => void}
         enableReinitialize={true}
         initialValues={{
           currency: '',

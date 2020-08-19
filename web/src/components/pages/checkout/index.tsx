@@ -282,8 +282,6 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
             { setSubmitting, setStatus }
           ): Promise<void> => {
             try {
-              // run checkout
-              console.log(formData);
               if (!cart || cart.length === 0) {
                 throw new Error('cart is empty');
               }
