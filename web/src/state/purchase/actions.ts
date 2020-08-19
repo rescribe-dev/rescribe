@@ -5,6 +5,7 @@ import {
   CartObject,
   ADD_TO_CART,
   REMOVE_FROM_CART,
+  CLEAR_CART,
 } from './types';
 import { store } from 'state/reduxWrapper';
 import { RootState } from 'state';
@@ -33,5 +34,11 @@ export const removeFromCart = (name: string): PurchaseActionTypes => {
   return {
     type: REMOVE_FROM_CART,
     payload: index,
+  };
+};
+
+export const clearCart = (): PurchaseActionTypes => {
+  return {
+    type: CLEAR_CART,
   };
 };

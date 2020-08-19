@@ -5,6 +5,7 @@ import {
   ADD_TO_CART,
   REMOVE_FROM_CART,
   CurrencyData,
+  CLEAR_CART,
 } from './types';
 import { defaultCurrency } from 'shared/variables';
 
@@ -41,6 +42,11 @@ export const purchaseReducer = (
       }
       return {
         ...state,
+      };
+    case CLEAR_CART:
+      return {
+        ...state,
+        cart: [],
       };
     default:
       return state;
