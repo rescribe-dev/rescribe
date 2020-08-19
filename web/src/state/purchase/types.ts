@@ -14,7 +14,6 @@ export interface CartObject {
 
 export interface PurchaseState {
   displayCurrency: CurrencyData;
-  paymentCurrency: CurrencyData;
   cart: CartObject[];
 }
 

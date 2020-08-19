@@ -18,6 +18,16 @@ import ObjectId from 'bson-objectid';
 import { capitalizeFirstLetter } from 'utils/misc';
 import { AiFillDelete } from 'react-icons/ai';
 import { Mode } from '../mode';
+import { CurrencyData } from 'state/purchase/types';
+import { client } from 'utils/apollo';
+import {
+  Currencies,
+  CurrenciesQuery,
+  CurrenciesQueryVariables,
+} from 'lib/generated/datamodel';
+import isDebug from 'utils/mode';
+import { toast } from 'react-toastify';
+import { ApolloError } from 'apollo-client';
 
 interface ListItem {
   _id: ObjectId;
@@ -42,6 +52,8 @@ interface SelectListArgs {
   selectMode: boolean;
   setCurrentItem: (item: any) => void;
   toggleDeleteItemModal: () => void;
+  id: string;
+  setCurrentCurrency?: (currency: CurrencyData) => void;
 }
 
 const SelectList = (args: SelectListArgs): JSX.Element => {
@@ -52,11 +64,10 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
   }, []);
 
   const name = args.mode === Mode.Address ? 'address' : 'payment method';
-  const id = name.replaceAll(' ', '-');
 
   const getSelectedLabel = (): JSX.Element => {
     if (!args.selectedID) {
-      return <p>No Address Selected</p>;
+      return <p>No {capitalizeFirstLetter(name)} Selected</p>;
     }
     const selectedElement = args.items.find((elem) =>
       elem._id.equals(args.selectedID as ObjectId)
@@ -103,7 +114,7 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
                     paddingRight: 0,
                   }}
                 >
-                  <FormGroup tag="fieldset" name={name} id={id}>
+                  <FormGroup tag="fieldset" name={name} id={args.id}>
                     <ListGroup
                       className="list-group-flush"
                       style={{
@@ -115,7 +126,7 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
                           style={{
                             margin: 0,
                           }}
-                          key={`${id}-${item._id.toHexString()}`}
+                          key={`${args.id}-${item._id.toHexString()}`}
                         >
                           <Container>
                             <Row>
@@ -131,7 +142,7 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
                                       )
                                     }
                                     onChange={() => {
-                                      args.setFieldValue(id, item._id);
+                                      args.setFieldValue(args.id, item._id);
                                     }}
                                   />
                                 </FormGroup>
@@ -152,9 +163,48 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
                                     border: '0px',
                                     padding: 0,
                                   }}
-                                  onClick={(evt) => {
+                                  onClick={async (evt): Promise<void> => {
                                     evt.preventDefault();
                                     args.setCurrentItem(item._id);
+                                    if (
+                                      args.setCurrentCurrency &&
+                                      item.currency
+                                    ) {
+                                      try {
+                                        const currencyRes = await client.query<
+                                          CurrenciesQuery,
+                                          CurrenciesQueryVariables
+                                        >({
+                                          query: Currencies,
+                                          variables: {
+                                            names: [item.currency as string],
+                                          },
+                                          fetchPolicy: isDebug()
+                                            ? 'no-cache'
+                                            : 'cache-first', // disable cache if in debug
+                                        });
+                                        if (currencyRes.errors) {
+                                          throw new Error(
+                                            currencyRes.errors.join(', ')
+                                          );
+                                        }
+                                        if (
+                                          currencyRes.data.currencies.length ===
+                                          0
+                                        ) {
+                                          throw new Error(
+                                            'cannot find currency data'
+                                          );
+                                        }
+                                        args.setCurrentCurrency(
+                                          currencyRes.data.currencies[0]
+                                        );
+                                      } catch (err) {
+                                        toast((err as ApolloError).message, {
+                                          type: 'error',
+                                        });
+                                      }
+                                    }
                                     args.toggleDeleteItemModal();
                                   }}
                                 >

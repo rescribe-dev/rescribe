@@ -4,18 +4,17 @@ import {
   PurchaseActionTypes,
   ADD_TO_CART,
   REMOVE_FROM_CART,
+  CurrencyData,
 } from './types';
 import { defaultCurrency } from 'shared/variables';
 
+export const defaultCurrencyData: CurrencyData = {
+  exchangeRate: 1,
+  name: defaultCurrency,
+};
+
 const initialState: PurchaseState = {
-  displayCurrency: {
-    exchangeRate: 1,
-    name: defaultCurrency,
-  },
-  paymentCurrency: {
-    exchangeRate: 1,
-    name: defaultCurrency,
-  },
+  displayCurrency: defaultCurrencyData,
   cart: [],
 };
 

@@ -20,6 +20,9 @@ import {
   PaymentMethodsQueryVariables,
   PaymentMethods,
   PaymentMethodDataFragment,
+  DeletePaymentMethodMutation,
+  DeletePaymentMethodMutationVariables,
+  DeletePaymentMethod,
 } from 'lib/generated/datamodel';
 import { toast } from 'react-toastify';
 import { ApolloQueryResult } from 'apollo-client';
@@ -28,13 +31,15 @@ import SelectList from './SelectList';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import DeleteAddressModal from 'components/modals/DeleteAddress';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, ApolloError } from '@apollo/react-hooks';
 import StepLayout from './StepLayout';
 import { Mode } from './mode';
 import DeletePaymentMethodModal from 'components/modals/DeletePaymentMethod';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import WritePaymentMethod from 'components/modals/WritePaymentMethod';
+import { CurrencyData } from 'state/purchase/types';
+import { defaultCurrencyData } from 'state/purchase/reducers';
 
 export interface CheckoutPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -80,9 +85,13 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
     DeleteAddressMutationVariables
   >(DeleteAddress);
   const [deletePaymentMethodMutation] = useMutation<
-    DeleteAddressMutation,
-    DeleteAddressMutationVariables
-  >(DeleteAddress);
+    DeletePaymentMethodMutation,
+    DeletePaymentMethodMutationVariables
+  >(DeletePaymentMethod);
+
+  const [currentCurrency, setCurrentCurrency] = useState<CurrencyData>(
+    defaultCurrencyData
+  );
 
   const language = getCurrentLanguage();
   const [mapsScriptLoading] = useScript({
@@ -166,21 +175,24 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
     );
   };
 
-  if (!process.env.GATSBY_STRIPE_SITE_KEY) {
-    throw new Error('no stripe key provided');
-  }
-
-  const stripePromise = loadStripe(process.env.GATSBY_STRIPE_SITE_KEY);
+  const [
+    stripeElement,
+    setStripeElement,
+  ] = useState<Promise<Stripe | null> | null>(null);
 
   useEffect(() => {
     (async () => {
+      if (!process.env.GATSBY_STRIPE_SITE_KEY) {
+        throw new Error('cannot find stripe key');
+      }
+      setStripeElement(loadStripe(process.env.GATSBY_STRIPE_SITE_KEY));
       await updateAddresses();
       await updatePaymentMethods();
     })();
   }, []);
 
   return (
-    <Elements stripe={stripePromise}>
+    <Elements stripe={stripeElement}>
       <Container
         style={{
           marginTop: '4rem',
@@ -251,6 +263,7 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                         selectMode={addressSelectMode}
                         setCurrentItem={setCurrentAddress}
                         toggleDeleteItemModal={toggleDeleteAddressModal}
+                        id="address"
                       />
                     </StepLayout>
                     <hr />
@@ -291,12 +304,17 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                         selectMode={paymentSelectMode}
                         setCurrentItem={setCurrentPaymentMethod}
                         toggleDeleteItemModal={toggleDeletePaymentModal}
+                        id="paymentMethod"
+                        setCurrentCurrency={setCurrentCurrency}
                       />
                     </StepLayout>
                   </Container>
                 </Col>
                 <Col md="4">
-                  <Summary messages={args.messages} />
+                  <Summary
+                    messages={args.messages}
+                    currency={currentCurrency}
+                  />
                 </Col>
               </Row>
             </Form>
@@ -308,22 +326,29 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
         toggle={toggleDeleteAddressModal}
         deleteAddress={async (): Promise<void> => {
           if (!addresses || !currentAddress) return;
-          await deleteAddressMutation({
-            variables: {
-              id: currentAddress,
-            },
-            update: () => {
-              setAddresses({
-                ...addresses,
-                loading: false,
-                data: {
-                  addresses: addresses.data.addresses.filter(
-                    (elem) => !(elem._id as ObjectId).equals(currentAddress)
-                  ),
-                },
-              });
-            },
-          });
+          try {
+            await deleteAddressMutation({
+              variables: {
+                id: currentAddress,
+              },
+              update: () => {
+                setAddresses({
+                  ...addresses,
+                  loading: false,
+                  data: {
+                    addresses: addresses.data.addresses.filter(
+                      (elem) => !(elem._id as ObjectId).equals(currentAddress)
+                    ),
+                  },
+                });
+              },
+            });
+          } catch (err) {
+            const errObj = err as ApolloError;
+            toast(errObj.message, {
+              type: 'error',
+            });
+          }
         }}
       />
       <DeletePaymentMethodModal
@@ -331,23 +356,30 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
         toggle={toggleDeletePaymentModal}
         deletePaymentMethod={async (): Promise<void> => {
           if (!paymentMethods || !currentPaymentMethod) return;
-          await deletePaymentMethodMutation({
-            variables: {
-              id: currentPaymentMethod,
-            },
-            update: () => {
-              setPaymentMethods({
-                ...paymentMethods,
-                loading: false,
-                data: {
-                  paymentMethods: paymentMethods.data.paymentMethods.filter(
-                    (elem) =>
-                      !(elem._id as ObjectId).equals(currentPaymentMethod)
-                  ),
-                },
-              });
-            },
-          });
+          try {
+            await deletePaymentMethodMutation({
+              variables: {
+                id: currentPaymentMethod,
+              },
+              update: () => {
+                setPaymentMethods({
+                  ...paymentMethods,
+                  loading: false,
+                  data: {
+                    paymentMethods: paymentMethods.data.paymentMethods.filter(
+                      (elem) =>
+                        !(elem._id as ObjectId).equals(currentPaymentMethod)
+                    ),
+                  },
+                });
+              },
+            });
+          } catch (err) {
+            const errObj = err as ApolloError;
+            toast(errObj.message, {
+              type: 'error',
+            });
+          }
         }}
       />
       <WritePaymentMethod

@@ -7,12 +7,14 @@ import { UserModel } from '../../schema/users/user';
 import PaymentMethod, { PaymentMethodModel } from '../../schema/users/paymentMethod';
 import { validateCurrency } from '../../currencies/utils';
 import UserCurrency, { UserCurrencyModel } from '../../schema/users/userCurrency';
+import { MinLength } from 'class-validator';
 
 @ArgsType()
 class AddPaymentMethodArgs {
   @Field({ description: 'name' })
   currency: string;
 
+  @MinLength(5, { message: 'invalid stripe card token provided' })
   @Field({ description: 'stripe card token' })
   cardToken: string;
 

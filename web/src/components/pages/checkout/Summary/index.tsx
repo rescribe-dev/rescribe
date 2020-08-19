@@ -24,6 +24,7 @@ import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
 
 interface SummaryArgs {
   messages: CheckoutMessages;
+  currency: CurrencyData;
 }
 
 const Summary = (args: SummaryArgs): JSX.Element => {
@@ -32,16 +33,8 @@ const Summary = (args: SummaryArgs): JSX.Element => {
     : useSelector<RootState, CartObject[] | undefined>(
         (state) => state.purchaseReducer.cart
       );
-  const currentCurrency: CurrencyData | undefined = isSSR
-    ? undefined
-    : useSelector<RootState, CurrencyData>(
-        (state) => state.purchaseReducer.paymentCurrency
-      );
   const formatPrice = (amount: number): string => {
-    if (!currentCurrency) {
-      return '';
-    }
-    return formatCurrency(amount, currentCurrency);
+    return formatCurrency(amount, args.currency);
   };
   const total = !cart ? 0 : cart.reduce((prev, curr) => prev + curr.price, 0);
   return (

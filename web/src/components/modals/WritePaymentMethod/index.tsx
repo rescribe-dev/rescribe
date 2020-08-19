@@ -77,6 +77,10 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
             if (!paymentMethodRes.paymentMethod) {
               throw new Error('cannot find payment method');
             }
+            console.log(paymentMethodRes);
+            if (!paymentMethodRes.paymentMethod.id) {
+              throw new Error('cannot find payment method id');
+            }
             setFieldValue('cardToken', paymentMethodRes.paymentMethod.id);
 
             console.log(formData.currency);

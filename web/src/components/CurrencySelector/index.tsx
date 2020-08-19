@@ -61,7 +61,9 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
   if (!isSSR) {
     dispatch = useDispatch();
     useQuery<CurrenciesQuery, CurrenciesQueryVariables>(Currencies, {
-      variables: {},
+      variables: {
+        acceptedPayment: true,
+      },
       fetchPolicy: isDebug() ? 'no-cache' : 'cache-first', // disable cache if in debug
       onError: (err) => {
         toast((err as ApolloError).message, {
