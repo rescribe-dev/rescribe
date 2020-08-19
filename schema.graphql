@@ -219,6 +219,18 @@ type Coupon {
   name: String!
 }
 
+"""credit card brand"""
+enum CreditCardBrand {
+  amex
+  diners
+  discover
+  jcb
+  mastercard
+  unionpay
+  unknown
+  visa
+}
+
 """currency data"""
 type Currency {
   _id: ObjectId!
@@ -858,8 +870,14 @@ enum ParentType {
 type PaymentMethod {
   _id: ObjectId!
 
+  """credit card type"""
+  brand: CreditCardBrand!
+
   """currency"""
   currency: String!
+
+  """credit card last four digits"""
+  lastFourDigits: Int!
 
   """payment method stripe id"""
   method: String!

@@ -15,6 +15,10 @@ import {
 } from 'lib/generated/datamodel';
 import { client } from 'utils/apollo';
 import { UserMessages } from 'locale/templates/user/userMessages';
+import { ApolloError } from 'apollo-client';
+import { getErrorCode } from 'utils/misc';
+import { toast } from 'react-toastify';
+import { NOT_FOUND } from 'http-status-codes';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserPageDataProps extends PageProps {}
@@ -52,13 +56,20 @@ const UserPage = (args: UserProps): JSX.Element => {
           fetchPolicy: 'no-cache', // disable cache
         })
         .then((res) => setUser(res.data?.publicUser))
-        .catch((_err: Error) =>
-          navigate('/404', {
-            state: {
-              location: window.location.href,
-            },
-          })
-        );
+        .catch((err: ApolloError) => {
+          const errorCode = getErrorCode(err);
+          if (errorCode === NOT_FOUND) {
+            navigate('/404', {
+              state: {
+                location: window.location.href,
+              },
+            });
+          } else {
+            toast(err.message, {
+              type: 'error',
+            });
+          }
+        });
     }
   }, []);
   return (

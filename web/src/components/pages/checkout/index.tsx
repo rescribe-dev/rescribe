@@ -40,7 +40,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import WritePaymentMethod from 'components/modals/WritePaymentMethod';
 import { CurrencyData } from 'state/purchase/types';
 import { defaultCurrencyData } from 'state/purchase/reducers';
-import { UpdateMethod } from './types';
+import { UpdateMethod, creditCardBrandToString } from './misc';
 
 export interface CheckoutPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -213,7 +213,11 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
   ): JSX.Element => {
     return (
       <>
-        <p>payment method in {paymentMethod.currency}</p>
+        <p>
+          <b>{creditCardBrandToString(paymentMethod.brand)}</b> ending in{' '}
+          {paymentMethod.lastFourDigits}, charged in{' '}
+          {paymentMethod.currency.toUpperCase()}
+        </p>
       </>
     );
   };

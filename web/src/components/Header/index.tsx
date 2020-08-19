@@ -342,13 +342,16 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     </DropdownItem>
                     <DropdownItem
                       key="logout"
-                      onClick={(evt: React.MouseEvent) => {
+                      onClick={async (evt: React.MouseEvent) => {
                         evt.preventDefault();
-                        dispatchAuthThunk(thunkLogout())
-                          .catch((err: Error) => console.error(err))
-                          .then(() => {
-                            // navigate('/login')
+                        try {
+                          await dispatchAuthThunk(thunkLogout());
+                        } catch (err) {
+                          const errObj = err as Error;
+                          toast(errObj.message, {
+                            type: 'error',
                           });
+                        }
                       }}
                     >
                       Logout

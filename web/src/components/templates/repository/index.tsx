@@ -14,7 +14,9 @@ import {
 
 import { RepositoryMessages } from 'locale/templates/repository/repositoryMessages';
 import { client } from 'utils/apollo';
-import { ApolloQueryResult } from 'apollo-client';
+import { ApolloQueryResult, ApolloError } from 'apollo-client';
+import { getErrorCode } from 'utils/misc';
+import { NOT_FOUND } from 'http-status-codes';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RepositoryPageDataProps extends PageProps {}
@@ -53,15 +55,19 @@ const RepositoryPage = (args: RepositoryProps): JSX.Element => {
       .then((res) => {
         setRepositoryQueryRes(res);
       })
-      .catch((err) => {
-        toast(err.message, {
-          type: 'error',
-        });
-        navigate('/404', {
-          state: {
-            location: window.location.href,
-          },
-        });
+      .catch((err: ApolloError) => {
+        const errorCode = getErrorCode(err);
+        if (errorCode === NOT_FOUND) {
+          navigate('/404', {
+            state: {
+              location: window.location.href,
+            },
+          });
+        } else {
+          toast(err.message, {
+            type: 'error',
+          });
+        }
       });
   }, []);
   return (

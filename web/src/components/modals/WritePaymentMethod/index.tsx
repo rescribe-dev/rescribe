@@ -25,7 +25,7 @@ import {
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import CurrencySelector from 'components/CurrencySelector';
 import ObjectId from 'bson-objectid';
-import { UpdateMethod } from 'components/pages/checkout/types';
+import { UpdateMethod } from 'components/pages/checkout/misc';
 
 const loaderCSS = css`
   display: block;
@@ -108,7 +108,6 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
             const paymentMethodID = new ObjectId(
               addPaymentMethodRes.data.addPaymentMethod._id
             );
-            console.log(paymentMethodID);
             await args.updatePaymentMethods({
               id: paymentMethodID,
             });

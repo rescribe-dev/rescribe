@@ -200,7 +200,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                         onError();
                       });
                   } catch (err) {
-                    // console.error(err);
+                    // ignore the error
                   }
                 });
               }}

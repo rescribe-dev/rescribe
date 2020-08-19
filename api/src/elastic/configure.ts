@@ -25,10 +25,7 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
     });
     logger.info(`created ${indexName} index: ${createIndexRes.statusCode === OK}`);
   } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    // eslint-disable-next-line no-console
-    console.log(err.meta.body.error);
+    logger.error(err.meta.body.error);
     throw err;
   }
   const mappingsConfig: IndicesPutMapping = {
@@ -43,10 +40,7 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
     const setIndexMappingsRes = await elasticClient.indices.putMapping(mappingsConfig);
     logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === OK}`);
   } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    // eslint-disable-next-line no-console
-    console.log(err.meta.body.error);
+    logger.error(err.meta.body.error);
     throw err;
   }
 };

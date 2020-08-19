@@ -13,7 +13,7 @@ export default class Address {
   name: string;
 
   @Field({ description: 'user' })
-  @Property({ required: true, unique: true })
+  @Property({ required: true })
   user: ObjectId;
 
   @Field({ description: 'line 1' })

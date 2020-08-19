@@ -4,12 +4,14 @@ import { GraphQLContext } from '../../utils/context';
 import { verifyLoggedIn } from '../../auth/checkAuth';
 import { ObjectId } from 'mongodb';
 import { UserModel } from '../../schema/users/user';
-import PaymentMethod, { PaymentMethodModel } from '../../schema/users/paymentMethod';
+import PaymentMethod, { PaymentMethodModel, CreditCardBrand } from '../../schema/users/paymentMethod';
 import { validateCurrency } from '../../currencies/utils';
 import UserCurrency, { UserCurrencyModel } from '../../schema/users/userCurrency';
 import { MinLength } from 'class-validator';
 import ReturnObj from '../../schema/utils/returnObj';
 import { getLogger } from 'log4js';
+import { ApolloError } from 'apollo-server-express';
+import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
 
 const logger = getLogger();
 
@@ -72,6 +74,10 @@ class AddPaymentMethodResolver {
       await new UserCurrencyModel(newUserCurrency).save();
       userCurrencyData = newUserCurrency;
     }
+    const cardData = await stripeClient.paymentMethods.retrieve(args.cardToken);
+    if (!cardData.card) {
+      throw new ApolloError('cannot get card data', `${INTERNAL_SERVER_ERROR}`);
+    }
     const setupIntent = await stripeClient.setupIntents.create({
       confirm: true,
       customer: userCurrencyData.customer,
@@ -83,17 +89,23 @@ class AddPaymentMethodResolver {
       logger.info(setupIntent.next_action);
       throw new Error('not handled next action');
     }
-    const paymentMethodID = new ObjectId();
+    const lastFourDigits = new Number(cardData.card.last4);
+    if (!lastFourDigits) {
+      throw new ApolloError('cannot cast last four digits to string', `${INTERNAL_SERVER_ERROR}`);
+    }
+    const brand = CreditCardBrand[cardData.card.brand as keyof typeof CreditCardBrand];
     const newPaymentMethod: PaymentMethod = {
-      _id: paymentMethodID,
+      _id: new ObjectId(),
       user: userID,
       currency: args.currency,
-      method: args.cardToken
+      method: args.cardToken,
+      brand,
+      lastFourDigits: lastFourDigits.valueOf(),
     };
     await new PaymentMethodModel(newPaymentMethod).save();
     return {
-      message: `added / updated payment method ${paymentMethodID.toHexString()}`,
-      _id: paymentMethodID,
+      message: `added / updated payment method ${newPaymentMethod._id.toHexString()}`,
+      _id: newPaymentMethod._id,
     };
   }
 }

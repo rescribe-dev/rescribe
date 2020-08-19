@@ -37,7 +37,7 @@ import {
   AddAddress,
 } from 'lib/generated/datamodel';
 import ObjectId from 'bson-objectid';
-import { UpdateMethod } from 'components/pages/checkout/types';
+import { UpdateMethod } from 'components/pages/checkout/misc';
 
 const loaderCSS = css`
   display: block;

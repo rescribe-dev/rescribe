@@ -235,7 +235,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                         onError();
                       });
                   } catch (err) {
-                    // console.error(err);
+                    // ignore the error
                   }
                 });
               }}
