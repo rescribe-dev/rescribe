@@ -135,7 +135,7 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
         />
         <Row style={{}}>
           <Col>
-            <Form key="form">
+            <Form>
               <FormGroup
                 style={{
                   marginRight: '0.5rem',

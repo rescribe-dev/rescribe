@@ -32,6 +32,9 @@ import { useMutation } from '@apollo/react-hooks';
 import StepLayout from './StepLayout';
 import { Mode } from './mode';
 import DeletePaymentMethodModal from 'components/modals/DeletePaymentMethod';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import WritePaymentMethod from 'components/modals/WritePaymentMethod';
 
 export interface CheckoutPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -44,9 +47,8 @@ interface CheckoutPageContentProps extends CheckoutPageProps {
 const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
   const [addressModalIsOpen, setAddressModalIsOpen] = useState(false);
   const toggleAddressModal = () => setAddressModalIsOpen(!addressModalIsOpen);
-  const [addPaymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
-  const togglePaymentModal = () =>
-    setPaymentModalIsOpen(!addPaymentModalIsOpen);
+  const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
+  const togglePaymentModal = () => setPaymentModalIsOpen(!paymentModalIsOpen);
 
   const [addressSelectMode, setAddressSelectMode] = useState(true);
   const toggleAddressSelectMode = () =>
@@ -164,6 +166,12 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
     );
   };
 
+  if (!process.env.GATSBY_STRIPE_SITE_KEY) {
+    throw new Error('no stripe key provided');
+  }
+
+  const stripePromise = loadStripe(process.env.GATSBY_STRIPE_SITE_KEY);
+
   useEffect(() => {
     (async () => {
       await updateAddresses();
@@ -172,12 +180,20 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
   }, []);
 
   return (
-    <>
+    <Elements stripe={stripePromise}>
       <Container
         style={{
           marginTop: '4rem',
         }}
       >
+        <h2
+          className="text-center"
+          style={{
+            marginBottom: '3rem',
+          }}
+        >
+          Checkout
+        </h2>
         <Formik
           initialValues={{
             address: null,
@@ -203,11 +219,10 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
             }
           }}
         >
-          {({ values, setFieldValue }) => (
-            <Form>
+          {({ values, setFieldValue, handleSubmit }) => (
+            <Form onSubmit={handleSubmit}>
               <Row>
                 <Col md="7">
-                  <h2 className="text-center">Checkout</h2>
                   <Container>
                     <StepLayout
                       loading={addresses === undefined || addresses.loading}
@@ -238,6 +253,7 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
                         toggleDeleteItemModal={toggleDeleteAddressModal}
                       />
                     </StepLayout>
+                    <hr />
                     <StepLayout
                       loading={
                         paymentMethods === undefined || paymentMethods.loading
@@ -334,6 +350,12 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
           });
         }}
       />
+      <WritePaymentMethod
+        add={add}
+        isOpen={paymentModalIsOpen}
+        toggle={togglePaymentModal}
+        updatePaymentMethods={updatePaymentMethods}
+      />
       {mapsScriptLoading ? null : (
         <WriteAddress
           add={add}
@@ -342,7 +364,7 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
           updateAddresses={updateAddresses}
         />
       )}
-    </>
+    </Elements>
   );
 };
 

@@ -19,16 +19,11 @@ export interface PurchaseState {
 }
 
 export const SET_DISPLAY_CURRENCY = 'SET_DISPLAY_CURRENCY';
-export const SET_PAYMENT_CURRENCY = 'SET_PAYMENT_CURRENCY';
 export const ADD_TO_CART = 'ADD_TO_CART';
 export const REMOVE_FROM_CART = 'REMOVE_FROM_CART';
 
 interface SetDisplayCurrencyAction {
   type: typeof SET_DISPLAY_CURRENCY;
-  payload: CurrencyData;
-}
-interface SetPaymentCurrencyAction {
-  type: typeof SET_PAYMENT_CURRENCY;
   payload: CurrencyData;
 }
 
@@ -44,6 +39,5 @@ interface RemoveFromCartAction {
 
 export type PurchaseActionTypes =
   | SetDisplayCurrencyAction
-  | SetPaymentCurrencyAction
   | AddToCartAction
   | RemoveFromCartAction;

@@ -407,7 +407,7 @@ const NewPage = (args: NewProps): JSX.Element => {
               setTouched,
               setFieldValue,
             }) => (
-              <Form>
+              <Form onSubmit={handleSubmit}>
                 <FormGroup>
                   <Label for="type">Type</Label>
                   <Select

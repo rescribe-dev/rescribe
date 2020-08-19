@@ -214,7 +214,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                 handleSubmit,
                 isSubmitting,
               }) => (
-                <Form className="underline-inputs">
+                <Form onSubmit={handleSubmit} className="underline-inputs">
                   <FormGroup>
                     <Label for="username">Username</Label>
                     <Input

@@ -12,6 +12,7 @@ import {
   Card,
   CardBody,
   FormGroup,
+  CardFooter,
 } from 'reactstrap';
 import ObjectId from 'bson-objectid';
 import { capitalizeFirstLetter } from 'utils/misc';
@@ -69,89 +70,132 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
   return (
     <>
       {args.items.length === 0 ? (
-        <Button
-          onClick={(evt) => {
-            evt.preventDefault();
-            args.setAdd(true);
-            args.toggleModal();
+        <Container
+          style={{
+            marginTop: '1rem',
+            paddingLeft: 0,
           }}
         >
-          New {capitalizeFirstLetter(name)}
-        </Button>
+          <Button
+            color="primary"
+            onClick={(evt) => {
+              evt.preventDefault();
+              args.setAdd(true);
+              args.toggleModal();
+            }}
+          >
+            New {capitalizeFirstLetter(name)}
+          </Button>
+        </Container>
       ) : (
         <>
           {args.selectMode ? (
-            <Card>
-              <CardBody
-                style={{
-                  paddingLeft: 0,
-                  paddingRight: 0,
-                }}
-              >
-                <FormGroup tag="fieldset" name={name} id={id}>
-                  <ListGroup
-                    className="list-group-flush"
-                    style={{
-                      marginLeft: 0,
-                    }}
-                  >
-                    {args.items.map((item) => (
-                      <ListGroupItem key={`${id}-${item._id.toHexString()}`}>
-                        <Container>
-                          <Row>
-                            <Col xs="auto">
-                              <FormGroup check>
-                                <Input
-                                  type="radio"
-                                  value={item._id.toHexString()}
-                                  checked={
-                                    !!(
-                                      args.selectedID &&
-                                      item._id.equals(args.selectedID)
-                                    )
-                                  }
-                                  onChange={() => {
-                                    args.setFieldValue(id, item._id);
-                                  }}
-                                />
-                              </FormGroup>
-                            </Col>
-                            <Col xs="auto">{args.getListLabel(item)}</Col>
-                            <Col>
-                              <Button
-                                style={{
-                                  color: '#818A91',
-                                  backgroundColor: '#fff',
-                                  border: '0px',
-                                }}
-                                onClick={(evt) => {
-                                  evt.preventDefault();
-                                  args.setCurrentItem(item._id);
-                                  args.toggleDeleteItemModal();
-                                }}
-                              >
-                                <AiFillDelete />
-                              </Button>
-                            </Col>
-                          </Row>
-                        </Container>
-                      </ListGroupItem>
-                    ))}
-                  </ListGroup>
-                </FormGroup>
-                <Button
-                  onClick={(evt) => {
-                    evt.preventDefault();
-                    args.setAdd(true);
-                    args.toggleModal();
+            <Container
+              style={{
+                marginTop: '2rem',
+                marginBottom: '3rem',
+              }}
+            >
+              <Card>
+                <CardBody
+                  style={{
+                    paddingLeft: 0,
+                    paddingRight: 0,
                   }}
                 >
-                  Add New {capitalizeFirstLetter(name)}
-                </Button>
-              </CardBody>
-            </Card>
+                  <FormGroup tag="fieldset" name={name} id={id}>
+                    <ListGroup
+                      className="list-group-flush"
+                      style={{
+                        marginLeft: 0,
+                      }}
+                    >
+                      {args.items.map((item) => (
+                        <ListGroupItem
+                          style={{
+                            margin: 0,
+                          }}
+                          key={`${id}-${item._id.toHexString()}`}
+                        >
+                          <Container>
+                            <Row>
+                              <Col xs="auto">
+                                <FormGroup check>
+                                  <Input
+                                    type="radio"
+                                    value={item._id.toHexString()}
+                                    checked={
+                                      !!(
+                                        args.selectedID &&
+                                        item._id.equals(args.selectedID)
+                                      )
+                                    }
+                                    onChange={() => {
+                                      args.setFieldValue(id, item._id);
+                                    }}
+                                  />
+                                </FormGroup>
+                              </Col>
+                              <Col
+                                xs="auto"
+                                style={{
+                                  padding: 0,
+                                }}
+                              >
+                                {args.getListLabel(item)}
+                              </Col>
+                              <Col xs="auto">
+                                <Button
+                                  style={{
+                                    color: '#818A91',
+                                    backgroundColor: '#fff',
+                                    border: '0px',
+                                    padding: 0,
+                                  }}
+                                  onClick={(evt) => {
+                                    evt.preventDefault();
+                                    args.setCurrentItem(item._id);
+                                    args.toggleDeleteItemModal();
+                                  }}
+                                >
+                                  <AiFillDelete className="my-auto" />
+                                </Button>
+                              </Col>
+                            </Row>
+                          </Container>
+                        </ListGroupItem>
+                      ))}
+                    </ListGroup>
+                  </FormGroup>
+                </CardBody>
+                <CardFooter
+                  className="text-center"
+                  style={{
+                    backgroundColor: 'transparent',
+                  }}
+                >
+                  <Button
+                    color="primary"
+                    onClick={(evt) => {
+                      evt.preventDefault();
+                      args.setAdd(true);
+                      args.toggleModal();
+                    }}
+                  >
+                    Add New {capitalizeFirstLetter(name)}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </Container>
           ) : (
-            <>{getSelectedLabel()}</>
+            <div
+              style={{
+                marginTop: '1rem',
+                marginBottom: '2rem',
+              }}
+            >
+              {getSelectedLabel()}
+            </div>
           )}
         </>
       )}

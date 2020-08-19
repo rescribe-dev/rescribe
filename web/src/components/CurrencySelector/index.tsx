@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import AsyncSelect from 'react-select/async';
-import { Container } from 'reactstrap';
 import {
   CurrenciesQuery,
   CurrenciesQueryVariables,
@@ -11,12 +10,13 @@ import { isSSR } from 'utils/checkSSR';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from 'state';
 import { Dispatch } from 'redux';
-import { setPaymentCurrency, setDisplayCurrency } from 'state/purchase/actions';
+import { setDisplayCurrency } from 'state/purchase/actions';
 import { useQuery, ApolloError } from '@apollo/react-hooks';
 import isDebug from 'utils/mode';
 import { toast } from 'react-toastify';
 import { CurrencyData } from 'state/purchase/types';
 import 'currency-flags/dist/currency-flags.css';
+import { defaultCurrency } from 'shared/variables';
 
 interface SelectObject {
   value: CurrencyData;
@@ -24,7 +24,8 @@ interface SelectObject {
 }
 
 interface CurrencySelectorArgs {
-  setPaymentCurrency: boolean;
+  setDisplayCurrency: boolean;
+  onChange?: (code: string) => void;
 }
 
 const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
@@ -42,17 +43,20 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
       </>
     );
   };
-  const currentCurrency: SelectObject | undefined = isSSR
+  const currentDisplayCurrency: SelectObject | undefined = isSSR
     ? undefined
     : useSelector<RootState, SelectObject>((state) => {
-        const currency = args.setPaymentCurrency
-          ? state.purchaseReducer.paymentCurrency
-          : state.purchaseReducer.displayCurrency;
+        const currency = state.purchaseReducer.displayCurrency;
         return {
           value: currency,
           label: getLabel(currency),
         };
       });
+
+  const [currentCurrency, setCurrentCurrency] = useState<
+    SelectObject | undefined
+  >(currentDisplayCurrency ? currentDisplayCurrency : undefined);
+
   let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatch = useDispatch();
@@ -65,26 +69,33 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
         });
       },
       onCompleted: (data) => {
-        const newCurrencyOptions = data.currencies;
-        setCurrencyOptions(
-          newCurrencyOptions.map((currency) => {
-            return {
-              label: getLabel(currency),
-              value: currency,
-            };
-          })
-        );
-        if (currentCurrency) {
-          const newCurrencyData = newCurrencyOptions.find(
-            (elem) => elem.name === currentCurrency.value.name
+        const newCurrencies = data.currencies;
+        const newCurrencyOptions = data.currencies.map((currency) => {
+          return {
+            label: getLabel(currency),
+            value: currency,
+          };
+        });
+        setCurrencyOptions(newCurrencyOptions);
+        if (!currentCurrency) {
+          const currencyName = defaultCurrency.toLowerCase();
+          const newCurrencyData = newCurrencies.find(
+            (elem) => elem.name === currencyName
           );
-          if (newCurrencyData) {
-            if (args.setPaymentCurrency) {
-              dispatch(setPaymentCurrency(newCurrencyData));
-            } else {
-              dispatch(setDisplayCurrency(newCurrencyData));
+          if (newCurrencyData && args.setDisplayCurrency) {
+            dispatch(setDisplayCurrency(newCurrencyData));
+          }
+          const newCurrencyOption = newCurrencyOptions.find(
+            (elem) => elem.value.name === currencyName
+          );
+          if (newCurrencyOption) {
+            setCurrentCurrency(newCurrencyOption);
+            if (args.onChange) {
+              args.onChange(newCurrencyOption.value.name);
             }
           }
+        } else if (args.onChange) {
+          args.onChange(currentCurrency.value.name);
         }
       },
     });
@@ -100,28 +111,28 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
       : currencyOptions;
   };
   return (
-    <Container>
-      <AsyncSelect
-        id="currency"
-        name="currency"
-        isMulti={false}
-        defaultOptions={currencyOptions}
-        cacheOptions={true}
-        loadOptions={getCurrencies}
-        defaultValue={currentCurrency}
-        onChange={(selectedOption: ValueType<SelectObject>) => {
-          if (!selectedOption) {
-            return;
-          }
-          const selected = selectedOption as SelectObject;
-          if (args.setPaymentCurrency) {
-            dispatch(setPaymentCurrency(selected.value));
-          } else {
-            dispatch(setDisplayCurrency(selected.value));
-          }
-        }}
-      />
-    </Container>
+    <AsyncSelect
+      id="currency"
+      name="currency"
+      isMulti={false}
+      defaultOptions={currencyOptions}
+      cacheOptions={true}
+      loadOptions={getCurrencies}
+      defaultValue={currentCurrency}
+      onChange={(selectedOption: ValueType<SelectObject>) => {
+        if (!selectedOption) {
+          return;
+        }
+        const selected = selectedOption as SelectObject;
+        setCurrentCurrency(selected);
+        if (args.onChange) {
+          args.onChange(selected.value.name);
+        }
+        if (args.setDisplayCurrency) {
+          dispatch(setDisplayCurrency(selected.value));
+        }
+      }}
+    />
   );
 };
 

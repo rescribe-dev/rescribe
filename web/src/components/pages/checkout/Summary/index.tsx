@@ -53,21 +53,11 @@ const Summary = (args: SummaryArgs): JSX.Element => {
           paddingRight: 0,
         }}
       >
-        <Button
-          disabled={!cart || cart.length === 0 /* TODO or... */}
+        <CardTitle
           style={{
-            backgroundColor: 'var(--light-orange)',
-            borderColor: 'var(--light-orange)',
-          }}
-          onClick={(evt) => {
-            evt.preventDefault();
-            console.log('submit order');
+            marginBottom: '2rem',
           }}
         >
-          {capitalizeOnlyFirstLetter(args.messages['place your order'])}
-        </Button>
-        <hr />
-        <CardTitle>
           <h4>Order Summary</h4>
         </CardTitle>
         {!(cart && cart.length > 0) ? (
@@ -124,7 +114,23 @@ const Summary = (args: SummaryArgs): JSX.Element => {
               })}
             </ListGroup>
             <hr />
-            <h4>Total: {formatPrice(total)}</h4>
+            <h5>
+              <b>Total: {formatPrice(total)}</b>
+            </h5>
+            <Button
+              disabled={!cart || cart.length === 0 /* TODO or... */}
+              style={{
+                backgroundColor: 'var(--light-orange)',
+                borderColor: 'var(--light-orange)',
+                marginTop: '2rem',
+              }}
+              onClick={(evt) => {
+                evt.preventDefault();
+                console.log('submit order');
+              }}
+            >
+              {capitalizeOnlyFirstLetter(args.messages['place your order'])}
+            </Button>
           </>
         )}
       </CardBody>

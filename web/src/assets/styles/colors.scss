@@ -70,3 +70,7 @@ $success: #31bc80;
 }
 
 @import "bootstrap";
+
+hr {
+  border-color: var(--gray2);
+}

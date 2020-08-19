@@ -122,7 +122,7 @@ const UserFilters = (_args: UserFiltersPropsDataType): JSX.Element => {
   return (
     <>
       <Container className="default-container">
-        <Form key="form">
+        <Form>
           <FormGroup
             style={{
               width: '100%',

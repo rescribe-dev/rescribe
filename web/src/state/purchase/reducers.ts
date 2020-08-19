@@ -1,7 +1,6 @@
 import {
   PurchaseState,
   SET_DISPLAY_CURRENCY,
-  SET_PAYMENT_CURRENCY,
   PurchaseActionTypes,
   ADD_TO_CART,
   REMOVE_FROM_CART,
@@ -29,11 +28,6 @@ export const purchaseReducer = (
       return {
         ...state,
         displayCurrency: action.payload,
-      };
-    case SET_PAYMENT_CURRENCY:
-      return {
-        ...state,
-        paymentCurrency: action.payload,
       };
     case ADD_TO_CART:
       if (!state.cart.find((item) => item.name === action.payload.name)) {

@@ -241,6 +241,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     <>
                       <Form
                         inline
+                        onSubmit={handleSubmit}
                         style={{
                           marginBottom: 0,
                           maxWidth: '15rem',

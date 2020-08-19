@@ -249,7 +249,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                 handleSubmit,
                 isSubmitting,
               }) => (
-                <Form>
+                <Form onSubmit={handleSubmit}>
                   <FormGroup>
                     <Label for="usernameEmail">
                       {capitalizeFirstLetter(args.messages.email)}

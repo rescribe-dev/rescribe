@@ -139,7 +139,7 @@ const Newsletter = (): JSX.Element => {
             handleSubmit,
             isSubmitting,
           }) => (
-            <Form>
+            <Form onSubmit={handleSubmit}>
               <Row className="justify-content-center">
                 <Col md="4">
                   <FormGroup>
