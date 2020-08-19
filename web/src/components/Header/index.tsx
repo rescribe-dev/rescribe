@@ -18,6 +18,7 @@ import {
   Input,
   FormFeedback,
   Container,
+  Label,
 } from 'reactstrap';
 import { isLoggedIn } from 'state/auth/getters';
 import { useDispatch, useSelector } from 'react-redux';
@@ -43,6 +44,8 @@ import './index.scss';
 import { queryMinLength } from 'shared/variables';
 import sleep from 'shared/sleep';
 import { capitalizeFirstLetter } from 'utils/misc';
+import CurrencySelector from 'components/CurrencySelector';
+import { FiSettings } from 'react-icons/fi';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -289,57 +292,45 @@ const Header = (args: HeaderArgs): JSX.Element => {
                   )}
                 </Formik>
               )}
-              {!loggedIn ? (
-                [
-                  <NavLink
-                    className="navbar-link"
-                    tag={Link}
-                    key="sign-up"
-                    to="/signup"
+              <UncontrolledDropdown inNavbar>
+                <DropdownToggle className="navbar-text" nav caret>
+                  {/* put profile picture or settings icon here */}
+                  {loggedIn ? 'Account' : <FiSettings />}
+                </DropdownToggle>
+                <DropdownMenu key="menu" right>
+                  {loggedIn
+                    ? [
+                        <DropdownItem
+                          key="profile"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate(`/${username}`);
+                          }}
+                        >
+                          Profile
+                        </DropdownItem>,
+                        <DropdownItem
+                          key="settings"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate('/account');
+                          }}
+                        >
+                          Settings
+                        </DropdownItem>,
+                      ]
+                    : null}
+                  <DropdownItem
+                    key="currency-select"
+                    toggle={false}
+                    style={{
+                      minWidth: '12rem',
+                    }}
                   >
-                    <FormattedMessage id="sign up">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0]) + '  >'
-                      }
-                    </FormattedMessage>
-                  </NavLink>,
-                  <NavLink
-                    className="navbar-link"
-                    tag={Link}
-                    to="/login"
-                    key="login"
-                  >
-                    <FormattedMessage id="login">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0]) + '  >'
-                      }
-                    </FormattedMessage>
-                  </NavLink>,
-                ]
-              ) : (
-                <UncontrolledDropdown inNavbar>
-                  <DropdownToggle className="navbar-text" nav caret>
-                    Account
-                  </DropdownToggle>
-                  <DropdownMenu key="menu" right>
-                    <DropdownItem
-                      key="profile"
-                      onClick={(evt: React.MouseEvent) => {
-                        evt.preventDefault();
-                        navigate(`/${username}`);
-                      }}
-                    >
-                      Profile
-                    </DropdownItem>
-                    <DropdownItem
-                      key="settings"
-                      onClick={(evt: React.MouseEvent) => {
-                        evt.preventDefault();
-                        navigate('/account');
-                      }}
-                    >
-                      Settings
-                    </DropdownItem>
+                    <Label for="currency">Currency</Label>
+                    <CurrencySelector displayCurrency={true} />
+                  </DropdownItem>
+                  {loggedIn ? (
                     <DropdownItem
                       key="logout"
                       onClick={async (evt: React.MouseEvent) => {
@@ -356,9 +347,37 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     >
                       Logout
                     </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-              )}
+                  ) : null}
+                </DropdownMenu>
+              </UncontrolledDropdown>
+              {!loggedIn
+                ? [
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      key="sign-up"
+                      to="/signup"
+                    >
+                      <FormattedMessage id="sign up">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0]) + '  >'
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      to="/login"
+                      key="login"
+                    >
+                      <FormattedMessage id="login">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0]) + '  >'
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                  ]
+                : null}
             </Nav>
           </Collapse>
         </Navbar>

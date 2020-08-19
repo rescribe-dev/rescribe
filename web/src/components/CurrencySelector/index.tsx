@@ -17,6 +17,7 @@ import { toast } from 'react-toastify';
 import { CurrencyData } from 'state/purchase/types';
 import 'currency-flags/dist/currency-flags.css';
 import { defaultCurrency } from 'shared/variables';
+import './index.scss';
 
 interface SelectObject {
   value: CurrencyData;
@@ -24,8 +25,9 @@ interface SelectObject {
 }
 
 interface CurrencySelectorArgs {
-  setDisplayCurrency: boolean;
+  displayCurrency: boolean;
   onChange?: (code: string) => void;
+  acceptedPayment?: boolean;
 }
 
 const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
@@ -62,7 +64,7 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
     dispatch = useDispatch();
     useQuery<CurrenciesQuery, CurrenciesQueryVariables>(Currencies, {
       variables: {
-        acceptedPayment: true,
+        acceptedPayment: args.acceptedPayment,
       },
       fetchPolicy: isDebug() ? 'no-cache' : 'cache-first', // disable cache if in debug
       onError: (err) => {
@@ -84,7 +86,7 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
           const newCurrencyData = newCurrencies.find(
             (elem) => elem.name === currencyName
           );
-          if (newCurrencyData && args.setDisplayCurrency) {
+          if (newCurrencyData && args.displayCurrency) {
             dispatch(setDisplayCurrency(newCurrencyData));
           }
           const newCurrencyOption = newCurrencyOptions.find(
@@ -113,28 +115,30 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
       : currencyOptions;
   };
   return (
-    <AsyncSelect
-      id="currency"
-      name="currency"
-      isMulti={false}
-      defaultOptions={currencyOptions}
-      cacheOptions={true}
-      loadOptions={getCurrencies}
-      defaultValue={currentCurrency}
-      onChange={(selectedOption: ValueType<SelectObject>) => {
-        if (!selectedOption) {
-          return;
-        }
-        const selected = selectedOption as SelectObject;
-        setCurrentCurrency(selected);
-        if (args.onChange) {
-          args.onChange(selected.value.name);
-        }
-        if (args.setDisplayCurrency) {
-          dispatch(setDisplayCurrency(selected.value));
-        }
-      }}
-    />
+    <>
+      <AsyncSelect
+        id="currency"
+        name="currency"
+        isMulti={false}
+        defaultOptions={currencyOptions}
+        cacheOptions={true}
+        loadOptions={getCurrencies}
+        value={args.displayCurrency ? currentDisplayCurrency : currentCurrency}
+        onChange={(selectedOption: ValueType<SelectObject>) => {
+          if (!selectedOption) {
+            return;
+          }
+          const selected = selectedOption as SelectObject;
+          setCurrentCurrency(selected);
+          if (args.onChange) {
+            args.onChange(selected.value.name);
+          }
+          if (args.displayCurrency) {
+            dispatch(setDisplayCurrency(selected.value));
+          }
+        }}
+      />
+    </>
   );
 };
 

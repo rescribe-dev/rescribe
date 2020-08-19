@@ -153,7 +153,7 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
             className="justify-content-center"
           >
             <Col md="5">
-              <CurrencySelector setPaymentCurrency={false} />
+              <CurrencySelector displayCurrency={true} />
             </Col>
           </Row>
         </>

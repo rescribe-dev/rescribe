@@ -146,7 +146,8 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
                 </FormGroup>
                 <FormGroup>
                   <CurrencySelector
-                    setDisplayCurrency={false}
+                    displayCurrency={false}
+                    acceptedPayment={true}
                     onChange={(currency) => setFieldValue('currency', currency)}
                   />
                 </FormGroup>
