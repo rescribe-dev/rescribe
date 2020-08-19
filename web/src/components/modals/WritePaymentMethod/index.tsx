@@ -24,6 +24,8 @@ import {
 } from 'lib/generated/datamodel';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import CurrencySelector from 'components/CurrencySelector';
+import ObjectId from 'bson-objectid';
+import { UpdateMethod } from 'components/pages/checkout/types';
 
 const loaderCSS = css`
   display: block;
@@ -35,7 +37,7 @@ interface WritePaymentMethodArgs {
   add: boolean;
   isOpen: boolean;
   toggle: () => void;
-  updatePaymentMethods: () => Promise<void>;
+  updatePaymentMethods: UpdateMethod;
 }
 
 const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
@@ -53,11 +55,10 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
         enableReinitialize={true}
         initialValues={{
           currency: '',
-          cardToken: '',
         }}
         onSubmit={async (
           formData,
-          { setSubmitting, setStatus, setFieldValue }
+          { setSubmitting, setStatus }
         ): Promise<void> => {
           try {
             if (!stripe || !elements) {
@@ -77,13 +78,11 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
             if (!paymentMethodRes.paymentMethod) {
               throw new Error('cannot find payment method');
             }
-            console.log(paymentMethodRes);
-            if (!paymentMethodRes.paymentMethod.id) {
+
+            const cardToken = paymentMethodRes.paymentMethod.id;
+            if (!cardToken) {
               throw new Error('cannot find payment method id');
             }
-            setFieldValue('cardToken', paymentMethodRes.paymentMethod.id);
-
-            console.log(formData.currency);
 
             const addPaymentMethodRes = await client.mutate<
               AddPaymentMethodMutation,
@@ -91,13 +90,28 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
             >({
               mutation: AddPaymentMethod,
               variables: {
-                ...formData,
+                currency: formData.currency,
+                cardToken,
               },
             });
             if (addPaymentMethodRes.errors) {
               throw new Error(addPaymentMethodRes.errors.join(', '));
             }
-            await args.updatePaymentMethods();
+            if (
+              !addPaymentMethodRes.data ||
+              !addPaymentMethodRes.data.addPaymentMethod._id
+            ) {
+              throw new Error(
+                'cannot get id for payment method that was just created'
+              );
+            }
+            const paymentMethodID = new ObjectId(
+              addPaymentMethodRes.data.addPaymentMethod._id
+            );
+            console.log(paymentMethodID);
+            await args.updatePaymentMethods({
+              id: paymentMethodID,
+            });
             args.toggle();
           } catch (err) {
             toast(err.message, {

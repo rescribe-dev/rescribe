@@ -8,6 +8,7 @@ import { UserModel } from '../../schema/users/user';
 import { Status, AddressType, GeocodingAddressComponentType } from '@googlemaps/google-maps-services-js';
 import { mapsClient, apiKey } from './init';
 import { getLogger } from 'log4js';
+import ReturnObj from '../../schema/utils/returnObj';
 
 const logger = getLogger();
 
@@ -44,8 +45,8 @@ class AddAddressArgs {
 
 @Resolver()
 class AddAddressResolver {
-  @Mutation(_returns => String)
-  async addAddress(@Args() args: AddAddressArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+  @Mutation(_returns => ReturnObj)
+  async addAddress(@Args() args: AddAddressArgs, @Ctx() ctx: GraphQLContext): Promise<ReturnObj> {
     requirePaymentSystemInitialized();
     if (!verifyLoggedIn(ctx)) {
       throw new Error('user not logged in');
@@ -121,7 +122,10 @@ class AddAddressResolver {
         addresses: addressID
       }
     });
-    return `added address ${newAddress.name}`;
+    return {
+      message: `added address ${newAddress.name}`,
+      _id: addressID,
+    };
   }
 }
 

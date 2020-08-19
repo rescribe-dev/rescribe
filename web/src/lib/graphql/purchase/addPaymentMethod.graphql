@@ -1,3 +1,5 @@
 mutation addPaymentMethod($currency: String!, $cardToken: String!, $setDefault: Boolean) {
-  addPaymentMethod(currency: $currency, cardToken: $cardToken, setDefault: $setDefault)
+  addPaymentMethod(currency: $currency, cardToken: $cardToken, setDefault: $setDefault) {
+    _id
+  }
 }

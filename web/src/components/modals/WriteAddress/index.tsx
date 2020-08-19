@@ -36,6 +36,8 @@ import {
   AddAddressMutationVariables,
   AddAddress,
 } from 'lib/generated/datamodel';
+import ObjectId from 'bson-objectid';
+import { UpdateMethod } from 'components/pages/checkout/types';
 
 const loaderCSS = css`
   display: block;
@@ -58,7 +60,7 @@ interface WriteAddressArgs {
   add: boolean;
   isOpen: boolean;
   toggle: () => void;
-  updateAddresses: () => Promise<void>;
+  updateAddresses: UpdateMethod;
 }
 
 const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
@@ -138,7 +140,6 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
           (country) => country.code === defaultCountryCodeLowerCase
         );
         setDefaultCountry(newDefaultCountry);
-        setSelectedCountry(newDefaultCountry);
         if (!google || !google.maps.places) {
           throw new Error('cannot find autocomplete service');
         }
@@ -198,7 +199,14 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
   };
 
   return (
-    <Modal isOpen={args.isOpen} toggle={args.toggle}>
+    <Modal
+      onOpened={() => {
+        setSelectedCountry(defaultCountry);
+        setSelectedAddress(undefined);
+      }}
+      isOpen={args.isOpen}
+      toggle={args.toggle}
+    >
       <ModalHeader toggle={args.toggle}>
         {args.add ? 'Add' : 'Edit'} Address
       </ModalHeader>
@@ -232,7 +240,17 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
             if (addAddressRes.errors) {
               throw new Error(addAddressRes.errors.join(', '));
             }
-            await args.updateAddresses();
+            if (!addAddressRes.data || !addAddressRes.data.addAddress._id) {
+              throw new Error(
+                'cannot get id for address that was just created'
+              );
+            }
+            const addressID = new ObjectId(addAddressRes.data.addAddress._id);
+            await args.updateAddresses({
+              id: addressID,
+            });
+            setSelectedAddress(undefined);
+            setSelectedCountry(undefined);
             args.toggle();
           } catch (err) {
             toast(err.message, {

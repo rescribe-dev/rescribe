@@ -8,6 +8,10 @@ import PaymentMethod, { PaymentMethodModel } from '../../schema/users/paymentMet
 import { validateCurrency } from '../../currencies/utils';
 import UserCurrency, { UserCurrencyModel } from '../../schema/users/userCurrency';
 import { MinLength } from 'class-validator';
+import ReturnObj from '../../schema/utils/returnObj';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 @ArgsType()
 class AddPaymentMethodArgs {
@@ -25,8 +29,8 @@ class AddPaymentMethodArgs {
 
 @Resolver()
 class AddPaymentMethodResolver {
-  @Mutation(_returns => String)
-  async addPaymentMethod(@Args() args: AddPaymentMethodArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+  @Mutation(_returns => ReturnObj)
+  async addPaymentMethod(@Args() args: AddPaymentMethodArgs, @Ctx() ctx: GraphQLContext): Promise<ReturnObj> {
     requirePaymentSystemInitialized();
     if (!verifyLoggedIn(ctx)) {
       throw new Error('user not logged in');
@@ -47,7 +51,7 @@ class AddPaymentMethodResolver {
       throw new Error('payment method already exists');
     }
 
-    const userCurrencyData = await UserCurrencyModel.findOne({
+    let userCurrencyData: UserCurrency | null = await UserCurrencyModel.findOne({
       user: userID,
       currency: args.currency,
     });
@@ -66,6 +70,18 @@ class AddPaymentMethodResolver {
         user: userID
       };
       await new UserCurrencyModel(newUserCurrency).save();
+      userCurrencyData = newUserCurrency;
+    }
+    const setupIntent = await stripeClient.setupIntents.create({
+      confirm: true,
+      customer: userCurrencyData.customer,
+      payment_method: args.cardToken,
+      payment_method_types: ['card'],
+      description: `setup intent for adding ${args.cardToken} to user ${userID.toHexString()}`,
+    });
+    if (setupIntent.next_action) {
+      logger.info(setupIntent.next_action);
+      throw new Error('not handled next action');
     }
     const paymentMethodID = new ObjectId();
     const newPaymentMethod: PaymentMethod = {
@@ -75,7 +91,10 @@ class AddPaymentMethodResolver {
       method: args.cardToken
     };
     await new PaymentMethodModel(newPaymentMethod).save();
-    return `added / updated payment method ${paymentMethodID.toHexString()}`;
+    return {
+      message: `added / updated payment method ${paymentMethodID.toHexString()}`,
+      _id: paymentMethodID,
+    };
   }
 }
 

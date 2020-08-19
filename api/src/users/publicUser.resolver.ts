@@ -3,6 +3,8 @@ import { Resolver, Ctx, Query, ArgsType, Field, Args } from 'type-graphql';
 import { GraphQLContext } from '../utils/context';
 import User, { UserModel, PublicUser } from '../schema/users/user';
 import { verifyLoggedIn } from '../auth/checkAuth';
+import { ApolloError } from 'apollo-server-express';
+import { NOT_FOUND } from 'http-status-codes';
 
 @ArgsType()
 class PublicUserArgs {
@@ -27,10 +29,10 @@ class PublicUserResolver {
     } else if (verifyLoggedIn(ctx) && ctx.auth) {
       user = await UserModel.findById(ctx.auth.id);
     } else {
-      throw new Error('no username or id provided, and not logged in');
+      throw new ApolloError('no username or id provided, and not logged in', `${NOT_FOUND}`);
     }
     if (!user) {
-      throw new Error('cannot find user');
+      throw new ApolloError('cannot find user', `${NOT_FOUND}`);
     }
     return user as PublicUser;
   }

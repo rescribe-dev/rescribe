@@ -9,6 +9,8 @@ import { elasticClient } from '../elastic/init';
 import { checkProjectAccess } from './auth';
 import { AccessLevel } from '../schema/users/access';
 import { TermQuery } from '../elastic/types';
+import { ApolloError } from 'apollo-server-express';
+import { NOT_FOUND } from 'http-status-codes';
 
 @ArgsType()
 class ProjectArgs {
@@ -61,7 +63,7 @@ export const getProject = async (args: ProjectArgs, userID: ObjectId): Promise<P
       }
     });
     if (projectData.body.hits.hits.length === 0) {
-      throw new Error('could not find project');
+      throw new ApolloError('could not find project', `${NOT_FOUND}`);
     }
     project = {
       ...projectData.body.hits.hits[0]._source as Project,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col, Form } from 'reactstrap';
 import './index.scss';
 import { PageProps } from 'gatsby';
@@ -28,7 +28,7 @@ import { toast } from 'react-toastify';
 import { ApolloQueryResult } from 'apollo-client';
 import ObjectId from 'bson-objectid';
 import SelectList from './SelectList';
-import { Formik } from 'formik';
+import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
 import DeleteAddressModal from 'components/modals/DeleteAddress';
 import { useMutation, ApolloError } from '@apollo/react-hooks';
@@ -40,6 +40,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import WritePaymentMethod from 'components/modals/WritePaymentMethod';
 import { CurrencyData } from 'state/purchase/types';
 import { defaultCurrencyData } from 'state/purchase/reducers';
+import { UpdateMethod } from './types';
 
 export interface CheckoutPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -47,6 +48,11 @@ export interface CheckoutPageProps extends PageProps {
 
 interface CheckoutPageContentProps extends CheckoutPageProps {
   messages: CheckoutMessages;
+}
+
+interface CheckoutValues {
+  address: ObjectId | null;
+  paymentMethod: ObjectId | null;
 }
 
 const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
@@ -101,11 +107,13 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
   // add vs edit
   const [add, setAdd] = useState(true);
 
+  const formRef = useRef<FormikValues>();
+
   const [addresses, setAddresses] = useState<
     ApolloQueryResult<AddressesQuery> | undefined
   >(undefined);
 
-  const updateAddresses = async (): Promise<void> => {
+  const updateAddresses: UpdateMethod = async (args) => {
     try {
       const addressesRes = await client.query<
         AddressesQuery,
@@ -119,6 +127,22 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
         address._id = new ObjectId(address._id);
       });
       setAddresses(addressesRes);
+      if (args && formRef.current) {
+        if (args.id) {
+          const newAddressIndex = addressesRes.data.addresses.findIndex(
+            (elem) => (elem._id as ObjectId).equals(args.id as ObjectId)
+          );
+          if (newAddressIndex >= 0 && formRef.current) {
+            formRef.current.setFieldValue('address', args.id);
+            setAddressSelectMode(false);
+          }
+        } else if (args.init && addressesRes.data.addresses.length > 0) {
+          formRef.current.setFieldValue(
+            'address',
+            addressesRes.data.addresses[0]._id
+          );
+        }
+      }
     } catch (err) {
       const errObj = err as Error;
       toast(errObj.message, {
@@ -131,7 +155,7 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
     ApolloQueryResult<PaymentMethodsQuery> | undefined
   >(undefined);
 
-  const updatePaymentMethods = async (): Promise<void> => {
+  const updatePaymentMethods: UpdateMethod = async (args) => {
     try {
       const paymentMethodsRes = await client.query<
         PaymentMethodsQuery,
@@ -145,6 +169,25 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
         method._id = new ObjectId(method._id);
       });
       setPaymentMethods(paymentMethodsRes);
+      if (args && formRef.current) {
+        if (args.id) {
+          const newPaymentMethodIndex = paymentMethodsRes.data.paymentMethods.findIndex(
+            (elem) => (elem._id as ObjectId).equals(args.id as ObjectId)
+          );
+          if (newPaymentMethodIndex >= 0) {
+            formRef.current.setFieldValue('paymentMethod', args.id);
+            setPaymentSelectMode(false);
+          }
+        } else if (
+          args.init &&
+          paymentMethodsRes.data.paymentMethods.length > 0
+        ) {
+          formRef.current.setFieldValue(
+            'paymentMethod',
+            paymentMethodsRes.data.paymentMethods[0]._id
+          );
+        }
+      }
     } catch (err) {
       const errObj = err as Error;
       toast(errObj.message, {
@@ -175,6 +218,11 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
     );
   };
 
+  const [checkoutInitialValues] = useState<CheckoutValues>({
+    address: null,
+    paymentMethod: null,
+  });
+
   const [
     stripeElement,
     setStripeElement,
@@ -186,8 +234,12 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
         throw new Error('cannot find stripe key');
       }
       setStripeElement(loadStripe(process.env.GATSBY_STRIPE_SITE_KEY));
-      await updateAddresses();
-      await updatePaymentMethods();
+      await updateAddresses({
+        init: true,
+      });
+      await updatePaymentMethods({
+        init: true,
+      });
     })();
   }, []);
 
@@ -207,10 +259,8 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
           Checkout
         </h2>
         <Formik
-          initialValues={{
-            address: null,
-            paymentMethod: null,
-          }}
+          innerRef={(formRef as unknown) as (instance: any) => void}
+          initialValues={checkoutInitialValues}
           validationSchema={yup.object({
             address: yup.object().required('required'),
             paymentMethod: yup.object().required('required'),
@@ -232,156 +282,175 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
           }}
         >
           {({ values, setFieldValue, handleSubmit }) => (
-            <Form onSubmit={handleSubmit}>
-              <Row>
-                <Col md="7">
-                  <Container>
-                    <StepLayout
-                      loading={addresses === undefined || addresses.loading}
-                      messages={args.messages}
-                      mode={Mode.Address}
-                      numItems={addresses ? addresses.data.addresses.length : 0}
-                      selectMode={addressSelectMode}
-                      toggle={() => {
-                        if (paymentSelectMode) {
-                          togglePaymentSelectMode();
-                        }
-                        toggleAddressSelectMode();
-                      }}
-                    >
-                      <SelectList
-                        getListLabel={getAddressListLabel}
-                        getSelectedLabel={getAddressListLabel}
-                        items={addresses ? addresses.data.addresses : []}
+            <>
+              <Form onSubmit={handleSubmit}>
+                <Row>
+                  <Col md="7">
+                    <Container>
+                      <StepLayout
+                        loading={addresses === undefined || addresses.loading}
                         messages={args.messages}
                         mode={Mode.Address}
-                        toggleModal={toggleAddressModal}
-                        setAdd={setAdd}
-                        updateItems={updateAddresses}
-                        selectedID={values.address}
-                        setFieldValue={setFieldValue}
-                        selectMode={addressSelectMode}
-                        setCurrentItem={setCurrentAddress}
-                        toggleDeleteItemModal={toggleDeleteAddressModal}
-                        id="address"
-                      />
-                    </StepLayout>
-                    <hr />
-                    <StepLayout
-                      loading={
-                        paymentMethods === undefined || paymentMethods.loading
-                      }
-                      messages={args.messages}
-                      mode={Mode.Payment}
-                      numItems={
-                        paymentMethods
-                          ? paymentMethods.data.paymentMethods.length
-                          : 0
-                      }
-                      selectMode={paymentSelectMode}
-                      toggle={() => {
-                        if (addressSelectMode) {
-                          toggleAddressSelectMode();
+                        numItems={
+                          addresses ? addresses.data.addresses.length : 0
                         }
-                        togglePaymentSelectMode();
-                      }}
-                    >
-                      <SelectList
-                        getListLabel={getPaymentListLabel}
-                        getSelectedLabel={getPaymentListLabel}
-                        items={
-                          paymentMethods
-                            ? paymentMethods.data.paymentMethods
-                            : []
+                        selectMode={addressSelectMode}
+                        toggle={() => {
+                          if (paymentSelectMode) {
+                            togglePaymentSelectMode();
+                          }
+                          toggleAddressSelectMode();
+                        }}
+                      >
+                        <SelectList
+                          getListLabel={getAddressListLabel}
+                          getSelectedLabel={getAddressListLabel}
+                          items={addresses ? addresses.data.addresses : []}
+                          messages={args.messages}
+                          mode={Mode.Address}
+                          toggleModal={toggleAddressModal}
+                          setAdd={setAdd}
+                          updateItems={updateAddresses}
+                          selectedID={values.address}
+                          setFieldValue={setFieldValue}
+                          selectMode={addressSelectMode}
+                          setCurrentItem={setCurrentAddress}
+                          toggleDeleteItemModal={toggleDeleteAddressModal}
+                          id="address"
+                        />
+                      </StepLayout>
+                      <hr />
+                      <StepLayout
+                        loading={
+                          paymentMethods === undefined || paymentMethods.loading
                         }
                         messages={args.messages}
                         mode={Mode.Payment}
-                        toggleModal={togglePaymentModal}
-                        setAdd={setAdd}
-                        updateItems={updatePaymentMethods}
-                        selectedID={values.paymentMethod}
-                        setFieldValue={setFieldValue}
+                        numItems={
+                          paymentMethods
+                            ? paymentMethods.data.paymentMethods.length
+                            : 0
+                        }
                         selectMode={paymentSelectMode}
-                        setCurrentItem={setCurrentPaymentMethod}
-                        toggleDeleteItemModal={toggleDeletePaymentModal}
-                        id="paymentMethod"
-                        setCurrentCurrency={setCurrentCurrency}
-                      />
-                    </StepLayout>
-                  </Container>
-                </Col>
-                <Col md="4">
-                  <Summary
-                    messages={args.messages}
-                    currency={currentCurrency}
-                  />
-                </Col>
-              </Row>
-            </Form>
+                        toggle={() => {
+                          if (addressSelectMode) {
+                            toggleAddressSelectMode();
+                          }
+                          togglePaymentSelectMode();
+                        }}
+                      >
+                        <SelectList
+                          getListLabel={getPaymentListLabel}
+                          getSelectedLabel={getPaymentListLabel}
+                          items={
+                            paymentMethods
+                              ? paymentMethods.data.paymentMethods
+                              : []
+                          }
+                          messages={args.messages}
+                          mode={Mode.Payment}
+                          toggleModal={togglePaymentModal}
+                          setAdd={setAdd}
+                          updateItems={updatePaymentMethods}
+                          selectedID={values.paymentMethod}
+                          setFieldValue={setFieldValue}
+                          selectMode={paymentSelectMode}
+                          setCurrentItem={setCurrentPaymentMethod}
+                          toggleDeleteItemModal={toggleDeletePaymentModal}
+                          id="paymentMethod"
+                          setCurrentCurrency={setCurrentCurrency}
+                        />
+                      </StepLayout>
+                    </Container>
+                  </Col>
+                  <Col md="4">
+                    <Summary
+                      messages={args.messages}
+                      currency={currentCurrency}
+                    />
+                  </Col>
+                </Row>
+              </Form>
+              <DeleteAddressModal
+                isOpen={deleteAddressModalIsOpen}
+                toggle={toggleDeleteAddressModal}
+                deleteAddress={async (): Promise<void> => {
+                  if (!addresses || !currentAddress) return;
+                  try {
+                    await deleteAddressMutation({
+                      variables: {
+                        id: currentAddress,
+                      },
+                      update: () => {
+                        if (
+                          values.address &&
+                          values.address.equals(currentAddress)
+                        ) {
+                          setFieldValue('address', null);
+                        }
+                        setAddresses({
+                          ...addresses,
+                          loading: false,
+                          data: {
+                            addresses: addresses.data.addresses.filter(
+                              (elem) =>
+                                !(elem._id as ObjectId).equals(currentAddress)
+                            ),
+                          },
+                        });
+                      },
+                    });
+                  } catch (err) {
+                    const errObj = err as ApolloError;
+                    toast(errObj.message, {
+                      type: 'error',
+                    });
+                  }
+                }}
+              />
+              <DeletePaymentMethodModal
+                isOpen={deletePaymentModalIsOpen}
+                toggle={toggleDeletePaymentModal}
+                deletePaymentMethod={async (): Promise<void> => {
+                  if (!paymentMethods || !currentPaymentMethod) return;
+                  try {
+                    await deletePaymentMethodMutation({
+                      variables: {
+                        id: currentPaymentMethod,
+                      },
+                      update: () => {
+                        if (
+                          values.address &&
+                          values.address.equals(currentPaymentMethod)
+                        ) {
+                          setFieldValue('paymentMethod', null);
+                        }
+                        setPaymentMethods({
+                          ...paymentMethods,
+                          loading: false,
+                          data: {
+                            paymentMethods: paymentMethods.data.paymentMethods.filter(
+                              (elem) =>
+                                !(elem._id as ObjectId).equals(
+                                  currentPaymentMethod
+                                )
+                            ),
+                          },
+                        });
+                      },
+                    });
+                  } catch (err) {
+                    const errObj = err as ApolloError;
+                    toast(errObj.message, {
+                      type: 'error',
+                    });
+                  }
+                }}
+              />
+            </>
           )}
         </Formik>
       </Container>
-      <DeleteAddressModal
-        isOpen={deleteAddressModalIsOpen}
-        toggle={toggleDeleteAddressModal}
-        deleteAddress={async (): Promise<void> => {
-          if (!addresses || !currentAddress) return;
-          try {
-            await deleteAddressMutation({
-              variables: {
-                id: currentAddress,
-              },
-              update: () => {
-                setAddresses({
-                  ...addresses,
-                  loading: false,
-                  data: {
-                    addresses: addresses.data.addresses.filter(
-                      (elem) => !(elem._id as ObjectId).equals(currentAddress)
-                    ),
-                  },
-                });
-              },
-            });
-          } catch (err) {
-            const errObj = err as ApolloError;
-            toast(errObj.message, {
-              type: 'error',
-            });
-          }
-        }}
-      />
-      <DeletePaymentMethodModal
-        isOpen={deletePaymentModalIsOpen}
-        toggle={toggleDeletePaymentModal}
-        deletePaymentMethod={async (): Promise<void> => {
-          if (!paymentMethods || !currentPaymentMethod) return;
-          try {
-            await deletePaymentMethodMutation({
-              variables: {
-                id: currentPaymentMethod,
-              },
-              update: () => {
-                setPaymentMethods({
-                  ...paymentMethods,
-                  loading: false,
-                  data: {
-                    paymentMethods: paymentMethods.data.paymentMethods.filter(
-                      (elem) =>
-                        !(elem._id as ObjectId).equals(currentPaymentMethod)
-                    ),
-                  },
-                });
-              },
-            });
-          } catch (err) {
-            const errObj = err as ApolloError;
-            toast(errObj.message, {
-              type: 'error',
-            });
-          }
-        }}
-      />
       <WritePaymentMethod
         add={add}
         isOpen={paymentModalIsOpen}

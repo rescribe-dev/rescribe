@@ -507,7 +507,7 @@ type Mutation {
 
     """state"""
     state: String
-  ): String!
+  ): ReturnObj!
   addBranch(
     """branch name"""
     name: String!
@@ -557,7 +557,7 @@ type Mutation {
 
     """set to default"""
     setDefault: Boolean = true
-  ): String!
+  ): ReturnObj!
   addProduct(
     """product name"""
     name: String!
@@ -1371,6 +1371,18 @@ enum ResultType {
   name
   path
   variable
+}
+
+"""return object for graphql mutations"""
+type ReturnObj {
+  """object id"""
+  _id: ObjectId
+
+  """other data"""
+  data: String
+
+  """message"""
+  message: String!
 }
 
 """search result"""
