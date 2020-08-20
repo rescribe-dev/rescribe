@@ -45,6 +45,7 @@ interface ConfigType {
   RECAPTCHA_SECRET: string;
   CONNECT_STRIPE: boolean;
   STRIPE_SECRET: string;
+  STRIPE_WEBHOOK_SECRET: string;
   GOOGLE_MAPS_API_KEY: string;
 }
 
@@ -90,6 +91,7 @@ export const configData: ConfigType = {
   RECAPTCHA_SECRET: '',
   CONNECT_STRIPE: true,
   STRIPE_SECRET: '',
+  STRIPE_WEBHOOK_SECRET: '',
   GOOGLE_MAPS_API_KEY: '',
 };
 

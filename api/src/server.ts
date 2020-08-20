@@ -26,6 +26,8 @@ import { getSitemap } from './sitemap/getSitemap';
 import { sitemapPaths } from './sitemap/sitemaps';
 import { initializeProducts } from './products/init';
 import { authHandler } from './utils/express';
+import { paymentSystemInitialized } from './stripe/init';
+import stripeWebookHandler from './stripe/hooks';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -115,6 +117,9 @@ export const initializeServer = async (): Promise<void> => {
       });
     }
   });
+  if (paymentSystemInitialized) {
+    app.post('/stripeHooks', stripeWebookHandler);
+  }
   if (enableInitialization()) {
     logger.info('initialization is enabled');
     app.post('/initializeElastic', (req, res) =>

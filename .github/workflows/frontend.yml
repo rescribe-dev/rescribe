@@ -50,6 +50,7 @@ jobs:
           GATSBY_GOOGLE_VARIATION_ID: ${{ secrets.GATSBY_GOOGLE_VARIATION_ID }}
           GATSBY_GITHUB_CLIENT_ID: ${{ secrets.GATSBY_GITHUB_CLIENT_ID }}
           GATSBY_STRIPE_SITE_KEY: ${{ secrets.GATSBY_STRIPE_SITE_KEY }}
+          GATSBY_GOOGLE_PLACES_AUTOCOMPLETE_KEY: ${{ secrets.GATSBY_GOOGLE_PLACES_AUTOCOMPLETE_KEY }}
       - name: copy dist
         run: cp -r web/dist aws/cloudfront/build-cloudfront/dist
       - name: upload

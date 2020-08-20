@@ -12,6 +12,10 @@ export const initializeStripe = async (): Promise<void> => {
     const message = 'no stripe secret provided';
     throw new Error(message);
   }
+  if (configData.STRIPE_WEBHOOK_SECRET.length === 0) {
+    const message = 'no stripe webhook secret provided';
+    throw new Error(message);
+  }
   stripeClient = new Stripe(configData.STRIPE_SECRET, {
     apiVersion: '2020-03-02'
   });
