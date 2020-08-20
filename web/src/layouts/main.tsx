@@ -54,8 +54,6 @@ interface IndexLayoutProps {
   };
 }
 
-// TODO - create a switcher between themes
-
 const Layout = (args: IndexLayoutArgs): JSX.Element => {
   const data: IndexLayoutProps = useStaticQuery(graphql`
     query SiteTitleQuery {

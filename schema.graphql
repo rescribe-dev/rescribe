@@ -742,6 +742,9 @@ type Mutation {
   loginGuest: String!
   logout: String!
   purchase(
+    """address id"""
+    address: ObjectId
+
     """coupon - only allow one at a time for now"""
     coupon: String
 
@@ -869,6 +872,9 @@ enum ParentType {
 """payment method object"""
 type PaymentMethod {
   _id: ObjectId!
+
+  """billing address"""
+  address: ObjectId
 
   """credit card type"""
   brand: CreditCardBrand!
@@ -1435,7 +1441,10 @@ scalar Upload
 type User {
   _id: ObjectId!
 
-  """project access"""
+  """default address"""
+  defaultAddress: ObjectId
+
+  """default payment method"""
   defaultPaymentMethod: ObjectId
 
   """email"""

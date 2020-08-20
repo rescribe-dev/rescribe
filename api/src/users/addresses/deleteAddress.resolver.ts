@@ -20,19 +20,30 @@ class DeleteAddressResolver {
     if (!verifyLoggedIn(ctx)) {
       throw new Error('user not logged in');
     }
+
+    const addressData = await AddressModel.findById(args.id);
+    if (!addressData) {
+      throw new Error(`cannot find address with id ${args.id.toHexString()}`);
+    }
+    const userID = new ObjectId(ctx.auth?.id as string);
+    if (!addressData.user.equals(userID)) {
+      throw new Error('user not authorized to view address data');
+    }
     await AddressModel.deleteOne({
       _id: args.id
     });
-    const userID = new ObjectId(ctx.auth?.id);
-    const addressData = await UserModel.findOneAndUpdate({
-      _id: userID
-    }, {
-      $pull: {
-        addresses: args.id
-      }
-    });
-    if (!addressData) {
-      throw new Error(`cannot find address in user ${args.id.toHexString()}`);
+    const userData = await UserModel.findById(userID);
+    if (!userData) {
+      throw new Error('cannot find user data');
+    }
+    if (userData.defaultAddress && userData.defaultAddress.equals(args.id)) {
+      await UserModel.updateOne({
+        _id: userID
+      }, {
+        $set: {
+          defaultAddress: undefined
+        }
+      });
     }
     return `deleted address ${addressData.name}`;
   }

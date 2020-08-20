@@ -15,6 +15,7 @@ import { defaultCurrency } from '../shared/variables';
 import ReturnObj from '../schema/utils/returnObj';
 import { ApolloError } from 'apollo-server-express';
 import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import Address, { AddressModel } from '../schema/users/address';
 
 @ArgsType()
 export class PurchaseArgs {
@@ -29,6 +30,9 @@ export class PurchaseArgs {
 
   @Field({ description: 'payment method id', nullable: true })
   paymentMethod?: ObjectId;
+
+  @Field({ description: 'address id', nullable: true })
+  address?: ObjectId;
 }
 
 @Resolver()
@@ -140,6 +144,60 @@ class PurchaseResolver {
       throw new Error(`could not find plan with interval ${args.interval}`);
     }
 
+    let address: Address | undefined;
+    if (!product.isFree && paymentMethod && !paymentMethod.address) {
+      if (!args.address) {
+        if (!user.defaultAddress) {
+          throw new Error('no default address found');
+        }
+        if (await AddressModel.countDocuments({
+          _id: user.defaultAddress
+        }) === 0) {
+          const newDefaultAddress = await AddressModel.findOne({
+            user: userID
+          });
+          if (!newDefaultAddress) {
+            throw new Error('cannot find any addresses to make default');
+          }
+          user.defaultAddress = newDefaultAddress._id;
+          await UserModel.updateOne({
+            _id: userID
+          }, {
+            defaultAddress: user.defaultAddress
+          });
+        }
+        args.address = user.defaultAddress;
+      }
+      const potentialAddress = await AddressModel.findById(args.address);
+      if (!potentialAddress) {
+        throw new Error(`cannot find address with id ${args.address.toHexString()}`);
+      }
+      address = potentialAddress;
+    }
+
+    // update billing address on card
+    if (!product.isFree && paymentMethod && address) {
+      await stripeClient.paymentMethods.update(paymentMethod.method, {
+        billing_details: {
+          address: {
+            city: address.city,
+            country: address.country,
+            line1: address.line1,
+            line2: address.line2,
+            state: address.state,
+            postal_code: address.postal_code,
+          },
+        },
+      });
+      await PaymentMethodModel.updateOne({
+        _id: paymentMethod._id
+      }, {
+        $set: {
+          address: address._id,
+        }
+      });
+    }
+
     const successMessage = `user ${user.username} purchased ${product.name}`;
     if (args.interval !== singlePurchase) {
       const newSubscription = await stripeClient.subscriptions.create({
@@ -148,7 +206,7 @@ class PurchaseResolver {
           plan: subscriptionPlanID as string
         }],
         coupon: coupon ? coupon.name : undefined,
-        default_payment_method: product.isFree || !paymentMethod ? undefined : paymentMethod.method
+        default_payment_method: product.isFree || !paymentMethod ? undefined : paymentMethod.method,
       });
       if (user.subscriptionID.length > 0) {
         await stripeClient.subscriptions.del(user.subscriptionID);

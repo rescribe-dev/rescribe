@@ -6,12 +6,12 @@ import { ObjectId } from 'mongodb';
 import { UserModel } from '../../schema/users/user';
 import PaymentMethod, { PaymentMethodModel, CreditCardBrand } from '../../schema/users/paymentMethod';
 import { validateCurrency } from '../../currencies/utils';
-import UserCurrency, { UserCurrencyModel } from '../../schema/users/userCurrency';
 import { MinLength } from 'class-validator';
 import ReturnObj from '../../schema/utils/returnObj';
 import { getLogger } from 'log4js';
 import { ApolloError } from 'apollo-server-express';
 import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import getUserCurrency from '../getUserCurrency';
 
 const logger = getLogger();
 
@@ -24,7 +24,6 @@ class AddPaymentMethodArgs {
   @Field({ description: 'stripe card token' })
   cardToken: string;
 
-  // TODO - handle setting default
   @Field({ description: 'set to default', defaultValue: true, nullable: true })
   setDefault: boolean;
 }
@@ -53,27 +52,8 @@ class AddPaymentMethodResolver {
       throw new Error('payment method already exists');
     }
 
-    let userCurrencyData: UserCurrency | null = await UserCurrencyModel.findOne({
-      user: userID,
-      currency: args.currency,
-    });
-    if (!userCurrencyData) {
-      const stripeCustomer = await stripeClient.customers.create({
-        email: userData.email,
-        metadata: {
-          id: userData._id.toHexString()
-        }
-      });
-      const stripeCustomerID = stripeCustomer.id;
-      const newUserCurrency: UserCurrency = {
-        _id: new ObjectId(),
-        currency: args.currency,
-        customer: stripeCustomerID,
-        user: userID
-      };
-      await new UserCurrencyModel(newUserCurrency).save();
-      userCurrencyData = newUserCurrency;
-    }
+    const userCurrencyData = await getUserCurrency(args.currency, userData);
+
     const cardData = await stripeClient.paymentMethods.retrieve(args.cardToken);
     if (!cardData.card) {
       throw new ApolloError('cannot get card data', `${INTERNAL_SERVER_ERROR}`);
@@ -103,6 +83,20 @@ class AddPaymentMethodResolver {
       lastFourDigits: lastFourDigits.valueOf(),
     };
     await new PaymentMethodModel(newPaymentMethod).save();
+    if (args.setDefault) {
+      await stripeClient.customers.update(userCurrencyData.customer, {
+        invoice_settings: {
+          default_payment_method: args.cardToken,
+        }
+      });
+      await UserModel.updateOne({
+        _id: userID
+      }, {
+        $set: {
+          defaultPaymentMethod: newPaymentMethod._id,
+        }
+      });
+    }
     return {
       message: `added / updated payment method ${newPaymentMethod._id.toHexString()}`,
       _id: newPaymentMethod._id,

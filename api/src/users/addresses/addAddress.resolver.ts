@@ -1,5 +1,5 @@
 import { Resolver, Field, Args, Mutation, Ctx, ArgsType } from 'type-graphql';
-import { requirePaymentSystemInitialized } from '../../stripe/init';
+import { requirePaymentSystemInitialized, stripeClient } from '../../stripe/init';
 import { GraphQLContext } from '../../utils/context';
 import { verifyLoggedIn } from '../../auth/checkAuth';
 import Address, { AddressModel } from '../../schema/users/address';
@@ -7,10 +7,12 @@ import { ObjectId } from 'mongodb';
 import { UserModel } from '../../schema/users/user';
 import { Status, AddressType, GeocodingAddressComponentType } from '@googlemaps/google-maps-services-js';
 import { mapsClient, apiKey } from './init';
-import { getLogger } from 'log4js';
 import ReturnObj from '../../schema/utils/returnObj';
-
-const logger = getLogger();
+import { ApolloError } from 'apollo-server-express';
+import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import { PaymentMethodModel } from '../../schema/users/paymentMethod';
+import { defaultCurrency } from '../../shared/variables';
+import getUserCurrency from '../getUserCurrency';
 
 @ArgsType()
 class AddAddressArgs {
@@ -38,7 +40,6 @@ class AddAddressArgs {
   @Field({ description: 'country', nullable: true })
   country?: string;
 
-  // TODO - handle setting default
   @Field({ description: 'set to default', defaultValue: true, nullable: true })
   setDefault: boolean;
 }
@@ -80,7 +81,6 @@ class AddAddressResolver {
         country: ''
       };
       for (const addressComponent of placeData.address_components) {
-        logger.info(addressComponent);
         if (addressComponent.types.includes(GeocodingAddressComponentType.street_number)) {
           newAddress.line1 = addressComponent.long_name;
         } else if (addressComponent.types.includes(AddressType.route)) {
@@ -111,17 +111,42 @@ class AddAddressResolver {
         city: args.city,
         state: args.state,
         postal_code: args.postal_code,
-        country: args.country
+        country: args.country,
       };
     }
     await new AddressModel(newAddress).save();
-    await UserModel.updateOne({
-      _id: userID
-    }, {
-      $addToSet: {
-        addresses: addressID
+    if (args.setDefault) {
+      const userData = await UserModel.findById(userID);
+      if (!userData) {
+        throw new ApolloError('cannot find user data', `${INTERNAL_SERVER_ERROR}`);
       }
-    });
+      let currency = defaultCurrency;
+      if (userData.defaultPaymentMethod) {
+        const paymentMethodData = await PaymentMethodModel.findById(userData.defaultPaymentMethod);
+        if (!paymentMethodData) {
+          throw new ApolloError('cannot find payment method data', `${INTERNAL_SERVER_ERROR}`);
+        }
+        currency = paymentMethodData.currency;
+      }
+      const userCurrencyData = await getUserCurrency(currency, userData);
+      await stripeClient.customers.update(userCurrencyData.customer, {
+        address: {
+          city: newAddress.city,
+          country: newAddress.country,
+          line1: newAddress.postal_code,
+          state: newAddress.state,
+          line2: newAddress.line2,
+          postal_code: newAddress.postal_code,
+        },
+      });
+      await UserModel.updateOne({
+        _id: userID
+      }, {
+        $set: {
+          defaultAddress: newAddress._id,
+        }
+      });
+    }
     return {
       message: `added address ${newAddress.name}`,
       _id: addressID,

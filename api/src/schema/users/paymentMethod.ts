@@ -44,6 +44,10 @@ export default class PaymentMethod {
   @Field(_type => CreditCardBrand, { description: 'credit card type' })
   @Property({ required: true })
   brand: CreditCardBrand;
+
+  @Field({ description: 'billing address', nullable: true })
+  @Property({ required: false })
+  address?: ObjectId;
 }
 
 export const PaymentMethodModel = getModelForClass(PaymentMethod);
