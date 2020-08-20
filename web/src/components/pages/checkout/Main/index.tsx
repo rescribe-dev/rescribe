@@ -37,13 +37,14 @@ import { useMutation, ApolloError } from '@apollo/react-hooks';
 import StepLayout from '../StepLayout';
 import { Mode } from '../mode';
 import DeletePaymentMethodModal from 'components/modals/DeletePaymentMethod';
-import WritePaymentMethod from 'components/modals/WritePaymentMethod';
-import { CurrencyData, CartObject } from 'state/purchase/types';
-import { defaultCurrencyData } from 'state/purchase/reducers';
+import AddPaymentMethodModal from 'components/modals/AddPaymentMethod';
+import { CartObject } from 'state/purchase/types';
 import { UpdateMethod, creditCardBrandToString, CheckoutValues } from '../misc';
 import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
+import { CurrencyData } from 'state/settings/types';
+import { defaultCurrencyData } from 'state/settings/reducers';
 
 export type OnCheckoutComplete = (name: string) => void;
 
@@ -463,7 +464,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
           </>
         )}
       </Formik>
-      <WritePaymentMethod
+      <AddPaymentMethodModal
         add={add}
         isOpen={paymentModalIsOpen}
         toggle={togglePaymentModal}

@@ -89,6 +89,9 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
         >
           <Button
             color="primary"
+            style={{
+              fontSize: '14px',
+            }}
             onClick={(evt) => {
               evt.preventDefault();
               args.setAdd(true);
@@ -226,6 +229,9 @@ const SelectList = (args: SelectListArgs): JSX.Element => {
                 >
                   <Button
                     color="primary"
+                    style={{
+                      fontSize: '14px',
+                    }}
                     onClick={(evt) => {
                       evt.preventDefault();
                       args.setAdd(true);

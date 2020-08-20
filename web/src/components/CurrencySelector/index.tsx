@@ -10,14 +10,14 @@ import { isSSR } from 'utils/checkSSR';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from 'state';
 import { Dispatch } from 'redux';
-import { setDisplayCurrency } from 'state/purchase/actions';
 import { useQuery, ApolloError } from '@apollo/react-hooks';
 import isDebug from 'utils/mode';
 import { toast } from 'react-toastify';
-import { CurrencyData } from 'state/purchase/types';
 import 'currency-flags/dist/currency-flags.css';
 import { defaultCurrency } from 'shared/variables';
 import './index.scss';
+import { CurrencyData } from 'state/settings/types';
+import { setDisplayCurrency } from 'state/settings/actions';
 
 interface SelectObject {
   value: CurrencyData;
@@ -48,7 +48,7 @@ const CurrencySelector = (args: CurrencySelectorArgs): JSX.Element => {
   const currentDisplayCurrency: SelectObject | undefined = isSSR
     ? undefined
     : useSelector<RootState, SelectObject>((state) => {
-        const currency = state.purchaseReducer.displayCurrency;
+        const currency = state.settingsReducer.displayCurrency;
         return {
           value: currency,
           label: getLabel(currency),

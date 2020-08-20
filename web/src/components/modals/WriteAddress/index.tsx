@@ -63,6 +63,7 @@ interface WriteAddressArgs {
   updateAddresses: UpdateMethod;
 }
 
+// TODO - add address editing
 const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
   const [selectedCountry, setSelectedCountry] = useState<
     SelectCountryObject | undefined

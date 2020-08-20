@@ -1,7 +1,5 @@
 import {
   PurchaseActionTypes,
-  SET_DISPLAY_CURRENCY,
-  CurrencyData,
   CartObject,
   ADD_TO_CART,
   REMOVE_FROM_CART,
@@ -9,15 +7,6 @@ import {
 } from './types';
 import { store } from 'state/reduxWrapper';
 import { RootState } from 'state';
-
-export const setDisplayCurrency = (
-  displayCurrency: CurrencyData
-): PurchaseActionTypes => {
-  return {
-    type: SET_DISPLAY_CURRENCY,
-    payload: displayCurrency,
-  };
-};
 
 export const addToCart = (item: CartObject): PurchaseActionTypes => {
   return {

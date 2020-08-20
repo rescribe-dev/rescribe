@@ -40,7 +40,7 @@ interface WritePaymentMethodArgs {
   updatePaymentMethods: UpdateMethod;
 }
 
-const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
+const AddPaymentMethodModal = (args: WritePaymentMethodArgs): JSX.Element => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -152,6 +152,13 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
                       onChange={(evt) => {
                         setValidMethod(evt.complete);
                       }}
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: '16px',
+                          },
+                        },
+                      }}
                     />
                   </Container>
                 </FormGroup>
@@ -194,4 +201,4 @@ const WritePaymentMethod = (args: WritePaymentMethodArgs): JSX.Element => {
   );
 };
 
-export default WritePaymentMethod;
+export default AddPaymentMethodModal;
