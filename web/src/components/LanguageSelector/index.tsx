@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from 'state';
 import { Dispatch } from 'redux';
 import localeEmoji from 'locale-emoji';
-import 'currency-flags/dist/currency-flags.css';
 import './index.scss';
 import Select from 'react-select';
 import { languages, Language } from 'countries-list';
@@ -13,19 +12,15 @@ import { propertyOf } from 'utils/misc';
 import { Container, Row, Col } from 'reactstrap';
 import { setLanguage } from 'state/settings/actions';
 import { languageOptions } from 'utils/languages';
-
-interface SiteData {
-  site: {
-    siteMetadata: {
-      languages: {
-        options: string[];
-      };
-    };
-  };
-}
+import { navigate } from '@reach/router';
+import {
+  getCurrentLanguageFromURL,
+  getLanguageRedirectURL,
+} from 'utils/languageUtils';
 
 interface SelectObject {
   value: string;
+  code: string;
   label: JSX.Element;
 }
 
@@ -46,7 +41,8 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
   const options: SelectObject[] = languageOptions.map((code) => {
     const languageData = languages[propertyOf<typeof languages>(code)];
     return {
-      value: code,
+      value: languageData.name,
+      code,
       label: getLabel(languageData, code),
     };
   });
@@ -56,7 +52,8 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
         const code = state.settingsReducer.language;
         const languageData = languages[propertyOf<typeof languages>(code)];
         return {
-          value: code,
+          value: languageData.name,
+          code,
           label: getLabel(languageData, code),
         };
       });
@@ -70,6 +67,9 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
       <Select
         id="language"
         name="language"
+        style={{
+          minWidth: '100%',
+        }}
         isMulti={false}
         options={options}
         cacheOptions={true}
@@ -80,7 +80,13 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
           }
           const selected = selectedOption as SelectObject;
           dispatch(setLanguage(selected.value));
-          // TODO - navigate to url with new language
+          const currentLanguage = getCurrentLanguageFromURL();
+          if (currentLanguage !== selected.value) {
+            const newPath = getLanguageRedirectURL(selected.value);
+            if (newPath.length > 0) {
+              navigate(newPath);
+            }
+          }
         }}
       />
     </>

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, Dispatch, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,10 +15,12 @@ import './index.scss';
 import { WindowLocation } from '@reach/router';
 import { isSSR } from 'utils/checkSSR';
 import { themeMap } from 'utils/theme';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from 'state';
 import { Theme } from 'utils/theme';
-import getCurrentLanguageFromURL from 'utils/getCurrentLanguageFromURL';
+import { getCurrentLanguageFromURL } from 'utils/languageUtils';
+import { setLanguage } from 'state/settings/actions';
+import { defaultLanguage } from 'utils/languages';
 
 const Fonts = Loadable(() => import('components/fontloader'));
 
@@ -71,7 +73,20 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
         (state) => state.settingsReducer.theme
       );
 
-  const currentLanguage = getCurrentLanguageFromURL();
+  let dispatch: Dispatch<any>;
+  if (!isSSR) {
+    dispatch = useDispatch();
+  }
+
+  const [currentLanguage, setCurrentLanguage] = useState<string>(
+    defaultLanguage
+  );
+
+  useEffect(() => {
+    const newCurrentLanguage = getCurrentLanguageFromURL();
+    setCurrentLanguage(newCurrentLanguage);
+    dispatch(setLanguage(newCurrentLanguage));
+  }, []);
 
   return (
     <HelmetProvider>

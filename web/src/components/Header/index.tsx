@@ -46,6 +46,7 @@ import sleep from 'shared/sleep';
 import { capitalizeFirstLetter } from 'utils/misc';
 import { FiSettings } from 'react-icons/fi';
 import LanguageSelector from 'components/LanguageSelector';
+import ThemeSelector from 'components/ThemeSelector';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -324,11 +325,21 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     key="language-select"
                     toggle={false}
                     style={{
-                      minWidth: '12rem',
+                      minWidth: '18rem',
                     }}
                   >
                     <Label for="language">Language</Label>
                     <LanguageSelector />
+                  </DropdownItem>
+                  <DropdownItem
+                    key="theme-select"
+                    toggle={false}
+                    style={{
+                      minWidth: '18rem',
+                    }}
+                  >
+                    <Label for="theme">Theme</Label>
+                    <ThemeSelector />
                   </DropdownItem>
                   {loggedIn ? (
                     <DropdownItem
