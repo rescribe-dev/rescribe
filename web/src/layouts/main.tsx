@@ -18,7 +18,7 @@ import { themeMap } from 'utils/theme';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { Theme } from 'utils/theme';
-import getCurrentLanguage from 'utils/language';
+import getCurrentLanguageFromURL from 'utils/getCurrentLanguageFromURL';
 
 const Fonts = Loadable(() => import('components/fontloader'));
 
@@ -68,10 +68,10 @@ const Layout = (args: IndexLayoutArgs): JSX.Element => {
   const currentTheme = isSSR
     ? undefined
     : useSelector<RootState, Theme | undefined>(
-        (state) => state.authReducer.theme
+        (state) => state.settingsReducer.theme
       );
 
-  const currentLanguage = getCurrentLanguage();
+  const currentLanguage = getCurrentLanguageFromURL();
 
   return (
     <HelmetProvider>

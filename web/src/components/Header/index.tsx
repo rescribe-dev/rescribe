@@ -44,8 +44,8 @@ import './index.scss';
 import { queryMinLength } from 'shared/variables';
 import sleep from 'shared/sleep';
 import { capitalizeFirstLetter } from 'utils/misc';
-import CurrencySelector from 'components/CurrencySelector';
 import { FiSettings } from 'react-icons/fi';
+import LanguageSelector from 'components/LanguageSelector';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -321,14 +321,14 @@ const Header = (args: HeaderArgs): JSX.Element => {
                       ]
                     : null}
                   <DropdownItem
-                    key="currency-select"
+                    key="language-select"
                     toggle={false}
                     style={{
                       minWidth: '12rem',
                     }}
                   >
-                    <Label for="currency">Currency</Label>
-                    <CurrencySelector displayCurrency={true} />
+                    <Label for="language">Language</Label>
+                    <LanguageSelector />
                   </DropdownItem>
                   {loggedIn ? (
                     <DropdownItem

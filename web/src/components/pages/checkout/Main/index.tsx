@@ -4,7 +4,6 @@ import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
 import Summary from '../Summary';
 import useScript from 'react-script-hook';
-import getCurrentLanguage from 'utils/language';
 import WriteAddress from 'components/modals/WriteAddress';
 import { client } from 'utils/apollo';
 import {
@@ -45,6 +44,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { CurrencyData } from 'state/settings/types';
 import { defaultCurrencyData } from 'state/settings/reducers';
+import { defaultLanguage } from 'utils/languages';
 
 export type OnCheckoutComplete = (name: string) => void;
 
@@ -97,7 +97,10 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
     defaultCurrencyData
   );
 
-  const language = getCurrentLanguage();
+  const language: string = isSSR
+    ? defaultLanguage
+    : useSelector<RootState, string>((state) => state.settingsReducer.language);
+
   const [mapsScriptLoading] = useScript({
     src: `https://maps.googleapis.com/maps/api/js?key=${process.env.GATSBY_GOOGLE_PLACES_AUTOCOMPLETE_KEY}&libraries=places&language=${language}`,
     checkForExisting: true,

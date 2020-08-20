@@ -9,6 +9,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet-async';
 import { useStaticQuery, graphql } from 'gatsby';
+import { defaultLanguage } from 'utils/languages';
 
 interface ArgProps {
   description: string;
@@ -86,7 +87,7 @@ const SEO = (args: ArgProps): JSX.Element => {
 };
 
 SEO.defaultProps = {
-  lang: 'en',
+  lang: defaultLanguage,
   meta: [],
   description: '',
 };

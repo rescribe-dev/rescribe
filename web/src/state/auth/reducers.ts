@@ -6,9 +6,7 @@ import {
   SET_USER,
   LOGOUT,
   GENERATE_OAUTH_ID,
-  SET_THEME,
 } from './types';
-import { Theme } from '../../utils/theme';
 
 const initialState: AuthState = {
   authToken: '',
@@ -16,7 +14,6 @@ const initialState: AuthState = {
   oauthID: '',
   user: undefined,
   loggedIn: false,
-  theme: Theme.light,
 };
 
 export const authReducer = (
@@ -24,11 +21,6 @@ export const authReducer = (
   action: AuthActionTypes
 ): AuthState => {
   switch (action.type) {
-    case SET_THEME:
-      return {
-        ...state,
-        theme: action.payload,
-      };
     case LOGIN:
       return {
         ...state,

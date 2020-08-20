@@ -7,12 +7,12 @@ import { Dispatch } from 'redux';
 import localeEmoji from 'locale-emoji';
 import 'currency-flags/dist/currency-flags.css';
 import './index.scss';
-import Select from 'react-select/src/Select';
-import { useStaticQuery, graphql } from 'gatsby';
+import Select from 'react-select';
 import { languages, Language } from 'countries-list';
 import { propertyOf } from 'utils/misc';
 import { Container, Row, Col } from 'reactstrap';
 import { setLanguage } from 'state/settings/actions';
+import { languageOptions } from 'utils/languages';
 
 interface SiteData {
   site: {
@@ -33,17 +33,6 @@ interface SelectObject {
 interface LanguageSelectorArgs {}
 
 const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
-  const data: SiteData = useStaticQuery(graphql`
-    query SiteLanguageOptionsQuery {
-      site {
-        siteMetadata {
-          languages {
-            options
-          }
-        }
-      }
-    }
-  `);
   const getLabel = (language: Language, code: string): JSX.Element => {
     return (
       <Container>
@@ -54,15 +43,13 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
       </Container>
     );
   };
-  const languageOptions: SelectObject[] = data.site.siteMetadata.languages.options.map(
-    (code) => {
-      const languageData = languages[propertyOf<typeof languages>(code)];
-      return {
-        value: code,
-        label: getLabel(languageData, code),
-      };
-    }
-  );
+  const options: SelectObject[] = languageOptions.map((code) => {
+    const languageData = languages[propertyOf<typeof languages>(code)];
+    return {
+      value: code,
+      label: getLabel(languageData, code),
+    };
+  });
   const currentLanguage: SelectObject | undefined = isSSR
     ? undefined
     : useSelector<RootState, SelectObject>((state) => {
@@ -84,7 +71,7 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
         id="language"
         name="language"
         isMulti={false}
-        options={languageOptions}
+        options={options}
         cacheOptions={true}
         value={currentLanguage}
         onChange={(selectedOption: ValueType<SelectObject>) => {
@@ -93,6 +80,7 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
           }
           const selected = selectedOption as SelectObject;
           dispatch(setLanguage(selected.value));
+          // TODO - navigate to url with new language
         }}
       />
     </>

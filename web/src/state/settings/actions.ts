@@ -4,6 +4,7 @@ import {
   CurrencyData,
   SET_LANGUAGE,
 } from './types';
+import { Theme } from 'utils/theme';
 
 export const setDisplayCurrency = (
   displayCurrency: CurrencyData
@@ -18,5 +19,12 @@ export const setLanguage = (language: string): SettingsActionTypes => {
   return {
     type: SET_LANGUAGE,
     payload: language,
+  };
+};
+
+export const setTheme = (theme: Theme): SettingsActionTypes => {
+  return {
+    type: SET_LANGUAGE,
+    payload: theme,
   };
 };

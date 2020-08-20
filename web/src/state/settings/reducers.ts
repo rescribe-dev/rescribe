@@ -3,9 +3,12 @@ import {
   SettingsActionTypes,
   SettingsState,
   CurrencyData,
+  SET_LANGUAGE,
+  SET_THEME,
 } from './types';
 import { defaultCurrency } from 'shared/variables';
 import { Theme } from 'utils/theme';
+import { defaultLanguage } from 'utils/languages';
 
 export const defaultCurrencyData: CurrencyData = {
   exchangeRate: 1,
@@ -14,7 +17,7 @@ export const defaultCurrencyData: CurrencyData = {
 
 const initialState: SettingsState = {
   displayCurrency: defaultCurrencyData,
-  language: 'en',
+  language: defaultLanguage,
   theme: Theme.light,
 };
 
@@ -27,6 +30,16 @@ export const settingsReducer = (
       return {
         ...state,
         displayCurrency: action.payload,
+      };
+    case SET_LANGUAGE:
+      return {
+        ...state,
+        language: action.payload,
+      };
+    case SET_THEME:
+      return {
+        ...state,
+        theme: action.payload,
       };
     default:
       return state;

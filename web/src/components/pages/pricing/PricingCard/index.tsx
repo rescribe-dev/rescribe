@@ -19,14 +19,13 @@ import {
 import { IntervalType, ProductDataFragment } from 'lib/generated/datamodel';
 import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
 import { navigate } from '@reach/router';
-import { CurrencyData, CartObject } from 'state/purchase/types';
+import { CartObject } from 'state/purchase/types';
 import { isSSR } from 'utils/checkSSR';
 import { RootState } from 'state';
 import { Dispatch } from 'redux';
 import { useSelector, useDispatch } from 'react-redux';
 import { render } from 'mustache';
 import prettyBytes from 'pretty-bytes';
-import getCurrentLanguage from 'utils/language';
 import formatCurrency from 'utils/currency';
 import { FormattedMessage } from 'react-intl';
 import { addToCart, removeFromCart } from 'state/purchase/actions';
@@ -35,6 +34,8 @@ import {
   teamProductName,
   enterpriseProductName,
 } from 'shared/variables';
+import { CurrencyData } from 'state/settings/types';
+import { defaultLanguage } from 'utils/languages';
 
 interface PricingCardArgs {
   messages: PricingMessages;
@@ -62,7 +63,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
   const currentCurrency: CurrencyData | undefined = isSSR
     ? undefined
     : useSelector<RootState, CurrencyData>(
-        (state) => state.purchaseReducer.displayCurrency
+        (state) => state.settingsReducer.displayCurrency
       );
 
   const currentCart: CartObject[] | undefined = isSSR
@@ -70,6 +71,10 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
     : useSelector<RootState, CartObject[]>(
         (state) => state.purchaseReducer.cart
       );
+
+  const language: string = isSSR
+    ? defaultLanguage
+    : useSelector<RootState, string>((state) => state.settingsReducer.language);
 
   const formatPrice = (): string => {
     const currentInterval =
@@ -80,7 +85,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
       (plan) => plan.interval === currentInterval
     );
     if (!currentPlan || !currentCurrency) return '';
-    return formatCurrency(currentPlan.amount, currentCurrency);
+    return formatCurrency(currentPlan.amount, currentCurrency, language);
   };
 
   const replaceValues: Record<string, number | string> = {
@@ -100,7 +105,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
           value = 'unlimited';
         } else if (keysWithStorageUnits.includes(key)) {
           value = prettyBytes(value as number, {
-            locale: getCurrentLanguage(),
+            locale: language,
           });
         } else {
           value = replaceValues[key];

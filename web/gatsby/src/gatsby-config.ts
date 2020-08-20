@@ -2,6 +2,7 @@ import path from 'path';
 import { config } from 'dotenv';
 import { print } from 'graphql/language/printer';
 import gql from 'graphql-tag';
+import { languageOptions, defaultLanguage } from './languages';
 
 config();
 
@@ -14,8 +15,8 @@ export default {
     author: 'rescribe',
     siteUrl: process.env.GATSBY_SITE_URL,
     languages: {
-      default: 'en',
-      options: ['en'],
+      default: defaultLanguage,
+      options: languageOptions,
     },
   },
   plugins: [
@@ -128,7 +129,7 @@ export default {
     {
       resolve: 'gatsby-plugin-i18n',
       options: {
-        langKeyDefault: 'en',
+        langKeyDefault: defaultLanguage,
         useLangKeyLayout: false,
         prefixDefault: true, // create pages for default language
       },

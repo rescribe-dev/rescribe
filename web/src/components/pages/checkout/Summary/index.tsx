@@ -13,12 +13,17 @@ import {
 } from 'reactstrap';
 import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
-import { CartObject, CurrencyData } from 'state/purchase/types';
+import { CartObject } from 'state/purchase/types';
 import formatCurrency from 'utils/currency';
 import { IntervalType } from 'lib/generated/datamodel';
 import { FormattedMessage } from 'react-intl';
 import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
 import { CheckoutValues } from '../misc';
+import { isSSR } from 'utils/checkSSR';
+import { defaultLanguage } from 'utils/languages';
+import { useSelector } from 'react-redux';
+import { RootState } from 'state';
+import { CurrencyData } from 'state/settings/types';
 
 interface SummaryArgs {
   messages: CheckoutMessages;
@@ -28,8 +33,12 @@ interface SummaryArgs {
 }
 
 const Summary = (args: SummaryArgs): JSX.Element => {
+  const language: string = isSSR
+    ? defaultLanguage
+    : useSelector<RootState, string>((state) => state.settingsReducer.language);
+
   const formatPrice = (amount: number): string => {
-    return formatCurrency(amount, args.currency);
+    return formatCurrency(amount, args.currency, language);
   };
   const total = !args.cart
     ? 0
