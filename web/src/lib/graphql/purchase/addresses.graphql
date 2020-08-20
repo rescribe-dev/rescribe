@@ -1,0 +1,16 @@
+fragment addressData on Address {
+  _id
+  name
+  line1
+  line2
+  city
+  state
+  country
+  postal_code
+}
+
+query addresses {
+  addresses {
+    ...addressData
+  }
+}

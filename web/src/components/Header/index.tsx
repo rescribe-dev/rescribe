@@ -18,6 +18,7 @@ import {
   Input,
   FormFeedback,
   Container,
+  Label,
 } from 'reactstrap';
 import { isLoggedIn } from 'state/auth/getters';
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,11 +38,15 @@ import { thunkSearch } from 'state/search/thunks';
 import { toast } from 'react-toastify';
 import logo from 'assets/images/logo.svg';
 import logoWhite from 'assets/images/logo-white.svg';
+import VisibilitySensor from 'react-visibility-sensor';
 
 import './index.scss';
 import { queryMinLength } from 'shared/variables';
 import sleep from 'shared/sleep';
 import { capitalizeFirstLetter } from 'utils/misc';
+import { FiSettings } from 'react-icons/fi';
+import LanguageSelector from 'components/LanguageSelector';
+import ThemeSelector from 'components/ThemeSelector';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -56,6 +61,8 @@ const homepagePath = '/';
 const Header = (args: HeaderArgs): JSX.Element => {
   const [headerIsOpen, setHeaderIsOpen] = useState(false);
   const toggleHeader = () => setHeaderIsOpen(!headerIsOpen);
+
+  const [hamburgerIsVisible, setHamburgerVisible] = useState(false);
 
   const pathname =
     typeof location === 'string'
@@ -114,7 +121,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
   return (
     <>
       <Container
-        className={pathname === homepagePath ? 'nav-container-home' : ''}
+        className={
+          pathname === homepagePath && !hamburgerIsVisible
+            ? 'nav-container-home'
+            : ''
+        }
         style={{
           padding: 0,
         }}
@@ -122,7 +133,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
         <Navbar
           light
           expand="md"
-          className={pathname === homepagePath ? 'navbar-home' : 'navbar-other'}
+          className={
+            pathname === homepagePath && !hamburgerIsVisible
+              ? 'navbar-home'
+              : 'navbar-other'
+          }
         >
           <NavbarBrand
             style={{
@@ -132,7 +147,11 @@ const Header = (args: HeaderArgs): JSX.Element => {
             to="/"
           >
             <img
-              src={pathname === homepagePath ? logoWhite : logo}
+              src={
+                pathname === homepagePath && !hamburgerIsVisible
+                  ? logoWhite
+                  : logo
+              }
               alt="reScribe"
               style={{
                 width: '9rem',
@@ -141,7 +160,9 @@ const Header = (args: HeaderArgs): JSX.Element => {
               }}
             />
           </NavbarBrand>
-          <NavbarToggler onClick={toggleHeader} />
+          <VisibilitySensor onChange={setHamburgerVisible}>
+            <NavbarToggler onClick={toggleHeader} />
+          </VisibilitySensor>
           <Collapse isOpen={headerIsOpen} navbar>
             <Nav navbar className="mr-auto">
               <NavLink className="navbar-link" tag={Link} to="/start">
@@ -224,6 +245,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     <>
                       <Form
                         inline
+                        onSubmit={handleSubmit}
                         style={{
                           marginBottom: 0,
                           maxWidth: '15rem',
@@ -271,73 +293,102 @@ const Header = (args: HeaderArgs): JSX.Element => {
                   )}
                 </Formik>
               )}
-              {!loggedIn ? (
-                [
-                  <NavLink
-                    className="navbar-link"
-                    tag={Link}
-                    key="sign-up"
-                    to="/signup"
+              <UncontrolledDropdown inNavbar>
+                <DropdownToggle className="navbar-text" nav caret>
+                  {/* put profile picture or settings icon here */}
+                  {loggedIn ? 'Account' : <FiSettings />}
+                </DropdownToggle>
+                <DropdownMenu key="menu" right>
+                  {loggedIn
+                    ? [
+                        <DropdownItem
+                          key="profile"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate(`/${username}`);
+                          }}
+                        >
+                          Profile
+                        </DropdownItem>,
+                        <DropdownItem
+                          key="settings"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate('/account');
+                          }}
+                        >
+                          Settings
+                        </DropdownItem>,
+                      ]
+                    : null}
+                  <DropdownItem
+                    key="language-select"
+                    toggle={false}
+                    style={{
+                      minWidth: '18rem',
+                    }}
                   >
-                    <FormattedMessage id="sign up">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0]) + '  >'
-                      }
-                    </FormattedMessage>
-                  </NavLink>,
-                  <NavLink
-                    className="navbar-link"
-                    tag={Link}
-                    to="/login"
-                    key="login"
+                    <Label for="language">Language</Label>
+                    <LanguageSelector />
+                  </DropdownItem>
+                  <DropdownItem
+                    key="theme-select"
+                    toggle={false}
+                    style={{
+                      minWidth: '18rem',
+                    }}
                   >
-                    <FormattedMessage id="login">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0]) + '  >'
-                      }
-                    </FormattedMessage>
-                  </NavLink>,
-                ]
-              ) : (
-                <UncontrolledDropdown inNavbar>
-                  <DropdownToggle className="navbar-text" nav caret>
-                    Account
-                  </DropdownToggle>
-                  <DropdownMenu key="menu" right>
-                    <DropdownItem
-                      key="profile"
-                      onClick={(evt: React.MouseEvent) => {
-                        evt.preventDefault();
-                        navigate(`/${username}`);
-                      }}
-                    >
-                      Profile
-                    </DropdownItem>
-                    <DropdownItem
-                      key="settings"
-                      onClick={(evt: React.MouseEvent) => {
-                        evt.preventDefault();
-                        navigate('/account');
-                      }}
-                    >
-                      Settings
-                    </DropdownItem>
+                    <Label for="theme">Theme</Label>
+                    <ThemeSelector />
+                  </DropdownItem>
+                  {loggedIn ? (
                     <DropdownItem
                       key="logout"
-                      onClick={(evt: React.MouseEvent) => {
+                      onClick={async (evt: React.MouseEvent) => {
                         evt.preventDefault();
-                        dispatchAuthThunk(thunkLogout())
-                          .catch((err: Error) => console.error(err))
-                          .then(() => {
-                            // navigate('/login')
+                        try {
+                          await dispatchAuthThunk(thunkLogout());
+                        } catch (err) {
+                          const errObj = err as Error;
+                          toast(errObj.message, {
+                            type: 'error',
                           });
+                        }
                       }}
                     >
                       Logout
                     </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-              )}
+                  ) : null}
+                </DropdownMenu>
+              </UncontrolledDropdown>
+              {!loggedIn
+                ? [
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      key="sign-up"
+                      to="/signup"
+                    >
+                      <FormattedMessage id="sign up">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0]) + '  >'
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      to="/login"
+                      key="login"
+                    >
+                      <FormattedMessage id="login">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0]) + '  >'
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                  ]
+                : null}
             </Nav>
           </Collapse>
         </Navbar>

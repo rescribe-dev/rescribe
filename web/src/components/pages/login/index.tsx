@@ -103,7 +103,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
         setLocalToken(localToken);
       }
       if (searchParams.has('redirect')) {
-        setRedirect(searchParams.get('redirect') as string);
+        setRedirect(decodeURIComponent(searchParams.get('redirect') as string));
       }
       if (searchParams.has('verify_email')) {
         verifyEmail = true;
@@ -158,7 +158,12 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
   }, []);
   return (
     <div id="fillPageContainer">
-      <Container className="h-100">
+      <Container
+        style={{
+          marginTop: '4rem',
+        }}
+        className="h-100"
+      >
         <Row className="justify-content-center h-100">
           <Col
             lg={{
@@ -230,7 +235,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                         onError();
                       });
                   } catch (err) {
-                    // console.error(err);
+                    // ignore the error
                   }
                 });
               }}
@@ -244,7 +249,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                 handleSubmit,
                 isSubmitting,
               }) => (
-                <Form>
+                <Form onSubmit={handleSubmit}>
                   <FormGroup>
                     <Label for="usernameEmail">
                       {capitalizeFirstLetter(args.messages.email)}
@@ -328,7 +333,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                   <BeatLoader
                     css={loaderCSS}
                     size={10}
-                    color={'red'}
+                    color="var(--red-stop)"
                     loading={isSubmitting}
                   />
                 </Form>

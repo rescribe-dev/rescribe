@@ -79,7 +79,11 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
     });
   return (
     <div id="fillPageContainer">
-      <Container className="h-100">
+      <Container
+        style={{
+          marginTop: '4rem',
+        }}
+      >
         <Row className="justify-content-center h-100">
           <Col
             lg={{
@@ -196,7 +200,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                         onError();
                       });
                   } catch (err) {
-                    // console.error(err);
+                    // ignore the error
                   }
                 });
               }}
@@ -210,7 +214,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                 handleSubmit,
                 isSubmitting,
               }) => (
-                <Form className="underline-inputs">
+                <Form onSubmit={handleSubmit} className="underline-inputs">
                   <FormGroup>
                     <Label for="username">Username</Label>
                     <Input
@@ -346,7 +350,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                   <BeatLoader
                     css={loaderCSS}
                     size={10}
-                    color={'red'}
+                    color="var(--red-stop)"
                     loading={isSubmitting}
                   />
                 </Form>

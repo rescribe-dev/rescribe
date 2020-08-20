@@ -9,7 +9,7 @@ import {
   FileNameExistsQueryVariables,
   FileNameExists,
 } from 'lib/generated/datamodel';
-import { ObjectId } from 'mongodb';
+import ObjectId from 'bson-objectid';
 import { ApolloError } from 'apollo-client';
 import { WindowLocation } from '@reach/router';
 import { client } from 'utils/apollo';

@@ -9,7 +9,7 @@ export default class UserCurrency {
   readonly _id: ObjectId;
 
   @Field({ description: 'user' })
-  @Property({ required: true, index: true })
+  @Property({ required: true })
   user: ObjectId;
 
   @Field({ description: 'currency' })

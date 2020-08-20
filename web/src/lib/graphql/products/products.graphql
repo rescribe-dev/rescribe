@@ -1,13 +1,16 @@
-fragment productPlanData on Plan {
-  interval
-  amount
+fragment productData on Product {
+  name
+    plans {
+      interval
+      amount
+    }
+    storage
+    privateRepositories
+    publicRepositories
 }
 
-query products {
-  products {
-    name
-    plans {
-      ...productPlanData
-    }
+query products($names: [String!]) {
+  products(names: $names) {
+    ...productData
   }
 }

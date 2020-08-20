@@ -41,7 +41,9 @@ const SocialButtons = (args: SocialButtonsArgs): JSX.Element => {
           setLocalToken(searchParams.get('token') as string);
         }
         if (searchParams.has('redirect')) {
-          setRedirect(searchParams.get('redirect') as string);
+          setRedirect(
+            decodeURIComponent(searchParams.get('redirect') as string)
+          );
         }
         if (searchParams.has('cli')) {
           setCliLogin(true);

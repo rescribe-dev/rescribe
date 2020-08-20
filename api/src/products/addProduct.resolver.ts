@@ -5,9 +5,10 @@ import { verifyAdmin } from '../auth/checkAuth';
 import { stripeClient, requirePaymentSystemInitialized } from '../stripe/init';
 import Plan, { Interval, singlePurchase } from '../schema/payments/plan';
 import Product, { ProductModel } from '../schema/payments/product';
-import { defaultProductName } from './product.resolver';
 import { IsInt, Min } from 'class-validator';
-import { getActualExchangeRate } from '../currencies/getAcutalExchangeRate';
+import { getActualExchangeRate } from '../currencies/getForexData';
+import { defaultProductName } from '../shared/variables';
+import { ObjectId } from 'mongodb';
 
 const maxTrialPeriod = 720; // days
 
@@ -36,6 +37,24 @@ export class AddProductArgs {
   })
   @Field({ description: 'storage allowed (in bytes)' })
   storage: number;
+
+  @IsInt({
+    message: 'private repositories must be an integer'
+  })
+  @Min(1, {
+    message: 'private repositories must be >= 1'
+  })
+  @Field({ description: 'number of private repositories allowed' })
+  privateRepositories: number;
+
+  @IsInt({
+    message: 'public repositories must be an integer'
+  })
+  @Min(1, {
+    message: 'public repositories must be >= 1'
+  })
+  @Field({ description: 'number of public repositories allowed' })
+  publicRepositories: number;
 }
 
 export const addProductUtil = async (args: AddProductArgs): Promise<Product> => {
@@ -44,7 +63,9 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
     active: true,
     type: 'service'
   });
-  const currencies = await CurrencyModel.find({});
+  const currencies = await CurrencyModel.find({
+    acceptedPayment: true
+  });
   if (!currencies) {
     throw new Error('cannot find any currencies');
   }
@@ -53,6 +74,7 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
     exchangeRates[currency.name] = await getActualExchangeRate(currency.name);
   }
   const plans: Plan[] = [];
+  let isFree = true;
   for (const plan of args.plans) {
     const currentPlan: Plan = {
       ...plan,
@@ -72,13 +94,20 @@ export const addProductUtil = async (args: AddProductArgs): Promise<Product> => 
         currentPlan.currencies.set(currency.name, stripePlan.id);
       }
     }
+    if (plan.amount > 0) {
+      isFree = false;
+    }
     plans.push(currentPlan);
   }
   const newProduct: Product = {
+    _id: new ObjectId(),
     name: args.name,
     plans,
     storage: args.storage,
-    stripeID: stripeProduct.id
+    privateRepositories: args.privateRepositories,
+    publicRepositories: args.publicRepositories,
+    stripeID: stripeProduct.id,
+    isFree,
   };
   await new ProductModel(newProduct).save();
   return newProduct;

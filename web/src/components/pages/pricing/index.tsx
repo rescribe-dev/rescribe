@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, CustomInput, CardText } from 'reactstrap';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Row,
+  Col,
+  CustomInput,
+  CardText,
+  CardDeck,
+} from 'reactstrap';
 import './index.scss';
-// import NavCard from 'components/pages/NaviagtionCard';
 import { PageProps } from 'gatsby';
 import { PricingMessages } from 'locale/pages/pricing/pricingMessages';
 import { useQuery, ApolloError, QueryResult } from '@apollo/react-hooks';
@@ -9,11 +15,20 @@ import {
   ProductsQuery,
   ProductsQueryVariables,
   Products,
+  UserFieldsFragment,
 } from 'lib/generated/datamodel';
 import { isSSR } from 'utils/checkSSR';
 import isDebug from 'utils/mode';
 import { toast } from 'react-toastify';
 import PricingCard from './PricingCard';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from 'state';
+import { AppThunkDispatch } from 'state/thunk';
+import { AuthActionTypes } from 'state/auth/types';
+import { isLoggedIn } from 'state/auth/getters';
+import { thunkGetUser } from 'state/auth/thunks';
+import CurrencySelector from 'components/CurrencySelector';
+import { propertyOf } from 'utils/misc';
 
 export interface PricingPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -29,6 +44,9 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
     | undefined = isSSR
     ? undefined
     : useQuery<ProductsQuery, ProductsQueryVariables>(Products, {
+        variables: {
+          names: Object.keys(args.messages.products),
+        },
         fetchPolicy: isDebug() ? 'no-cache' : 'cache-first', // disable cache if in debug
         onError: (err) => {
           toast((err as ApolloError).message, {
@@ -36,6 +54,28 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
           });
         },
       });
+  const user = isSSR
+    ? undefined
+    : useSelector<RootState, UserFieldsFragment | undefined>(
+        (state) => state.authReducer.user
+      );
+  const dispatchAuthThunk = isSSR
+    ? undefined
+    : useDispatch<AppThunkDispatch<AuthActionTypes>>();
+  useEffect(() => {
+    (async () => {
+      if (dispatchAuthThunk && !user && (await isLoggedIn())) {
+        try {
+          await dispatchAuthThunk(thunkGetUser());
+        } catch (err) {
+          const errObj = err as Error;
+          toast(errObj.message, {
+            type: 'error',
+          });
+        }
+      }
+    })();
+  }, []);
   const [currentlyMonthly, setCurrentlyMonthly] = useState<boolean>(true);
   return (
     <Container>
@@ -45,7 +85,28 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
         <p>loading...</p>
       ) : (
         <>
-          <Row className="justify-content-md-center">
+          <Container
+            className="text-center"
+            style={{
+              padding: 0,
+            }}
+          >
+            <h2
+              className="display-4"
+              style={{
+                margin: '2rem',
+              }}
+            >
+              pricing
+            </h2>
+          </Container>
+          <Row
+            style={{
+              marginBottom: '2rem',
+              marginTop: '2rem',
+            }}
+            className="justify-content-center"
+          >
             <Col xs="auto">
               <CardText>{args.messages.monthly}</CardText>
             </Col>
@@ -75,17 +136,32 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
               </CardText>
             </Col>
           </Row>
-          <Row>
+          <CardDeck className="justify-content-center">
             {productsQueryRes.data.products.map((product) => (
-              <Col key={`product-${product.name}-pricing-card`}>
-                <PricingCard
-                  messages={args.messages}
-                  currentlyMonthly={currentlyMonthly}
-                  plans={product.plans}
-                  productInfo={args.messages.products[product.name]}
-                />
-              </Col>
+              <PricingCard
+                key={`product-${product.name}-pricing-card`}
+                messages={args.messages}
+                currentlyMonthly={currentlyMonthly}
+                productData={product}
+                productInfo={
+                  args.messages.products[
+                    propertyOf<typeof args.messages.products>(product.name)
+                  ]
+                }
+                currentPlan={user ? user.plan : undefined}
+              />
             ))}
+          </CardDeck>
+          <Row
+            style={{
+              marginTop: '2rem',
+              marginBottom: '2rem',
+            }}
+            className="justify-content-center"
+          >
+            <Col md="5">
+              <CurrencySelector displayCurrency={true} />
+            </Col>
           </Row>
         </>
       )}

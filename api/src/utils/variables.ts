@@ -1,7 +1,6 @@
 import { Language } from '../schema/language';
 
 export const defaultRepositoryImage = 'https://example.com/image.jpg';
-export const saltRounds = 10;
 
 export const languageColorMap: {[key: string]: number} = {};
 

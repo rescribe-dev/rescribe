@@ -1,0 +1,6 @@
+query currencies($names: [String!], $acceptedPayment: Boolean) {
+  currencies(names: $names, acceptedPayment: $acceptedPayment) {
+    name
+    exchangeRate
+  }
+}

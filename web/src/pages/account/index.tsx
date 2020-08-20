@@ -8,7 +8,7 @@ import AccountMessagesEnglish from 'locale/pages/account/en';
 
 const AccountPage = (args: AccountPageDataProps): JSX.Element => {
   return (
-    <PrivateRoute>
+    <PrivateRoute location={args.location}>
       <Layout location={args.location}>
         <SEO title="Account" />
         <AccountContent {...args} messages={AccountMessagesEnglish} />

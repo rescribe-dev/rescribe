@@ -1,21 +1,18 @@
 import React from 'react';
 import { Container, CardText, Card, CardBody } from 'reactstrap';
 import { ResultType, PreviewFieldsFragment } from 'lib/generated/datamodel';
-import { Language } from 'prism-react-renderer';
 import './styles.scss';
 import { Link } from 'gatsby';
-import CodeHighlight from 'components/codeHighlight';
+import CodeHighlight, { ExtendedLanguage } from 'components/codeHighlight';
 
 export interface SearchResultCardArgs {
   name: string;
   type: ResultType;
   preview?: PreviewFieldsFragment | null;
-  language: Language;
+  language: ExtendedLanguage;
 }
 
-export const SearchResultComponent = (
-  args: SearchResultCardArgs
-): JSX.Element => {
+const SearchResultComponent = (args: SearchResultCardArgs): JSX.Element => {
   if (!args.preview) {
     return <div>no preview content</div>;
   }
@@ -51,3 +48,5 @@ export const SearchResultComponent = (
     </Container>
   );
 };
+
+export default SearchResultComponent;

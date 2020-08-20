@@ -131,7 +131,6 @@ const getPreview = async (fileData: { [key: string]: string[] }, fileID: ObjectI
       });
     } catch (err) {
       // no text found
-      // logger.info(err);
     }
     logger.info(`time for get text: ${new Date().getTime() - startTime2.getTime()}`);
   }

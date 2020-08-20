@@ -9,6 +9,9 @@
       "dom",
       "esnext"
     ],
+    "types": [
+      "googlemaps"
+    ],
     "strict": true,
     "noEmit": true,
     "sourceMap": true,

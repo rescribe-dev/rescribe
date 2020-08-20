@@ -4,26 +4,34 @@ import { GraphQLContext } from '../../utils/context';
 import { verifyLoggedIn } from '../../auth/checkAuth';
 import { ObjectId } from 'mongodb';
 import { UserModel } from '../../schema/users/user';
-import PaymentMethod, { PaymentMethodModel } from '../../schema/users/paymentMethod';
+import PaymentMethod, { PaymentMethodModel, CreditCardBrand } from '../../schema/users/paymentMethod';
 import { validateCurrency } from '../../currencies/utils';
-import UserCurrency, { UserCurrencyModel } from '../../schema/users/userCurrency';
+import { MinLength } from 'class-validator';
+import ReturnObj from '../../schema/utils/returnObj';
+import { getLogger } from 'log4js';
+import { ApolloError } from 'apollo-server-express';
+import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import getUserCurrency from '../getUserCurrency';
+
+const logger = getLogger();
 
 @ArgsType()
 class AddPaymentMethodArgs {
   @Field({ description: 'name' })
   currency: string;
 
+  @MinLength(5, { message: 'invalid stripe card token provided' })
   @Field({ description: 'stripe card token' })
   cardToken: string;
 
-  @Field({ description: 'set to default' })
+  @Field({ description: 'set to default', defaultValue: true, nullable: true })
   setDefault: boolean;
 }
 
 @Resolver()
 class AddPaymentMethodResolver {
-  @Mutation(_returns => String)
-  async addPaymentMethod(@Args() args: AddPaymentMethodArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+  @Mutation(_returns => ReturnObj)
+  async addPaymentMethod(@Args() args: AddPaymentMethodArgs, @Ctx() ctx: GraphQLContext): Promise<ReturnObj> {
     requirePaymentSystemInitialized();
     if (!verifyLoggedIn(ctx)) {
       throw new Error('user not logged in');
@@ -44,35 +52,55 @@ class AddPaymentMethodResolver {
       throw new Error('payment method already exists');
     }
 
-    const userCurrencyData = await UserCurrencyModel.findOne({
-      user: userID,
-      currency: args.currency,
-    });
-    if (!userCurrencyData) {
-      const stripeCustomer = await stripeClient.customers.create({
-        email: userData.email,
-        metadata: {
-          id: userData._id.toHexString()
-        }
-      });
-      const stripeCustomerID = stripeCustomer.id;
-      const newUserCurrency: UserCurrency = {
-        _id: new ObjectId(),
-        currency: args.currency,
-        customer: stripeCustomerID,
-        user: userID
-      };
-      await new UserCurrencyModel(newUserCurrency).save();
+    const userCurrencyData = await getUserCurrency(args.currency, userData);
+
+    const cardData = await stripeClient.paymentMethods.retrieve(args.cardToken);
+    if (!cardData.card) {
+      throw new ApolloError('cannot get card data', `${INTERNAL_SERVER_ERROR}`);
     }
-    const paymentMethodID = new ObjectId();
+    const setupIntent = await stripeClient.setupIntents.create({
+      confirm: true,
+      customer: userCurrencyData.customer,
+      payment_method: args.cardToken,
+      payment_method_types: ['card'],
+      description: `setup intent for adding ${args.cardToken} to user ${userID.toHexString()}`,
+    });
+    if (setupIntent.next_action) {
+      logger.info(setupIntent.next_action);
+      throw new Error('not handled next action');
+    }
+    const lastFourDigits = new Number(cardData.card.last4);
+    if (!lastFourDigits) {
+      throw new ApolloError('cannot cast last four digits to string', `${INTERNAL_SERVER_ERROR}`);
+    }
+    const brand = CreditCardBrand[cardData.card.brand as keyof typeof CreditCardBrand];
     const newPaymentMethod: PaymentMethod = {
-      _id: paymentMethodID,
+      _id: new ObjectId(),
       user: userID,
       currency: args.currency,
-      method: args.cardToken
+      method: args.cardToken,
+      brand,
+      lastFourDigits: lastFourDigits.valueOf(),
     };
     await new PaymentMethodModel(newPaymentMethod).save();
-    return `added / updated payment method ${paymentMethodID.toHexString()}`;
+    if (args.setDefault) {
+      await stripeClient.customers.update(userCurrencyData.customer, {
+        invoice_settings: {
+          default_payment_method: args.cardToken,
+        }
+      });
+      await UserModel.updateOne({
+        _id: userID
+      }, {
+        $set: {
+          defaultPaymentMethod: newPaymentMethod._id,
+        }
+      });
+    }
+    return {
+      message: `added / updated payment method ${newPaymentMethod._id.toHexString()}`,
+      _id: newPaymentMethod._id,
+    };
   }
 }
 

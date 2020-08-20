@@ -13,7 +13,7 @@ export default class Address {
   name: string;
 
   @Field({ description: 'user' })
-  @Property({ required: true, unique: true })
+  @Property({ required: true })
   user: ObjectId;
 
   @Field({ description: 'line 1' })
@@ -31,6 +31,10 @@ export default class Address {
   @Field({ description: 'state' })
   @Property({ required: true })
   state: string;
+
+  @Field({ description: 'postal code' })
+  @Property({ required: true })
+  postal_code: string;
 
   @Field({ description: 'country' })
   @Property({ required: true })

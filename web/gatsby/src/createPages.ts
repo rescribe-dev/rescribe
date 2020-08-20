@@ -1,7 +1,8 @@
 import { GatsbyNode } from 'gatsby';
 import { resolve } from 'path';
+import { languageOptions } from './languages';
 
-const languages: string[] = ['en'];
+const languages: string[] = languageOptions;
 
 const createPages: GatsbyNode['createPages'] = async ({ actions }) => {
   const { createPage } = actions;

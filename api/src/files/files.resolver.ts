@@ -267,7 +267,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
 
   const languageFilters: TermQuery[] = [];
   if (!oneFile && args.languages && args.languages.length > 0) {
-    logger.info(args.languages);
     for (const language of args.languages) {
       languageFilters.push({
         term: {

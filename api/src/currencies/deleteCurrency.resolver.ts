@@ -7,15 +7,13 @@ import { ProductModel } from '../schema/payments/product';
 import { UserCurrencyModel } from '../schema/users/userCurrency';
 import { PaymentMethodModel } from '../schema/users/paymentMethod';
 
-export const defaultCountry = 'us';
-
 @ArgsType()
 export class DeleteCurrencyArgs {
-  @Field({ description: 'currency name' })
+  @Field({ description: 'remove currency from accepted for payments' })
   name: string;
 }
 
-export const deleteCurrencyUtil = async (currencyData: Currency): Promise<void> => {
+export const deleteCurrencyUtil = async (currencyData: Currency, deleteDB: boolean): Promise<void> => {
   const products = await ProductModel.find({});
   if (!products) {
     throw new Error('could not find products');
@@ -23,7 +21,7 @@ export const deleteCurrencyUtil = async (currencyData: Currency): Promise<void> 
   for (const product of products) {
     for (const plan of product.plans) {
       if (plan.currencies.has(currencyData.name)) {
-        stripeClient.plans.del(plan.currencies.get(currencyData.name) as string);
+        await stripeClient.plans.del(plan.currencies.get(currencyData.name) as string);
       }
     }
   }
@@ -38,9 +36,17 @@ export const deleteCurrencyUtil = async (currencyData: Currency): Promise<void> 
   await PaymentMethodModel.deleteMany({
     currency: currencyData.name
   });
-  await CurrencyModel.deleteOne({
-    name: currencyData.name
-  });
+  if (deleteDB) {
+    await CurrencyModel.deleteOne({
+      name: currencyData.name
+    });
+  } else {
+    await CurrencyModel.updateOne({
+      name: currencyData.name
+    }, {
+      acceptedPayment: false
+    });
+  }
 };
 
 @Resolver()
@@ -58,7 +64,7 @@ class DeleteCurrencyResolver {
     if (!currencyData) {
       throw new Error(`cannot find currency ${givenCurrency}`);
     }
-    await deleteCurrencyUtil(currencyData);
+    await deleteCurrencyUtil(currencyData, false);
     return `deleted currency ${givenCurrency}`;
   }
 }

@@ -1,16 +1,25 @@
+import {
+  defaultProductName,
+  teamProductName,
+  enterpriseProductName,
+} from 'shared/variables';
+
 // info for product, written in specific language
 export interface ProductInfo {
-  name: string;
+  name: string; // displayed name of the product
   caption: string;
+  buttonColor: string;
   features: string[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PricingMessages {
-  month: string;
-  year: string;
   monthly: string;
   yearly: string;
   subscribe: string;
-  products: Record<string, ProductInfo>;
+  products: {
+    [defaultProductName]: ProductInfo;
+    [teamProductName]: ProductInfo;
+    [enterpriseProductName]: ProductInfo;
+  };
 }

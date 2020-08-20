@@ -1,17 +1,23 @@
 import Product, { ProductModel } from '../schema/payments/product';
 import { RedisKey, cache } from '../utils/redis';
 import { configData } from '../utils/config';
-import { Resolver, Query } from 'type-graphql';
+import { Resolver, Query, ArgsType, Args, Field } from 'type-graphql';
 
 const redisExpireSeconds = 60 * 20;
+
+@ArgsType()
+class ProductsArgs {
+  @Field(_type => [String], { description: 'product names', nullable: true })
+  names?: string[];
+}
 
 @Resolver()
 class ProductResolver {
   @Query(_returns => [Product])
-  async products(): Promise<Product[]> {
+  async products(@Args() args: ProductsArgs): Promise<Product[]> {
     const redisKeyObject: RedisKey = {
-      path: '',
-      type: 'products'
+      path: 'products',
+      type: args.names ? args.names.join(',') : ''
     };
     const redisKey = JSON.stringify(redisKeyObject);
     const redisData = await cache.get(redisKey);
@@ -24,7 +30,11 @@ class ProductResolver {
       products = data;
       return products;
     }
-    const data = await ProductModel.find({});
+    const data = await ProductModel.find(!args.names ? {} : {
+      name: {
+        $in: args.names
+      }
+    }).sort({ _id: 1 });
     if (!data) {
       throw new Error('could not find products');
     }

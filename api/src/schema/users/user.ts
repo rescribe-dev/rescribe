@@ -74,9 +74,13 @@ export default class User extends PublicUser {
   @Property({ required: true, type: Access })
   projects: Access[];
 
-  @Field({ description: 'project access', nullable: true })
+  @Field({ description: 'default payment method', nullable: true })
   @Property({ required: false })
   defaultPaymentMethod?: ObjectId;
+
+  @Field({ description: 'default address', nullable: true })
+  @Property({ required: false })
+  defaultAddress?: ObjectId;
 }
 
 export const UserModel = getModelForClass(User);

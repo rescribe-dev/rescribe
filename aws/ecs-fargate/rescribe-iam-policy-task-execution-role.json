@@ -25,6 +25,7 @@
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_CLIENT_ID-BzryIO",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_CLIENT_SECRET-VRIxLG",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:GITHUB_PRIVATE_KEY-4RJ18P",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:GOOGLE_MAPS_API_KEY-QzS9ll",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:JWT_SECRET-VVDIzd",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:NLP_URI-TkwyOo",
@@ -34,6 +35,7 @@
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_ID-CLvNj6",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:SENDGRID_MAILING_LIST_UNSUBSCRIBE_ID-P4WpnA",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:STRIPE_SECRET-Hv3bc2",
+        "arn:aws:secretsmanager:us-east-1:259559535892:secret:STRIPE_WEBHOOK_SECRET-RbiWhU",
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:RECAPTCHA_SECRET-tc1ajA"
       ]
     },

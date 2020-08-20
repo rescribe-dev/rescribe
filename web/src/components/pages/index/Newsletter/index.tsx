@@ -125,7 +125,7 @@ const Newsletter = (): JSX.Element => {
                     onError();
                   });
               } catch (err) {
-                // console.error(err);
+                // ignore the error
               }
             });
           }}
@@ -139,7 +139,7 @@ const Newsletter = (): JSX.Element => {
             handleSubmit,
             isSubmitting,
           }) => (
-            <Form>
+            <Form onSubmit={handleSubmit}>
               <Row className="justify-content-center">
                 <Col md="4">
                   <FormGroup>
@@ -220,7 +220,7 @@ const Newsletter = (): JSX.Element => {
               <BeatLoader
                 css={loaderCSS}
                 size={10}
-                color={'red'}
+                color="var(--red-stop)"
                 loading={isSubmitting}
               />
             </Form>

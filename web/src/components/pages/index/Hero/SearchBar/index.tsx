@@ -61,6 +61,7 @@ const SearchBar = (): JSX.Element => {
       }) => (
         <>
           <Form
+            onSubmit={handleSubmit}
             style={{
               display: 'flex',
               width: '100%',
@@ -129,7 +130,7 @@ const SearchBar = (): JSX.Element => {
             <BeatLoader
               css={loaderCSS}
               size={10}
-              color="red"
+              color="var(--red-stop)"
               loading={isSubmitting}
             />
           </Form>

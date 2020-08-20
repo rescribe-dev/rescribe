@@ -22,7 +22,6 @@ export default class Plan {
 
   // map of currency to stripe id
   @Property({ required: true, type: String })
-  @Field(_type => String, { description: 'currencies' })
   currencies: Map<string, string>;
 
   // cost of plan in USD

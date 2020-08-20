@@ -35,11 +35,6 @@ module.exports = {
           position: 'left',
         },
         {
-          href: `${fullURL}/storybook/index.html`,
-          label: 'Storybook',
-          position: 'left',
-        },
-        {
           href: 'https://github.com/rescribe-dev/rescribe',
           label: 'GitHub',
           position: 'right',
@@ -81,6 +76,10 @@ module.exports = {
             {
               label: 'Blog',
               to: 'blog/',
+            },
+            {
+              href: `${fullURL}/storybook/index.html`,
+              label: 'Storybook',
             },
             {
               label: 'GitHub',

@@ -5,7 +5,7 @@ import {
   FileFieldsFragment,
 } from 'lib/generated/datamodel';
 import { Language } from 'prism-react-renderer';
-import { SearchResultComponent } from '../SearchResult';
+import SearchResultComponent from '../SearchResult';
 import './styles.scss';
 
 export interface FileResultCardArgs {

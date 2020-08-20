@@ -96,7 +96,7 @@ export const WrapApollo = (args: WrapApolloArgs): JSX.Element => {
   return (
     <>
       {loading ? null : (
-        // @ts-ignore TODO - fix this
+        // @ts-ignore TODO - figure out how to remove this
         <ApolloProvider client={client}>{args.children}</ApolloProvider>
       )}
     </>

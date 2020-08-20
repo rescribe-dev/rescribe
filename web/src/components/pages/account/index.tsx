@@ -13,6 +13,7 @@ import { isSSR } from 'utils/checkSSR';
 import { UserFieldsFragment } from 'lib/generated/datamodel';
 import { isLoggedIn } from 'state/auth/getters';
 import { AccountMessages } from 'locale/pages/account/accountMessages';
+import { toast } from 'react-toastify';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AccountPageDataProps extends PageProps {}
@@ -31,11 +32,18 @@ const AccountPage = (_args: AccountProps): JSX.Element => {
     ? undefined
     : useDispatch<AppThunkDispatch<AuthActionTypes>>();
   useEffect(() => {
-    if (dispatchAuthThunk && !user && isLoggedIn()) {
-      dispatchAuthThunk(thunkGetUser()).catch((err: Error) =>
-        console.error(err.message)
-      );
-    }
+    (async () => {
+      if (dispatchAuthThunk && !user && (await isLoggedIn())) {
+        try {
+          await dispatchAuthThunk(thunkGetUser());
+        } catch (err) {
+          const errObj = err as Error;
+          toast(errObj.message, {
+            type: 'error',
+          });
+        }
+      }
+    })();
   }, []);
   return (
     <Container className="default-container">

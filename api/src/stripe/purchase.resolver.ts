@@ -8,9 +8,14 @@ import { ObjectId } from 'mongodb';
 import { UserModel } from '../schema/users/user';
 import Coupon, { CouponModel } from '../schema/payments/coupon';
 import { getExchangeRate } from '../currencies/getExchangeRate';
-import { PaymentMethodModel } from '../schema/users/paymentMethod';
+import PaymentMethod, { PaymentMethodModel } from '../schema/users/paymentMethod';
 import { UserCurrencyModel } from '../schema/users/userCurrency';
 import { configData } from '../utils/config';
+import { defaultCurrency } from '../shared/variables';
+import ReturnObj from '../schema/utils/returnObj';
+import { ApolloError } from 'apollo-server-express';
+import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import Address, { AddressModel } from '../schema/users/address';
 
 @ArgsType()
 export class PurchaseArgs {
@@ -25,12 +30,15 @@ export class PurchaseArgs {
 
   @Field({ description: 'payment method id', nullable: true })
   paymentMethod?: ObjectId;
+
+  @Field({ description: 'address id', nullable: true })
+  address?: ObjectId;
 }
 
 @Resolver()
 class PurchaseResolver {
-  @Mutation(_returns => String)
-  async purchase(@Args() args: PurchaseArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+  @Mutation(_returns => ReturnObj)
+  async purchase(@Args() args: PurchaseArgs, @Ctx() ctx: GraphQLContext): Promise<ReturnObj> {
     requirePaymentSystemInitialized();
     if (!verifyLoggedIn(ctx)) {
       throw new Error('user not logged in');
@@ -54,7 +62,18 @@ class PurchaseResolver {
       throw new Error(`cannot find user with id ${userID.toHexString()}`);
     }
 
-    if (!args.paymentMethod) {
+    const product = await ProductModel.findOne({
+      name: args.product
+    });
+    if (!product) {
+      throw new Error(`cannot find product ${args.product}`);
+    }
+
+    let currency = '';
+
+    if (product.isFree) {
+      currency = defaultCurrency;
+    } else if (!args.paymentMethod) {
       if (!user.defaultPaymentMethod) {
         throw new Error('no default payment method found');
       }
@@ -77,43 +96,46 @@ class PurchaseResolver {
       args.paymentMethod = user.defaultPaymentMethod;
     }
 
-    const paymentMethod = await PaymentMethodModel.findById(args.paymentMethod);
-    if (!paymentMethod) {
-      throw new Error(`cannot find payment method with id ${args.paymentMethod.toHexString()}`);
+    let paymentMethod: PaymentMethod | undefined;
+    if (!product.isFree && args.paymentMethod) {
+      const potentialPaymentMethod = await PaymentMethodModel.findById(args.paymentMethod);
+      if (!potentialPaymentMethod) {
+        throw new Error(`cannot find payment method with id ${args.paymentMethod.toHexString()}`);
+      }
+      paymentMethod = potentialPaymentMethod;
+      currency = paymentMethod.currency;
+    }
+
+    if (currency.length === 0) {
+      throw new Error('cannot find currency');
     }
 
     const userCurrencyData = await UserCurrencyModel.findOne({
       user: userID,
-      currency: paymentMethod.currency,
+      currency,
     });
     if (!userCurrencyData) {
       throw new Error('cannot find user currency data');
     }
 
-    const product = await ProductModel.findOne({
-      name: args.product
-    });
-    if (!product) {
-      throw new Error(`cannot find product ${args.product}`);
-    }
-
     let amount = 0;
-    const foundPlan = false;
+    let foundPlan = false;
     let subscriptionPlanID: string | null = null;
     for (const plan of product.plans) {
       if (plan.interval === args.interval) {
+        foundPlan = true;
         if (plan.interval === singlePurchase) {
           amount = plan.amount;
         } else {
           let foundCurrency = false;
-          for (const currency of plan.currencies.keys()) {
-            if (currency === paymentMethod.currency) {
+          for (const currentCurrency of plan.currencies.keys()) {
+            if (currentCurrency === currency) {
               foundCurrency = true;
-              subscriptionPlanID = plan.currencies.get(currency) as string;
+              subscriptionPlanID = plan.currencies.get(currentCurrency) as string;
             }
           }
           if (!foundCurrency) {
-            throw new Error(`could not find currency ${paymentMethod.currency} in plan`);
+            throw new Error(`could not find currency ${currency} in plan`);
           }
         }
       }
@@ -122,18 +144,73 @@ class PurchaseResolver {
       throw new Error(`could not find plan with interval ${args.interval}`);
     }
 
-    let clientSecret = '';
-    if (args.interval !== singlePurchase) {
-      if (user.subscriptionID.length > 0) {
-        await stripeClient.subscriptions.del(user.subscriptionID);
+    let address: Address | undefined;
+    if (!product.isFree && paymentMethod && !paymentMethod.address) {
+      if (!args.address) {
+        if (!user.defaultAddress) {
+          throw new Error('no default address found');
+        }
+        if (await AddressModel.countDocuments({
+          _id: user.defaultAddress
+        }) === 0) {
+          const newDefaultAddress = await AddressModel.findOne({
+            user: userID
+          });
+          if (!newDefaultAddress) {
+            throw new Error('cannot find any addresses to make default');
+          }
+          user.defaultAddress = newDefaultAddress._id;
+          await UserModel.updateOne({
+            _id: userID
+          }, {
+            defaultAddress: user.defaultAddress
+          });
+        }
+        args.address = user.defaultAddress;
       }
+      const potentialAddress = await AddressModel.findById(args.address);
+      if (!potentialAddress) {
+        throw new Error(`cannot find address with id ${args.address.toHexString()}`);
+      }
+      address = potentialAddress;
+    }
+
+    // update billing address on card
+    if (!product.isFree && paymentMethod && address) {
+      await stripeClient.paymentMethods.update(paymentMethod.method, {
+        billing_details: {
+          address: {
+            city: address.city,
+            country: address.country,
+            line1: address.line1,
+            line2: address.line2,
+            state: address.state,
+            postal_code: address.postal_code,
+          },
+        },
+      });
+      await PaymentMethodModel.updateOne({
+        _id: paymentMethod._id
+      }, {
+        $set: {
+          address: address._id,
+        }
+      });
+    }
+
+    const successMessage = `user ${user.username} purchased ${product.name}`;
+    if (args.interval !== singlePurchase) {
       const newSubscription = await stripeClient.subscriptions.create({
         customer: userCurrencyData.customer,
         items: [{
           plan: subscriptionPlanID as string
         }],
-        coupon: coupon ? coupon.name : undefined
+        coupon: coupon ? coupon.name : undefined,
+        default_payment_method: product.isFree || !paymentMethod ? undefined : paymentMethod.method,
       });
+      if (user.subscriptionID.length > 0) {
+        await stripeClient.subscriptions.del(user.subscriptionID);
+      }
       await UserModel.updateOne({
         _id: userID
       }, {
@@ -142,7 +219,13 @@ class PurchaseResolver {
           subscriptionID: newSubscription.id
         }
       });
-    } else {
+      return {
+        message: successMessage,
+      };
+    } else if (!product.isFree) {
+      if (typeof paymentMethod === 'undefined') {
+        throw new ApolloError('payment method undefined', `${INTERNAL_SERVER_ERROR}`);
+      }
       if (coupon) {
         if (coupon.isPercent) {
           amount *= coupon.amount / 100.0;
@@ -153,22 +236,29 @@ class PurchaseResolver {
           }
         }
       }
-      const exchangeRate = await getExchangeRate(paymentMethod.currency, configData.DISABLE_CACHE);
+      const exchangeRate = await getExchangeRate(currency, configData.DISABLE_CACHE);
       // remove cents
       amount = Math.ceil(100 * amount * exchangeRate);
       const paymentIntent = await stripeClient.paymentIntents.create({
         amount,
-        currency: paymentMethod.currency,
+        currency,
+        customer: userCurrencyData.customer,
+        payment_method: (paymentMethod as PaymentMethod).method,
         metadata: {
           product: product.name,
           userID: userID.toHexString()
         }
       });
-      clientSecret = paymentIntent.client_secret as string;
+      const clientSecret = paymentIntent.client_secret as string;
+      return {
+        message: successMessage,
+        data: clientSecret,
+      };
+    } else {
+      return {
+        message: successMessage,
+      };
     }
-
-    return clientSecret.length > 0 ? clientSecret :
-      `user ${user.username} purchased ${product.name}`;
   }
 }
 

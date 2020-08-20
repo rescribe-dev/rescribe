@@ -66,6 +66,10 @@
           "name": "GITHUB_PRIVATE_KEY"
         },
         {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:GOOGLE_MAPS_API_KEY-QzS9ll",
+          "name": "GOOGLE_MAPS_API_KEY"
+        },
+        {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:INITIALIZATION_KEY-BEttA5",
           "name": "INITIALIZATION_KEY"
         },
@@ -100,6 +104,10 @@
         {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:STRIPE_SECRET-Hv3bc2",
           "name": "STRIPE_SECRET"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:STRIPE_WEBHOOK_SECRET-RbiWhU",
+          "name": "STRIPE_WEBHOOK_SECRET"
         },
         {
           "valueFrom": "arn:aws:secretsmanager:us-east-1:259559535892:secret:RECAPTCHA_SECRET-tc1ajA",

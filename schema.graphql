@@ -42,6 +42,9 @@ type Address {
   """name"""
   name: String!
 
+  """postal code"""
+  postal_code: String!
+
   """state"""
   state: String!
 
@@ -204,6 +207,8 @@ enum CommentType {
 
 """coupons"""
 type Coupon {
+  _id: ObjectId!
+
   """coupon amount"""
   amount: Int!
 
@@ -214,10 +219,27 @@ type Coupon {
   name: String!
 }
 
+"""credit card brand"""
+enum CreditCardBrand {
+  amex
+  diners
+  discover
+  jcb
+  mastercard
+  unionpay
+  unknown
+  visa
+}
+
 """currency data"""
 type Currency {
+  _id: ObjectId!
+
+  """accepted as payment"""
+  acceptedPayment: Boolean!
+
   """exchange rate to usd"""
-  exchangeRate: Int!
+  exchangeRate: Float!
 
   """currency name"""
   name: String!
@@ -472,13 +494,13 @@ type Location {
 type Mutation {
   addAddress(
     """city"""
-    city: String!
+    city: String
 
     """country"""
-    country: String!
+    country: String
 
     """line 1"""
-    line1: String!
+    line1: String
 
     """line 2"""
     line2: String
@@ -486,9 +508,18 @@ type Mutation {
     """name"""
     name: String!
 
+    """google places place id"""
+    place_id: String
+
+    """postal code"""
+    postal_code: String
+
+    """set to default"""
+    setDefault: Boolean = true
+
     """state"""
-    state: String!
-  ): String!
+    state: String
+  ): ReturnObj!
   addBranch(
     """branch name"""
     name: String!
@@ -507,7 +538,7 @@ type Mutation {
     name: String!
   ): String!
   addCurrency(
-    """currency name"""
+    """add currency to accepted for payments"""
     name: String!
   ): String!
   addFolder(
@@ -537,14 +568,20 @@ type Mutation {
     currency: String!
 
     """set to default"""
-    setDefault: Boolean!
-  ): String!
+    setDefault: Boolean = true
+  ): ReturnObj!
   addProduct(
     """product name"""
     name: String!
 
     """plans for product"""
     plans: PlanInput!
+
+    """number of private repositories allowed"""
+    privateRepositories: Float!
+
+    """number of public repositories allowed"""
+    publicRepositories: Float!
 
     """storage allowed (in bytes)"""
     storage: Float!
@@ -593,7 +630,7 @@ type Mutation {
     name: String!
   ): String!
   deleteCurrency(
-    """currency name"""
+    """remove currency from accepted for payments"""
     name: String!
   ): String!
   deleteFile(
@@ -705,6 +742,9 @@ type Mutation {
   loginGuest: String!
   logout: String!
   purchase(
+    """address id"""
+    address: ObjectId
+
     """coupon - only allow one at a time for now"""
     coupon: String
 
@@ -716,7 +756,7 @@ type Mutation {
 
     """product id"""
     product: String!
-  ): String!
+  ): ReturnObj!
   register(
     """email"""
     email: String!
@@ -833,8 +873,17 @@ enum ParentType {
 type PaymentMethod {
   _id: ObjectId!
 
+  """billing address"""
+  address: ObjectId
+
+  """credit card type"""
+  brand: CreditCardBrand!
+
   """currency"""
   currency: String!
+
+  """credit card last four digits"""
+  lastFourDigits: Int!
 
   """payment method stripe id"""
   method: String!
@@ -846,9 +895,6 @@ type PaymentMethod {
 type Plan {
   """amount"""
   amount: Float!
-
-  """currencies"""
-  currencies: String!
 
   """interval"""
   interval: IntervalType!
@@ -879,11 +925,25 @@ type Preview {
 
 """products"""
 type Product {
+  _id: ObjectId!
+
+  """if product is free"""
+  isFree: Boolean!
+
   """product name"""
   name: String!
 
   """plans"""
   plans: [Plan!]!
+
+  """number of private repositories allowed"""
+  privateRepositories: Float!
+
+  """number of public repositories allowed"""
+  publicRepositories: Float!
+
+  """storage restrictions"""
+  storage: Float!
 
   """stripe id"""
   stripeID: String!
@@ -943,6 +1003,10 @@ type PublicUser {
 
 type Query {
   address(
+    """address id"""
+    id: ObjectId!
+  ): Address!
+  addresses(
     """address user"""
     user: ObjectId
   ): [Address!]!
@@ -960,6 +1024,9 @@ type Query {
   ): Coupon!
   coupons: [Coupon!]!
   currencies(
+    """currency is accepted as payment method"""
+    acceptedPayment: Boolean
+
     """currency names"""
     names: [String!]
   ): [Currency!]!
@@ -1132,7 +1199,10 @@ type Query {
     """product name"""
     name: String
   ): Product!
-  products: [Product!]!
+  products(
+    """product names"""
+    names: [String!]
+  ): [Product!]!
   project(
     """project id"""
     id: ObjectId
@@ -1306,6 +1376,18 @@ type RepositoryDB {
   updated: Float!
 }
 
+"""restrictions"""
+type Restrictions {
+  """number of private repositories allowed"""
+  privateRepositories: Float!
+
+  """number of public repositories allowed"""
+  publicRepositories: Float!
+
+  """storage restrictions"""
+  storage: Float!
+}
+
 """result type"""
 enum ResultType {
   class
@@ -1316,6 +1398,18 @@ enum ResultType {
   name
   path
   variable
+}
+
+"""return object for graphql mutations"""
+type ReturnObj {
+  """object id"""
+  _id: ObjectId
+
+  """other data"""
+  data: String
+
+  """message"""
+  message: String!
 }
 
 """search result"""
@@ -1347,7 +1441,10 @@ scalar Upload
 type User {
   _id: ObjectId!
 
-  """project access"""
+  """default address"""
+  defaultAddress: ObjectId
+
+  """default payment method"""
   defaultPaymentMethod: ObjectId
 
   """email"""

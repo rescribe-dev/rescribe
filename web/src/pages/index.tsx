@@ -2,8 +2,6 @@ import React from 'react';
 import Layout from 'layouts/index';
 import SEO from 'components/seo';
 import IndexContent, { IndexPageProps } from 'components/pages/index/index';
-// import NavCard from 'components/pages/NaviagtionCard';
-// import { graphql } from 'gatsby';
 import IndexMessagesEnglish from 'locale/pages/index/en';
 
 const IndexPage = (args: IndexPageProps): JSX.Element => {
@@ -14,9 +12,5 @@ const IndexPage = (args: IndexPageProps): JSX.Element => {
     </Layout>
   );
 };
-
-// export const imageData = graphql`{
-
-// }`;
 
 export default IndexPage;

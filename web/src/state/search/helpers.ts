@@ -4,7 +4,7 @@ import { setQuery, setLanguages } from './actions';
 import { RootState } from '..';
 import { isEqual } from 'lodash';
 import { Language } from 'lib/generated/datamodel';
-import { capitalizeFirstLetter } from 'utils/misc';
+import { capitalizeFirstLetter, propertyOf } from 'utils/misc';
 
 export const processSearchParams = (searchParamsStr: string): boolean => {
   const state = (store.getState() as RootState).searchReducer;
@@ -23,7 +23,8 @@ export const processSearchParams = (searchParamsStr: string): boolean => {
       .reduce((result, name) => {
         const capitalizedName = capitalizeFirstLetter(name);
         try {
-          const language = Language[capitalizedName as keyof typeof Language];
+          const language =
+            Language[propertyOf<typeof Language>(capitalizedName)];
           result.push(language);
         } catch (_err) {
           // handle error

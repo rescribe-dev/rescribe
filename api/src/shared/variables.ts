@@ -11,3 +11,9 @@ export const passwordMinLen = 6;
 export const minJWTLen = 30;
 export const queryMinLength = 3;
 export const defaultCurrency = 'usd';
+export const defaultCountry = 'us';
+
+// products
+export const defaultProductName = 'free';
+export const teamProductName = 'team';
+export const enterpriseProductName = 'enterprise';

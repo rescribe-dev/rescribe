@@ -1,0 +1,12 @@
+fragment paymentMethodData on PaymentMethod {
+  _id
+  currency
+  lastFourDigits
+  brand
+}
+
+query paymentMethods {
+  paymentMethods {
+    ...paymentMethodData
+  }
+}

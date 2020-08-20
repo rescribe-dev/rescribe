@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, Dispatch, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,7 +14,13 @@ import { IntlProvider } from 'react-intl';
 import './index.scss';
 import { WindowLocation } from '@reach/router';
 import { isSSR } from 'utils/checkSSR';
-import { lightThemeClass } from 'utils/theme';
+import { themeMap } from 'utils/theme';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from 'state';
+import { Theme } from 'utils/theme';
+import { getCurrentLanguageFromURL } from 'utils/languageUtils';
+import { setLanguage } from 'state/settings/actions';
+import { defaultLanguage } from 'utils/languages';
 
 const Fonts = Loadable(() => import('components/fontloader'));
 
@@ -48,42 +54,47 @@ interface IndexLayoutProps {
   };
 }
 
-// TODO - create a switcher between themes
-
 const Layout = (args: IndexLayoutArgs): JSX.Element => {
   const data: IndexLayoutProps = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {
         siteMetadata {
           title
-          languages {
-            default
-            options
-          }
         }
       }
     }
   `);
 
-  const [themeClass] = useState<string>(lightThemeClass);
+  const currentTheme = isSSR
+    ? undefined
+    : useSelector<RootState, Theme | undefined>(
+        (state) => state.settingsReducer.theme
+      );
 
-  let currentLanguage = data.site.siteMetadata.languages.default;
+  let dispatch: Dispatch<any>;
   if (!isSSR) {
-    const url = window.location.pathname;
-    const splitURL = url.split('/');
-    if (splitURL.length >= 2) {
-      const urlLanguage = splitURL[1];
-      if (data.site.siteMetadata.languages.options.includes(urlLanguage)) {
-        currentLanguage = urlLanguage;
-      }
-    }
+    dispatch = useDispatch();
   }
+
+  const [currentLanguage, setCurrentLanguage] = useState<string>(
+    defaultLanguage
+  );
+
+  useEffect(() => {
+    const newCurrentLanguage = getCurrentLanguageFromURL();
+    setCurrentLanguage(newCurrentLanguage);
+    dispatch(setLanguage(newCurrentLanguage));
+  }, []);
 
   return (
     <HelmetProvider>
       <IntlProvider locale={currentLanguage} messages={args.i18nMessages}>
         <Fonts />
-        <div className={`main-wrapper ${themeClass}`}>
+        <div
+          className={`main-wrapper ${
+            currentTheme ? themeMap[currentTheme] : ''
+          }`}
+        >
           <Header
             siteTitle={data.site.siteMetadata.title}
             location={args.location}

@@ -8,7 +8,7 @@ import PrivateRoute from 'components/privateRoute';
 
 const NewPage = (args: NewPageDataProps): JSX.Element => {
   return (
-    <PrivateRoute>
+    <PrivateRoute location={args.location}>
       <Layout location={args.location}>
         <SEO title="Login" />
         <NewContent {...args} messages={NewMessagesEnglish} />
