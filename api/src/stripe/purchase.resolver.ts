@@ -142,16 +142,13 @@ class PurchaseResolver {
 
     const successMessage = `user ${user.username} purchased ${product.name}`;
     if (args.interval !== singlePurchase) {
-      if (typeof paymentMethod === 'undefined') {
-        throw new ApolloError('payment method undefined', `${INTERNAL_SERVER_ERROR}`);
-      }
       const newSubscription = await stripeClient.subscriptions.create({
         customer: userCurrencyData.customer,
         items: [{
           plan: subscriptionPlanID as string
         }],
         coupon: coupon ? coupon.name : undefined,
-        default_payment_method: paymentMethod.method
+        default_payment_method: product.isFree || !paymentMethod ? undefined : paymentMethod.method
       });
       if (user.subscriptionID.length > 0) {
         await stripeClient.subscriptions.del(user.subscriptionID);

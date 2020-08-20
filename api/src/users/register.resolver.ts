@@ -1,8 +1,7 @@
-import bcrypt from 'bcrypt';
+import argon2 from 'argon2';
 import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches } from 'class-validator';
 import { passwordMinLen, specialCharacterRegex, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../shared/variables';
-import { saltRounds } from '../utils/variables';
 import { accountExistsEmail, accountExistsUsername } from './shared';
 import { ObjectID, ObjectId } from 'mongodb';
 import User, { UserType, UserModel } from '../schema/users/user';
@@ -125,7 +124,7 @@ class RegisterResolver {
         plan: planStripeID
       }]
     });
-    const hashedPassword = await bcrypt.hash(args.password, saltRounds);
+    const hashedPassword = await argon2.hash(args.password);
     const newUser: User = {
       _id: id,
       name: args.name,

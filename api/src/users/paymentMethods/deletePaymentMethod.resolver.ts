@@ -3,7 +3,7 @@ import { requirePaymentSystemInitialized, stripeClient } from '../../stripe/init
 import { GraphQLContext } from '../../utils/context';
 import { verifyLoggedIn } from '../../auth/checkAuth';
 import { ObjectId } from 'mongodb';
-import { PaymentMethodModel } from '../../schema/users/paymentMethod';
+import PaymentMethod, { PaymentMethodModel } from '../../schema/users/paymentMethod';
 import { UserModel } from '../../schema/users/user';
 
 @ArgsType()
@@ -11,6 +11,13 @@ class DeletePaymentMethodArgs {
   @Field({ description: 'payment method id' })
   id: ObjectId;
 }
+
+export const deletePaymentMethodUtil = async (paymentMethod: PaymentMethod): Promise<void> => {
+  await stripeClient.paymentMethods.detach(paymentMethod.method);
+  await PaymentMethodModel.deleteOne({
+    _id: paymentMethod._id
+  });
+};
 
 @Resolver()
 class DeletePaymentMethodResolver {
@@ -29,10 +36,7 @@ class DeletePaymentMethodResolver {
     if (!currentPaymentMethodData.user.equals(userID)) {
       throw new Error('user not authorized to view payment method data');
     }
-    await stripeClient.paymentMethods.detach(currentPaymentMethodData.method);
-    await PaymentMethodModel.deleteOne({
-      _id: args.id
-    });
+    await deletePaymentMethodUtil(currentPaymentMethodData);
     const userData = await UserModel.findById(userID);
     if (!userData) {
       throw new Error('cannot find user data');

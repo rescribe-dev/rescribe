@@ -43,14 +43,18 @@ import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { CurrencyData } from 'state/settings/types';
-import { defaultCurrencyData } from 'state/settings/reducers';
 import { defaultLanguage } from 'utils/languages';
 
-export type OnCheckoutComplete = (name: string) => void;
+export type OnCheckoutComplete = (
+  name: string,
+  purchasedItems: CartObject[]
+) => Promise<void>;
 
 interface CheckoutMainProps {
   messages: CheckoutMessages;
   onCheckoutComplete: OnCheckoutComplete;
+  currentCurrency: CurrencyData;
+  setCurrentCurrency: (currency: CurrencyData) => void;
 }
 
 const Main = (args: CheckoutMainProps): JSX.Element => {
@@ -92,10 +96,6 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
     DeletePaymentMethodMutation,
     DeletePaymentMethodMutationVariables
   >(DeletePaymentMethod);
-
-  const [currentCurrency, setCurrentCurrency] = useState<CurrencyData>(
-    defaultCurrencyData
-  );
 
   const language: string = isSSR
     ? defaultLanguage
@@ -282,7 +282,9 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
             if (!purchaseRes.data) {
               throw new Error('cannot find purchase data');
             }
-            args.onCheckoutComplete(itemToPurchase.displayName);
+            await args.onCheckoutComplete(itemToPurchase.displayName, [
+              ...cart,
+            ]);
           } catch (err) {
             toast(err.message, {
               type: 'error',
@@ -292,7 +294,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
           }
         }}
       >
-        {({ values, setFieldValue, handleSubmit }) => (
+        {({ values, setFieldValue, handleSubmit, isSubmitting }) => (
           <>
             <Form onSubmit={handleSubmit}>
               <Row>
@@ -367,7 +369,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                         setCurrentItem={setCurrentPaymentMethod}
                         toggleDeleteItemModal={toggleDeletePaymentModal}
                         id="paymentMethod"
-                        setCurrentCurrency={setCurrentCurrency}
+                        setCurrentCurrency={args.setCurrentCurrency}
                       />
                     </StepLayout>
                   </Container>
@@ -375,9 +377,11 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                 <Col md="4">
                   <Summary
                     messages={args.messages}
-                    currency={currentCurrency}
+                    currency={args.currentCurrency}
                     formData={values}
                     cart={cart}
+                    isComplete={false}
+                    isSubmitting={isSubmitting}
                   />
                 </Col>
               </Row>

@@ -28,8 +28,10 @@ import { CurrencyData } from 'state/settings/types';
 interface SummaryArgs {
   messages: CheckoutMessages;
   currency: CurrencyData;
-  formData: CheckoutValues;
+  formData?: CheckoutValues;
   cart: CartObject[] | undefined;
+  isComplete: boolean;
+  isSubmitting?: boolean;
 }
 
 const Summary = (args: SummaryArgs): JSX.Element => {
@@ -57,10 +59,12 @@ const Summary = (args: SummaryArgs): JSX.Element => {
             marginBottom: '2rem',
           }}
         >
-          <h4>Order Summary</h4>
+          <h4>{!args.isComplete ? 'Order Summary' : 'Order Complete'}</h4>
         </CardTitle>
         {!(args.cart && args.cart.length > 0) ? (
-          <CardText>Nothing in cart</CardText>
+          <CardText>
+            {!args.isComplete ? 'Nothing in Cart' : 'Nothing Purchased'}
+          </CardText>
         ) : (
           <>
             <ListGroup
@@ -116,23 +120,28 @@ const Summary = (args: SummaryArgs): JSX.Element => {
             <h5>
               <b>Total: {formatPrice(total)}</b>
             </h5>
-            <Button
-              disabled={
-                !args.cart ||
-                args.cart.length === 0 ||
-                args.formData.address === null ||
-                args.formData.paymentMethod === null
-              }
-              color="primary"
-              style={{
-                marginTop: '2rem',
-                backgroundColor: 'var(--light-orange)',
-                borderColor: 'var(--light-orange)',
-              }}
-              type="submit"
-            >
-              {capitalizeOnlyFirstLetter(args.messages['place your order'])}
-            </Button>
+            {args.isComplete || !args.formData ? null : (
+              <>
+                <Button
+                  disabled={
+                    !args.cart ||
+                    args.cart.length === 0 ||
+                    args.formData.address === null ||
+                    args.formData.paymentMethod === null ||
+                    args.isSubmitting
+                  }
+                  color="primary"
+                  style={{
+                    marginTop: '2rem',
+                    backgroundColor: 'var(--light-orange)',
+                    borderColor: 'var(--light-orange)',
+                  }}
+                  type="submit"
+                >
+                  {capitalizeOnlyFirstLetter(args.messages['place your order'])}
+                </Button>
+              </>
+            )}
           </>
         )}
       </CardBody>

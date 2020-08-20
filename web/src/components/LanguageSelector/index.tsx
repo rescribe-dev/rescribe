@@ -82,7 +82,7 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
           dispatch(setLanguage(selected.value));
           const currentLanguage = getCurrentLanguageFromURL();
           if (currentLanguage !== selected.value) {
-            const newPath = getLanguageRedirectURL(selected.value);
+            const newPath = getLanguageRedirectURL(selected.code);
             if (newPath.length > 0) {
               navigate(newPath);
             }

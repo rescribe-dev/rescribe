@@ -1,11 +1,10 @@
 
 import { ObjectID } from 'mongodb';
-import bcrypt from 'bcrypt';
+import argon2 from 'argon2';
 import { GraphQLContext } from '../utils/context';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation } from 'type-graphql';
 import { IsEmail, MinLength, Matches, IsOptional } from 'class-validator';
 import { passwordMinLen, specialCharacterRegex, numberRegex, lowercaseLetterRegex, capitalLetterRegex } from '../shared/variables';
-import { saltRounds } from '../utils/variables';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/users/user';
 
@@ -63,7 +62,7 @@ class UpdateAccountResolver {
       userUpdateData.email = email;
     }
     if (password) {
-      userUpdateData.password = await bcrypt.hash(password, saltRounds);
+      userUpdateData.password = await argon2.hash(password);
     }
     const userID = new ObjectID(ctx.auth?.id);
     await UserModel.updateOne({

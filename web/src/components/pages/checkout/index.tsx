@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Dispatch } from 'react';
-import { Container, Card, CardBody, CardTitle } from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 import './index.scss';
 import { PageProps } from 'gatsby';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
@@ -10,6 +10,13 @@ import { toast } from 'react-toastify';
 import { clearCart } from 'state/purchase/actions';
 import { isSSR } from 'utils/checkSSR';
 import { useDispatch } from 'react-redux';
+import Summary from './Summary';
+import { CartObject } from 'state/purchase/types';
+import { CurrencyData } from 'state/settings/types';
+import { defaultCurrencyData } from 'state/settings/reducers';
+import { AppThunkDispatch } from 'state/thunk';
+import { AuthActionTypes } from 'state/auth/types';
+import { thunkGetUser } from 'state/auth/thunks';
 
 export interface CheckoutPageProps extends PageProps {
   data: Record<string, unknown>;
@@ -32,12 +39,34 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
     dispatch = useDispatch();
   }
 
-  const onCheckoutComplete: OnCheckoutComplete = (name) => {
-    setCheckoutComplete(true);
-    dispatch(clearCart());
-    toast(`Successfully purchased ${name}`, {
-      type: 'success',
-    });
+  const [purchasedItems, setPurchasedItems] = useState<CartObject[]>([]);
+
+  const [currentCurrency, setCurrentCurrency] = useState<CurrencyData>(
+    defaultCurrencyData
+  );
+
+  const dispatchAuthThunk = isSSR
+    ? undefined
+    : useDispatch<AppThunkDispatch<AuthActionTypes>>();
+
+  const onCheckoutComplete: OnCheckoutComplete = async (name, items) => {
+    try {
+      if (!dispatchAuthThunk) {
+        throw new Error('cannot find auth thunk');
+      }
+      await dispatchAuthThunk(thunkGetUser());
+      setCheckoutComplete(true);
+      setPurchasedItems(items);
+      dispatch(clearCart());
+      toast(`Successfully purchased ${name}`, {
+        type: 'success',
+      });
+    } catch (err) {
+      const errObj = err as Error;
+      toast(errObj.message, {
+        type: 'error',
+      });
+    }
   };
 
   useEffect(() => {
@@ -68,17 +97,20 @@ const CheckoutPage = (args: CheckoutPageContentProps): JSX.Element => {
           <Main
             messages={args.messages}
             onCheckoutComplete={onCheckoutComplete}
+            currentCurrency={currentCurrency}
+            setCurrentCurrency={setCurrentCurrency}
           />
         ) : (
-          <>
-            <Card>
-              <CardBody>
-                <CardTitle>
-                  <h3>Checkout completed</h3>
-                </CardTitle>
-              </CardBody>
-            </Card>
-          </>
+          <Row className="justify-content-center">
+            <Col md="7">
+              <Summary
+                cart={purchasedItems}
+                currency={currentCurrency}
+                isComplete={checkoutComplete}
+                messages={args.messages}
+              />
+            </Col>
+          </Row>
         )}
       </Container>
     </Elements>

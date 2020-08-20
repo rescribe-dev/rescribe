@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
 import { GraphQLContext } from '../utils/context';
+import argon2 from 'argon2';
 import { verifyGuest } from './checkAuth';
 import { generateJWTAccess, generateJWTGuest, generateJWTRefresh } from '../utils/jwt';
 import { Resolver, ArgsType, Field, Args, Ctx, PubSub, PubSubEngine, Mutation } from 'type-graphql';
@@ -79,7 +79,7 @@ class LoginResolvers {
     if (!user.emailVerified) {
       throw new Error('email is not verified');
     }
-    if (!await bcrypt.compare(args.password, user.password)) {
+    if (!await argon2.verify(user.password, args.password)) {
       throw new Error('password is invalid');
     }
     return await commonLogin(user, pubSub, ctx);

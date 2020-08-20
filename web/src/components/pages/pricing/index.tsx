@@ -63,11 +63,18 @@ const PricingPage = (args: PricingPageContentProps): JSX.Element => {
     ? undefined
     : useDispatch<AppThunkDispatch<AuthActionTypes>>();
   useEffect(() => {
-    if (dispatchAuthThunk && !user && isLoggedIn()) {
-      dispatchAuthThunk(thunkGetUser()).catch((err: Error) =>
-        console.error(err.message)
-      );
-    }
+    (async () => {
+      if (dispatchAuthThunk && !user && (await isLoggedIn())) {
+        try {
+          await dispatchAuthThunk(thunkGetUser());
+        } catch (err) {
+          const errObj = err as Error;
+          toast(errObj.message, {
+            type: 'error',
+          });
+        }
+      }
+    })();
   }, []);
   const [currentlyMonthly, setCurrentlyMonthly] = useState<boolean>(true);
   return (
