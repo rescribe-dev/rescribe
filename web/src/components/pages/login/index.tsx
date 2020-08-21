@@ -13,6 +13,8 @@ import {
   Button,
   Row,
   Col,
+  Card,
+  CardBody,
 } from 'reactstrap';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { PageProps, navigate } from 'gatsby';
@@ -157,194 +159,197 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
       });
   }, []);
   return (
-    <div id="fillPageContainer">
+    <>
       <Container
         style={{
           marginTop: '4rem',
         }}
-        className="h-100"
       >
-        <Row className="justify-content-center h-100">
+        <Row className="justify-content-center">
           <Col
             lg={{
               size: 4,
             }}
           >
-            <h2
-              style={{
-                marginBottom: '1rem',
-              }}
-            >
-              Login
-            </h2>
-            <Formik
-              initialValues={{
-                usernameEmail: '',
-                password: '',
-              }}
-              validationSchema={yup.object({
-                usernameEmail: yup.string().required('required'),
-                password: yup.string().required('required'),
-              })}
-              onSubmit={(formData, { setSubmitting, setStatus }) => {
-                if (!window || !window.grecaptcha) {
-                  toast('cannot find recaptcha', {
-                    type: 'error',
-                  });
-                  return;
-                }
-                window.grecaptcha.ready(() => {
-                  const onError = () => {
-                    setStatus({ success: false });
-                    setSubmitting(false);
-                  };
-                  try {
-                    if (!process.env.GATSBY_RECAPTCHA_SITE_KEY) {
-                      throw new Error('cannot find recaptcha token');
-                    }
-                    window.grecaptcha
-                      .execute(process.env.GATSBY_RECAPTCHA_SITE_KEY, {
-                        action: 'login',
-                      })
-                      .then(async (recaptchaToken: string) => {
-                        if (token !== undefined) {
-                          dispatch(setToken(token));
-                          await initializeApolloClient();
-                        }
-                        try {
-                          await dispatchAuthThunk(
-                            thunkLogin({
-                              ...formData,
-                              recaptchaToken,
-                            })
-                          );
-                          await initializeApolloClient();
-                          await dispatchAuthThunk(thunkGetUser());
-                          postLogin(cliLogin, vscodeLogin, redirect);
-                        } catch (err) {
-                          toast(err.message, {
-                            type: 'error',
-                          });
-                          onError();
-                        }
-                      })
-                      .catch((err: Error) => {
-                        toast(err.message, {
-                          type: 'error',
-                        });
-                        onError();
+            <Card>
+              <CardBody>
+                <h2
+                  style={{
+                    marginBottom: '1rem',
+                  }}
+                >
+                  Login
+                </h2>
+                <Formik
+                  initialValues={{
+                    usernameEmail: '',
+                    password: '',
+                  }}
+                  validationSchema={yup.object({
+                    usernameEmail: yup.string().required('required'),
+                    password: yup.string().required('required'),
+                  })}
+                  onSubmit={(formData, { setSubmitting, setStatus }) => {
+                    if (!window || !window.grecaptcha) {
+                      toast('cannot find recaptcha', {
+                        type: 'error',
                       });
-                  } catch (err) {
-                    // ignore the error
-                  }
-                });
-              }}
-            >
-              {({
-                values,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                isSubmitting,
-              }) => (
-                <Form onSubmit={handleSubmit}>
-                  <FormGroup>
-                    <Label for="usernameEmail">
-                      {capitalizeFirstLetter(args.messages.email)}
-                    </Label>
-                    <Input
-                      id="usernameEmail"
-                      name="usernameEmail"
-                      type="text"
-                      placeholder="Username or Email"
-                      autoComplete="username"
-                      className="form-input"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      value={values.usernameEmail}
-                      invalid={
-                        !!(touched.usernameEmail && errors.usernameEmail)
+                      return;
+                    }
+                    window.grecaptcha.ready(() => {
+                      const onError = () => {
+                        setStatus({ success: false });
+                        setSubmitting(false);
+                      };
+                      try {
+                        if (!process.env.GATSBY_RECAPTCHA_SITE_KEY) {
+                          throw new Error('cannot find recaptcha token');
+                        }
+                        window.grecaptcha
+                          .execute(process.env.GATSBY_RECAPTCHA_SITE_KEY, {
+                            action: 'login',
+                          })
+                          .then(async (recaptchaToken: string) => {
+                            if (token !== undefined) {
+                              dispatch(setToken(token));
+                              await initializeApolloClient();
+                            }
+                            try {
+                              await dispatchAuthThunk(
+                                thunkLogin({
+                                  ...formData,
+                                  recaptchaToken,
+                                })
+                              );
+                              await initializeApolloClient();
+                              await dispatchAuthThunk(thunkGetUser());
+                              postLogin(cliLogin, vscodeLogin, redirect);
+                            } catch (err) {
+                              toast(err.message, {
+                                type: 'error',
+                              });
+                              onError();
+                            }
+                          })
+                          .catch((err: Error) => {
+                            toast(err.message, {
+                              type: 'error',
+                            });
+                            onError();
+                          });
+                      } catch (err) {
+                        // ignore the error
                       }
-                      disabled={isSubmitting}
-                    />
-                    <FormFeedback
-                      style={{
-                        marginBottom: '1rem',
-                      }}
-                      className="feedback"
-                      type="invalid"
-                    >
-                      {touched.usernameEmail && errors.usernameEmail
-                        ? errors.usernameEmail
-                        : ''}
-                    </FormFeedback>
-                  </FormGroup>
-                  <FormGroup>
-                    <Label for="password">
-                      {capitalizeFirstLetter(args.messages.password)}
-                    </Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="current-password"
-                      placeholder="Password"
-                      onKeyDown={(evt: React.KeyboardEvent) => {
-                        if (evt.key === 'Enter') {
+                    });
+                  }}
+                >
+                  {({
+                    values,
+                    errors,
+                    touched,
+                    handleChange,
+                    handleBlur,
+                    handleSubmit,
+                    isSubmitting,
+                  }) => (
+                    <Form onSubmit={handleSubmit}>
+                      <FormGroup>
+                        <Label for="usernameEmail">
+                          {capitalizeFirstLetter(args.messages.email)}
+                        </Label>
+                        <Input
+                          id="usernameEmail"
+                          name="usernameEmail"
+                          type="text"
+                          placeholder="Username or Email"
+                          autoComplete="username"
+                          className="form-input"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.usernameEmail}
+                          invalid={
+                            !!(touched.usernameEmail && errors.usernameEmail)
+                          }
+                          disabled={isSubmitting}
+                        />
+                        <FormFeedback
+                          style={{
+                            marginBottom: '1rem',
+                          }}
+                          className="feedback"
+                          type="invalid"
+                        >
+                          {touched.usernameEmail && errors.usernameEmail
+                            ? errors.usernameEmail
+                            : ''}
+                        </FormFeedback>
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="password">
+                          {capitalizeFirstLetter(args.messages.password)}
+                        </Label>
+                        <Input
+                          id="password"
+                          name="password"
+                          type="password"
+                          autoComplete="current-password"
+                          placeholder="Password"
+                          onKeyDown={(evt: React.KeyboardEvent) => {
+                            if (evt.key === 'Enter') {
+                              evt.preventDefault();
+                              handleSubmit();
+                            }
+                          }}
+                          className="form-input"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.password}
+                          invalid={!!(touched.password && errors.password)}
+                          disabled={isSubmitting}
+                        />
+                        <FormFeedback
+                          style={{
+                            marginBottom: '1rem',
+                          }}
+                          className="feedback"
+                          type="invalid"
+                        >
+                          {touched.password && errors.password
+                            ? errors.password
+                            : ''}
+                        </FormFeedback>
+                      </FormGroup>
+                      <Button
+                        type="submit"
+                        style={{
+                          width: '100%',
+                        }}
+                        color="primary"
+                        onClick={(evt: React.MouseEvent) => {
                           evt.preventDefault();
                           handleSubmit();
-                        }
-                      }}
-                      className="form-input"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      value={values.password}
-                      invalid={!!(touched.password && errors.password)}
-                      disabled={isSubmitting}
-                    />
-                    <FormFeedback
-                      style={{
-                        marginBottom: '1rem',
-                      }}
-                      className="feedback"
-                      type="invalid"
-                    >
-                      {touched.password && errors.password
-                        ? errors.password
-                        : ''}
-                    </FormFeedback>
-                  </FormGroup>
-                  <Button
-                    type="submit"
-                    style={{
-                      width: '100%',
-                    }}
-                    color="primary"
-                    onClick={(evt: React.MouseEvent) => {
-                      evt.preventDefault();
-                      handleSubmit();
-                    }}
-                    disabled={isSubmitting}
-                  >
-                    Submit
-                  </Button>
-                  <BeatLoader
-                    css={loaderCSS}
-                    size={10}
-                    color="var(--red-stop)"
-                    loading={isSubmitting}
-                  />
-                </Form>
-              )}
-            </Formik>
-            <hr />
-            <SocialButtons signUp={false} location={args.location} />
+                        }}
+                        disabled={isSubmitting}
+                      >
+                        Submit
+                      </Button>
+                      <BeatLoader
+                        css={loaderCSS}
+                        size={10}
+                        color="var(--red-stop)"
+                        loading={isSubmitting}
+                      />
+                    </Form>
+                  )}
+                </Formik>
+                <hr />
+                <SocialButtons signUp={false} location={args.location} />
+              </CardBody>
+            </Card>
           </Col>
         </Row>
       </Container>
-    </div>
+    </>
   );
 };
 
