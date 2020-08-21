@@ -79,9 +79,9 @@ const LanguageSelector = (_args: LanguageSelectorArgs): JSX.Element => {
             return;
           }
           const selected = selectedOption as SelectObject;
-          dispatch(setLanguage(selected.value));
+          dispatch(setLanguage(selected.code));
           const currentLanguage = getCurrentLanguageFromURL();
-          if (currentLanguage !== selected.value) {
+          if (currentLanguage !== selected.code) {
             const newPath = getLanguageRedirectURL(selected.code);
             if (newPath.length > 0) {
               navigate(newPath);
