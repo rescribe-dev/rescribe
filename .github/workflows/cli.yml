@@ -91,10 +91,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       # wait until everything is done updating on aws
-      - name: Sleep for 15 seconds
+      - name: Sleep for 1 minute
         uses: jakejarvis/wait-action@master
         with:
-          time: '15s'
+          time: '1m'
       - name: get commit message
         id: commit-message
         run: |

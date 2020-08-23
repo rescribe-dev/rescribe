@@ -19,6 +19,7 @@
   },
   "scripts": {
     "preinstall": "rm -rf .git/hooks && echo \"removed git hooks to allow for husky to install correctly\"",
+    "lfs-fetch": "git lfs fetch --all && git lfs pull",
     "watch": "cd vscode && npm run watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
