@@ -70,7 +70,7 @@ class RegisterGithubResolver {
       repositories: []
     };
     const userCreateRes = await new UserModel(newUser).save();
-    return (`created user ${userCreateRes.id}`);
+    return `created user ${userCreateRes.id}`;
   }
 }
 
