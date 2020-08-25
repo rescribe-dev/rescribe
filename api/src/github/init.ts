@@ -1,7 +1,9 @@
-import { graphql as githubClient } from '@octokit/graphql';
+import { graphql as graphqlClient } from '@octokit/graphql';
+import { request as restClient } from '@octokit/request';
+import { request as restClientType } from '@octokit/request/dist-types/index';
 import { createAppAuth } from '@octokit/auth-app';
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app';
-import { graphql as client } from '@octokit/graphql/dist-types/types';
+import { graphql as graphqlClientType } from '@octokit/graphql/dist-types/types';
 import { configData } from '../utils/config';
 import { AuthInterface } from '@octokit/types';
 import { AuthOptions as AppAuthOptions, Authentication as AppAuthentication } from '@octokit/auth-app/dist-types/types';
@@ -15,27 +17,40 @@ export let githubOauthClient: ((authOptions: OAuthAuthOptions) => Promise<OauthA
 
 export let githubAppClient: AuthInterface<[AppAuthOptions], AppAuthentication>;
 
-export const createGithubAppClient = async (installationID: number): Promise<client> => {
+export const createGithubAppClient = async (installationID: number): Promise<graphqlClientType> => {
   const authData = (await githubAppClient({
     installationId: installationID,
     type: 'installation'
   }));
-  return githubClient.defaults({
+  return graphqlClient.defaults({
     headers: {
       authorization: `Bearer ${authData.token}`,
     },
   });
 };
 
-export const createGithubOauthClient = async (code: string, state: string): Promise<client> => {
+export const createGithubOauthClient = async (code: string, state: string): Promise<graphqlClientType> => {
   const authData = (await githubOauthClient({
     code,
     state,
     type: 'token',
   })) as OauthTokenAuthentication;
-  return githubClient.defaults({
+  return graphqlClient.defaults({
     headers: {
       authorization: `Bearer ${authData.token}`,
+    },
+  });
+};
+
+export const createGithubOauthClientREST = async (code: string, state: string): Promise<typeof restClientType> => {
+  const authData = (await githubOauthClient({
+    code,
+    state,
+    type: 'token',
+  })) as OauthTokenAuthentication;
+  return restClient.defaults({
+    headers: {
+      authorization: `token ${authData.token}`,
     },
   });
 };
