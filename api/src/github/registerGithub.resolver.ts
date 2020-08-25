@@ -27,7 +27,6 @@ class RegisterGithubResolver {
   @Mutation(_returns => String)
   async registerGithub(@Args() args: RegisterGithubArgs): Promise<string> {
     const githubRESTClient = await createGithubOauthClientREST(args.code, args.state);
-    const githubUserData = await githubRESTClient('GET /user');
 
     const githubEmailData = await githubRESTClient('GET /user/emails');
     let email: string | undefined = undefined;
@@ -43,6 +42,8 @@ class RegisterGithubResolver {
     if (await accountExistsEmail(email)) {
       throw new Error(`user with email ${email} already registered`);
     }
+
+    const githubUserData = await githubRESTClient('GET /user');
     const username = args.username ? args.username : githubUserData.data.login;
     if (await accountExistsUsername(username)) {
       throw new Error(`user with username ${username} already exists`);
