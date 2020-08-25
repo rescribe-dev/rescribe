@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Container, Button } from 'reactstrap';
-import { navigate } from 'gatsby';
 import { AiFillGithub } from 'react-icons/ai';
 import { githubOauthURL } from 'utils/variables';
 import { getOauthToken } from 'state/auth/getters';
@@ -103,7 +102,7 @@ const SocialButtons = (args: SocialButtonsArgs): JSX.Element => {
               'redirect_uri',
               callbackURL.toString()
             );
-            navigate(githubURL.toString());
+            window.location.href = githubURL.toString();
           } catch (err) {
             toast((err as Error).message, {
               type: 'error',

@@ -9,7 +9,6 @@ import { AuthActionTypes } from 'state/auth/types';
 import { AppThunkDispatch } from 'state/thunk';
 import { isSSR } from 'utils/checkSSR';
 import { initializeApolloClient, client } from 'utils/apollo';
-import { ApolloError } from 'apollo-client';
 import {
   RegisterGithubMutation,
   RegisterGithubMutationVariables,
@@ -56,54 +55,56 @@ const CallbackPage = (args: CallbackPageDataProps): JSX.Element => {
         }
         const code = searchParams.get('code') as string;
         const callbackType = searchParams.get('type') as string;
-        if (callbackType === 'signup') {
-          client
-            .mutate<RegisterGithubMutation, RegisterGithubMutationVariables>({
-              mutation: RegisterGithub,
-              variables: {
-                code,
-                state,
-              },
-            })
-            .then(() => {
-              navigate('/login');
-            })
-            .catch((err) => {
-              toast((err as ApolloError).message, {
-                type: 'error',
-              });
-              navigate('/signup');
-            });
-        } else if (callbackType === 'login') {
-          (async (): Promise<void> => {
-            try {
-              if (token !== undefined) {
-                dispatch(setToken(token));
-                await initializeApolloClient();
-              }
-              await dispatchAuthThunk(
-                thunkLoginGithub({
+        (async () => {
+          try {
+            if (callbackType === 'signup') {
+              await client.mutate<
+                RegisterGithubMutation,
+                RegisterGithubMutationVariables
+              >({
+                mutation: RegisterGithub,
+                variables: {
                   code,
                   state,
-                })
-              );
-              await initializeApolloClient();
-              await dispatchAuthThunk(thunkGetUser());
-              const cliLogin = searchParams.has('cli');
-              const vscodeLogin = searchParams.has('vscode');
-              const redirect = searchParams.has('redirect')
-                ? (searchParams.get('redirect') as string)
-                : null;
-              postLogin(cliLogin, vscodeLogin, redirect);
-            } catch (err) {
-              toast((err as Error).message, {
-                type: 'error',
+                },
               });
+              navigate('/login');
+            } else if (callbackType === 'login') {
+              try {
+                if (token !== undefined) {
+                  dispatch(setToken(token));
+                  await initializeApolloClient();
+                }
+                await dispatchAuthThunk(
+                  thunkLoginGithub({
+                    code,
+                    state,
+                  })
+                );
+                await initializeApolloClient();
+                await dispatchAuthThunk(thunkGetUser());
+                const cliLogin = searchParams.has('cli');
+                const vscodeLogin = searchParams.has('vscode');
+                const redirect = searchParams.has('redirect')
+                  ? (searchParams.get('redirect') as string)
+                  : null;
+                postLogin(cliLogin, vscodeLogin, redirect);
+              } catch (err) {
+                toast((err as Error).message, {
+                  type: 'error',
+                });
+                navigate('/login');
+              }
+            } else {
+              throw new Error('invalid type found');
             }
-          })();
-        } else {
-          throw new Error('invalid type found');
-        }
+          } catch (err) {
+            toast((err as Error).message, {
+              type: 'error',
+            });
+            navigate('/signup');
+          }
+        })();
       } else {
         throw new Error('no search params found');
       }
