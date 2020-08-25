@@ -173,6 +173,7 @@ const WriteAddress = (args: WriteAddressArgs): JSX.Element => {
       addressAutocomplete.getPlacePredictions(
         {
           input: inputValue,
+          types: [],
           componentRestrictions: {
             country: selectedCountry ? selectedCountry.code : '',
           },
