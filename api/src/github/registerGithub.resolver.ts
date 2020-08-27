@@ -2,10 +2,10 @@ import { Resolver, ArgsType, Field, Args, Mutation } from 'type-graphql';
 import { accountExistsEmail, accountExistsUsername } from '../users/shared';
 import { ObjectID } from 'mongodb';
 import User, { UserType, UserModel } from '../schema/users/user';
-import { createGithubOauthClient } from './init';
-import { gql } from 'apollo-server-express';
-import { print } from 'graphql/language/printer';
+import { createGithubOauthClientREST } from './init';
 import { defaultProductName } from '../shared/variables';
+import { ApolloError } from 'apollo-server-express';
+import { NOT_FOUND } from 'http-status-codes';
 
 @ArgsType()
 class RegisterGithubArgs {
@@ -22,37 +22,40 @@ class RegisterGithubArgs {
   state: string;
 }
 
-interface RegisterUserData {
-  viewer: {
-    login: string;
-    email: string;
-    name: string;
-  }
-}
-
 @Resolver()
 class RegisterGithubResolver {
   @Mutation(_returns => String)
   async registerGithub(@Args() args: RegisterGithubArgs): Promise<string> {
-    const githubClient = await createGithubOauthClient(args.code, args.state);
-    const githubData = await githubClient<RegisterUserData>(print(gql`
-      query user {
-        viewer {
-          login
-          name
-          email
-        }
+    const githubRESTClient = await createGithubOauthClientREST(args.code, args.state);
+
+    const githubEmailData = await githubRESTClient('GET /user/emails');
+    let email: string | undefined = undefined;
+    for (const currentEmailData of githubEmailData.data) {
+      if (currentEmailData.primary) {
+        email = currentEmailData.email;
       }
-    `));
-    const email = githubData.viewer.email;
+    }
+    if (!email) {
+      throw new ApolloError('cannot find primary email in github', `${NOT_FOUND}`);
+    }
+
     if (await accountExistsEmail(email)) {
       throw new Error(`user with email ${email} already registered`);
     }
-    const username = args.username ? args.username : githubData.viewer.login;
+
+    const githubUserData = await githubRESTClient('GET /user');
+    const username = args.username ? args.username : githubUserData.data.login;
     if (await accountExistsUsername(username)) {
       throw new Error(`user with username ${username} already exists`);
     }
-    const name = args.name ? args.name : githubData.viewer.name;
+    let name: string;
+    if (args.name) {
+      name = args.name;
+    } else if (githubUserData.data.name) {
+      name = githubUserData.data.name;
+    } else {
+      name = username;
+    }
     const newUser: User = {
       _id: new ObjectID(),
       name,

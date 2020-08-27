@@ -80,12 +80,18 @@ class AddAddressResolver {
         postal_code: '',
         country: ''
       };
+
       for (const addressComponent of placeData.address_components) {
-        if (addressComponent.types.includes(GeocodingAddressComponentType.street_number)) {
-          newAddress.line1 = addressComponent.long_name;
+        if (addressComponent.types.includes(AddressType.subpremise)) {
+          newAddress.line1 = addressComponent.long_name + ', ' ;
+        } else if (addressComponent.types.includes(GeocodingAddressComponentType.street_number)) {
+          newAddress.line1 += addressComponent.long_name + ' ';
         } else if (addressComponent.types.includes(AddressType.route)) {
-          newAddress.line1 += ` ${addressComponent.long_name}`;
-        } else if (addressComponent.types.includes(AddressType.locality)) {
+          newAddress.line1 += addressComponent.long_name;
+        } else if (addressComponent.types.some(type => [
+          AddressType.locality, AddressType.sublocality, AddressType.administrative_area_level_2]
+          .includes(type as AddressType))
+        ) {
           newAddress.city = addressComponent.long_name;
         } else if (addressComponent.types.includes(AddressType.administrative_area_level_1)) {
           newAddress.state = addressComponent.short_name;

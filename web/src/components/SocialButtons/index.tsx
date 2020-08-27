@@ -13,7 +13,7 @@ interface SocialButtonsArgs {
   location: WindowLocation | string;
 }
 
-const githubScopes = ['read:user'];
+const githubScopes = ['read:user', 'user:email'];
 
 const SocialButtons = (args: SocialButtonsArgs): JSX.Element => {
   const actionMessage = args.signUp ? 'Sign Up' : 'Login';
