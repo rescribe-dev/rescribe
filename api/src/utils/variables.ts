@@ -1,4 +1,4 @@
-import { Language } from '../schema/language';
+import { Language } from '../schema/misc/language';
 
 export const defaultRepositoryImage = 'https://example.com/image.jpg';
 

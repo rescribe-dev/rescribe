@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 
 // both
-@ObjectType({ description: 'base project' })
+@ObjectType({ description: 'base project', isAbstract: true })
 export class BaseProject {
   @Field({ description: 'name' })
   @Property({ required: true })

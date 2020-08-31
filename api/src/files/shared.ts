@@ -13,7 +13,7 @@ import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../shared/
 import { getFolder } from '../folders/folder.resolver';
 import { createHash } from 'crypto';
 import { WriteType } from '../utils/writeType';
-import { Language } from '../schema/language';
+import { Language } from '../schema/misc/language';
 
 
 const hashAlgorithm = 'sha256';
