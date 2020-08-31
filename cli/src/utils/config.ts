@@ -8,7 +8,6 @@ import { homedir } from 'os';
 
 export const utilPath = `${homedir()}/.rescribe`;
 
-const exists = promisify(fs.exists);
 const writeFile = promisify(fs.writeFile);
 const readFile = promisify(fs.readFile);
 const mkdir = promisify(fs.mkdir);
@@ -54,7 +53,7 @@ export const writeCache = async (): Promise<void> => {
 };
 
 const readCache = async (): Promise<void> => {
-  if (await exists(configData.cacheFilePath)) {
+  if (fs.existsSync(configData.cacheFilePath)) {
     const file = await readFile(configData.cacheFilePath, 'utf8');
     const cache: CacheType | undefined = yaml.safeLoad(file) as CacheType | undefined;
     if (cache) {
@@ -104,7 +103,7 @@ const addToConfig = (conf: any, allString: boolean): void => {
 };
 
 export const initializeConfig = async (): Promise<void> => {
-  if (!(await exists(utilPath))) {
+  if (!(fs.existsSync(utilPath))) {
     await mkdir(utilPath, {
       recursive: true
     });

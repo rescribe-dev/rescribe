@@ -1,15 +1,12 @@
 import fs, { readFileSync, lstatSync } from 'fs';
 import { handleStringList } from '../utils/cli';
 import { isBinaryFile } from 'isbinaryfile';
-import { promisify } from 'util';
 import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
 import glob from 'glob';
 import { isLoggedIn } from '../utils/authToken';
 import { basename, normalize } from 'path';
-
-const exists = promisify(fs.exists);
 
 interface Args {
   files: string;
@@ -30,7 +27,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
   const givenPaths = handleStringList(args.files);
   for (const globPath of givenPaths) {
     for (const path of glob.sync(globPath)) {
-      if (!await exists(path)) {
+      if (!fs.existsSync(path)) {
         throw new Error(`cannot find file ${path}`);
       }
       filesFound[globPath] = true;
