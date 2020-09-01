@@ -49,5 +49,3 @@ cd scripts/precommit
 ./line_endings.sh
 ./check_symlinks.sh
 cd -
-
-git add -A

@@ -1,0 +1,3 @@
+query branches($repository: ObjectId!) {
+  branches(repository: $repository)
+}
