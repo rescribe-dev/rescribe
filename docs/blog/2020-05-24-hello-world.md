@@ -1,5 +1,5 @@
 ---
-id: hello-world
+slug: hello-world
 title: Hello
 author: Joshua Schmidt
 author_title: developer @ rescribe

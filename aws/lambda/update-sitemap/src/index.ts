@@ -154,7 +154,7 @@ const createSitemap = async (paths: string[], sitemapPath: string): Promise<Crea
 
 const createSitemapURL = async (url: string, sitemapPath: string): Promise<CreateSitemapOutput> => {
   const sitemapRes = await axios.get<string>(url);
-  const sitemapObj = await xml2js.parseStringPromise(sitemapRes.data) as string;
+  const sitemapObj = await xml2js.parseStringPromise(sitemapRes.data) as Record<string, unknown>;
   const sitemap = xmlBuilder.buildObject(sitemapObj);
   return await writeSitemap(sitemapPath, sitemap);
 };

@@ -5,10 +5,10 @@ import Variable from './variable';
 import Comment from './comment';
 import Import from './import';
 import { ObjectId } from 'mongodb';
-import { Language } from '../language';
+import { Language } from '../misc/language';
 
 // output from antlr
-@ObjectType({ description: 'base file' })
+@ObjectType({ description: 'base antlr file', isAbstract: true })
 export default class AntlrFile {
   @Field()
   _id?: ObjectId;

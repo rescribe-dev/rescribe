@@ -18,7 +18,7 @@ import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';
 import { queryMinLength } from '../shared/variables';
-import { Language } from '../schema/language';
+import { Language } from '../schema/misc/language';
 
 const logger = getLogger();
 
