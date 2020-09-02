@@ -24,8 +24,6 @@ export class BaseProject extends BaseTimestamp {
 export class Project extends BaseProject {
   @Field()
   readonly _id?: ObjectId;
-
-  nameSearch: string;
 }
 
 // database

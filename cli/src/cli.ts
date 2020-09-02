@@ -84,7 +84,7 @@ export const startCLI = async (): Promise<void> => {
         .example('$0 add-repo test_repo', 'create repository "test_repo"');
     }, actionRunner(addRepository));
   yargs
-    .command('set-repo <owner/repository | repository>', 'set current repository', conf => {
+    .command('set-repo [owner/repository | repository]', 'set current repository', conf => {
       return conf
         .example('$0 set-repo user/repo', 'set current repository to "repo" owned by "user"');
     }, actionRunner(setRepository));

@@ -40,10 +40,7 @@ class AddProjectResolver {
       created: currentTime,
       updated: currentTime,
     };
-    const elasticProject: Project = {
-      ...baseProject,
-      nameSearch: args.name
-    };
+    const elasticProject: Project = baseProject;
     await elasticClient.index({
       id: id.toHexString(),
       index: projectIndexName,

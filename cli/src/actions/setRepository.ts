@@ -2,10 +2,22 @@ import { getLogger } from 'log4js';
 import { Arguments } from 'yargs';
 import { writeCache, cacheData } from '../utils/config';
 import { apolloClient } from '../utils/api';
-import { RepositoryNameExists, RepositoryNameExistsQuery, RepositoryNameExistsQueryVariables, Repositories, RepositoriesQuery, RepositoriesQueryVariables } from '../lib/generated/datamodel';
+import {
+  RepositoryNameExists,
+  RepositoryNameExistsQuery,
+  RepositoryNameExistsQueryVariables,
+  Repositories,
+  RepositoriesQuery,
+  RepositoriesQueryVariables,
+  PublicUserQuery,
+  PublicUser,
+  PublicUserQueryVariables
+} from '../lib/generated/datamodel';
 import prompts from 'prompts';
 import yesNoPrompt from '../utils/boolPrompt';
 import { addRepoUtil } from './addRepository';
+import { isLoggedIn } from '../utils/authToken';
+import ObjectId from 'bson-objectid';
 
 const logger = getLogger();
 
@@ -19,9 +31,14 @@ const promptRepoPerPage = 10;
 
 const enum PaginationSelectType { Previous, Next, Selection };
 
+interface RepoSelectData {
+  name: string;
+  owner: ObjectId | string;
+};
+
 interface RepoSelectVal {
   type: PaginationSelectType;
-  data?: RepositoryNameExistsQueryVariables;
+  data?: RepoSelectData;
 }
 
 interface RepoSelect {
@@ -62,7 +79,6 @@ const promptRepository = async (): Promise<RepositoryNameExistsQueryVariables | 
         perpage: promptRepoPerPage,
       }
     });
-
     const repositoriesData = repositoryRes.data.repositories;
     if (repositoriesData.length === 0) {
       return await promptNoReposFound();
@@ -105,7 +121,16 @@ const promptRepository = async (): Promise<RepositoryNameExistsQueryVariables | 
     });
     const promptSelectionVal = promptSelection.repository as RepoSelectVal;
     if (promptSelectionVal.data) {
-      return promptSelectionVal.data;
+      const ownerRes = await apolloClient.query<PublicUserQuery, PublicUserQueryVariables>({
+        query: PublicUser,
+        variables: {
+          id: promptSelectionVal.data.owner
+        }
+      });
+      return {
+        name: promptSelectionVal.data.name,
+        owner: ownerRes.data.publicUser.username
+      };
     }
     if (promptSelectionVal.type === PaginationSelectType.Previous) {
       currentPage--;
@@ -132,6 +157,9 @@ export const setRepoUtil = async (args: Args): Promise<RepositoryNameExistsQuery
       };
     }
   } else {
+    if (!isLoggedIn(cacheData.authToken)) {
+      throw new Error('user must be logged in to select a repository');
+    }
     const repoPromptData = await promptRepository();
     if (!repoPromptData) {
       return null;
@@ -145,7 +173,7 @@ export const setRepoUtil = async (args: Args): Promise<RepositoryNameExistsQuery
   if (!repositoryRes.data.repositoryNameExists) {
     throw new Error(`repository with name ${repoQueryVars.name} does not exist`);
   }
-  cacheData.repository = name;
+  cacheData.repository = repoQueryVars.name;
   cacheData.repositoryOwner = repoQueryVars.owner ?
     repoQueryVars.owner : cacheData.username;
   await writeCache();

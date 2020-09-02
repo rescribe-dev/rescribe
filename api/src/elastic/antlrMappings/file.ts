@@ -18,11 +18,13 @@ const fileMappings = {
     type: 'keyword'
   },
   name: {
-    type: 'keyword'
-  },
-  nameSearch: {
-    type: 'text',
-    analyzer: 'trigrams'
+    type: 'keyword',
+    fields: {
+      text: {
+        type: 'text',
+        analyzer: 'trigrams'
+      }
+    }
   },
   importPath: {
     type: 'text',

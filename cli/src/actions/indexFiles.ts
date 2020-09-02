@@ -40,7 +40,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
   let confirmedSelect = false;
   const enum EditSelectType { Branch, Repo, Both };
   for (; ;) {
-    console.log(`Using repository ${cacheData.repository}\n and branch ${branch}\n`);
+    console.log(`Using repository ${cacheData.repository} and branch ${branch}\n`);
     confirmedSelect = !(await yesNoPrompt('Would you like to change these?'));
     if (confirmedSelect) {
       break;

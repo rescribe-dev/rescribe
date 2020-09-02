@@ -44,8 +44,6 @@ export class BaseRepository extends BaseTimestamp {
 export class Repository extends BaseRepository {
   @Field()
   readonly _id?: ObjectId;
-
-  nameSearch: string;
 }
 
 // database
