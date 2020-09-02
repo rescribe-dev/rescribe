@@ -57,9 +57,12 @@ const Hero = (_messages: IndexMessages): JSX.Element => {
           >
             <Row className="justify-content-center">
               <Col lg="7">
+                <p className="lead" style={{ marginBottom: '0rem' }}>
+                  A search engine for developers, by developers
+                </p>
                 <p className="lead">
-                  allows you to search code within all languages and
-                  repositories. Imagine how much faster you can code.
+                  Find real, working source code on the web, or within your
+                  favorite IDE
                 </p>
               </Col>
             </Row>

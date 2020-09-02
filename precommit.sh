@@ -47,6 +47,5 @@ git secrets --scan
 cd scripts/precommit
 ./spaces.sh
 ./line_endings.sh
+./check_symlinks.sh
 cd -
-
-git add -A

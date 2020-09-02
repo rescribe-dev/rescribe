@@ -1,7 +1,7 @@
 import { Resolver, Query } from 'type-graphql';
 import { languageColorMap } from '../utils/variables';
 import { LanguageData } from '../schema/structure/language';
-import { Language } from '../schema/language';
+import { Language } from '../schema/misc/language';
 
 @Resolver()
 class LanguagesResolver {

@@ -5,22 +5,82 @@ import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
 import glob from 'glob';
+import prompts from 'prompts';
 import { isLoggedIn } from '../utils/authToken';
 import { basename, normalize } from 'path';
+import yesNoPrompt from '../utils/boolPrompt';
+import { setRepoUtil } from './setRepository';
+import { getBranchUtil } from './getBranch';
+
+interface BranchesData {
+  title: string; // name
+  value: string; // also name
+};
 
 interface Args {
   files: string;
-  branch: string;
+  branch: string
   'include-path': boolean;
-}
+};
 
 export default async (args: Arguments<Args>): Promise<void> => {
-  if (cacheData.repositoryOwner.length === 0 || cacheData.repository.length === 0) {
-    throw new Error('owner and repository need to be set with <set-repository>');
-  }
   if (!isLoggedIn(cacheData.authToken)) {
     throw new Error('user must be logged in to index files');
   }
+
+  let branch: string = args.branch ?
+    args.branch : await getBranchUtil({});
+  if (cacheData.repository.length === 0) {
+    const setRepoData = await setRepoUtil({});
+    if (!setRepoData) {
+      return;
+    }
+  }
+
+  let confirmedSelect = false;
+  const enum EditSelectType { Branch, Repo, Both };
+  for (; ;) {
+    console.log(`Using repository ${cacheData.repository} and branch ${branch}\n`);
+    confirmedSelect = !(await yesNoPrompt('Would you like to change these?'));
+    if (confirmedSelect) {
+      break;
+    }
+    const editPromptRes = await prompts({
+      type: 'select',
+      name: 'Choice',
+      choices: [
+        {
+          title: 'branch',
+          value: EditSelectType.Branch,
+        },
+        {
+          title: 'repository',
+          value: EditSelectType.Repo,
+        },
+        {
+          title: 'both',
+          value: EditSelectType.Both,
+        }
+      ],
+      message: 'Change branch, repository, or both?'
+    });
+
+    if ([EditSelectType.Branch, EditSelectType.Both].includes(editPromptRes.Choice)) {
+      const branchChoice = await prompts({
+        type: 'text',
+        name: 'branch',
+        message: 'branch name',
+      });
+      branch = branchChoice.branch as string;
+    }
+    if ([EditSelectType.Repo, EditSelectType.Both].includes(editPromptRes.Choice)) {
+      const setRepoData = await setRepoUtil({});
+      if (!setRepoData) {
+        return;
+      }
+    }
+  }
+
   const files: Buffer[] = [];
   const paths: string[] = [];
   const filesFound: { [key: string]: boolean } = {};
@@ -58,6 +118,6 @@ export default async (args: Arguments<Args>): Promise<void> => {
     throw new Error(`cannot find files ${notFound.join(', ')}`);
   }
   console.log('start indexing');
-  await indexFiles(paths, files, args.branch);
+  await indexFiles(paths, files, branch as string);
   console.log('done indexing files');
 };

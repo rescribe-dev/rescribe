@@ -13,7 +13,7 @@ import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../shared/
 import { getFolder } from '../folders/folder.resolver';
 import { createHash } from 'crypto';
 import { WriteType } from '../utils/writeType';
-import { Language } from '../schema/language';
+import { Language } from '../schema/misc/language';
 
 
 const hashAlgorithm = 'sha256';
@@ -187,7 +187,6 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
   };
   const baseElasticContent: BaseFileElastic = {
     name: args.fileName,
-    nameSearch: args.fileName,
     hash: args.hash,
     content: !args.isBinary ? args.content : '',
     hasStructure: args.hasAntlrData,

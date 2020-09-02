@@ -2,9 +2,10 @@ import { ObjectType, Field, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import Access, { AccessLevel } from '../users/access';
+import { BaseTimestamp } from '../misc/timestamp';
 
-@ObjectType({ description : 'base folder' })
-export class BaseFolder {
+@ObjectType({ description : 'base folder', isAbstract: true })
+export class BaseFolder extends BaseTimestamp {
   @Field({description : 'name'})
   @Property({required: false})
   name: string;
@@ -28,14 +29,6 @@ export class BaseFolder {
   @Field(_type => [Access], { description: 'public access level' })
   @Property({ required: true })
   public: AccessLevel;
-
-  @Field({ description: 'date created' })
-  @Property({required: true})
-  created: number;
-
-  @Field({ description: 'date updated' })
-  @Property({required: true})
-  updated: number;
 }
 
 // elastic

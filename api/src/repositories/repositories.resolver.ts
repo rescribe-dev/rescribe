@@ -99,7 +99,8 @@ class RepositoriesResolver {
     for (const hit of elasticRepositoryData.body.hits.hits) {
       const currentRepository: Repository = {
         ...hit._source as Repository,
-        _id: new ObjectId(hit._id as string)
+        _id: new ObjectId(hit._id as string),
+        owner: new ObjectId(hit._source.owner)
       };
       result.push(currentRepository);
     }

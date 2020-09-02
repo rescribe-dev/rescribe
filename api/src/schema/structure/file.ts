@@ -3,51 +3,41 @@ import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typ
 import { ObjectId } from 'mongodb';
 import AntlrFile from '../antlr/file';
 import { AccessLevel } from '../users/access';
-import { Language } from '../language';
+import { Language } from '../misc/language';
+import { BaseTimestamp } from '../misc/timestamp';
 
 export class BaseFile {
   @Property({ required: true })
-  @Field({ description: 'file name' })
   name: string;
 
   @Property({ required: true })
-  @Field({ description: 'has antlr data' })
   hasStructure: boolean;
 
   @Property({ required: true })
-  @Field({ description: 'sha-1 hash' })
   hash: string;
 
   @Property({ required: true })
-  @Field({ description: 'repository id' })
   repository: ObjectId;
 
   @Property({ required: true })
-  @Field(_type => Int, { description: 'number of lines in file' })
   fileLength: number;
 
   @Property({ required: true, type: String })
-  @Field(_type => [String], { description: 'branches' })
   branches: string[];
 
   @Property({ required: true })
-  @Field(_type => AccessLevel, { description: 'public access level' })
   public: AccessLevel;
 
   @Property({ required: false })
-  @Field({ description: 'folder', nullable: true })
   folder?: ObjectId;
 
   @Property({ required: true })
-  @Field({ description: 'path' })
   path: string;
 
   @Property({ required: true })
-  @Field({ description: 'date created' })
   created: number;
 
   @Property({ required: true })
-  @Field({ description: 'date updated' })
   updated: number;
 }
 
@@ -64,17 +54,13 @@ export class BaseFileElastic extends BaseFile {
 
   content: string;
 
-  nameSearch: string;
-
   @Field(_type => Language, { description: 'language type' })
   language: Language;
 }
 
 // input / result from elastic
 @ObjectType({ description: 'file' })
-export default class File extends AntlrFile implements BaseFileElastic {
-  nameSearch: string;
-
+export default class File extends AntlrFile implements BaseFileElastic, BaseTimestamp {
   @Field({ description: 'sha-1 hash' })
   hash: string;
 

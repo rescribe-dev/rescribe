@@ -15,14 +15,14 @@ const Intro = (_messages: IndexMessages): JSX.Element => {
             marginBottom: '2rem',
           }}
         >
-          A world of code at your fingertips
+          The world of code at your fingertips
         </h2>
         <Row className="justify-content-center">
           <Col lg="5">
             <p>
               reScribe puts the power of the open source community at your
-              fingertips. It provides an innovative way to search through code
-              from across the internet.
+              fingertips. It provides an innovative way to search code from
+              across the internet.
             </p>
           </Col>
         </Row>
@@ -35,9 +35,8 @@ const Intro = (_messages: IndexMessages): JSX.Element => {
         >
           <Col lg="7">
             <p>
-              Code is indexed via a universal graphql api, the reScribe cli and
-              ci/cd scripts, providing many methods to add and search through
-              code.
+              Code can be indexed using our API, CLI, and soon our website. It
+              can be retrieved using our API, website, and our VSCode Extension.
             </p>
           </Col>
         </Row>

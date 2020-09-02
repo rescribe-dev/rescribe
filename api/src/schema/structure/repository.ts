@@ -2,9 +2,10 @@ import { ObjectType, Field, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import { AccessLevel } from '../users/access';
+import { BaseTimestamp } from '../misc/timestamp';
 
-@ObjectType({ description : 'base repository' })
-export class BaseRepository {
+@ObjectType({ description : 'base repository', isAbstract: true })
+export class BaseRepository extends BaseTimestamp {
   @Field({description : 'name'})
   @Property({required: true})
   name: string;
@@ -29,14 +30,6 @@ export class BaseRepository {
   @Property({required: true})
   folder: ObjectId;
 
-  @Field({ description: 'date created' })
-  @Property({required: true})
-  created: number;
-
-  @Field({ description: 'date updated' })
-  @Property({required: true})
-  updated: number;
-
   @Field(_type => Int, { description: 'number of lines of code' })
   @Property({required: true})
   linesOfCode: number;
@@ -51,8 +44,6 @@ export class BaseRepository {
 export class Repository extends BaseRepository {
   @Field()
   readonly _id?: ObjectId;
-
-  nameSearch: string;
 }
 
 // database
