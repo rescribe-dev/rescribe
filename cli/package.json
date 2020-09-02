@@ -1,6 +1,6 @@
 {
   "name": "@rescribe/cli",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "description": "reScribe cli",
   "license": "CC-BY-NC-SA-4.0",
   "repository": {
@@ -23,7 +23,7 @@
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "precommit": "npm run lint && npm run format",
-    "prepublishOnly": "npm run clean && npm run build && cp -R lib dist",
+    "prepublishOnly": "npm run clean && npm run build && mv lib dist",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
     "prebuild": "npm run format && npm run lint && npm run printTypescriptVersion",
     "build": "npm run codegen && tsc && sed -i '1i#!/usr/bin/env node' lib/index.js",
