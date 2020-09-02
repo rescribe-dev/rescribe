@@ -70,7 +70,8 @@ class ProjectsResolver {
     for (const hit of elasticProjectData.body.hits.hits) {
       const currentProject: Project = {
         ...hit._source as Project,
-        _id: new ObjectId(hit._id as string)
+        _id: new ObjectId(hit._id as string),
+        owner: new ObjectId(hit._source.owner)
       };
       result.push(currentProject);
     }

@@ -1,10 +1,11 @@
 import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import { BaseTimestamp } from '../misc/timestamp';
 
 // both
 @ObjectType({ description: 'base project', isAbstract: true })
-export class BaseProject {
+export class BaseProject extends BaseTimestamp {
   @Field({ description: 'name' })
   @Property({ required: true })
   name: string;
@@ -16,14 +17,6 @@ export class BaseProject {
   @Field({ description: 'owner' })
   @Property({ required: true })
   owner: ObjectId;
-
-  @Field({ description: 'date created' })
-  @Property({ required: true })
-  created: number;
-
-  @Field({ description: 'date updated' })
-  @Property({ required: true })
-  updated: number;
 }
 
 // elastic & graphql
@@ -31,8 +24,6 @@ export class BaseProject {
 export class Project extends BaseProject {
   @Field()
   readonly _id?: ObjectId;
-
-  nameSearch: string;
 }
 
 // database

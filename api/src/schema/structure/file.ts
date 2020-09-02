@@ -54,8 +54,6 @@ export class BaseFileElastic extends BaseFile {
 
   content: string;
 
-  nameSearch: string;
-
   @Field(_type => Language, { description: 'language type' })
   language: Language;
 }
@@ -63,8 +61,6 @@ export class BaseFileElastic extends BaseFile {
 // input / result from elastic
 @ObjectType({ description: 'file' })
 export default class File extends AntlrFile implements BaseFileElastic, BaseTimestamp {
-  nameSearch: string;
-
   @Field({ description: 'sha-1 hash' })
   hash: string;
 

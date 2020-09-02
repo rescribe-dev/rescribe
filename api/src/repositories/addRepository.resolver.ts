@@ -100,10 +100,7 @@ class AddRepositoryResolver {
         }
       });
     }
-    const elasticRepository: Repository = {
-      ...baseRepository,
-      nameSearch: args.name
-    };
+    const elasticRepository: Repository = baseRepository;
     await elasticClient.index({
       id: id.toHexString(),
       index: repositoryIndexName,

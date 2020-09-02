@@ -1,7 +1,7 @@
 import React from 'react';
 import { CardDeck, Container } from 'reactstrap';
 import { FluidObject } from 'gatsby-image';
-import { useStaticQuery, graphql } from 'gatsby';
+import { useStaticQuery, graphql, Link } from 'gatsby';
 import NavigationCard from './NavigationCard';
 import './index.scss';
 
@@ -47,26 +47,34 @@ const NavigationCards = (): JSX.Element => {
           image={data.image1.childImageSharp.fluid}
           title="Intuitive Search"
         >
-          Lorem ipsum dolor sit amet,consectetur adipiscing elit. Sed ultricies
-          porttitor ullamcorper. Lorem ipsum dolor sit amet, consectetur
-          adipiscing elit.
+          Use the interface you{"'"}re used to. Either on our website or within
+          a supported IDE, type in a natural search query and let us do the
+          heavy lifting. We{"'"}ll comb through all indexed public repositories
+          (all all of the repositories you{"'"}ve indexed yourself) to find you
+          the most relevant pieces of source code and their locations, so you
+          can get back to doing what you do best.
         </NavigationCard>
         <NavigationCard
           image={data.image2.childImageSharp.fluid}
           title="Write better code"
         >
-          Sed mattis massa justo, non elementum turpis mattis eu. Integer
-          malesuada dolor volutpat. Integer congue nisl eu congue gravida. Cras
-          non viverra velit. Sed sodales nulla sapien. Fusce luctus felis sed
-          nibh volutpat pharetra.
+          Organization and maintainability is at the core of what we are trying
+          to offer developers. ReScribe will organize your code base and make it
+          easily searchable by you and your partners, and bring the open source
+          community to you in an entirely new way. With a single search, you
+          {"'"}ll be able to insert reusable and relevant code snippets directly
+          into your project.
         </NavigationCard>
         <NavigationCard
           image={data.image3.childImageSharp.fluid}
           title="Extendable"
         >
-          Integer malesuada dolor sed arcu faucibus, a rhoncus turpis volutpat.
-          Integer congue nisl eu congue gravida. Cras non viverra velit. Sed
-          sodales nulla sapien. Fusce luctus felis sed nibh volutpat pharetra.
+          We built reScribe on a GraphQL API which you can directly interface
+          with for use within your own projects. You can find it at{' '}
+          <Link target="_blank" to="https://api.rescribe.dev/graphql">
+            api.rescribe.dev/graphql
+          </Link>
+          . reScribe is for developers, by developers.
         </NavigationCard>
       </CardDeck>
     </Container>

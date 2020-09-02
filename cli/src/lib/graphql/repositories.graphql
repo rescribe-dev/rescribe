@@ -1,0 +1,7 @@
+query repositories($page: Int, $perpage: Int) {
+  repositories(page: $page, perpage: $perpage) {
+    _id
+    name
+    owner
+  }
+}

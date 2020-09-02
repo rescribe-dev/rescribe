@@ -187,7 +187,6 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
   };
   const baseElasticContent: BaseFileElastic = {
     name: args.fileName,
-    nameSearch: args.fileName,
     hash: args.hash,
     content: !args.isBinary ? args.content : '',
     hasStructure: args.hasAntlrData,

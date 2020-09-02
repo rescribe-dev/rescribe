@@ -1,0 +1,3 @@
+mutation addBranch($name: String!, $repository: ObjectId!) {
+  addBranch(name: $name, repository: $repository)
+}

@@ -3,10 +3,12 @@ const repositoryMappings = {
     type: 'keyword'
   },
   name: {
-    type: 'keyword'
-  },
-  nameSearch: {
-    type: 'text'
+    type: 'keyword',
+    fields: {
+      text: {
+        type: 'text'
+      }
+    }
   },
   branches: {
     type: 'keyword'

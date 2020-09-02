@@ -1,0 +1,11 @@
+fragment repositoryBaseData on Repository {
+  _id
+  name
+  branches
+}
+
+query repository($name: String!, $owner: String!) {
+  repository(name: $name, owner: $owner) {
+    ...repositoryBaseData
+  }
+}

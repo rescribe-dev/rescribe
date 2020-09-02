@@ -7,6 +7,7 @@ import { isLoggedIn, setAuthToken, setUsername } from './authToken';
 import { homedir } from 'os';
 
 export const utilPath = `${homedir()}/.rescribe`;
+export const logPath = `${utilPath}/logs`;
 
 const writeFile = promisify(fs.writeFile);
 const readFile = promisify(fs.readFile);
@@ -45,7 +46,7 @@ export const cacheData: CacheType = {
   authToken: '',
   username: '',
   repository: '',
-  repositoryOwner: ''
+  repositoryOwner: '',
 };
 
 export const writeCache = async (): Promise<void> => {
@@ -103,10 +104,13 @@ const addToConfig = (conf: any, allString: boolean): void => {
 };
 
 export const initializeConfig = async (): Promise<void> => {
-  if (!(fs.existsSync(utilPath))) {
-    await mkdir(utilPath, {
-      recursive: true
-    });
+  const requiredPaths = [utilPath, logPath];
+  for (const path of requiredPaths) {
+    if (!(fs.existsSync(path))) {
+      await mkdir(path, {
+        recursive: true
+      });
+    }
   }
   const configRes = await cosmiconfig(appName, {
     cache: true,
