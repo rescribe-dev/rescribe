@@ -1,7 +1,5 @@
 package com.rescribe.antlr.parse;
 
-import com.rescribe.antlr.gen.cpp.CPP14Lexer;
-import com.rescribe.antlr.gen.cpp.CPP14Parser;
 import com.rescribe.antlr.gen.java.JavaLexer;
 import com.rescribe.antlr.gen.java.JavaParser;
 import com.rescribe.antlr.gen.javascript.JavaScriptLexer;
@@ -45,17 +43,17 @@ public class FileHandler {
           listener = jdl;
           break;
         }
-      case "cpp":
-        {
-          CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(input.getContent()));
-          CommonTokenStream tokens = new CommonTokenStream(lexer);
-          CPP14Parser parser = new CPP14Parser(tokens);
-          tree = parser.translationunit();
-          CPPDeclarationListener cdl = new CPPDeclarationListener(tokens, input);
-          walker.walk(cdl, tree);
-          listener = cdl;
-          break;
-        }
+        // case "cpp":
+        //   {
+        //     CPP14Lexer lexer = new CPP14Lexer(CharStreams.fromString(input.getContent()));
+        //     CommonTokenStream tokens = new CommonTokenStream(lexer);
+        //     CPP14Parser parser = new CPP14Parser(tokens);
+        //     tree = parser.translationunit();
+        //     CPPDeclarationListener cdl = new CPPDeclarationListener(tokens, input);
+        //     walker.walk(cdl, tree);
+        //     listener = cdl;
+        //     break;
+        //   }
       case "py":
         {
           throw new IllegalArgumentException("python not supported yet");

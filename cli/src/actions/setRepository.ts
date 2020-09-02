@@ -18,6 +18,7 @@ import yesNoPrompt from '../utils/boolPrompt';
 import { addRepoUtil } from './addRepository';
 import { isLoggedIn } from '../utils/authToken';
 import ObjectId from 'bson-objectid';
+import { PaginationSelectType, promptPerPage } from '../utils/pagination';
 
 const logger = getLogger();
 
@@ -25,11 +26,7 @@ const ownerRepositoryKey = 'owner/repository';
 
 interface Args {
   'owner/repository'?: string;
-}
-
-const promptRepoPerPage = 10;
-
-const enum PaginationSelectType { Previous, Next, Selection };
+};
 
 interface RepoSelectData {
   name: string;
@@ -39,19 +36,14 @@ interface RepoSelectData {
 interface RepoSelectVal {
   type: PaginationSelectType;
   data?: RepoSelectData;
-}
+};
 
 interface RepoSelect {
   title: string;
   value: RepoSelectVal;
 };
 
-const promptNoReposFound = async (): Promise<RepositoryNameExistsQueryVariables | null> => {
-  console.log('No repositories found.\n');
-  const res = await yesNoPrompt('would you like to create a new repo? (y/n)');
-  if (!res) {
-    return null;
-  }
+const addRepoPrompt = async (): Promise<RepositoryNameExistsQueryVariables> => {
   const repoPromptRes = await prompts({
     type: 'text',
     name: 'repoName',
@@ -76,12 +68,17 @@ const promptRepository = async (): Promise<RepositoryNameExistsQueryVariables | 
       query: Repositories,
       variables: {
         page: currentPage,
-        perpage: promptRepoPerPage,
+        perpage: promptPerPage,
       }
     });
     const repositoriesData = repositoryRes.data.repositories;
     if (repositoriesData.length === 0) {
-      return await promptNoReposFound();
+      console.log('No repositories found.\n');
+      const res = await yesNoPrompt('would you like to create a new repo? (y/n)');
+      if (!res) {
+        return null;
+      }
+      return await addRepoPrompt();
     }
     const repositories: RepoSelect[] = [];
     for (const repo of repositoriesData) {
@@ -112,6 +109,12 @@ const promptRepository = async (): Promise<RepositoryNameExistsQueryVariables | 
         }
       });
     }
+    repositories.push({
+      title: 'new repository',
+      value: {
+        type: PaginationSelectType.New,
+      }
+    });
 
     const promptSelection = await prompts({
       type: 'select',
@@ -136,6 +139,8 @@ const promptRepository = async (): Promise<RepositoryNameExistsQueryVariables | 
       currentPage--;
     } else if (promptSelectionVal.type === PaginationSelectType.Next) {
       currentPage++;
+    } else if (promptSelectionVal.type === PaginationSelectType.New) {
+      return await addRepoPrompt();
     }
   }
 };
@@ -164,8 +169,10 @@ export const setRepoUtil = async (args: Args): Promise<RepositoryNameExistsQuery
     if (!repoPromptData) {
       return null;
     }
+    console.log(repoPromptData);
     repoQueryVars = repoPromptData;
   }
+  console.log(repoQueryVars);
   const repositoryRes = await apolloClient.query<RepositoryNameExistsQuery, RepositoryNameExistsQueryVariables>({
     query: RepositoryNameExists,
     variables: repoQueryVars

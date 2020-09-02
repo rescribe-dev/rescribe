@@ -14,7 +14,7 @@ export const getGitRepo = async (repositoryPath: string): Promise<Git.Repository
   return await Git.Repository.openExt(repositoryPath, OPEN_FLAG.OPEN_FROM_ENV, '/');
 };
 
-const branchRefStart = '/ref/heads/';
+const branchRefStart = 'refs/heads/';
 
 export const getBranch = async (repositoryPath: string): Promise<string> => {
   const repo = await getGitRepo(repositoryPath);

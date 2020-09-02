@@ -11,11 +11,10 @@ import { basename, normalize } from 'path';
 import yesNoPrompt from '../utils/boolPrompt';
 import { setRepoUtil } from './setRepository';
 import { getBranchUtil } from './getBranch';
+import selectBranch from '../utils/selectBranch';
+import { getRepoDataUtil } from './getRepository';
+import sleep from '../utils/sleep';
 
-interface BranchesData {
-  title: string; // name
-  value: string; // also name
-};
 
 interface Args {
   files: string;
@@ -36,6 +35,8 @@ export default async (args: Arguments<Args>): Promise<void> => {
       return;
     }
   }
+
+  let repoData = await getRepoDataUtil({});
 
   let confirmedSelect = false;
   const enum EditSelectType { Branch, Repo, Both };
@@ -65,19 +66,22 @@ export default async (args: Arguments<Args>): Promise<void> => {
       message: 'Change branch, repository, or both?'
     });
 
-    if ([EditSelectType.Branch, EditSelectType.Both].includes(editPromptRes.Choice)) {
-      const branchChoice = await prompts({
-        type: 'text',
-        name: 'branch',
-        message: 'branch name',
-      });
-      branch = branchChoice.branch as string;
-    }
     if ([EditSelectType.Repo, EditSelectType.Both].includes(editPromptRes.Choice)) {
       const setRepoData = await setRepoUtil({});
       if (!setRepoData) {
         return;
       }
+      // NOTE - this sleep is here because of race conditions in elastic
+      // where you save the repo, and then immediately query it.
+      await sleep(2000);
+      repoData = await getRepoDataUtil({});
+    }
+    if ([EditSelectType.Branch, EditSelectType.Both].includes(editPromptRes.Choice)) {
+      const selectBranchRes = await selectBranch(repoData);
+      if (!selectBranchRes) {
+        return;
+      }
+      branch = selectBranchRes;
     }
   }
 

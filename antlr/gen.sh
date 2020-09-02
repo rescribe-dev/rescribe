@@ -32,7 +32,7 @@ mv gen/ ../../../$classpath/gen/java
 cd -
 
 cd grammars/cpp
-antlr4 -visitor CPP14.g4 -package $package_base.cpp -o gen
+antlr4 -visitor CPP14Parser.g4 CPP14Lexer.g4 -package $package_base.cpp -o gen
 mv gen/ ../../$classpath/gen/cpp
 cd -
 
