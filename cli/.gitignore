@@ -15,7 +15,6 @@ dist-bin/
 !src/lib/
 src/lib/generated
 lib_test
-LICENSE
 
 # ignore config files
 .env
@@ -24,3 +23,6 @@ rescriberc.yml
 
 # except for default
 !.rescriberc.default.yml
+
+# ignore packaged stuff
+*.tgz

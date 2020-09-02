@@ -8,14 +8,22 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .nyc_output
-lib/
 dist-bin/
 lib_test
+demoCode/
+*.tgz
 
 # ignore config files
 .env
 .rescribe*
 rescriberc.yml
+prettier.config.js
+.default.env
+.eslintrc.js
+tsconfig.json
+codegen.yml
+.editorconfig
+.eslintignore
 
 # except for default
 !.rescriberc.default.yml
@@ -27,7 +35,9 @@ __tests__/
 tmp
 *.zip
 
-# pub folder
-pub/
-!pub/*.sh
-!pub/*.md
+# pub folder items
+pub/aur/
+pub/.gitignore
+
+# NOTE - lib folder needs to be removed altogether
+src/
