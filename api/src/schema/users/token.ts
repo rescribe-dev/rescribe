@@ -42,9 +42,9 @@ export default class Token extends BaseTimestamp {
   @Field()
   readonly _id: ObjectId;
 
-  @Field({ description: 'token name' })
+  @Field({ description: 'token notes' })
   @Property({ required: true })
-  name: string;
+  notes: string;
 
   @Field({ description: 'unique token key' })
   @Property({ required: true, unique: true })
@@ -63,7 +63,7 @@ export default class Token extends BaseTimestamp {
   user: ObjectId;
 
   @Field(_type => [Scope], { description: 'scopes of access for given token' })
-  @Property({ required: true })
+  @Property({ required: true, type: Scope })
   scopes: Scope[];
 }
 

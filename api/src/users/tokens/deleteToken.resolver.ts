@@ -29,7 +29,7 @@ class DeleteTokenResolver {
     await TokenModel.deleteOne({
       _id: args.id
     });
-    return `deleted token ${tokenData.name}`;
+    return `deleted token ${tokenData.key}`;
   }
 }
 

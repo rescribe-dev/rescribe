@@ -492,10 +492,10 @@ type Mutation {
   ): String!
   addToken(
     """how long the token is valid for (in seconds)"""
-    duration: Float!
+    duration: Float
 
     """token name"""
-    name: String!
+    notes: String!
 
     """access scopes"""
     scopes: [scope!]
@@ -1397,8 +1397,8 @@ type Token {
   """unique token key"""
   key: String!
 
-  """token name"""
-  name: String!
+  """token notes"""
+  notes: String!
 
   """scopes of access for given token"""
   scopes: [Scope!]!

@@ -17,9 +17,9 @@ const defaultDuration = 1000 * 60 * 60 * 24 * 5;
 @ArgsType()
 class AddTokenArgs {
   @Field({ description: 'token name' })
-  name: string;
+  notes: string;
 
-  @Field({ description: 'how long the token is valid for (in seconds)' })
+  @Field({ description: 'how long the token is valid for (in seconds)', nullable: true })
   duration?: number;
 
   @Field(_type => [Scope], { description: 'access scopes', nullable: true })
@@ -50,7 +50,7 @@ class AddTokenResolver {
       created: currentTime,
       updated: currentTime,
       duration: args.duration,
-      name: args.name,
+      notes: args.notes,
       key: tokenKey,
       scopes: args.scopes,
       hashedToken,
@@ -58,7 +58,7 @@ class AddTokenResolver {
     };
     const tokenCreateRes = await new TokenModel(newToken).save();
     return {
-      message: `added token ${newToken.name}`,
+      message: `added token with key ${newToken.key}`,
       _id: tokenCreateRes._id,
       data: token,
     };
