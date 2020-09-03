@@ -23,7 +23,6 @@ export const getRepoDataUtil = async (args: Args): Promise<RepositoryBaseDataFra
     }
     repoArgs = await getRepoMetadata(args.path);
   }
-  console.log(repoArgs);
   const repositoryRes = await apolloClient.query<RepositoryQuery, RepositoryQueryVariables>({
     query: Repository,
     variables: repoArgs,
