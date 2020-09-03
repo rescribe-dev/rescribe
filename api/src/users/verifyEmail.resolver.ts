@@ -3,11 +3,12 @@ import { MinLength } from 'class-validator';
 import { minJWTLen } from '../shared/variables';
 import { UserModel } from '../schema/users/user';
 import { VerifyTokenData } from './register.resolver';
-import { getSecret, jwtType, VerifyType } from '../utils/jwt';
+import { getSecret, VerifyType } from '../utils/jwt';
 import { VerifyOptions, verify } from 'jsonwebtoken';
 import { VerifyNewsletterTokenData, addToMailingListUtil } from '../email/addToMailingList.resolver';
 import { ApolloError } from 'apollo-server-express';
 import { NOT_FOUND, FORBIDDEN } from 'http-status-codes';
+import { loginType } from '../auth/shared';
 
 @ArgsType()
 class VerifyEmailArgs {
@@ -22,7 +23,7 @@ export const decodeVerify = (token: string): Promise<VerifyTokenData | VerifyNew
   return new Promise((resolve, reject) => {
     let secret: string;
     try {
-      secret = getSecret(jwtType.LOCAL);
+      secret = getSecret(loginType.LOCAL);
     } catch (err) {
       const errObj = err as Error;
       reject(new ApolloError(errObj.message, `${FORBIDDEN}`));

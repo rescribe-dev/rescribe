@@ -6,8 +6,8 @@ import { configData } from './config';
 import { getProduct } from '../products/product.resolver';
 import Restrictions from '../schema/payments/restrictions';
 import { defaultProductName } from '../shared/variables';
-
-export const enum jwtType { LOCAL, GITHUB }
+import { Scope, ScopeCategory, ScopeLevel } from '../schema/users/token';
+import { loginType } from '../auth/shared';
 
 export interface JWTAuthData {
   id: string;
@@ -22,6 +22,8 @@ export interface AuthData {
   restrictions: Restrictions;
   type: string;
   emailVerified: boolean;
+  scopes: Scope[];
+  loginType: loginType;
 }
 
 export interface RefreshTokenData {
@@ -38,13 +40,13 @@ export enum VerifyType {
   verifyNewsletter = 'verifyNewsletter'
 }
 
-export const getSecret = (type: jwtType): string => {
+export const getSecret = (type: loginType): string => {
   let secret: string | undefined;
   switch (type) {
-    case jwtType.LOCAL:
+    case loginType.LOCAL:
       secret = configData.JWT_SECRET;
       break;
-    case jwtType.GITHUB:
+    case loginType.GITHUB:
       secret = configData.GITHUB_PRIVATE_KEY;
       break;
     default:
@@ -70,7 +72,7 @@ export const generateJWTGuest = (): Promise<string> => {
     let secret: string;
     let jwtIssuer: string;
     try {
-      secret = getSecret(jwtType.LOCAL);
+      secret = getSecret(loginType.LOCAL);
       jwtIssuer = getJWTIssuer();
     } catch (err) {
       reject(err as Error);
@@ -101,7 +103,7 @@ export const generateJWTAccess = (user: User): Promise<string> => {
     let secret: string;
     let jwtIssuer: string;
     try {
-      secret = getSecret(jwtType.LOCAL);
+      secret = getSecret(loginType.LOCAL);
       jwtIssuer = getJWTIssuer();
     } catch (err) {
       reject(err as Error);
@@ -136,7 +138,7 @@ export const generateJWTRefresh = (user: User): Promise<string> => {
     let secret: string;
     let jwtIssuer: string;
     try {
-      secret = getSecret(jwtType.LOCAL);
+      secret = getSecret(loginType.LOCAL);
       jwtIssuer = getJWTIssuer();
     } catch (err) {
       reject(err as Error);
@@ -175,7 +177,7 @@ export const handleRefreshToken = (req: Request): Promise<string> => {
     }
     let secret: string;
     try {
-      secret = getSecret(jwtType.LOCAL);
+      secret = getSecret(loginType.LOCAL);
     } catch (err) {
       reject(err as Error);
       return;
@@ -204,16 +206,16 @@ export const handleRefreshToken = (req: Request): Promise<string> => {
   });
 };
 
-export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
+export const decodeAuth = (type: loginType, token: string): Promise<AuthData> => {
   return new Promise((resolve, reject) => {
     try {
       const secret = getSecret(type);
       let jwtConfig: VerifyOptions;
-      if (type === jwtType.LOCAL) {
+      if (type === loginType.LOCAL) {
         jwtConfig = {
           algorithms: ['HS256']
         };
-      } else if (type === jwtType.GITHUB) {
+      } else if (type === loginType.GITHUB) {
         jwtConfig = {
           algorithms: ['RS256']
         };
@@ -226,7 +228,7 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
             throw err as Error;
           }
           let data: AuthData;
-          if (type === jwtType.LOCAL) {
+          if (type === loginType.LOCAL) {
             const inputData = res as JWTAuthData;
             data = {
               id: inputData.id,
@@ -237,9 +239,14 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
                 }))
               },
               type: inputData.type,
-              emailVerified: inputData.emailVerified
+              emailVerified: inputData.emailVerified,
+              scopes: [{
+                category: ScopeCategory.all,
+                level: ScopeLevel.write,
+              }],
+              loginType: type,
             };
-          } else if (type === jwtType.GITHUB) {
+          } else if (type === loginType.GITHUB) {
             data = {
               id: nanoid(),
               plan: defaultProductName,
@@ -249,13 +256,18 @@ export const decodeAuth = (type: jwtType, token: string): Promise<AuthData> => {
                 }))
               },
               type: UserType.github,
-              emailVerified: true
+              emailVerified: true,
+              scopes: [{
+                category: ScopeCategory.all,
+                level: ScopeLevel.write,
+              }],
+              loginType: type,
             };
           } else {
             throw new Error('invalid type for jwt');
           }
           resolve(data);
-        } catch(err) {
+        } catch (err) {
           const errObj = err as Error;
           reject(errObj);
         }

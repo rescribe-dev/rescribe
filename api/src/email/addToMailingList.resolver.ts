@@ -5,12 +5,13 @@ import { configData } from '../utils/config';
 import { sendgridAPIVersion } from './sendgrid';
 import { verifyRecaptcha } from '../utils/recaptcha';
 import { emailTemplateFiles } from './compileEmailTemplates';
-import { getSecret, jwtType, VerifyType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
+import { getSecret, VerifyType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
 import { sign, SignOptions } from 'jsonwebtoken';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
 import { sendEmailUtil } from './sendEmail.resolver';
 import { UserModel } from '../schema/users/user';
+import { loginType } from '../auth/shared';
 
 @ArgsType()
 class AddToMailingListArgs {
@@ -38,7 +39,7 @@ export const generateJWTVerifyEmailNewsletter = (email: string, name: string): P
     let secret: string;
     let jwtIssuer: string;
     try {
-      secret = getSecret(jwtType.LOCAL);
+      secret = getSecret(loginType.LOCAL);
       jwtIssuer = getJWTIssuer();
     } catch (err) {
       reject(err as Error);

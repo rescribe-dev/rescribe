@@ -9,12 +9,13 @@ import { verifyRecaptcha } from '../utils/recaptcha';
 import { emailTemplateFiles } from '../email/compileEmailTemplates';
 import { sendEmailUtil } from '../email/sendEmail.resolver';
 import { configData } from '../utils/config';
-import { VerifyType, getSecret, jwtType, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
+import { VerifyType, getSecret, getJWTIssuer, verifyJWTExpiration } from '../utils/jwt';
 import { SignOptions, sign } from 'jsonwebtoken';
 import { defaultCurrency } from '../shared/variables';
 import { stripeClient } from '../stripe/init';
 import { getProduct } from '../products/product.resolver';
 import UserCurrency, { UserCurrencyModel } from '../schema/users/userCurrency';
+import { loginType } from '../auth/shared';
 
 @ArgsType()
 class RegisterArgs {
@@ -62,7 +63,7 @@ export const generateJWTVerifyEmail = (userID: ObjectId): Promise<string> => {
     let secret: string;
     let jwtIssuer: string;
     try {
-      secret = getSecret(jwtType.LOCAL);
+      secret = getSecret(loginType.LOCAL);
       jwtIssuer = getJWTIssuer();
     } catch (err) {
       reject(err as Error);
@@ -165,7 +166,7 @@ class RegisterResolver {
       subject: emailTemplateData.subject
     });
     const userCreateRes = await new UserModel(newUser).save();
-    return (`created user ${userCreateRes.id}`);
+    return `created user ${userCreateRes.id}`;
   }
 }
 

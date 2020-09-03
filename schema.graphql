@@ -490,6 +490,16 @@ type Mutation {
     """public access level"""
     publicAccess: AccessLevel!
   ): String!
+  addToken(
+    """how long the token is valid for (in seconds)"""
+    duration: Float!
+
+    """token name"""
+    name: String!
+
+    """access scopes"""
+    scopes: [scope!]
+  ): ReturnObj!
   addToMailingList(
     """email"""
     email: String!
@@ -566,6 +576,10 @@ type Mutation {
   ): String!
   deleteRepository(
     """repository id"""
+    id: ObjectId!
+  ): String!
+  deleteToken(
+    """token id"""
     id: ObjectId!
   ): String!
   indexFiles(
@@ -1191,6 +1205,20 @@ type Query {
     repositories: [ObjectId!]
   ): [FileResult!]!
   supportedExtensions: [String!]!
+  token(
+    """token id"""
+    id: ObjectId!
+
+    """token key"""
+    key: String!
+
+    """the token"""
+    token: String!
+  ): Token!
+  tokens(
+    """tokens user"""
+    user: ObjectId
+  ): [Token!]!
 
   """user data"""
   user: User!
@@ -1302,6 +1330,35 @@ type ReturnObj {
   message: String!
 }
 
+"""scope for token"""
+input scope {
+  """category"""
+  category: ScopeCategory!
+
+  """how long the token is valid for (in seconds)"""
+  level: ScopeLevel!
+}
+
+"""given scope"""
+type Scope {
+  """category"""
+  category: ScopeCategory!
+
+  """how long the token is valid for (in seconds)"""
+  level: ScopeLevel!
+}
+
+"""scope category"""
+enum ScopeCategory {
+  all
+}
+
+"""scope level"""
+enum ScopeLevel {
+  read
+  write
+}
+
 """search result"""
 type SearchResult {
   """item name"""
@@ -1322,6 +1379,35 @@ type SearchResult {
 
 type Subscription {
   authNotifications: AuthNotification!
+}
+
+"""access token for granting authorization for a given user"""
+type Token {
+  _id: ObjectId!
+
+  """date created"""
+  created: Float!
+
+  """how long the token is valid for (in milliseconds)"""
+  duration: Float!
+
+  """hashed token"""
+  hashedToken: String!
+
+  """unique token key"""
+  key: String!
+
+  """token name"""
+  name: String!
+
+  """scopes of access for given token"""
+  scopes: [Scope!]!
+
+  """date updated"""
+  updated: Float!
+
+  """user id for token"""
+  user: ObjectId!
 }
 
 """The `Upload` scalar type represents a file upload."""

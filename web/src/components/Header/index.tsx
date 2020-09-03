@@ -68,19 +68,19 @@ const Header = (args: HeaderArgs): JSX.Element => {
     typeof location === 'string'
       ? location
       : typeof args.location === 'string'
-        ? args.location
-        : (args.location as WindowLocation).pathname;
+      ? args.location
+      : (args.location as WindowLocation).pathname;
 
   const loggedIn = isSSR
     ? undefined
     : useSelector<RootState, boolean | undefined>(
-      (state) => state.authReducer.loggedIn
-    );
+        (state) => state.authReducer.loggedIn
+      );
   const username = isSSR
     ? undefined
     : useSelector<RootState, string | undefined>(
-      (state) => state.authReducer.username
-    );
+        (state) => state.authReducer.username
+      );
   let dispatchAuthThunk: AppThunkDispatch<AuthActionTypes>;
   let dispatchSearchThunk: AppThunkDispatch<SearchActionTypes>;
   let dispatch: Dispatch<any>;
@@ -176,19 +176,19 @@ const Header = (args: HeaderArgs): JSX.Element => {
               </NavLink>
               {loggedIn
                 ? [
-                  <NavLink
-                    className="navbar-link"
-                    tag={Link}
-                    to={username ? `/${username}/projects` : '#'}
-                    key="projects"
-                  >
-                    <FormattedMessage id="projects">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0])
-                      }
-                    </FormattedMessage>
-                  </NavLink>,
-                ]
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      to={username ? `/${username}/projects` : '#'}
+                      key="projects"
+                    >
+                      <FormattedMessage id="projects">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0])
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                  ]
                 : []}
             </Nav>
             <Nav navbar>
@@ -236,55 +236,55 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     handleSubmit,
                     isSubmitting,
                   }) => (
-                      <>
-                        <Form
-                          inline
-                          onSubmit={handleSubmit}
+                    <>
+                      <Form
+                        inline
+                        onSubmit={handleSubmit}
+                        style={{
+                          marginBottom: 0,
+                          maxWidth: '15rem',
+                          marginRight: '1rem',
+                        }}
+                      >
+                        <FormGroup
                           style={{
                             marginBottom: 0,
-                            maxWidth: '15rem',
-                            marginRight: '1rem',
+                            width: '100%',
                           }}
                         >
-                          <FormGroup
+                          <Input
+                            id="query"
+                            name="query"
+                            type="text"
+                            placeholder="search for"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.query}
+                            invalid={!!(touched.query && errors.query)}
+                            disabled={isSubmitting}
                             style={{
-                              marginBottom: 0,
                               width: '100%',
                             }}
+                            onKeyDown={(evt: React.KeyboardEvent) => {
+                              if (evt.key === 'Enter') {
+                                evt.preventDefault();
+                                handleSubmit();
+                              }
+                            }}
+                          />
+                          <FormFeedback
+                            className="feedback"
+                            type="invalid"
+                            style={{
+                              maxWidth: '100%',
+                            }}
                           >
-                            <Input
-                              id="query"
-                              name="query"
-                              type="text"
-                              placeholder="search for"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              value={values.query}
-                              invalid={!!(touched.query && errors.query)}
-                              disabled={isSubmitting}
-                              style={{
-                                width: '100%',
-                              }}
-                              onKeyDown={(evt: React.KeyboardEvent) => {
-                                if (evt.key === 'Enter') {
-                                  evt.preventDefault();
-                                  handleSubmit();
-                                }
-                              }}
-                            />
-                            <FormFeedback
-                              className="feedback"
-                              type="invalid"
-                              style={{
-                                maxWidth: '100%',
-                              }}
-                            >
-                              {touched.query && errors.query ? errors.query : ''}
-                            </FormFeedback>
-                          </FormGroup>
-                        </Form>
-                      </>
-                    )}
+                            {touched.query && errors.query ? errors.query : ''}
+                          </FormFeedback>
+                        </FormGroup>
+                      </Form>
+                    </>
+                  )}
                 </Formik>
               )}
               <UncontrolledDropdown inNavbar>
@@ -295,25 +295,25 @@ const Header = (args: HeaderArgs): JSX.Element => {
                 <DropdownMenu key="menu" right>
                   {loggedIn
                     ? [
-                      <DropdownItem
-                        key="profile"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          navigate(`/${username}`);
-                        }}
-                      >
-                        Profile
+                        <DropdownItem
+                          key="profile"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate(`/${username}`);
+                          }}
+                        >
+                          Profile
                         </DropdownItem>,
-                      <DropdownItem
-                        key="settings"
-                        onClick={(evt: React.MouseEvent) => {
-                          evt.preventDefault();
-                          navigate('/account');
-                        }}
-                      >
-                        Settings
+                        <DropdownItem
+                          key="settings"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            navigate('/account');
+                          }}
+                        >
+                          Settings
                         </DropdownItem>,
-                    ]
+                      ]
                     : null}
                   <DropdownItem
                     key="language-select"
@@ -357,31 +357,31 @@ const Header = (args: HeaderArgs): JSX.Element => {
               </UncontrolledDropdown>
               {!loggedIn
                 ? [
-                  <NavLink
-                    className="navbar-link"
-                    tag={Link}
-                    key="sign-up"
-                    to="/signup"
-                  >
-                    <FormattedMessage id="sign up">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0]) + '  >'
-                      }
-                    </FormattedMessage>
-                  </NavLink>,
-                  <NavLink
-                    className="navbar-link"
-                    tag={Link}
-                    to="/login"
-                    key="login"
-                  >
-                    <FormattedMessage id="login">
-                      {(messages: string[]) =>
-                        capitalizeFirstLetter(messages[0]) + '  >'
-                      }
-                    </FormattedMessage>
-                  </NavLink>,
-                ]
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      key="sign-up"
+                      to="/signup"
+                    >
+                      <FormattedMessage id="sign up">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0]) + '  >'
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      to="/login"
+                      key="login"
+                    >
+                      <FormattedMessage id="login">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0]) + '  >'
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
+                  ]
                 : null}
             </Nav>
           </Collapse>

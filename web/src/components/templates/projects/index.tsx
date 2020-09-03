@@ -29,8 +29,8 @@ const ProjectsPage = (_args: ProjectsProps): JSX.Element => {
     | QueryResult<ProjectsQuery, ProjectsQueryVariables>
     | undefined = isSSR
     ? undefined
-    //TODO: properly handle pagination
-    : useQuery<ProjectsQuery, ProjectsQueryVariables>(Projects, {
+    : //TODO: properly handle pagination
+      useQuery<ProjectsQuery, ProjectsQueryVariables>(Projects, {
         variables: {
           page: 0,
           perpage: 18,
