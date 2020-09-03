@@ -1,0 +1,8 @@
+query tokens {
+  tokens {
+    _id
+    notes
+    duration
+    created
+  }
+}

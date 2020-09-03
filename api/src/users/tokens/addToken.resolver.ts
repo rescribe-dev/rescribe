@@ -1,4 +1,4 @@
-import { Resolver, Field, Args, Mutation, Ctx, ArgsType } from 'type-graphql';
+import { Resolver, Field, Args, Mutation, Ctx, ArgsType, Int } from 'type-graphql';
 import { GraphQLContext } from '../../utils/context';
 import { verifyLoggedIn } from '../../auth/checkAuth';
 import { ObjectId } from 'mongodb';
@@ -19,7 +19,7 @@ class AddTokenArgs {
   @Field({ description: 'token name' })
   notes: string;
 
-  @Field({ description: 'how long the token is valid for (in seconds)', nullable: true })
+  @Field(_type => Int, { description: 'how long the token is valid for (in seconds)', nullable: true })
   duration?: number;
 
   @Field(_type => [Scope], { description: 'access scopes', nullable: true })

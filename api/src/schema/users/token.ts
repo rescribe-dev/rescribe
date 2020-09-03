@@ -1,4 +1,4 @@
-import { ObjectType, Field, registerEnumType, InputType } from 'type-graphql';
+import { ObjectType, Field, registerEnumType, InputType, Int } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { prop as Property, modelOptions, getModelForClass } from '@typegoose/typegoose';
 import { BaseTimestamp } from '../misc/timestamp';
@@ -54,7 +54,7 @@ export default class Token extends BaseTimestamp {
   @Property({ required: true })
   hashedToken: string;
 
-  @Field({ description: 'how long the token is valid for (in milliseconds)' })
+  @Field(_type => Int, { description: 'how long the token is valid for (in milliseconds)' })
   @Property({ required: true })
   duration: number;
 

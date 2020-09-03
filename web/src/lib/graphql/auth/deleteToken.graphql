@@ -1,0 +1,3 @@
+mutation deleteToken($id: ObjectId!) {
+  deleteToken(id: $id)
+}
