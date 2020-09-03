@@ -55,10 +55,12 @@ const SettingsPage = (_args: SettingsProps): JSX.Element => {
             <p>{JSON.stringify(user)}</p>
           </div>
         )}
-        <Button onClick={(evt) => {
-          evt.preventDefault();
-          navigate('/settings/tokens');
-        }}>
+        <Button
+          onClick={(evt) => {
+            evt.preventDefault();
+            navigate('/settings/tokens');
+          }}
+        >
           Tokens
         </Button>
       </div>

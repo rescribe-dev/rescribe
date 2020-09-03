@@ -498,7 +498,7 @@ type Mutation {
     notes: String!
 
     """access scopes"""
-    scopes: [scope!]
+    scopes: [ScopeInput!]
   ): ReturnObj!
   addToMailingList(
     """email"""
@@ -1330,15 +1330,6 @@ type ReturnObj {
   message: String!
 }
 
-"""scope for token"""
-input scope {
-  """category"""
-  category: ScopeCategory!
-
-  """how long the token is valid for (in seconds)"""
-  level: ScopeLevel!
-}
-
 """given scope"""
 type Scope {
   """category"""
@@ -1351,6 +1342,15 @@ type Scope {
 """scope category"""
 enum ScopeCategory {
   all
+}
+
+"""scope for token"""
+input ScopeInput {
+  """category"""
+  category: ScopeCategory!
+
+  """how long the token is valid for (in seconds)"""
+  level: ScopeLevel!
 }
 
 """scope level"""

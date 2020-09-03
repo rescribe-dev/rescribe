@@ -15,12 +15,14 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
   return (
     <Container>
       <div>tokens page</div>
-      <Button onClick={(evt) => {
+      <Button
+        onClick={(evt) => {
           evt.preventDefault();
           navigate('/settings/tokens/new');
-        }}>
-          New
-        </Button>
+        }}
+      >
+        New
+      </Button>
     </Container>
   );
 };

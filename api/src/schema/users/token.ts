@@ -23,7 +23,7 @@ registerEnumType(ScopeLevel, {
 });
 
 @ObjectType({ description: 'given scope' })
-@InputType('scope', {
+@InputType('ScopeInput', {
   description: 'scope for token'
 })
 export class Scope {
