@@ -20,7 +20,7 @@ class AddTokenArgs {
   notes: string;
 
   @Field(_type => Int, { description: 'how long the token is valid for (in seconds)', nullable: true })
-  duration?: number;
+  expires?: number;
 
   @Field(_type => [Scope], { description: 'access scopes', nullable: true })
   scopes: Scope[];
@@ -42,14 +42,16 @@ class AddTokenResolver {
     const tokenKey = nanoid(keyComponentLen);
     const token = tokenKey + randomStr;
     const hashedToken = await argon2.hash(token);
-    if (!args.duration) {
-      args.duration = defaultDuration;
+    if (!args.expires) {
+      const expirationDate = new Date();
+      expirationDate.setTime(expirationDate.getTime() + defaultDuration);
+      args.expires = expirationDate.getTime();
     }
     const newToken: Token = {
       _id: new ObjectId(),
       created: currentTime,
       updated: currentTime,
-      duration: args.duration,
+      expires: args.expires,
       notes: args.notes,
       key: tokenKey,
       scopes: args.scopes,

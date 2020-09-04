@@ -51,6 +51,7 @@ import {
 } from 'lib/generated/datamodel';
 import { client } from 'utils/apollo';
 import { NewMessages } from 'locale/pages/new/newMessages';
+import sleep from 'shared/sleep';
 
 const loaderCSS = css`
   display: block;
@@ -370,23 +371,20 @@ const NewPage = (args: NewProps): JSX.Element => {
                 } else {
                   throw new Error('invalid new type provided');
                 }
-                await new Promise<void>((resolve) =>
-                  setTimeout(() => {
-                    setStatus({ success: true });
-                    switch (formData.type) {
-                      case projectType.value:
-                        navigate(`/${username}/projects/${formData.name}`);
-                        break;
-                      case repositoryType.value:
-                        navigate(`/${username}/${formData.name}`);
-                        break;
-                      default:
-                        break;
-                    }
-                    setSubmitting(false);
-                    resolve();
-                  }, 1000)
-                ); // wait for creation before routing
+                // wait for creation before routing
+                await sleep(1000);
+                setStatus({ success: true });
+                switch (formData.type) {
+                  case projectType.value:
+                    navigate(`/${username}/projects/${formData.name}`);
+                    break;
+                  case repositoryType.value:
+                    navigate(`/${username}/${formData.name}`);
+                    break;
+                  default:
+                    break;
+                }
+                setSubmitting(false);
               } catch (err) {
                 toast(err.message, {
                   type: 'error',

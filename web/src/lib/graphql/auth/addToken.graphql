@@ -1,5 +1,5 @@
-mutation addToken($notes: String!, $scopes: [ScopeInput!]!, $duration: Int) {
-  addToken(notes: $notes, scopes: $scopes, duration: $duration) {
+mutation addToken($notes: String!, $scopes: [ScopeInput!]!, $expires: Int) {
+  addToken(notes: $notes, scopes: $scopes, expires: $expires) {
     data
   }
 }

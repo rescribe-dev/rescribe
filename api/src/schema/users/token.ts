@@ -54,9 +54,9 @@ export default class Token extends BaseTimestamp {
   @Property({ required: true })
   hashedToken: string;
 
-  @Field(_type => Int, { description: 'how long the token is valid for (in milliseconds)' })
+  @Field(_type => Int, { description: 'expiration date' })
   @Property({ required: true })
-  duration: number;
+  expires: number;
 
   @Field({ description: 'user id for token' })
   @Property({ required: true })

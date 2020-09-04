@@ -36,8 +36,7 @@ export const decodeAuthToken = async (token: string): Promise<AuthData> => {
   if (!tokenData) {
     throw new Error('cannot find auth token data');
   }
-  const expiration = new Date(tokenData.created);
-  expiration.setTime(expiration.getTime() + tokenData.duration);
+  const expiration = new Date(tokenData.expires);
   const now = new Date();
   if (now > expiration) {
     throw new Error('the auth token is expired');
