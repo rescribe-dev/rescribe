@@ -51,6 +51,8 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
         setTokens(tokensRes);
       } catch (err) {
         const errObj = err as Error;
+        console.log(err);
+        console.log(JSON.stringify(err));
         toast(errObj.message, {
           type: 'error',
         });
@@ -68,11 +70,15 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
 
   return (
     <>
-      {!tokens || tokens.loading ? (
-        <p>loading...</p>
-      ) : (
-        <>
-          <Container>
+      <Container
+        style={{
+          marginTop: '4rem',
+        }}
+      >
+        {!tokens || tokens.loading ? (
+          <p>loading...</p>
+        ) : (
+          <>
             {tokens.data.tokens.length === 0 ? (
               <p>no tokens found</p>
             ) : (
@@ -80,7 +86,7 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
                 <Table>
                   <thead>
                     <tr>
-                      <th>Tokens:</th>
+                      <th>Tokens</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -113,42 +119,42 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
                     ))}
                   </tbody>
                 </Table>
-                <Button
-                  onClick={(evt) => {
-                    evt.preventDefault();
-                    navigate('/settings/tokens/new');
-                  }}
-                >
-                  New
-                </Button>
               </>
             )}
-          </Container>
-          <DeleteTokenModal
-            isOpen={deleteTokenModalIsOpen}
-            toggle={deleteTokenModalToggle}
-            deleteToken={async (): Promise<void> => {
-              if (!currentToken) return;
-              await deleteTokenMutation({
-                variables: {
-                  id: currentToken,
-                },
-                update: () => {
-                  setTokens({
-                    ...tokens,
-                    loading: false,
-                    data: {
-                      tokens: tokens.data.tokens.filter(
-                        (elem) => !(elem._id as ObjectId).equals(currentToken)
-                      ),
-                    },
-                  });
-                },
-              });
-            }}
-          />
-        </>
-      )}
+            <Button
+              onClick={(evt) => {
+                evt.preventDefault();
+                navigate('/settings/tokens/new');
+              }}
+            >
+              New
+            </Button>
+            <DeleteTokenModal
+              isOpen={deleteTokenModalIsOpen}
+              toggle={deleteTokenModalToggle}
+              deleteToken={async (): Promise<void> => {
+                if (!currentToken) return;
+                await deleteTokenMutation({
+                  variables: {
+                    id: currentToken,
+                  },
+                  update: () => {
+                    setTokens({
+                      ...tokens,
+                      loading: false,
+                      data: {
+                        tokens: tokens.data.tokens.filter(
+                          (elem) => !(elem._id as ObjectId).equals(currentToken)
+                        ),
+                      },
+                    });
+                  },
+                });
+              }}
+            />
+          </>
+        )}
+      </Container>
     </>
   );
 };

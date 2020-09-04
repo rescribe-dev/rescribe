@@ -4,6 +4,11 @@
 // TODO - fix floating labels
 // @import "./floatingLabels.scss";
 
+body {
+  // border box by default
+  box-sizing: border-box
+}
+
 a.link-no-style {
   &:hover {
     text-decoration: none;

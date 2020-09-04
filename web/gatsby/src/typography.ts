@@ -3,7 +3,8 @@ import Typography from 'typography';
 // see https://github.com/KyleAMathews/typography.js/blob/master/packages/typography-theme-alton/src/index.js
 
 const typography = new Typography({
-  baseFontSize: '16px',
+  // if this is defined, react-dates breaks
+  baseFontSize: '',
   baseLineHeight: 1.666,
   headerFontFamily: ['Noto Sans', 'sans-serif'],
   bodyFontFamily: ['Noto Sans', 'sans-serif'],

@@ -492,7 +492,7 @@ type Mutation {
   ): String!
   addToken(
     """how long the token is valid for (in seconds)"""
-    expires: Int
+    expires: Float
 
     """token name"""
     notes: String!
@@ -1389,7 +1389,7 @@ type Token {
   created: Float!
 
   """expiration date"""
-  expires: Int!
+  expires: Float!
 
   """hashed token"""
   hashedToken: String!
