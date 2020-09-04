@@ -186,6 +186,7 @@ const NewPage = (_args: NewProps): JSX.Element => {
                         setFieldTouched('expires', true);
                       }
                     }}
+                    // add locale: https://github.com/airbnb/react-dates#localization
                     disabled={isSubmitting}
                   />
                   <FormFeedback
