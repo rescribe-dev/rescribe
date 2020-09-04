@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Container } from 'reactstrap';
+import { Container, Button } from 'reactstrap';
 import { PageProps } from 'gatsby';
 
 import './index.scss';
@@ -12,17 +12,17 @@ import { RootState } from 'state';
 import { isSSR } from 'utils/checkSSR';
 import { UserFieldsFragment } from 'lib/generated/datamodel';
 import { isLoggedIn } from 'state/auth/getters';
-import { AccountMessages } from 'locale/pages/account/accountMessages';
 import { toast } from 'react-toastify';
+import { SettingsMessages } from 'locale/pages/settings/settingsMessages';
+import { navigate } from '@reach/router';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AccountPageDataProps extends PageProps {}
+export interface SettingsPageDataProps extends PageProps {}
 
-interface AccountProps extends AccountPageDataProps {
-  messages: AccountMessages;
+interface SettingsProps extends SettingsPageDataProps {
+  messages: SettingsMessages;
 }
-
-const AccountPage = (_args: AccountProps): JSX.Element => {
+const SettingsPage = (_args: SettingsProps): JSX.Element => {
   const user = isSSR
     ? undefined
     : useSelector<RootState, UserFieldsFragment | undefined>(
@@ -46,7 +46,7 @@ const AccountPage = (_args: AccountProps): JSX.Element => {
     })();
   }, []);
   return (
-    <Container className="default-container">
+    <Container>
       <div>
         {user === undefined ? (
           <div>loading</div>
@@ -55,9 +55,17 @@ const AccountPage = (_args: AccountProps): JSX.Element => {
             <p>{JSON.stringify(user)}</p>
           </div>
         )}
+        <Button
+          onClick={(evt) => {
+            evt.preventDefault();
+            navigate('/settings/tokens');
+          }}
+        >
+          Tokens
+        </Button>
       </div>
     </Container>
   );
 };
 
-export default AccountPage;
+export default SettingsPage;

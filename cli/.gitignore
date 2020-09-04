@@ -11,6 +11,7 @@ yarn-debug.log*
 yarn-error.log*
 .nyc_output
 lib/
+LICENSE
 dist-bin/
 !src/lib/
 src/lib/generated

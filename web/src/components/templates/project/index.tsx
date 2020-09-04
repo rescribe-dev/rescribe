@@ -68,6 +68,7 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
             }
           },
           onCompleted: async (data) => {
+            //TODO: properly handle pagination
             setRepositoriesData(
               await client.query<RepositoriesQuery, RepositoriesQueryVariables>(
                 {
@@ -75,7 +76,7 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
                   variables: {
                     projects: [data.project._id],
                     page: 0,
-                    perpage: 1,
+                    perpage: 18,
                   },
                   fetchPolicy: 'no-cache',
                 }

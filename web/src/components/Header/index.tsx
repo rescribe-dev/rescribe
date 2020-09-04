@@ -118,14 +118,13 @@ const Header = (args: HeaderArgs): JSX.Element => {
     })();
   }, []);
 
+  const transparentHeader = () =>
+    pathname === homepagePath && !hamburgerIsVisible && !headerIsOpen;
+
   return (
     <>
       <Container
-        className={
-          pathname === homepagePath && !hamburgerIsVisible
-            ? 'nav-container-home'
-            : ''
-        }
+        className={transparentHeader() ? 'nav-container-home' : ''}
         style={{
           padding: 0,
         }}
@@ -133,11 +132,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
         <Navbar
           light
           expand="md"
-          className={
-            pathname === homepagePath && !hamburgerIsVisible
-              ? 'navbar-home'
-              : 'navbar-other'
-          }
+          className={transparentHeader() ? 'navbar-home' : 'navbar-other'}
         >
           <NavbarBrand
             style={{
@@ -147,11 +142,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
             to="/"
           >
             <img
-              src={
-                pathname === homepagePath && !hamburgerIsVisible
-                  ? logoWhite
-                  : logo
-              }
+              src={transparentHeader() ? logoWhite : logo}
               alt="reScribe"
               style={{
                 width: '9rem',
@@ -160,7 +151,10 @@ const Header = (args: HeaderArgs): JSX.Element => {
               }}
             />
           </NavbarBrand>
-          <VisibilitySensor onChange={setHamburgerVisible}>
+          <VisibilitySensor
+            onChange={setHamburgerVisible}
+            partialVisibility={true}
+          >
             <NavbarToggler onClick={toggleHeader} />
           </VisibilitySensor>
           <Collapse isOpen={headerIsOpen} navbar>

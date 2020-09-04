@@ -1,6 +1,8 @@
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
-import { decodeAuth, AuthData, jwtType } from './jwt';
+import { decodeAuth, AuthData } from './jwt';
 import { Request, Response } from 'express';
+import { validateAuthToken, decodeAuthToken } from '../users/tokens/util';
+import { loginType } from '../auth/shared';
 
 export interface SubscriptionContext {
   auth?: AuthData;
@@ -22,7 +24,7 @@ export const onSubscription = async (params: SubscriptionContextParams): Promise
   }
 
   return {
-    auth: await decodeAuth(jwtType.LOCAL, params.authToken)
+    auth: await decodeAuth(loginType.LOCAL, params.authToken)
   };
 };
 
@@ -41,6 +43,8 @@ const isGithubApp = (req: Request): boolean => {
   return userAgentHeader !== undefined && userAgentHeader === githubUserAgent;
 };
 
+const jwsRegex = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
+
 export const getContext = async ({ req, res, connection }: ExpressContext): Promise<GraphQLContext> => {
   if (connection) {
     return {
@@ -58,10 +62,16 @@ export const getContext = async ({ req, res, connection }: ExpressContext): Prom
     };
   }
   let authData: AuthData | undefined;
-  if (isGithubApp(req)) {
-    authData = await decodeAuth(jwtType.GITHUB, token);
+  if (jwsRegex.test(token)) {
+    if (isGithubApp(req)) {
+      authData = await decodeAuth(loginType.GITHUB, token);
+    } else {
+      authData = await decodeAuth(loginType.LOCAL, token);
+    }
   } else {
-    authData = await decodeAuth(jwtType.LOCAL, token);
+    validateAuthToken(token);
+    // get from token
+    authData = await decodeAuthToken(token);
   }
   return {
     auth: authData,

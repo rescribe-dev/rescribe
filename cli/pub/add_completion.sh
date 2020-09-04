@@ -16,7 +16,7 @@ if [ -f $shell_rc_file ]; then
     elif command -v rescribe &> /dev/null; then
       rescribe completion >> "$shell_rc_file"
     else
-      echo "cannot find rescribe command"
+      echo "cannot find rescribe command. is the bin folder added to your path?"
       exit 1
     fi
     echo "completion added"

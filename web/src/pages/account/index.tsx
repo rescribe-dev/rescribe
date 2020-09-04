@@ -1,20 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import SEO from 'components/seo';
-import PrivateRoute from 'components/privateRoute';
-import Layout from 'layouts';
-import AccountContent, { AccountPageDataProps } from 'components/pages/account';
-import AccountMessagesEnglish from 'locale/pages/account/en';
+import { navigate } from '@reach/router';
+import { PageProps } from 'gatsby';
 
-const AccountPage = (args: AccountPageDataProps): JSX.Element => {
-  return (
-    <PrivateRoute location={args.location}>
-      <Layout location={args.location}>
-        <SEO title="Account" />
-        <AccountContent {...args} messages={AccountMessagesEnglish} />
-      </Layout>
-    </PrivateRoute>
-  );
+const AccountPage = (_args: PageProps): JSX.Element => {
+  useEffect(() => {
+    navigate('/settings');
+  }, []);
+  return <>{null}</>;
 };
 
 export default AccountPage;
