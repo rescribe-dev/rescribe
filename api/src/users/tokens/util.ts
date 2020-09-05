@@ -5,6 +5,7 @@ import { getProduct } from '../../products/product.resolver';
 import { loginType } from '../../auth/shared';
 import { ApolloError } from 'apollo-server-express';
 import { BAD_REQUEST } from 'http-status-codes';
+import argon2 from 'argon2';
 
 export const randomComponentLen = 18;
 export const keyComponentLen = 21;
@@ -35,6 +36,9 @@ export const decodeAuthToken = async (token: string): Promise<AuthData> => {
   });
   if (!tokenData) {
     throw new Error('cannot find auth token data');
+  }
+  if (!await argon2.verify(tokenData.hashedToken, token)) {
+    throw new Error('token is invalid');
   }
   const expiration = new Date(tokenData.expires);
   const now = new Date();

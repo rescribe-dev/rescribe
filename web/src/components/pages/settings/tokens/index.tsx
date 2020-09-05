@@ -19,9 +19,10 @@ import { toast } from 'react-toastify';
 import { AiFillDelete } from 'react-icons/ai';
 import { useMutation } from '@apollo/react-hooks';
 import DeleteTokenModal from './modals/DeleteTokenModal';
+import { formatDistance, } from 'date-fns';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TokensPageDataProps extends PageProps {}
+export interface TokensPageDataProps extends PageProps { }
 
 interface TokensProps extends TokensPageDataProps {
   messages: TokensMessages;
@@ -68,6 +69,15 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
     DeleteTokenMutationVariables
   >(DeleteToken);
 
+  const getExpirationMessage = (expiration: number): string => {
+    const expirationDate = new Date(expiration);
+    const now = new Date();
+    if (expirationDate < now) {
+      return 'expired';
+    }
+    return formatDistance(expiration, now);
+  };
+
   return (
     <>
       <Container
@@ -78,82 +88,83 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
         {!tokens || tokens.loading ? (
           <p>loading...</p>
         ) : (
-          <>
-            {tokens.data.tokens.length === 0 ? (
-              <p>no tokens found</p>
-            ) : (
-              <>
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Tokens</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tokens.data.tokens.map((token) => (
-                      <tr
-                        key={`token-${(token._id as ObjectId).toHexString()}`}
-                      >
-                        <td>
-                          <Row>
-                            <Col>{token.notes}</Col>
-                            <Col>
-                              <Button
-                                style={{
-                                  color: '#818A91',
-                                  backgroundColor: '#fff',
-                                  border: '0px',
-                                }}
-                                onClick={(evt) => {
-                                  evt.preventDefault();
-                                  setCurrentToken(token._id);
-                                  deleteTokenModalToggle();
-                                }}
-                              >
-                                <AiFillDelete />
-                              </Button>
-                            </Col>
-                          </Row>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </>
-            )}
-            <Button
-              onClick={(evt) => {
-                evt.preventDefault();
-                navigate('/settings/tokens/new');
-              }}
-            >
-              New
+            <>
+              {tokens.data.tokens.length === 0 ? (
+                <p>no tokens found</p>
+              ) : (
+                  <>
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>Tokens</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tokens.data.tokens.map((token) => (
+                          <tr
+                            key={`token-${(token._id as ObjectId).toHexString()}`}
+                          >
+                            <td>
+                              <Row>
+                                <Col>{token.notes}</Col>
+                                <Col sm={{ size: 'auto' }}>{getExpirationMessage(token.expires)}</Col>
+                                <Col>
+                                  <Button
+                                    style={{
+                                      color: '#818A91',
+                                      backgroundColor: '#fff',
+                                      border: '0px',
+                                    }}
+                                    onClick={(evt) => {
+                                      evt.preventDefault();
+                                      setCurrentToken(token._id);
+                                      deleteTokenModalToggle();
+                                    }}
+                                  >
+                                    <AiFillDelete />
+                                  </Button>
+                                </Col>
+                              </Row>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </>
+                )}
+              <Button
+                onClick={(evt) => {
+                  evt.preventDefault();
+                  navigate('/settings/tokens/new');
+                }}
+              >
+                New
             </Button>
-            <DeleteTokenModal
-              isOpen={deleteTokenModalIsOpen}
-              toggle={deleteTokenModalToggle}
-              deleteToken={async (): Promise<void> => {
-                if (!currentToken) return;
-                await deleteTokenMutation({
-                  variables: {
-                    id: currentToken,
-                  },
-                  update: () => {
-                    setTokens({
-                      ...tokens,
-                      loading: false,
-                      data: {
-                        tokens: tokens.data.tokens.filter(
-                          (elem) => !(elem._id as ObjectId).equals(currentToken)
-                        ),
-                      },
-                    });
-                  },
-                });
-              }}
-            />
-          </>
-        )}
+              <DeleteTokenModal
+                isOpen={deleteTokenModalIsOpen}
+                toggle={deleteTokenModalToggle}
+                deleteToken={async (): Promise<void> => {
+                  if (!currentToken) return;
+                  await deleteTokenMutation({
+                    variables: {
+                      id: currentToken,
+                    },
+                    update: () => {
+                      setTokens({
+                        ...tokens,
+                        loading: false,
+                        data: {
+                          tokens: tokens.data.tokens.filter(
+                            (elem) => !(elem._id as ObjectId).equals(currentToken)
+                          ),
+                        },
+                      });
+                    },
+                  });
+                }}
+              />
+            </>
+          )}
       </Container>
     </>
   );
