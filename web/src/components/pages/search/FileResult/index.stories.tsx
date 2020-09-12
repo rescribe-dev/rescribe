@@ -14,14 +14,19 @@ const resultTypeOptions: ResultType[] = [ResultType.Class];
 
 export const FileResult = (): JSX.Element => {
   const getColor = (): string => {
-    const selectedColor = color('language color', hexRGB('#f0ad4e', {
-      format: 'css'
-    }).trim().replaceAll(' ', ','));
+    const selectedColor = color(
+      'language color',
+      hexRGB('#f0ad4e', {
+        format: 'css',
+      })
+        .trim()
+        .replaceAll(' ', ',')
+    );
     console.log(selectedColor);
     const hexVal = rgbHex(selectedColor).hex;
     console.log(hexVal);
     return hexVal;
-  }
+  };
   return wrapRootElement({
     element: (
       <FileResultComponent
@@ -33,28 +38,30 @@ export const FileResult = (): JSX.Element => {
               'language',
               languageOptions,
               languageOptions[0]
-            )
+            ),
           },
           lines: {
             start: number('start line', 1),
-            end: number('end line', 5)
+            end: number('end line', 5),
           },
           name: text('file name', 'the file'),
           location: {
             image: text('repo image', 'https://example.com/image.jpg'),
             owner: text('owner', 'me'),
-            repository: text('repository', 'repo')
+            repository: text('repository', 'repo'),
           },
-          path: '/folder1/test.java'
+          path: '/folder1/test.java',
         }}
-        previewSearchResults={[{
-          name: text('preview name', 'preview'),
-          type: select<ResultType>(
-            'preview result type',
-            resultTypeOptions,
-            resultTypeOptions[0]
-          )
-        }]}
+        previewSearchResults={[
+          {
+            name: text('preview name', 'preview'),
+            type: select<ResultType>(
+              'preview result type',
+              resultTypeOptions,
+              resultTypeOptions[0]
+            ),
+          },
+        ]}
       />
     ),
   });
