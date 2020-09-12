@@ -6,12 +6,21 @@ import { IntlProvider } from 'react-intl';
 import messages from 'locale/common/en';
 import { themeMap, Theme } from 'utils/theme';
 import { defaultLanguage } from 'utils/languages';
+import { select } from '@storybook/addon-knobs';
 
 interface input {
   element: JSX.Element;
 }
 
 export const wrapRootElement = ({ element }: input): JSX.Element => {
+  const themeOptions: Theme[] = Object.keys(Theme).map(
+    (theme) => Theme[theme as keyof typeof Theme]
+  );
+  const currentTheme = select<Theme>(
+    'global theme',
+    themeOptions,
+    themeOptions[0]
+  );
   return (
     <>
       <WrapRedux>
@@ -21,7 +30,7 @@ export const wrapRootElement = ({ element }: input): JSX.Element => {
               locale={defaultLanguage}
               messages={(messages as unknown) as Record<string, string>}
             >
-              <div id="theme" className={themeMap[Theme.light]}>
+              <div className={currentTheme ? themeMap[currentTheme] : ''}>
                 {element}
               </div>
             </IntlProvider>

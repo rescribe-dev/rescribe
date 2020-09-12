@@ -9,7 +9,7 @@ export const CurrencySelector = (): JSX.Element => {
   return wrapRootElement({
     element: (
       <CurrencySelectorComponent
-        setPaymentCurrency={boolean('set payment currency', true)}
+        displayCurrency={boolean('set payment currency', true)}
       />
     ),
   });

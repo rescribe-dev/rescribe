@@ -10,7 +10,9 @@ import hexRGB from 'hex-rgb';
 import rgbHex from 'rgb2hex';
 
 const languageOptions: Language[] = [Language.Java];
-const resultTypeOptions: ResultType[] = [ResultType.Class];
+const resultTypeOptions: ResultType[] = Object.keys(ResultType).map(
+  (type) => ResultType[type as keyof typeof ResultType]
+);
 
 export const defaultPreview = `package test;
 public class Test {
