@@ -46,7 +46,7 @@ export const FileResult = (): JSX.Element => {
           },
           name: text('file name', 'the file'),
           location: {
-            image: text('repo image', 'https://example.com/image.jpg'),
+            image: text('repo image', 'https://i.stack.imgur.com/frlIf.png'),
             owner: text('owner', 'me'),
             repository: text('repository', 'repo'),
           },
