@@ -366,7 +366,7 @@ enum Language {
 """language data"""
 type LanguageData {
   """associated color"""
-  color: Int!
+  color: String!
 
   """language name"""
   name: Language!

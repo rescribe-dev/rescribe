@@ -1,4 +1,4 @@
-import { registerEnumType, ObjectType, Field, Int } from 'type-graphql';
+import { registerEnumType, ObjectType, Field } from 'type-graphql';
 import { Language } from '../misc/language';
 
 registerEnumType(Language, {
@@ -11,6 +11,6 @@ registerEnumType(Language, {
 export class LanguageData {
   @Field(_type => Language, { description: 'language name' })
   name: Language;
-  @Field(_type => Int, { description: 'associated color' })
-  color: number;
+  @Field({ description: 'associated color' })
+  color: string;
 }

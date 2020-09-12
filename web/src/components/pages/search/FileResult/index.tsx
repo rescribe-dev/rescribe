@@ -18,6 +18,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
     <Card className="search-result-card">
       <CardBody>
         <CardTitle>{args.file.name}</CardTitle>
+        <CardText>{args.file.language.color}</CardText>
         <CardText>written in {args.file.language.name}</CardText>
         <CardText>path: {args.file.path}</CardText>
         <CardText>

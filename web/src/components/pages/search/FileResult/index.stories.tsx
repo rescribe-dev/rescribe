@@ -3,28 +3,32 @@ import { FileResultComponent } from '.';
 import 'storybook/global';
 import markdown from './README.md';
 import { wrapRootElement } from 'storybook/rootWrapper';
-import { text, withKnobs, select, number } from '@storybook/addon-knobs';
+import { text, withKnobs, select, number, color } from '@storybook/addon-knobs';
 import { Language, ResultType } from 'lib/generated/datamodel';
 import ObjectId from 'bson-objectid';
+import hexRGB from 'hex-rgb';
+import rgbHex from 'rgb2hex';
 
 const languageOptions: Language[] = [Language.Java];
 const resultTypeOptions: ResultType[] = [ResultType.Class];
 
-const defaultPreview = `package test;
-public class Test {
-  public static void main(String[] args) {
-    System.out.println("Hello World!");
-  }
-}`;
-
 export const FileResult = (): JSX.Element => {
+  const getColor = (): string => {
+    const selectedColor = color('language color', hexRGB('#f0ad4e', {
+      format: 'css'
+    }).trim().replaceAll(' ', ','));
+    console.log(selectedColor);
+    const hexVal = rgbHex(selectedColor).hex;
+    console.log(hexVal);
+    return hexVal;
+  }
   return wrapRootElement({
     element: (
       <FileResultComponent
         file={{
           _id: new ObjectId(),
           language: {
-            color: number('color', 0xffffff),
+            color: getColor(),
             name: select<Language>(
               'language',
               languageOptions,

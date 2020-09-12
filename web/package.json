@@ -145,6 +145,7 @@
     "@types/react-redux": "^7.1.9",
     "@types/react-select": "^3.0.16",
     "@types/reactstrap": "^8.5.1",
+    "@types/rgb2hex": "^0.2.0",
     "@types/styled-components": "^5.1.2",
     "@types/typography": "^0.16.3",
     "@types/webfontloader": "^1.6.32",
@@ -162,10 +163,12 @@
     "eslint-plugin-react": "^7.20.6",
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.12",
     "gatsby-react-router-scroll": "^3.0.12",
+    "hex-rgb": "^4.2.0",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1",
     "prettier": "^2.0.5",
     "react-docgen-typescript-loader": "^3.7.2",
+    "rgb2hex": "^0.2.0",
     "serve-static": "^1.14.1",
     "webpack": "^4.44.1"
   }
