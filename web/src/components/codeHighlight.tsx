@@ -28,6 +28,7 @@ const CodeHighlight = (args: {
             margin: '1em 0',
             padding: '0.5em',
             overflow: 'scroll',
+            backgroundColor: 'var(--code-bg)',
           }}
         >
           {tokens.map((line, i) => (

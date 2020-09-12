@@ -4,32 +4,16 @@ import 'storybook/global';
 import markdown from './README.md';
 import { wrapRootElement } from 'storybook/rootWrapper';
 import { text, withKnobs, select, number, color } from '@storybook/addon-knobs';
-import { Language, ResultType, PreviewFieldsFragment } from 'lib/generated/datamodel';
+import { Language, ResultType } from 'lib/generated/datamodel';
 import ObjectId from 'bson-objectid';
 import hexRGB from 'hex-rgb';
 import rgbHex from 'rgb2hex';
+import { defaultPreview, getPreviewData } from './storyUtils';
 
 const languageOptions: Language[] = [Language.Java];
 const resultTypeOptions: ResultType[] = Object.keys(ResultType).map(
   (type) => ResultType[type as keyof typeof ResultType]
 );
-
-export const defaultPreview = `package test;
-public class Test {
-  public static void main(String[] args) {
-    System.out.println("Hello World!");
-  }
-}`;
-
-export const getPreviewData = (previewText: string): PreviewFieldsFragment => {
-  const splitText = previewText.split('\n');
-  return {
-    startPreviewLineNumber: 0,
-    endPreviewLineNumber: splitText.length,
-    startPreviewContent: splitText,
-    endPreviewContent: [],
-  };
-};
 
 export const FileResult = (): JSX.Element => {
   const previewText = text('preview', defaultPreview);

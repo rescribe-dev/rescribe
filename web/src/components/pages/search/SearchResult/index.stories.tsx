@@ -6,7 +6,7 @@ import { wrapRootElement } from 'storybook/rootWrapper';
 import { text, withKnobs, select } from '@storybook/addon-knobs';
 import { ResultType } from 'lib/generated/datamodel';
 import { ExtendedLanguage } from 'components/codeHighlight';
-import { defaultPreview, getPreviewData } from '../FileResult/index.stories';
+import { defaultPreview, getPreviewData } from '../FileResult/storyUtils';
 
 const languageOptions: ExtendedLanguage[] = ['java'];
 
