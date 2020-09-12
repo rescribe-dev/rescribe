@@ -52,7 +52,7 @@ export const bulkSaveToElastic = async (elements: SaveElasticElement[]): Promise
   logger.info('start bulk write elastic');
   if (writeBody.length > 0) {
     await elasticClient.bulk({
-      refresh: 'true',
+      refresh: true,
       body: writeBody
     });
   }

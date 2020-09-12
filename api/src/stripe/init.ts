@@ -17,7 +17,7 @@ export const initializeStripe = async (): Promise<void> => {
     throw new Error(message);
   }
   stripeClient = new Stripe(configData.STRIPE_SECRET, {
-    apiVersion: '2020-03-02'
+    apiVersion: '2020-08-27'
   });
   const balanceData = await stripeClient.balance.retrieve();
   let balance = 0;
