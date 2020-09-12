@@ -29,6 +29,7 @@ const loaderCSS = css`
   border-color: red;
 `;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare global {
   interface Window {
     grecaptcha: any;

@@ -9,6 +9,7 @@ import rootReducer from '.';
 import thunk from 'redux-thunk';
 import { isSSR } from 'utils/checkSSR';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare global {
   interface Window {
     __REDUX_DEVTOOLS_EXTENSION__: any;

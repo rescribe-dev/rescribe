@@ -52,6 +52,7 @@ interface LoginPageData extends LoginPageDataProps {
   messages: LoginMessages;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare global {
   interface Window {
     grecaptcha: any;

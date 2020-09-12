@@ -56,6 +56,7 @@ interface RegisterProps extends RegisterPageDataProps {
   messages: RegisterMessages;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare global {
   interface Window {
     grecaptcha: any;

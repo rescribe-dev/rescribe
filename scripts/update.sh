@@ -44,7 +44,7 @@ do
   cd -
 done
 
-go_paths=("fast/")
+go_paths=("fast")
 
 for path in "${go_paths[@]}"
 do

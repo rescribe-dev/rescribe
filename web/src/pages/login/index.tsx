@@ -5,6 +5,7 @@ import LoginMessagesEnglish from 'locale/pages/login/en';
 import Layout from 'layouts/index';
 import SEO from 'components/seo';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare global {
   interface Window {
     grecaptcha: any;
