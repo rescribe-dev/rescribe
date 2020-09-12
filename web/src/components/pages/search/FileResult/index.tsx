@@ -7,7 +7,6 @@ import {
 import { Language } from 'prism-react-renderer';
 import SearchResultComponent from '../SearchResult';
 import './styles.scss';
-import { borderRadius } from 'react-select/src/theme';
 
 export interface FileResultCardArgs {
   file: FileFieldsFragment;
@@ -18,39 +17,35 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
   return (
     <Card className="search-result-card">
       <CardBody>
-<<<<<<< Updated upstream
-        <CardTitle>{args.file.name}</CardTitle>
-        <CardText>{args.file.language.color}</CardText>
-        <CardText>written in {args.file.language.name}</CardText>
-        <CardText>path: {args.file.path}</CardText>
-        <CardText>
-          location: {args.file.location.repository}/{args.file.location.owner}
-        </CardText>
-=======
         <CardTitle>
           <Row>
-            <Media object data-src={args.file.location.image} alt="Generic placeholder image" />
-            <Col>
+            <Col md="1"><Media object data-src={args.file.location.image} alt="Generic placeholder image" /></Col>
+            <Col md="10" className="align-items-start justify-content-end">
               <CardText>{args.file.name}</CardText>
-              <Row>
-                  <b>{args.file.location.repository}/{args.file.location.owner}</b>{" > "}
+              <Row fluid={true}>
+                  <b>{args.file.location.repository}/{args.file.location.owner}</b><p style = {{
+                    margin: '0em 0.6em 0em 0.6em'
+                  }}>{" > "}</p>
                   <p style={{
                     color: 'var(--link-blue)'
                   }}>{args.file.path}</p>
               </Row>
             </Col>
-            <Row>
-              <Media style = {{
-                backgroundColor: 'var(--light-orange)',
-                height: '1em',
-                width: '1em',
-                borderRadius: '0.5em'
-              }}></Media>
-              <CardText>{args.file.language.name}</CardText>
-            </Row>
+            <Col md="1">
+              <Row className="align-items-center justify-content-center no-gutters">
+                <Col xs="3" className="align-items-flex-end">
+                  <Media style = {{
+                    backgroundColor: args.file.language.color,
+                    height: '1em',
+                    width: '1em',
+                    borderRadius: '0.5em',
+                  }}></Media>
+                </Col>
+                <Col xs="8"><CardText>{args.file.language.name}</CardText></Col>
+              </Row>
+            </Col>
           </Row>
         </CardTitle>
->>>>>>> Stashed changes
         {args.previewSearchResults.map((result, index) => {
           return (
             <SearchResultComponent
