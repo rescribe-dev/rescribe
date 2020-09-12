@@ -22,6 +22,7 @@ const SearchResultComponent = (args: SearchResultCardArgs): JSX.Element => {
         <CardBody>
           {args.preview.startPreviewContent.length > 0 ? (
             <>
+              <CardText>User image</CardText>
               <CardText>name: {args.name}</CardText>
               <CardText>type: {args.type}</CardText>
               <CodeHighlight
