@@ -9,7 +9,8 @@ from logging import Logger
 from typing import cast
 from loguru import logger
 from aiohttp import web
-from get_prediction import main as get_prediction
+from bert.predict.main import main as predict_bert
+from shared.type import NLPType
 
 
 async def index(_request: web.Request) -> web.Response:
@@ -36,19 +37,22 @@ async def ping(_request: web.Request) -> web.Response:
     """
     return web.Response(text='')
 
-QUERY_KEY = 'query'
+
+QUERY_KEY: str = 'query'
+
+# TODO - get correct output, create version for language
 
 
-async def process_input(request: web.Request) -> web.Response:
+async def predict_library(request: web.Request) -> web.Response:
     """
     process nlp input
     """
     json_data = await request.json()
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')
-    results = get_prediction(json_data[QUERY_KEY])
+    predict_bert(json_data[QUERY_KEY], NLPType.language)
     return web.json_response({
-        'matches': results
+        'matches': 'results...'
     })
 
 
@@ -63,7 +67,7 @@ def start_server():
         web.get('/', index),
         web.get('/hello', hello),
         web.get('/ping', ping),
-        web.put('/processInput', process_input)
+        web.put('/predictLibrary', predict_library)
     ])
     logger.info(f'Nlp started: http://localhost:{PORT} 🚀')
     web_logger = cast(Logger, logger)

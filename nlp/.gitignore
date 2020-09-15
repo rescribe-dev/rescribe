@@ -1,9 +1,14 @@
-# ignore credentials and datasets
-bigquery_credentials.json
+# ignore html files
 *.html
 
 # ignore python environment
 envs/
-.model_inputs/
 *.tar.gz
 .idea/
+.vscode/
+
+# ignore built files
+build/
+dist/
+*.egg-info/
+

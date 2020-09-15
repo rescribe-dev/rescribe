@@ -1,3 +1,3 @@
 # deployment
 
-> deployment of nlp model
+> deployment of machine learning

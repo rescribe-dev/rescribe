@@ -3,21 +3,28 @@
 global variables
 """
 
-from typing import List
+dataset_length: int = 10000
+# dataset length verification
+assert(dataset_length % 1000 == 0 and dataset_length >= 5000)
 
-clean_data_folder: str = '../clean_data'
-model_input_path: str = '.model_inputs'
-tarfile_path_model_inputs: str = '../../model_inputs.tar.gz'
-bert_path: str = "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1"
+albert: str = "albert-base-v2"
 max_sequence_length: int = 64
 holdout: float = 0.2
 
-model_output_dir: str = 'saved_model'
-tarfile_model_output_dir: str = '../../saved_model.tar.gz'
+do_lower_case: bool = True
 
 bucket_name: str = 'rescribe-nlp-sagemaker'
 
-questions_file: str = '../datasets/post-questions.csv'
+data_folder: str = 'data'
+datasets_folder: str = 'datasets'
+clean_data_folder: str = 'clean_data'
+models_folder: str = 'models'
 
-deploy_types: List[str] = ['file-content-classifier', 'search-classifier']
-dataload_types: List[str] = [deploy_types[0], deploy_types[1]]
+language_data_folder: str = 'language'
+library_data_folder: str = 'library'
+
+classes_file: str = 'classes.yml'
+checkpoint_file: str = 'cp.ckpt'
+main_data_file: str = 'data_file.csv'
+
+batch_size: int = 32

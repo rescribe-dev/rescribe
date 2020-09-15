@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-config file
-
-reads configuration from environment
+load data into post questions
 """
 
 #################################
@@ -22,21 +20,16 @@ if __name__ == '__main__':
         pass
 #################################
 
-from os import getenv
-from typing import Union
-from shared.config import read_config as read_shared_config
-
-PORT: int = -1
-
-DEFAULT_PORT: int = 8082
+from load.stackoverflow.stackoverflow_load import main as dataload_stackoverflow
+from shared.type import NLPType
 
 
-def read_config() -> None:
+def main():
     """
-    read the config for deployment
+    main function for dataload
     """
-    global PORT
+    dataload_stackoverflow(NLPType.language)
 
-    read_shared_config()
-    env_port: Union[str, None] = getenv('PORT')
-    PORT = DEFAULT_PORT if env_port is None else int(env_port)
+
+if __name__ == '__main__':
+    main()
