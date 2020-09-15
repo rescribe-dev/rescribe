@@ -43,7 +43,7 @@ jobs:
         id: dist
         run: |
           cd nlp
-          ./build.sh nlp/dataprocess/language
+          ./build.sh dataprocess/language
           cd -
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1

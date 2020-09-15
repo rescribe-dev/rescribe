@@ -46,7 +46,7 @@ jobs:
         id: dist
         run: |
           cd nlp
-          ./build.sh nlp/training/bert
+          ./build.sh training/bert
           cd -
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
