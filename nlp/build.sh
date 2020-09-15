@@ -30,7 +30,13 @@ dist_folder="$1"/"dist"
 
 rm -rf "$dist_folder"
 mkdir "$dist_folder"
+# data
 cp -LR "$data_folder" "$dist_folder"
+
+# env
+env_file_name=".global.env"
+cp "$1"/"$env_file_name" "$dist_folder"/.env
+
 working_dir="$dist_folder"/"$1"
 mkdir -p "$working_dir"
 cp -LR "$source_dir" "$working_dir"/"$source_folder"

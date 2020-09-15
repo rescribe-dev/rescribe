@@ -19,9 +19,7 @@ RUN apt-get -y update && apt-get install -y build-essential
 RUN pip install sagemaker-training
 
 # Copy app
-COPY dataprocess/language/dist .
-# copy env file
-COPY dataprocess/language/.global.env dataprocess/language/.env
+COPY dist .
 
 # disregard cache to activate
 ARG CACHEBUST=1

@@ -11,9 +11,7 @@ COPY environment.yml .
 RUN conda env create -f environment.yml
 
 # Copy app
-COPY deployment/dist .
-# copy env file
-COPY deployment/.global.env deployment/.env
+COPY dist .
 
 EXPOSE 8082
 # run environment through conda instead of conda activate
