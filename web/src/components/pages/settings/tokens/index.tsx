@@ -19,6 +19,7 @@ import { toast } from 'react-toastify';
 import { AiFillDelete } from 'react-icons/ai';
 import { useMutation } from '@apollo/react-hooks';
 import DeleteTokenModal from './modals/DeleteTokenModal';
+import { formatDistance } from 'date-fns';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TokensPageDataProps extends PageProps {}
@@ -68,6 +69,15 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
     DeleteTokenMutationVariables
   >(DeleteToken);
 
+  const getExpirationMessage = (expiration: number): string => {
+    const expirationDate = new Date(expiration);
+    const now = new Date();
+    if (expirationDate < now) {
+      return 'expired';
+    }
+    return formatDistance(expiration, now);
+  };
+
   return (
     <>
       <Container
@@ -97,6 +107,9 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
                         <td>
                           <Row>
                             <Col>{token.notes}</Col>
+                            <Col sm={{ size: 'auto' }}>
+                              {getExpirationMessage(token.expires)}
+                            </Col>
                             <Col>
                               <Button
                                 style={{
