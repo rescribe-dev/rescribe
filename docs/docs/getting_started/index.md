@@ -93,7 +93,7 @@ To run the cli:
 6. `npm run build`
 7. `node lib`
 
-Build cli using [these helpful libraries](https://yvonnickfrin.dev/seven-libraries-to-build-nodejs-cli). Use [this](`https://github.com/terkelg/prompts`) to prompt for user input.
+Build cli using [these helpful libraries](https://yvonnickfrin.dev/seven-libraries-to-build-nodejs-cli). Use [this](https://github.com/terkelg/prompts) to prompt for user input.
 
 ### vscode
 
