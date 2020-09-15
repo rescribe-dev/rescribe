@@ -7,7 +7,7 @@ LABEL maintainer="reScribe"
 WORKDIR /app
 
 # Create the environment
-COPY deployment/environment.yml .
+COPY environment.yml .
 RUN conda env create -f environment.yml
 
 # Copy app

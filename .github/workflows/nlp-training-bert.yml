@@ -68,8 +68,7 @@ jobs:
           build_extra_args: --build-arg=CACHEBUST=$(date)
           # change image tag to ${{ github.sha }} if you want
           image_tag: latest
-          context: nlp
-          dockerfile: training/Dockerfile
+          context: nlp/training/bert
       - name: Create conda environment for deploy
         id: create-conda-env-deploy
         run: |

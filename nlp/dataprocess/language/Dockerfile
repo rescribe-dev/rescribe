@@ -7,7 +7,7 @@ LABEL maintainer="reScribe"
 WORKDIR /opt/ml/code/
 
 # Create the environment
-COPY dataprocess/language/environment.yml .
+COPY environment.yml .
 RUN conda env create -f environment.yml
 ARG conda_env=rescribe-nlp-dataprocess-language
 ENV PATH "/opt/conda/envs/$conda_env/bin:$PATH"
