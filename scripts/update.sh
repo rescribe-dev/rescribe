@@ -29,8 +29,8 @@ do
   cd -
 done
 
-python_paths=("nlp/dataload/file-content-classifier" "nlp/dataload/search-classifier" \
-  "nlp/deployment" "nlp/training" "aws/sagemaker/deploy")
+python_paths=("nlp/dataload/language" "nlp/dataload/library" \
+  "nlp/deployment" "nlp/training/bert" "aws/sagemaker/deploy")
 
 source $(conda info --base)/etc/profile.d/conda.sh
 for path in "${python_paths[@]}"

@@ -7,9 +7,9 @@ LABEL maintainer="reScribe"
 WORKDIR /opt/ml/code/
 
 # Create the environment
-COPY training/environment.yml .
+COPY training/bert/environment.yml .
 RUN conda env create -f environment.yml
-ARG conda_env="rescribe-nlp-training"
+ARG conda_env="rescribe-nlp-training-bert"
 ENV PATH "/opt/conda/envs/$conda_env/bin:$PATH"
 
 # install sagemaker dependencies
@@ -19,11 +19,9 @@ RUN apt-get -y update && apt-get install -y build-essential
 RUN pip install sagemaker-training
 
 # Copy app
-COPY training/src src
-# copy symlinks
-COPY deployment/src/shared src/shared
+COPY training/bert/dist .
 # copy env file
-COPY training/.global.env .env
+COPY training/bert/.global.env training/bert/.env
 
 # disregard cache to activate
 ARG CACHEBUST=1
@@ -33,4 +31,4 @@ RUN echo "$CACHEBUST"
 RUN /bin/bash -c "source activate $conda_env"
 
 # Defines train.py as script entrypoint
-ENV SAGEMAKER_PROGRAM src/main.py
+ENV SAGEMAKER_PROGRAM training/bert/src/main.py

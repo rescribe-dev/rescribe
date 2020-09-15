@@ -39,6 +39,12 @@ jobs:
           cd nlp/deployment
           ./precommit.sh
           cd -
+      - name: Generate dist
+        id: precommit
+        run: |
+          cd nlp
+          ./build.sh nlp/deployment
+          cd -
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -58,8 +64,7 @@ jobs:
           image_name: rescribe-nlp
           # change image tag to ${{ github.sha }} if you want
           image_tag: latest
-          context: nlp
-          dockerfile: deployment/Dockerfile
+          context: nlp/deployment
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1

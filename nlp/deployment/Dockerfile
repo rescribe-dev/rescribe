@@ -11,11 +11,11 @@ COPY deployment/environment.yml .
 RUN conda env create -f environment.yml
 
 # Copy app
-COPY deployment/src src
+COPY deployment/dist .
 # copy env file
-COPY deployment/.global.env .env
+COPY deployment/.global.env deployment/.env
 
 EXPOSE 8082
 # run environment through conda instead of conda activate
 # see https://pythonspeed.com/articles/activate-conda-dockerfile/
-ENTRYPOINT ["conda", "run", "-n", "rescribe-nlp-deployment", "python", "src/main.py"]
+ENTRYPOINT ["conda", "run", "-n", "rescribe-nlp-deployment", "python", "deployment/src/main.py"]

@@ -1,11 +1,11 @@
-name: Run NLP Dataload Search Classifier
+name: Run NLP Dataprocess Library
 on:
   push:
     branches:
       - main
     paths:
-      - "nlp/dataload/search-classifier/**"
-      - ".github/workflows/nlp-dataload-search-classifier.yml"
+      - "nlp/dataprocess/library/**"
+      - ".github/workflows/nlp-dataprocess-library.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,14 +30,20 @@ jobs:
             ${{ runner.os }}-pip-
       - name: install dependencies
         run: |
-          cd nlp/dataload/search-classifier
+          cd nlp/dataprocess/library
           conda env create --file ./environment.yml
           cd -
       - name: Run precommit
         id: precommit
         run: |
-          cd nlp/dataload/search-classifier
+          cd nlp/dataprocess/library
           ./precommit.sh
+          cd -
+      - name: Generate dist
+        id: precommit
+        run: |
+          cd nlp
+          ./build.sh nlp/dataprocess/library
           cd -
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -55,13 +61,12 @@ jobs:
           username: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           password: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           registry: ${{ steps.login-ecr.outputs.registry }}
-          image_name: rescribe-nlp-dataload-search-classifier
+          image_name: rescribe-nlp-dataprocess-library
           build_extra_args: --build-arg=CACHEBUST=$(date)
           # change image tag to ${{ github.sha }} if you want
           image_tag: latest
-          context: nlp
-          dockerfile: dataload/search-classifier/Dockerfile
-      - name: Run dataload job
+          context: nlp/dataprocess/library
+      - name: Run dataprocess job
         id: run-job
         env:
           ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
