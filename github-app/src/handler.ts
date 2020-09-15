@@ -1,8 +1,9 @@
 import template from './template';
 import appFunction from './';
 import { createProbot } from 'probot';
-import { OK, INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
+import { EventNames } from '@octokit/webhooks';
 import { appID, webhookSecret, privateKey } from './config';
 
 const lowerCaseKeys = (obj: Record<string, unknown>): Record<string, unknown> =>
@@ -16,7 +17,7 @@ interface GithubData {
 const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayProxyResult> => {
   if (event.httpMethod === 'GET' && event.path === '/') {
     return {
-      statusCode: OK,
+      statusCode: statusCodes.OK,
       headers: {
         'Content-Type': 'text/html'
       },
@@ -51,29 +52,29 @@ const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewa
       })
     };
   }
-  probot.logger.info(`Received event ${e}${body.action ? ('.' + body.action) : ''}`);
+  probot.log.info(`Received event ${e}${body.action ? ('.' + body.action) : ''}`);
   if (event) {
     try {
       await probot.receive({
         id: '',
-        name: e as string,
+        name: e as EventNames.StringNames,
         payload: event.body
       });
       return {
-        statusCode: OK,
+        statusCode: statusCodes.OK,
         body: JSON.stringify({
           message: `Received ${e}.${body.action}`
         })
       };
     } catch (err) {
-      probot.logger.error(err);
+      probot.log.error(err);
       return {
-        statusCode: INTERNAL_SERVER_ERROR,
+        statusCode: statusCodes.INTERNAL_SERVER_ERROR,
         body: JSON.stringify(err)
       };
     }
   } else {
-    probot.logger.error({ event, context });
+    probot.log.error({ event, context });
     return {
       statusCode: 500,
       body: JSON.stringify({
