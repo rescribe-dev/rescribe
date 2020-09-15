@@ -8,7 +8,7 @@ from os import getenv
 from typing import Union
 from dotenv import load_dotenv
 from sagemaker.estimator import Estimator
-from shared.variables import deploy_types
+from shared.type import NLPType
 
 default_instance_type: str = 'ml.m4.xlarge'
 
@@ -30,11 +30,10 @@ def main(role: Union[str, None] = None, deploy_type: Union[str, None] = None, im
     if deploy_type is None:
         deploy_type = getenv('TYPE')
         if deploy_type is not None:
-            if deploy_type not in deploy_types:
-                raise ValueError('invalid type provided')
+            deploy_type_obj = NLPType(deploy_type)
             if hyperparameters is None:
                 hyperparameters = {}
-            hyperparameters['type'] = deploy_type
+            hyperparameters['type'] = deploy_type_obj.name
 
     instance_type: Union[str, None] = getenv('INSTANCE_TYPE')
     if instance_type is None:

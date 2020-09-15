@@ -1,3 +1,3 @@
-# bert
+# training bert
 
-> training for bert models
+> train bert models
