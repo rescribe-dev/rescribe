@@ -43,7 +43,7 @@ jobs:
           ./precommit.sh
           cd -
       - name: Generate dist
-        id: precommit
+        id: dist
         run: |
           cd nlp
           ./build.sh nlp/training/bert
