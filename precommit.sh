@@ -29,7 +29,7 @@ do
   fi
 done
 
-script_paths=("antlr/" "fast/" "nlp/dataload/language/" "nlp/dataload/library/" \
+script_paths=("antlr/" "fast/" "nlp/dataprocess/language/" "nlp/dataprocess/library/" \
   "nlp/deployment/" "nlp/training/bert/" "aws/sagemaker/deploy/")
 
 for path in "${script_paths[@]}"
@@ -49,3 +49,5 @@ cd scripts/precommit
 ./line_endings.sh
 ./check_symlinks.sh
 cd -
+
+git add -A

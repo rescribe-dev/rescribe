@@ -123,10 +123,10 @@ def main(train_type: NLPType, delete_checkpoints: bool = False):
         albert, do_lower_case=do_lower_case, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True)
 
     logger.info("Tokenizing Test / Train Datasets...")
-    [train_input_ids, train_attention_mask,
-        train_token_type_ids] = tokenize(X_train, tokenizer)
-    [test_input_ids, test_attention_mask,
-        test_token_type_ids] = tokenize(X_test, tokenizer)
+    [train_input_ids, train_attention_mask, train_token_type_ids] \
+        = tokenize(X_train, tokenizer)
+    [test_input_ids, test_attention_mask, test_token_type_ids] \
+        = tokenize(X_test, tokenizer)
     logger.info("Creating Model...")
     model = create_model(num_classes)
     model.training = True

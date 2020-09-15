@@ -54,7 +54,7 @@ cd scripts/install
 cd -
 
 # python
-python_paths=("nlp/dataload/language" "nlp/dataload/library" \
+python_paths=("nlp/dataprocess/language" "nlp/dataprocess/library" \
   "nlp/deployment" "nlp/training/bert" "aws/sagemaker/deploy")
 
 for path in "${python_paths[@]}"
