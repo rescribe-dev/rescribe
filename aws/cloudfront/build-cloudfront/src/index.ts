@@ -153,7 +153,7 @@ const runAction = async (): Promise<void> => {
   await clearCloudfront();
 };
 
-if (!module.parent) {
+if (require.main) {
   runAction().then(() => {
     console.log('done with deploy');
   }).catch((err: Error) => {

@@ -236,7 +236,7 @@ const runUpdate = async (): Promise<void> => {
   await writeAllSitemaps();
 };
 
-if (!module.parent) {
+if (require.main) {
   runUpdate().then(() => {
     logger.info('done with update');
     process.exit(0);

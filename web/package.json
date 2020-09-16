@@ -166,8 +166,6 @@
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.12",
     "gatsby-react-router-scroll": "^3.0.13",
     "hex-rgb": "^4.2.0",
-    "jquery": "^3.5.1",
-    "popper.js": "^1.16.1",
     "prettier": "^2.1.1",
     "react-docgen-typescript-loader": "^3.7.2",
     "rgb2hex": "^0.2.0",
