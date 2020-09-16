@@ -7,6 +7,8 @@
     "prisma.vscode-graphql",
     "ms-python.python",
     "sibiraj-s.vscode-scss-formatter",
-    "redhat.vscode-yaml"
+    "redhat.vscode-yaml",
+    "attilabuti.vscode-mjml",
+    "yzhang.markdown-all-in-one"
   ]
 }
