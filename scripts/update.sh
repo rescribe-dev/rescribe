@@ -30,7 +30,8 @@ do
 done
 
 python_paths=("nlp/dataprocess/language" "nlp/dataprocess/library" \
-  "nlp/deployment" "nlp/training/bert" "aws/sagemaker/deploy")
+  "nlp/dataprocess/library_analysis" "nlp/deployment" \
+  "nlp/training/bert" "aws/sagemaker/deploy")
 
 source $(conda info --base)/etc/profile.d/conda.sh
 for path in "${python_paths[@]}"
