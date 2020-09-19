@@ -22,14 +22,15 @@ from shared.variables import data_folder, clean_data_folder, main_data_file, lan
 from clean.utils.clean_utils import library_label_to_numeric, language_label_to_numeric
 
 
-def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: int = 1000) -> pd.DataFrame:
+def dataclean(chunksize: int = 1000) -> pd.DataFrame:
+    DISALLOW_SINGLE_IMPORT_FILES = True
     """
     main datacleaning function
     """
 
     logger.info("Loading Data From Disk")
 
-    folder_name: str = language_data_folder if cleaning_type == NLPType.language else library_data_folder
+    folder_name: str = "library_analysis" #TODO: Hardcoding = bad (grep for other)
 
     df_chunk: Union[pd.DataFrame] = pd.read_csv(
         get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}/{main_data_file}'), chunksize=chunksize)
@@ -39,62 +40,65 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
     output_preview = pd.DataFrame()
     classes: np.ndarray = []
 
-    labelencoder = LabelEncoder()
-    if cleaning_type == NLPType.language:
-        labelencoder.fit(list(languages.keys()))
-    elif cleaning_type == NLPType.library:
-        labelencoder.fit(list(libraries.keys()))
-
     output_folder_path: str = get_file_path_relative(
         f'{data_folder}/{clean_data_folder}/{folder_name}')
     # delete all clean data
     for file_path in glob(join(output_folder_path, '*')):
         remove(file_path)
 
+    id_col= 2
+    lib_name_col = 1
     for i, chunk in enumerate(df_chunk):
         logger.info(f"Starting Batch {i}...")
-        frame = compress_labels(chunk, label_compression_dict)
+        current_file = None
+        list_item = chunk.values
+        output_list = []
+        file_imports = []
+        for row in list_item:
+            if(current_file != row[id_col]):
+                if current_file is None:
+                    current_file = row[id_col]
+                else:
+                    if not (DISALLOW_SINGLE_IMPORT_FILES and len(file_imports) == 1):
+                        output_list.append(' '.join(file_imports))
+                    file_imports.clear()
+                    current_file = row[id_col]
+            file_imports.append((str(row[lib_name_col])[:-1]).strip()) # -1 to get rid of the ; at the end of the line
+        if not (DISALLOW_SINGLE_IMPORT_FILES and len(file_imports) == 1):
+            output_list.append(' '.join(file_imports))
+        arr_out = np.array(output_list)
+        frame = pd.DataFrame(arr_out)
         try:
-            if cleaning_type == NLPType.language:
-                frame, classes = language_label_to_numeric(
-                    frame, labelencoder, str_column="tags", cat_column="tags_cat")
-            elif cleaning_type == NLPType.library:
-                frame, classes = library_label_to_numeric(
-                    frame, labelencoder, str_column="tags", cat_column="tags_cat")
-
             write_path: str = join(output_folder_path, f'{i}.csv')
             logger.info(f"Writing To Disk - {write_path}")
-            frame.to_csv(write_path, index=False)
+            frame.to_csv(write_path, index=False, header=False)
             logger.success("Done\n")
         except Exception as err:
-            logger.error(f"failed to read chunk {i}")
+            logger.error(f"failed to write chunk {i}")
+            logger.error(err)
             continue
 
         # only save first n
         if i < 100:
             output_preview = output_preview.append(
                 frame.head(1), ignore_index=True)
-    yaml_path = get_file_path_relative(
-        f"{data_folder}/{clean_data_folder}/{folder_name}/{classes_file}")
-    with open(yaml_path, 'w') as yaml_file:
-        yaml.dump(classes.tolist(), yaml_file)
+    # yaml_path = get_file_path_relative(
+    #     f"{data_folder}/{clean_data_folder}/{folder_name}/{classes_file}")
+    # with open(yaml_path, 'w') as yaml_file:
+    #     yaml.dump(classes.tolist(), yaml_file)
 
     logger.success("Batched Data Processing Complete\n")
     return output_preview
 
 
-def main(cleaning_type: NLPType):
+def main():
     """
     main clean data script
     """
     logger.info("\n\nInitiating Data Cleaning\n")
 
-    if cleaning_type == NLPType.language:
-        output_preview = dataclean(
-            cleaning_type=cleaning_type, label_compression_dict=languages)
-    elif cleaning_type == NLPType.library:
-        output_preview = dataclean(
-            cleaning_type=cleaning_type, label_compression_dict=libraries)
+    
+    output_preview = dataclean()
     logger.info("\n\nSample Constructed From Processed Batches\n")
     logger.info("\nMETADATA:\n" + str(output_preview.dtypes))
     logger.info(f"\n {str(output_preview.sample(5))}\n")
@@ -102,6 +106,4 @@ def main(cleaning_type: NLPType):
 
 
 if __name__ == '__main__':
-    if len(argv) < 2:
-        raise ValueError('no nlp type provided')
-    main(NLPType(argv[1]))
+    main()

@@ -111,8 +111,14 @@ LIMIT
   {dataset_length};
     """
 
-    imports_frame: DataFrame = data.query_to_pandas(query)
-
+    unsanitary_imports_frame: DataFrame = data.query_to_pandas(query)
+    imports_list = []
+    for j, k in unsanitary_imports_frame.iterrows():
+        j = k['cut_line']
+        k = k['id']
+        # print(str(j) + "\t" + str(k))
+        imports_list.append([ (str(j)).strip() , k])
+    imports_frame = DataFrame(imports_list)
     questions_file_abs = join(data_folder_path, main_data_file)
 
     logger.info(f"Writing to Local Disk - {questions_file_abs}")

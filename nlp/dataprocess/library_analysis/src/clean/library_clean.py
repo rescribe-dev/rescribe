@@ -21,14 +21,13 @@ if __name__ == '__main__':
 #################################
 
 from clean.stackoverflow.stackoverflow_clean import main as dataclean
-from shared.type import NLPType
 
 
 def main():
     """
     main clean data script
     """
-    dataclean(NLPType.library)
+    dataclean()
 
 
 if __name__ == '__main__':
