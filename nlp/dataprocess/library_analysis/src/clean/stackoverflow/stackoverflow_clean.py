@@ -8,7 +8,8 @@ import pandas as pd
 import numpy as np
 from sys import argv
 from glob import glob
-from os import remove
+from os import remove, makedirs as create_folder
+from shutil import rmtree as delete_folder
 from os.path import join
 from loguru import logger
 import yaml
@@ -43,6 +44,11 @@ def dataclean(chunksize: int = 1000) -> pd.DataFrame:
     output_folder_path: str = get_file_path_relative(
         f'{data_folder}/{clean_data_folder}/{folder_name}')
     # delete all clean data
+    try:
+        delete_folder(output_folder_path)
+    except Exception:
+        pass
+    create_folder(output_folder_path)
     for file_path in glob(join(output_folder_path, '*')):
         remove(file_path)
 

@@ -20,8 +20,8 @@ if __name__ == '__main__':
         pass
 #################################
 
-from os import getenv, remove
-from os.path import exists, basename, join
+from os import getenv, remove, makedirs
+from os.path import exists, basename, join, dirname
 from typing import Union, List, Dict
 from pandas import DataFrame
 from loguru import logger
@@ -122,6 +122,9 @@ LIMIT
     questions_file_abs = join(data_folder_path, main_data_file)
 
     logger.info(f"Writing to Local Disk - {questions_file_abs}")
+
+    if not exists(dirname(questions_file_abs)):
+        makedirs(dirname(questions_file_abs))
     imports_frame.to_csv(questions_file_abs)
 
     if PRODUCTION:
