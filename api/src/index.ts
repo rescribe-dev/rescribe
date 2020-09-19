@@ -72,7 +72,7 @@ const runAPI = async (): Promise<void> => {
   }
 };
 
-if (require.main) {
+if (require.main === module) {
   runAPI();
 }
 

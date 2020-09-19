@@ -14,7 +14,7 @@ const runCLI = async (): Promise<void> => {
   await startCLI();
 };
 
-if (require.main) {
+if (require.main === module) {
   runCLI();
 }
 

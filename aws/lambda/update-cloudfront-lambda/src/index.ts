@@ -103,7 +103,7 @@ const runAction = async (): Promise<void> => {
   await updateCloudfront(arn, cloudfrontID, lambdaType);
 };
 
-if (require.main) {
+if (require.main === module) {
   runAction().then(() => {
     console.log('done with cloudfront lambda deploy');
   }).catch((err: Error) => {
