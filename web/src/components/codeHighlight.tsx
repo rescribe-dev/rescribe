@@ -1,4 +1,5 @@
 import React from 'react';
+import {Row, Col} from 'reactstrap'
 import Highlight, {
   defaultProps as defaultHighlightProps,
   Language,
@@ -33,28 +34,28 @@ const CodeHighlight = (args: {
           }}
         >
           {tokens.map((line, i) => (
-            <div //The line of Code (Prism handles all of this)
-              key={i}
+            <Row //The line of Code (Prism handles all of this)
               style={{
-                display: 'table-row',
+                margin: '0px'
               }}
-              {...getLineProps({ line, key: i })}
+              key={i}
             >
-              <span //The line number
+              <Col xs="1"//The line number
                 css={{
                   display: 'table-cell',
-                  textAlign: 'right',
+                  textAlign: 'center',
                   paddingRight: '1em',
                   userSelect: 'none',
                   opacity: '0.5',
                 }}
                 style = {{
-                  color: 'var(--line-num)'
+                  color: 'var(--line-num)',
+                  width: '4em'
                 }}
               >
                 <b>{i + 1 + args.startIndex}</b>
-              </span>
-              <span //The normal code on the page
+              </Col>
+              <Col md="7"//The normal code on the page
                 style={{
                   display: 'inline',
                   paddingLeft: '4em',
@@ -63,8 +64,8 @@ const CodeHighlight = (args: {
                 {line.map((token, key) => (
                   <span key={key} {...getTokenProps({ token, key })} />
                 ))}
-              </span>
-            </div>
+              </Col>
+            </Row>
           ))}
         </pre>
       )}

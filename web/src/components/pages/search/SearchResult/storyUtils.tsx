@@ -13,12 +13,12 @@ export const defaultEndPreview = `public class Later {
   }
 }`;
 
-export const getPreviewData = (previewText: string): PreviewFieldsFragment => {
+export const getPreviewData = (previewText: string, endviewText: string): PreviewFieldsFragment => {
   const splitText = previewText.split('\n');
-  const endSplit = defaultEndPreview.split('\n');
+  const endSplit = endviewText.split('\n');
   return {
     startPreviewLineNumber: 0,
-    endPreviewLineNumber: splitText.length+5,
+    endPreviewLineNumber: splitText.length+10,
     startPreviewContent: splitText,
     endPreviewContent: endSplit,
   };
