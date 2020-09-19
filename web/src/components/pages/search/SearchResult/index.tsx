@@ -4,6 +4,7 @@ import { ResultType, PreviewFieldsFragment } from 'lib/generated/datamodel';
 import './styles.scss';
 import { Link } from 'gatsby';
 import CodeHighlight, { ExtendedLanguage } from 'components/codeHighlight';
+import {Col, Row} from 'reactstrap';
 
 export interface SearchResultCardArgs {
   name: string;
@@ -19,17 +20,40 @@ const SearchResultComponent = (args: SearchResultCardArgs): JSX.Element => {
   return (
     <Container>
       <Card>
+        <CardText>name: {args.name}</CardText>
+        <CardText>type: {args.type}</CardText>
         <CardBody>
           {args.preview.startPreviewContent.length > 0 ? (
             <>
-              <CardText>name: {args.name}</CardText>
-              <CardText>type: {args.type}</CardText>
               <CodeHighlight
                 startIndex={args.preview.startPreviewLineNumber}
                 code={args.preview.startPreviewContent}
                 language={args.language}
               />
-              <Link to="/search#">...</Link>
+              <Row style={{
+                margin: "0em 0em",
+                padding: "0.2em 0.5em"
+              }}>
+                <Col md="2" style={{
+                  padding: "0em 15px 0em 0em"
+                }}>
+                  <p style={{
+                    margin: '0px'
+                  }}>∧</p><p style={{
+                    margin: '0px'
+                  }}>∨</p> 
+                </Col>
+                <Col md="6" style={{
+                  display: "flex",
+                  flexFlow: "column nowrap",
+                  justifyContent: "center"
+                }}>
+                  <Link to="/search#" style={{
+                    fontSize: "2em",
+                    fontWeight: "bolder"
+                  }}>...</Link>
+                </Col>
+              </Row>
               {args.preview.endPreviewContent.length > 0 ? (
                 <CodeHighlight
                   startIndex={args.preview.endPreviewLineNumber}

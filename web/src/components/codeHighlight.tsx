@@ -20,26 +20,27 @@ const CodeHighlight = (args: {
       theme={githubTheme}
     >
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <pre
+        <pre //The box containing it all
           className={className}
           style={{
             ...style,
             textAlign: 'left',
-            margin: '1em 0',
-            padding: '0.5em',
-            overflow: 'scroll',
+            margin: '0.2em 0',
+            padding: '0.1em',
+            overflow: 'hideen',
             backgroundColor: 'var(--code-bg)',
+            boxSizing: 'initial'
           }}
         >
           {tokens.map((line, i) => (
-            <div
+            <div //The line of Code (Prism handles all of this)
               key={i}
               style={{
                 display: 'table-row',
               }}
               {...getLineProps({ line, key: i })}
             >
-              <span
+              <span //The line number
                 css={{
                   display: 'table-cell',
                   textAlign: 'right',
@@ -47,13 +48,16 @@ const CodeHighlight = (args: {
                   userSelect: 'none',
                   opacity: '0.5',
                 }}
+                style = {{
+                  color: 'var(--line-num)'
+                }}
               >
                 <b>{i + 1 + args.startIndex}</b>
               </span>
-              <span
+              <span //The normal code on the page
                 style={{
                   display: 'inline',
-                  paddingLeft: '1em',
+                  paddingLeft: '4em',
                 }}
               >
                 {line.map((token, key) => (
