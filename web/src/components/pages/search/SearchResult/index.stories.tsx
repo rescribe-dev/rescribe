@@ -11,7 +11,6 @@ import { defaultPreview, getPreviewData } from '../FileResult/storyUtils';
 const languageOptions: ExtendedLanguage[] = ['java'];
 
 export const SearchResult = (): JSX.Element => {
-  const previewText = text('preview', defaultPreview);
   return wrapRootElement({
     element: (
       <SearchResultComponent
@@ -22,7 +21,7 @@ export const SearchResult = (): JSX.Element => {
           languageOptions[0]
         )}
         type={ResultType.Function}
-        preview={getPreviewData(previewText)}
+        preview={getPreviewData(defaultPreview)}
       />
     ),
   });

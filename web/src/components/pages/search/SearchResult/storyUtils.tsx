@@ -3,7 +3,7 @@ import { PreviewFieldsFragment } from 'lib/generated/datamodel';
 export const defaultPreview = `package test;
 public class Test {
   public static void main(String[] args) {
-    System.out.println("Hello World!");
+    Later.hello();
   }
 }`;
 
@@ -18,7 +18,7 @@ export const getPreviewData = (previewText: string): PreviewFieldsFragment => {
   const endSplit = defaultEndPreview.split('\n');
   return {
     startPreviewLineNumber: 0,
-    endPreviewLineNumber: splitText.length,
+    endPreviewLineNumber: splitText.length+5,
     startPreviewContent: splitText,
     endPreviewContent: endSplit,
   };

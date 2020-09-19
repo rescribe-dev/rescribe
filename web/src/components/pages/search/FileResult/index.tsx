@@ -97,17 +97,6 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                 </Col>
               </Row>
             </Col>
-            <Row>
-              <Media
-                style={{
-                  backgroundColor: 'var(--light-orange)',
-                  height: '1em',
-                  width: '1em',
-                  borderRadius: '0.5em',
-                }}
-              ></Media>
-              <CardText>{args.file.language.name}</CardText>
-            </Row>
           </Row>
         </CardTitle>
         {args.previewSearchResults.map((result, index) => {
