@@ -38,7 +38,7 @@ const runUpdate = async (): Promise<void> => {
   await updateAllCurrencies();
 };
 
-if (require.main) {
+if (require.main === module) {
   runUpdate().then(() => {
     logger.info('done with update');
     process.exit(0);
