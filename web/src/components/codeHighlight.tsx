@@ -1,4 +1,5 @@
 import React from 'react';
+import {Row, Col} from 'reactstrap'
 import Highlight, {
   defaultProps as defaultHighlightProps,
   Language,
@@ -20,47 +21,51 @@ const CodeHighlight = (args: {
       theme={githubTheme}
     >
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <pre
+        <pre //The box containing it all
           className={className}
           style={{
             ...style,
             textAlign: 'left',
-            margin: '1em 0',
-            padding: '0.5em',
-            overflow: 'scroll',
+            margin: '0.2em 0',
+            padding: '0.1em',
+            overflow: 'hideen',
             backgroundColor: 'var(--code-bg)',
+            boxSizing: 'initial'
           }}
         >
           {tokens.map((line, i) => (
-            <div
-              key={i}
+            <Row //The line of Code (Prism handles all of this)
               style={{
-                display: 'table-row',
+                margin: '0px'
               }}
-              {...getLineProps({ line, key: i })}
+              key={i}
             >
-              <span
+              <Col xs="1"//The line number
                 css={{
                   display: 'table-cell',
-                  textAlign: 'right',
+                  textAlign: 'center',
                   paddingRight: '1em',
                   userSelect: 'none',
                   opacity: '0.5',
                 }}
+                style = {{
+                  color: 'var(--line-num)',
+                  width: '4em'
+                }}
               >
                 <b>{i + 1 + args.startIndex}</b>
-              </span>
-              <span
+              </Col>
+              <Col md="7"//The normal code on the page
                 style={{
                   display: 'inline',
-                  paddingLeft: '1em',
+                  paddingLeft: '4em',
                 }}
               >
                 {line.map((token, key) => (
                   <span key={key} {...getTokenProps({ token, key })} />
                 ))}
-              </span>
-            </div>
+              </Col>
+            </Row>
           ))}
         </pre>
       )}

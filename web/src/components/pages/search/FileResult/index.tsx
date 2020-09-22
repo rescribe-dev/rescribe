@@ -85,7 +85,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                 <Col xs="3" className="align-items-flex-end">
                   <Media
                     style={{
-                      backgroundColor: args.file.language.color,
+                      backgroundColor: args.file.language.darkColor,
                       height: '1em',
                       width: '1em',
                       borderRadius: '0.5em',
@@ -97,17 +97,6 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                 </Col>
               </Row>
             </Col>
-            <Row>
-              <Media
-                style={{
-                  backgroundColor: 'var(--light-orange)',
-                  height: '1em',
-                  width: '1em',
-                  borderRadius: '0.5em',
-                }}
-              ></Media>
-              <CardText>{args.file.language.name}</CardText>
-            </Row>
           </Row>
         </CardTitle>
         {args.previewSearchResults.map((result, index) => {

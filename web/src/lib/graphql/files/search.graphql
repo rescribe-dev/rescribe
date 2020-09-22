@@ -34,7 +34,8 @@ fragment fileFields on FileResult {
   }
   language {
     name
-    color
+    lightColor
+    darkColor
   }
   lines {
     start

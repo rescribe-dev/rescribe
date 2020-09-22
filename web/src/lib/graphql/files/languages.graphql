@@ -1,6 +1,7 @@
 fragment languageFields on LanguageData {
   name
-  color
+  lightColor
+  darkColor
 }
 
 query languages {
