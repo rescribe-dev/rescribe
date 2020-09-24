@@ -17,7 +17,7 @@ for file in files:
         data.append(l.split(" "))
 
 # Create CBOW model
-model1 = gensim.models.Word2Vec(data, min_count=1, size=100, window=5)
+model1 = gensim.models.Word2Vec(data, min_count=1, size=10, window=3)
 
 # Print results
 java_lib_list = 'java.util.List'
@@ -25,11 +25,11 @@ java_lib_arrlist = 'java.util.ArrayList'
 java_lib_jframe = "javax.swing.JFrame"
 print("Cosine similarity between {java_lib_list} " +
       "and {java_lib_arrlist} - CBOW : ",
-      model1.similarity(java_lib_list, java_lib_arrlist))
+      model1.wv.similarity(java_lib_list, java_lib_arrlist))
 
 print("Cosine similarity between {java_lib_jframe} " +
       "and {java_lib_jframe} - CBOW : ",
-      model1.similarity(java_lib_list, java_lib_jframe))
+      model1.wv.similarity(java_lib_list, java_lib_jframe))
 
 # Create Skip Gram model
 # model2 = gensim.models.Word2Vec(data, min_count = 1, size = 100,
