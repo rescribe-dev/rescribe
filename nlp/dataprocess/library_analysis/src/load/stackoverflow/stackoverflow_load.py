@@ -100,18 +100,17 @@ def dataload(dataset_length: int = default_dataset_length) -> DataFrame:
     query: str = f"""
     #
     SELECT
-      substr(line, 7) cut_line, id
+      content, id, REGEXP_EXTRACT(sample_path,"[A-Z a-z 0-9]+\\.java") filename
     FROM
-      `bigquery-public-data.github_repos.sample_contents` CROSS JOIN unnest(SPLIT(content, '\\n')) line
-    WHERE REGEXP_CONTAINS(content, 'import')
-      AND sample_path LIKE '%.java' 
-    and substr(line, 1,6)='import'
+      `bigquery-public-data.github_repos.sample_contents`
+    WHERE sample_path LIKE '%.java'
 ORDER BY id desc
 LIMIT
   {dataset_length};
     """
 
     unsanitary_imports_frame: DataFrame = data.query_to_pandas(query)
+    
     imports_list = []
     for j, k in unsanitary_imports_frame.iterrows():
         j = k['cut_line']
