@@ -20,15 +20,18 @@ if __name__ == '__main__':
         pass
 #################################
 
+from asyncio import get_event_loop
 from clean.stackoverflow.stackoverflow_clean import main as dataclean
+from clean.github.github_clean import main as clean
 
-
-def main():
+async def main():
     """
     main clean data script
     """
-    dataclean()
+    # dataclean()
+    await clean()
 
 
 if __name__ == '__main__':
-    main()
+    loop  = get_event_loop()
+    loop.run_until_complete(main())

@@ -22,6 +22,7 @@ models_folder: str = 'models'
 
 language_data_folder: str = 'language'
 library_data_folder: str = 'library'
+library_analysis_data_folder: str = 'library_analysis'
 
 classes_file: str = 'classes.yml'
 checkpoint_file: str = 'cp.ckpt'
