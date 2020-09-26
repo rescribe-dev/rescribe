@@ -6,7 +6,9 @@ parse out all of the import statements from the incoming JSON files
 
 import json
 from glob import glob
+from pprint import pprint
 from loguru import logger
+from os.path import join
 from typing import Dict, List
 from aiohttp import ClientSession
 from asyncio import get_event_loop
@@ -18,8 +20,20 @@ async def fetch(session: ClientSession, url: str):
     async with session.get(url) as response:
         return await response.text()
 
-async def post(session: ClientSession, url: str, dataformat: Dict):
-    pass
+async def post(session: ClientSession, url: str, filepath: str):
+    contents = None
+    with open(filepath, 'r') as file:
+        contents = str(file.read())
+    
+    request = {
+        "id": "testid",
+        "path": filepath,
+        "fileName": filepath.split('/')[-1],
+        "content": contents
+    }
+    async with session.post(url, json=request) as response:
+        return await response.text()
+    
 
 async def main():# main(extensions: List[FileExtensions]):
     extensions = [FileExtensions.java, FileExtensions.cpp]
@@ -28,15 +42,17 @@ async def main():# main(extensions: List[FileExtensions]):
     filepaths: List[str] = []
     for item in extensions:
         for extension in item.value:
-            filepaths += list_files(data_path, extension)
+            filepaths += [join(data_path, x) for x in list_files(data_path, extension)]
             # extension = 'java' or 'cpp'
-            print(extension)
-    # dataformat: Dict = {
-    #     path: clean
-    # } 
+
+    imports = []
     async with ClientSession() as session:
-        html = await fetch(session, 'http://python.org')
-        # print(html)
+        for filepath in filepaths:
+            parsed_file = await post(session, "http://localhost:8081/processFile", filepath)
+            json_data = json.loads(parsed_file)
+            import_statements = [x["path"] + '.' + x["selection"] for x in json_data["imports"]]
+            imports.append(import_statements)
+    logger.info(f"Imports: {imports}")
 
 if __name__ == "__main__":
     extensions = [FileExtensions.java]
