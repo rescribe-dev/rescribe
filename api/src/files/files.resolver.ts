@@ -19,6 +19,8 @@ import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';
 import { queryMinLength } from '../shared/variables';
 import { Language } from '../schema/misc/language';
+import { predictLanguage } from '../nlp/nlpBridge';
+import { pairwiseDifferece } from '../utils/math';
 
 const logger = getLogger();
 
@@ -26,6 +28,7 @@ const maxPerPage = 20;
 const projectsMaxLength = 5;
 const repositoriesMaxLength = 5;
 const branchesMaxLength = 5;
+const minPairwiseDifference = 0.1;
 
 @ArgsType()
 export class FilesArgs {
@@ -266,13 +269,38 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   }
 
   const languageFilters: TermQuery[] = [];
-  if (!oneFile && args.languages && args.languages.length > 0) {
-    for (const language of args.languages) {
-      languageFilters.push({
-        term: {
-          language
+  if (!oneFile) {
+    if (args.languages) {
+      if (args.languages.length > 0) {
+        for (const language of args.languages) {
+          languageFilters.push({
+            term: {
+              language
+            }
+          });
         }
+      }
+    } else if (args.query) {
+      // get the language from nlp
+      const languagePrediction = await predictLanguage({
+        query: args.query
       });
+      if (languagePrediction.data.length > 0) {
+        const scores = languagePrediction.data.map(elem => elem.score);
+        const pairwiseDiff = pairwiseDifferece(scores);
+        if (pairwiseDiff > minPairwiseDifference) {
+          // TODO - change to have a weight for all the languages
+          const bestLanguage = languagePrediction.data.reduce((prev, elem) => elem.score > prev.score ? elem : prev, {
+            language: Language.none,
+            score: 0
+          });
+          languageFilters.push({
+            term: {
+              language: bestLanguage.language
+            }
+          });
+        }
+      }
     }
   }
 

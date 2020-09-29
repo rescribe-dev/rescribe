@@ -27,11 +27,11 @@ from config import read_config
 from transformers import AlbertTokenizer
 from tensorflow.keras.models import Model
 from shared.type import NLPType
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 from bert.predict.tokenize import tokenize
 
 
-def main(query: str, predict_type: NLPType) -> None:
+def main(query: str, predict_type: NLPType) -> str:
     """
     Prediction
     """
@@ -41,16 +41,19 @@ def main(query: str, predict_type: NLPType) -> None:
         from initialize_models import language_model as model_data
     else:
         from initialize_models import library_model as model_data
-    logger.info(f"Model Data: {model_data}")
     for elem in model_data:
         if elem is None:
             raise RuntimeError('model is not initialized')
     model: Model = model_data[0]
     tokenizer: AlbertTokenizer = model_data[1]
     [input_ids, input_mask, token_type_ids] = tokenize([query], tokenizer)
-    prediction = model.predict([input_ids, input_mask, token_type_ids])
+    confidence: List[float] = model.predict(
+        [input_ids, input_mask, token_type_ids]).tolist()[0]
     classes: List[str] = model_data[2]
-    logger.error(f"Prediction output: {classes(max(prediction[0]))}")
+    res: List[Tuple[str, float]] = [(classes[i], conf)
+                                    for i, conf in enumerate(confidence)]
+    res.sort(key=lambda tup: tup[1], reverse=True)
+    return res
 
 
 if __name__ == "__main__":
@@ -59,14 +62,11 @@ if __name__ == "__main__":
     read_config()
     predict_type = NLPType(argv[1])
     initialize_models(predict_type)
-    query = "python"
-    logger.info(f"{query}:\n{main(query, predict_type)}")
-    query = "how do you make a class in C++"
-    logger.info(f"{query}:\n{main(query, predict_type)}")
-    query = "how to create a webpage in java"
-    logger.info(f"{query}:\n{main(query, predict_type)}")
-    query = "List COMPREHENSION"
-    logger.info(f"{query}:\n{main(query, predict_type)}")
-    query = "I'm Litera11y 7r0llING"
-    logger.info(f"{query}:\n{main(query, predict_type)}")
-    # create_roc_curve(model, [test_input_ids, test_attention_mask, test_token_type_ids], y_test, '1.png', '2.png')
+    input_dict: Dict[NLPType, List[str]] = {
+        NLPType.library: [],
+        NLPType.language: ["python", "how do you make a class in C++",
+                           "how to create a webpage in java", "List COMPREHENSION",
+                           "I'm Litera11y 7r0llING"]
+    }
+    for query in input_dict[predict_type]:
+        logger.info(f"{query}: {main(query, predict_type)}")
