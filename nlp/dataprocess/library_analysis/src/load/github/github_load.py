@@ -31,10 +31,12 @@ from load.bigquery.big_query_helper import BigQueryHelper as bqh
 from load.bigquery.get_bigquery_credentials import main as get_bigquery_credentials
 from shared.utils import get_file_path_relative
 from glob import glob
+from bigquery.get_bigquery_credentials import create_bigquery_client
+from shared.config import PRODUCTION
 from shared.type import NLPType
 from shared.variables import bucket_name, dataset_length as default_dataset_length, \
     data_folder, main_data_file, \
-    datasets_folder
+    datasets_folder, type_path_dict
 
 credentials_file: str = 'load/bigquery/bigquery_credentials.json'
 
@@ -62,23 +64,9 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     """
     externally callable version of the main dataload function
     """
-    from shared.config import PRODUCTION
+    folder_name: str = type_path_dict[dataload_type]
 
-    folder_name: str = dataload_type.name
-
-    credentials_file_path = get_file_path_relative(
-        f'dataprocess/{folder_name}/src/{credentials_file}')
-    if not exists(credentials_file_path):
-        environment_data: Union[str, None] = getenv('BIGQUERY_CREDENTIALS')
-        if environment_data is None:
-            if not PRODUCTION:
-                raise ValueError(
-                    'cannot find big query credentials in ' + str(credentials_file_path))
-            environment_data = get_bigquery_credentials()
-        with open(credentials_file_path, 'w') as credentials_file_object:
-            credentials_file_object.write(environment_data)
-    client: bigquery.Client = bigquery.Client.from_service_account_json(
-        credentials_file_path)
+    client = create_bigquery_client(dataload_type)
 
     data = bqh(active_project="bigquery-public-data",
                dataset_name="github",
@@ -129,13 +117,13 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     return imports_frame
 
 
-def main():
+def main(dataload_type: NLPType):
     """
     main dataload function
     """
     logger.info("\n\nInitiating Data Load\n")
 
-    imports_frame: DataFrame = dataload()
+    imports_frame: DataFrame = dataload(dataload_type)
 
     logger.info("\nMETADATA:\n" + str(imports_frame.dtypes))
     logger.info(f"Number of rows: {len(imports_frame)}")
@@ -144,4 +132,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(NLPType.library_analysis)

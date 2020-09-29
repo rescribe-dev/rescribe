@@ -2,6 +2,7 @@
 """
 global variables
 """
+from typing import Dict
 from shared.type import NLPType
 
 dataset_length: int = 10000
@@ -22,12 +23,14 @@ datasets_folder: str = 'datasets'
 clean_data_folder: str = 'clean_data'
 models_folder: str = 'models'
 
-language_data_folder: str = NLPType.language
-library_data_folder: str = NLPType.library
-library_analysis_data_folder: str = NLPType.library_analysis
-
 classes_file: str = 'classes.yml'
 checkpoint_file: str = 'cp.ckpt'
 main_data_file: str = 'data_file.csv'
 
 batch_size: int = 32
+
+type_path_dict: Dict[NLPType, str] = {
+    NLPType.language: 'language',
+    NLPType.library: 'library',
+    NLPType.library_analysis: 'library_analysis'
+}
