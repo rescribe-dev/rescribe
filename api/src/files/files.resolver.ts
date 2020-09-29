@@ -291,12 +291,12 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         if (pairwiseDiff > minPairwiseDifference) {
           // TODO - change to have a weight for all the languages
           const bestLanguage = languagePrediction.data.reduce((prev, elem) => elem.score > prev.score ? elem : prev, {
-            language: Language.none,
+            name: Language.none,
             score: 0
           });
           languageFilters.push({
             term: {
-              language: bestLanguage.language
+              language: bestLanguage.name
             }
           });
         }

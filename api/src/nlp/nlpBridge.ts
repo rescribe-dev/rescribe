@@ -9,20 +9,26 @@ const logger = getLogger();
 
 let nlpClient: AxiosInstance;
 
+const defaultLimitPredict = 5;
+
 interface NLPPredictLanguageOutput {
   data: {
-    language: Language;
+    name: Language;
     score: number;
   }[];
 };
 
 interface NLPPredictLanguageInput {
-  query: string
+  query: string,
+  limit?: number;
 };
 
 const pingRetryAfter = 5;
 
 export const predictLanguage = async(input: NLPPredictLanguageInput): Promise<NLPPredictLanguageOutput> => {
+  if (!input.limit) {
+    input.limit = defaultLimitPredict;
+  }
   const processOutput = await nlpClient.put<NLPPredictLanguageOutput>('/predictLanguage', input);
   if (!processOutput.data) {
     throw new Error('cannot find predict language data');
