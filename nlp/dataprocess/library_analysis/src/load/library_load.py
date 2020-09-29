@@ -20,7 +20,7 @@ if __name__ == '__main__':
         pass
 #################################
 
-from load.stackoverflow.stackoverflow_load import main as dataload_stackoverflow
+from load.github.github_load import main as dataload_github
 # from shared.type import NLPType
 
 

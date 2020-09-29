@@ -67,7 +67,7 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     """
     from shared.config import PRODUCTION
 
-    folder_name: str = language_data_folder if dataload_type == NLPType.language else library_data_folder
+    folder_name: str = dataload_type.name
 
     credentials_file_path = get_file_path_relative(
         f'dataprocess/{folder_name}/src/{credentials_file}')

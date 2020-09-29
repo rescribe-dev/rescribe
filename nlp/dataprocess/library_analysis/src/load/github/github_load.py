@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-load data into post questions
+load data from github 
 """
 
 #################################
@@ -31,6 +31,7 @@ from load.bigquery.big_query_helper import BigQueryHelper as bqh
 from load.bigquery.get_bigquery_credentials import main as get_bigquery_credentials
 from shared.utils import get_file_path_relative
 from glob import glob
+from shared.type import NLPType
 from shared.variables import bucket_name, dataset_length as default_dataset_length, \
     data_folder, main_data_file, \
     datasets_folder
@@ -57,14 +58,13 @@ def sanitize_regex_str(input_str: str) -> str:
     return input_str.replace('+', '\\+')
 
 
-def dataload(dataset_length: int = default_dataset_length) -> DataFrame:
+def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_length) -> DataFrame:
     """
     externally callable version of the main dataload function
     """
     from shared.config import PRODUCTION
 
-    # folder_name: str = language_data_folder if dataload_type == NLPType.language else library_data_folder
-    folder_name: str = "library_analysis"
+    folder_name: str = dataload_type.name
 
     credentials_file_path = get_file_path_relative(
         f'dataprocess/{folder_name}/src/{credentials_file}')
@@ -91,11 +91,6 @@ def dataload(dataset_length: int = default_dataset_length) -> DataFrame:
     for file_path in glob(join(data_folder_path, '*.csv')):
         remove(file_path)
 
-    # tag_matching = get_values_concat(
-    #     libraries if dataload_type == NLPType.library else languages)
-    # tags_regex = sanitize_regex_str(
-    #     '|'.join(map(lambda tag: tag + '[\\||$]', tag_matching)))
-    # conditional: str = f'accepted_answer_id IS NOT NULL AND tags IS NOT NULL AND REGEXP_CONTAINS(tags, r"({tags_regex})")'
 
     query: str = f"""
     #
@@ -104,9 +99,10 @@ def dataload(dataset_length: int = default_dataset_length) -> DataFrame:
     FROM
       `bigquery-public-data.github_repos.sample_contents`
     WHERE sample_path LIKE '%.java'
-ORDER BY id desc
-LIMIT
-  {dataset_length};
+    ORDER BY 
+        id desc
+    LIMIT
+        {dataset_length};
     """
 
     unsanitary_imports_frame: DataFrame = data.query_to_pandas(query)
@@ -115,8 +111,8 @@ LIMIT
     for j, k in unsanitary_imports_frame.iterrows():
         j = k['cut_line']
         k = k['id']
-        # print(str(j) + "\t" + str(k))
         imports_list.append([ (str(j)).strip() , k])
+
     imports_frame = DataFrame(imports_list)
     questions_file_abs = join(data_folder_path, main_data_file)
 
@@ -148,6 +144,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # if len(argv) < 2:
-    #     raise ValueError('no nlp type provided')
     main()

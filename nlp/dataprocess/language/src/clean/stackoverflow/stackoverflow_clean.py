@@ -29,7 +29,7 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
 
     logger.info("Loading Data From Disk")
 
-    folder_name: str = language_data_folder if cleaning_type == NLPType.language else library_data_folder
+    folder_name: str = cleaning_type.name
 
     df_chunk: Union[pd.DataFrame] = pd.read_csv(
         get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}/{main_data_file}'), chunksize=chunksize)
