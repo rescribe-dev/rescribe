@@ -99,8 +99,3 @@ Authentication
 fix the repositories page
 add more information to the user profile page
 create a new graphql endpoint to count the number of repos and projects there are
-
-
-
-
-
