@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Container, Jumbotron, Row } from 'reactstrap';
+import { Button, Col, Container, Row } from 'reactstrap';
 import { PageProps, navigate } from 'gatsby';
 
 import './index.scss';
@@ -20,11 +20,9 @@ import { getErrorCode } from 'utils/misc';
 import { toast } from 'react-toastify';
 import statusCodes from 'http-status-codes';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { HelmetProvider } from 'react-helmet-async';
-import autoMergeLevel1 from 'redux-persist/es/stateReconciler/autoMergeLevel1';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserPageDataProps extends PageProps { }
+export interface UserPageDataProps extends PageProps {}
 
 interface UserProps extends UserPageDataProps {
   messages: UserMessages;
@@ -41,8 +39,8 @@ const UserPage = (args: UserProps): JSX.Element => {
   const currentUser = isSSR
     ? undefined
     : useSelector<RootState, UserFieldsFragment | undefined>(
-      (state) => state.authReducer.user
-    );
+        (state) => state.authReducer.user
+      );
   const [user, setUser] = useState<PublicUserFieldsFragment | undefined>(
     undefined
   );
@@ -81,78 +79,88 @@ const UserPage = (args: UserProps): JSX.Element => {
         {user === undefined ? (
           <div>loading</div>
         ) : (
-            <div>
-              <Container>
-                <Row>
-                  <Col md='4'>
-                    <Row className="text-center">
-                      <Col>
-                        <Container style={{
-                          marginBottom: '2rem'
-                        }}>
-                          <LazyLoadImage
-                            src={'https://i.stack.imgur.com/frlIf.png'}
-                            style={{
-                              borderRadius: '50%'
-                            }}
-                          />
-                        </Container>
-                      </Col>
-                    </Row>
-                    <Row className="text-center">
-                      <Col>
-                        <Button onClick={(evt) => {
+          <div>
+            <Container>
+              <Row>
+                <Col md="4">
+                  <Row className="text-center">
+                    <Col>
+                      <Container
+                        style={{
+                          marginBottom: '2rem',
+                        }}
+                      >
+                        <LazyLoadImage
+                          src={'https://i.stack.imgur.com/frlIf.png'}
+                          style={{
+                            borderRadius: '50%',
+                          }}
+                        />
+                      </Container>
+                    </Col>
+                  </Row>
+                  <Row className="text-center">
+                    <Col>
+                      <Button
+                        onClick={(evt) => {
                           evt.preventDefault();
                           navigate('/settings');
-                        }} color="secondary">
-                          Change User Profile
+                        }}
+                        color="secondary"
+                      >
+                        Change User Profile
+                      </Button>
+                    </Col>
+                  </Row>
+                </Col>
+                <Col md="8">
+                  <Container
+                    style={{
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    <Row className="text-center">
+                      <Col md="2">
+                        <Button
+                          onClick={(evt) => {
+                            evt.preventDefault();
+                            navigate('/repositories');
+                          }}
+                          color="primary"
+                        >
+                          Repositories
+                        </Button>
+                      </Col>
+                      <Col md="2">
+                        <Button
+                          onClick={(evt) => {
+                            evt.preventDefault();
+                            navigate(`/${username}/projects`);
+                          }}
+                          color="primary"
+                        >
+                          Projects
                         </Button>
                       </Col>
                     </Row>
-                  </Col>
-                  <Col md='8'>
-                    <Container style={{
-                      marginBottom: '1rem'
-                    }}>
-                      <Row className="text-center">
-                        <Col md='2'>
-                          <Button onClick={(evt) => {
-                            evt.preventDefault();
-                            navigate('/repositories');
-                          }} color="primary">
-                            Repositories
-                          </Button>
-                        </Col>
-                        <Col md='2'>
-                          <Button onClick={(evt) => {
-                            evt.preventDefault();
-                            navigate(`/${username}/projects`);
-                          }} color="primary">
-                            Projects
-                          </Button>
-                        </Col>
+                  </Container>
 
-                      </Row>
+                  <Row>
+                    <Container
+                      style={{
+                        marginLeft: '1rem',
+                      }}
+                    >
+                      <Col md="6">
+                        <h5>Previous Searches</h5>
+                      </Col>
                     </Container>
-
-                    <Row>
-                      <Container style={{
-                        marginLeft: '1rem'
-                      }}>
-                        <Col md='6'>
-                          <h5>Previous Searches</h5>
-                        </Col>
-                      </Container>
-
-
-                    </Row>
-
-
-                  </Col>
-                </Row>
-              </Container>
-            </div>
-          )}
+                  </Row>
+                </Col>
+              </Row>
+            </Container>
+          </div>
+        )}
       </div>
     </Container>
   );

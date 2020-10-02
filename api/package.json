@@ -25,17 +25,18 @@
     "clean": "rimraf lib && rimraf coverage",
     "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "precommit": "npm run lint && npm run format",
+    "precommit": "npm run lint && npm run format && npm run swagger",
     "predeploy": "npm run build",
     "prepublishOnly": "npm run build",
     "printTypescriptVersion": "echo Using TypeScript && tsc --version",
-    "prebuild": "npm run format && npm run lint && npm run printTypescriptVersion",
+    "prebuild": "npm run precommit && npm run printTypescriptVersion",
     "build": "tsc",
     "copy-graphql": "rm -rf lib/schema && cp -r src/schema lib/schema",
     "test": "jest",
     "coverage": "jest --coverage",
-    "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
-    "watch:test": "jest --watch"
+    "postbuildWatch": "npm run printTypescriptVersion && npm start",
+    "watch:test": "jest --watch",
+    "swagger": "swaggerGen -c ./swaggerConf.yml && cp dist_swagger/swagger.yaml swagger.yml"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.9.0",
@@ -79,13 +80,15 @@
     "reflect-metadata": "^0.1.13",
     "sprintf-js": "^1.1.2",
     "stripe": "^8.96.0",
-    "type-graphql": "^1.0.0"
+    "type-graphql": "^1.0.0",
+    "typescript-rest": "^3.0.2",
+    "typescript-rest-swagger": "^1.1.5"
   },
   "devDependencies": {
     "@types/color": "^3.0.1",
     "@types/compression": "^1.7.0",
     "@types/cookie-parser": "^1.4.2",
-    "@types/express": "4.17.7",
+    "@types/express": "^4.17.8",
     "@types/express-status-monitor": "^1.2.2",
     "@types/graphql-depth-limit": "^1.1.2",
     "@types/graphql-fields": "^1.3.3",
@@ -114,6 +117,9 @@
     "tsc-watch": "^4.2.9",
     "tslint": "^6.1.3",
     "typescript": "^4.0.2"
+  },
+  "resolutions": {
+    "@types/express/@types/express-serve-static-core": "^4.17.13"
   },
   "engines": {
     "node": ">=10.0.0"

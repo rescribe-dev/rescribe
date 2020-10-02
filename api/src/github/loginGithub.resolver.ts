@@ -4,7 +4,7 @@ import { UserModel } from '../schema/users/user';
 import { ApolloError } from 'apollo-server-express';
 import { createGithubOauthClientREST } from './init';
 import { commonLogin } from '../auth/login.resolver';
-import { NOT_FOUND } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 @ArgsType()
 class GithubLoginArgs {
@@ -29,7 +29,7 @@ class LoginGithubResolver {
       }
     }
     if (!email) {
-      throw new ApolloError('cannot find primary email in github', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find primary email in github', `${statusCodes.NOT_FOUND}`);
     }
 
     const user = await UserModel.findOne({

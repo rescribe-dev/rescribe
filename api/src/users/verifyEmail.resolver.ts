@@ -7,7 +7,7 @@ import { getSecret, VerifyType } from '../utils/jwt';
 import { VerifyOptions, verify } from 'jsonwebtoken';
 import { VerifyNewsletterTokenData, addToMailingListUtil } from '../email/addToMailingList.resolver';
 import { ApolloError } from 'apollo-server-express';
-import { NOT_FOUND, FORBIDDEN } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { loginType } from '../auth/shared';
 
 @ArgsType()
@@ -26,7 +26,7 @@ export const decodeVerify = (token: string): Promise<VerifyTokenData | VerifyNew
       secret = getSecret(loginType.LOCAL);
     } catch (err) {
       const errObj = err as Error;
-      reject(new ApolloError(errObj.message, `${FORBIDDEN}`));
+      reject(new ApolloError(errObj.message, `${statusCodes.FORBIDDEN}`));
       return;
     }
     const jwtConfig: VerifyOptions = {
@@ -35,7 +35,7 @@ export const decodeVerify = (token: string): Promise<VerifyTokenData | VerifyNew
     verify(token, secret, jwtConfig, (err, res: any) => {
       if (err) {
         const errObj = err as Error;
-        reject(new ApolloError(errObj.message, `${FORBIDDEN}`));
+        reject(new ApolloError(errObj.message, `${statusCodes.FORBIDDEN}`));
       } else {
         const type: VerifyType = res.type;
         if (type === VerifyType.verify) {
@@ -64,7 +64,7 @@ class VerifyEmailResolver {
     verificationData = verificationData as VerifyTokenData;
     const user = await UserModel.findById(verificationData.id);
     if (!user) {
-      throw new ApolloError('cannot find user with given id', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find user with given id', `${statusCodes.NOT_FOUND}`);
     }
     if (user.emailVerified) {
       throw new ApolloError('email already verified');

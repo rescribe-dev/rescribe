@@ -35,7 +35,7 @@ import {
   enterpriseProductName,
 } from 'shared/variables';
 import { CurrencyData } from 'state/settings/types';
-import { defaultLanguage } from 'utils/languages';
+import { defaultLanguage } from 'shared/languages';
 
 interface PricingCardArgs {
   messages: PricingMessages;

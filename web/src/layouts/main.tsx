@@ -19,7 +19,7 @@ import { RootState } from 'state';
 import { Theme } from 'utils/theme';
 import { getCurrentLanguageFromURL } from 'utils/languageUtils';
 import { setLanguage } from 'state/settings/actions';
-import { defaultLanguage } from 'utils/languages';
+import { defaultLanguage } from 'shared/languages';
 
 const Fonts = Loadable(() => import('components/fontloader'));
 

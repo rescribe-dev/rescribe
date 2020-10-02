@@ -3,8 +3,8 @@
 cd ../..
 
 tab_files=$(grep -R -I -n -P "\t" \
-  --exclude-dir={.git,node_modules,grammars,.gradle,.cache,build,dist,repo,demoCode,.netlify,dist-storybook,static} \
-  --exclude={.SRCINFO,.gitmodules,*.mod,makefile,.classpath,.project,*.jar,*.go,*.svg} .)
+  --exclude-dir={.git,node_modules,grammars,.gradle,.cache,build,dist,repo,demoCode,.netlify,dist-storybook,static,dist_swagger} \
+  --exclude={.SRCINFO,.gitmodules,*.mod,makefile,.classpath,.project,swagger.yml,*.jar,*.go,*.svg} .)
 
 num_tab_files=$(echo -n "$tab_files" | grep -c '^')
 

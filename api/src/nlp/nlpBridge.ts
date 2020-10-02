@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { configData } from '../utils/config';
 import { getLogger } from 'log4js';
 import sleep from '../shared/sleep';
@@ -39,7 +39,7 @@ export const predictLanguage = async(input: NLPPredictLanguageInput): Promise<NL
 export const pingNLP = async (): Promise<boolean> => {
   try {
     const res = await nlpClient.get('/ping');
-    if (res.status === OK) {
+    if (res.status === statusCodes.OK) {
       return true;
     }
     return false;

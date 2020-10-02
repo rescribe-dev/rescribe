@@ -14,7 +14,7 @@ export const getOauthToken = (): string => {
 };
 
 interface RefreshRes {
-  accessToken: string;
+  data: string;
 }
 
 export const refreshAuth = async (): Promise<void> => {
@@ -25,7 +25,7 @@ export const refreshAuth = async (): Promise<void> => {
       withCredentials: true,
     }
   );
-  store.dispatch(setToken(refreshTokenRes.data.accessToken));
+  store.dispatch(setToken(refreshTokenRes.data.data));
 };
 
 export const getUsername = (): string => {

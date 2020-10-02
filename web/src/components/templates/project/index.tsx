@@ -21,7 +21,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { ProjectMessages } from 'locale/templates/project/projectMessages';
 import { getErrorCode } from 'utils/misc';
-import { NOT_FOUND } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ProjectPageDataProps extends PageProps {}
@@ -55,7 +55,7 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
           },
           onError: (err) => {
             const errorCode = getErrorCode(err);
-            if (errorCode === NOT_FOUND) {
+            if (errorCode === statusCodes.NOT_FOUND) {
               navigate('/404', {
                 state: {
                   location: window.location.href,

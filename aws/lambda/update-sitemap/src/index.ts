@@ -11,7 +11,7 @@ import { initializeLogger } from './utils/logger';
 import { sitemapPaths, staticSitemapPath } from './shared/sitemaps';
 import { createHash } from 'crypto';
 import axios from 'axios';
-import { OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { formatISO } from 'date-fns';
 import { SitemapModel, Sitemap } from './shared/schema/utils/sitemap';
 import languages from './languages';
@@ -79,7 +79,7 @@ const sendSitemapUpdatePings = async (sitemapPath: string): Promise<void> => {
       sitemap: websiteURL + sitemapPath
     }
   });
-  if (res.status !== OK) {
+  if (res.status !== statusCodes.OK) {
     throw new Error('problem with google sitemap update ping');
   }
 };

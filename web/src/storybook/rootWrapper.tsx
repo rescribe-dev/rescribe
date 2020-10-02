@@ -5,7 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import messages from 'locale/common/en';
 import { themeMap, Theme } from 'utils/theme';
-import { defaultLanguage } from 'utils/languages';
+import { defaultLanguage } from 'shared/languages';
 import { select } from '@storybook/addon-knobs';
 
 interface input {

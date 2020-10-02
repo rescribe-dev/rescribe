@@ -7,6 +7,7 @@ interface ConfigType {
   PORT: number;
   JWT_ISSUER: string;
   DB_NAME: string;
+  API_HOST: string;
   WEBSITE_URL: string;
   STATIC_WEBSITE_URL: string;
   DOCS_WEBSITE_URL: string;
@@ -53,6 +54,7 @@ export const configData: ConfigType = {
   PORT: 8080,
   JWT_ISSUER: 'rescribe',
   DB_NAME: 'rescribe',
+  API_HOST: 'api.rescribe.dev',
   WEBSITE_URL: 'https://rescribe.dev',
   STATIC_WEBSITE_URL: 'https://static.rescribe.dev',
   DOCS_WEBSITE_URL: 'https://docs.rescribe.dev',

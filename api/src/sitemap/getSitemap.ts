@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UNAUTHORIZED } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { reverse, lookup } from 'dns';
 import isBot from 'isbot';
 import { promisify } from 'util';
@@ -100,7 +100,7 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
     s3FileStream.pipe(res);
   } catch (err) {
     const errObj = err as Error;
-    res.status(UNAUTHORIZED).json({
+    res.status(statusCodes.UNAUTHORIZED).json({
       message: errObj.message
     });
   }
