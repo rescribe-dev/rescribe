@@ -15,6 +15,5 @@
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
   "files.eol": "\n",
-  "editor.tabSize": 2,
-  "python.pythonPath": "/home/mycicle/anaconda3/envs/rescribe-nlp-dataprocess-library-analysis/bin/python"
+  "editor.tabSize": 2
 }

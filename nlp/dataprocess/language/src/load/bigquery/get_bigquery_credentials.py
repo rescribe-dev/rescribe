@@ -10,6 +10,7 @@ from shared.variables import type_path_dict
 secret_name: str = 'BIGQUERY_CREDENTIALS'
 region_name: str = 'us-east-1'
 
+
 def create_bigquery_client(dataload_type: NLPType) -> bigquery.Client:
     folder_name: str = type_path_dict[dataload_type]
 
@@ -26,8 +27,8 @@ def create_bigquery_client(dataload_type: NLPType) -> bigquery.Client:
         with open(credentials_file_path, 'w') as credentials_file_object:
             credentials_file_object.write(environment_data)
 
-    return bigquery.Client.from_service_account_json(
-        credentials_file_path
+    return bigquery.Client.from_service_account_json(credentials_file_path)
+
 
 def main() -> str:
     """
