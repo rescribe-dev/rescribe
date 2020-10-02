@@ -154,7 +154,7 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
         OFFSET
             {num_files_in_batch*i};
         """
-        # Note that the offset should be fine because we should always pull batch # of files until 
+        # Note that the offset should be fine because we should always pull batch # of files until
         # the last iteration, where we pull a remainder, if any
         dumped_dataframe: DataFrame = data.query_to_pandas(query)
         logger.info(f"Writing to Local Disk - {data_folder_path}")
@@ -164,12 +164,13 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
             columns = a_tuple[1]
             filename = columns[filename_col_title]
             file_id = columns[id_col_title]
-            output_file = open('/'.join(data_folder_path, get_storage_formatted_name(filename, file_id)))
+            output_file = open(
+                '/'.join(data_folder_path, get_storage_formatted_name(filename, file_id)))
             output_file.write(columns[filecontent_col_title])
             output_file.write(content)
             output_file.close()
-            tqdm.update(1)
-    tqdm.close()
+            pbar.update(1)
+    pbar.close()
 
     return dumped_dataframe
     # if PRODUCTION:

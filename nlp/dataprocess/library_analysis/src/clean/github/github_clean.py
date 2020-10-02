@@ -16,15 +16,17 @@ from shared.file_extensions import FileExtensions
 from shared.utils import get_file_path_relative, list_files
 from shared.variables import data_folder, datasets_folder, clean_data_folder, library_analysis_data_folder
 
+
 async def fetch(session: ClientSession, url: str):
     async with session.get(url) as response:
         return await response.text()
+
 
 async def post(session: ClientSession, url: str, filepath: str):
     contents = None
     with open(filepath, 'r') as file:
         contents = str(file.read())
-    
+
     request = {
         "id": "testid",
         "path": filepath,
@@ -33,19 +35,22 @@ async def post(session: ClientSession, url: str, filepath: str):
     }
     async with session.post(url, json=request) as response:
         return await response.text()
-    
+
 
 async def main(extensions: List[FileExtensions]):
 
     logger.info("Retrieving filepaths")
-    data_path: str = get_file_path_relative(f"{data_folder}/{datasets_folder}/{library_analysis_data_folder}")
-    clean_data_path: str = get_file_path_relative(f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}")
+    data_path: str = get_file_path_relative(
+        f"{data_folder}/{datasets_folder}/{library_analysis_data_folder}")
+    clean_data_path: str = get_file_path_relative(
+        f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}")
     outpath: str = f"{clean_data_path}/imports.pkl"
 
     filepaths: List[str] = []
     for item in extensions:
         for extension in item.value:
-            filepaths += [join(data_path, x) for x in list_files(data_path, extension)]
+            filepaths += [join(data_path, x)
+                          for x in list_files(data_path, extension)]
             # extension = 'java' or 'cpp'
 
     logger.info("Making post requests")
@@ -54,7 +59,8 @@ async def main(extensions: List[FileExtensions]):
         for filepath in tqdm(filepaths):
             parsed_file = await post(session, "http://localhost:8081/processFile", filepath)
             json_data = json.loads(parsed_file)
-            import_statements = [x["path"] + '.' + x["selection"] for x in json_data["imports"]]
+            import_statements = [x["path"] + '.' + x["selection"]
+                                 for x in json_data["imports"]]
             imports.append(import_statements)
     logger.success("Post requests complete")
     logger.info(f"Preview:\n\n {imports[0]}\n")
@@ -64,5 +70,5 @@ async def main(extensions: List[FileExtensions]):
     logger.success(f"File created")
 
 if __name__ == "__main__":
-    loop  = get_event_loop()
+    loop = get_event_loop()
     loop.run_until_complete(main([FileExtensions.java, FileExtensions.cpp]))

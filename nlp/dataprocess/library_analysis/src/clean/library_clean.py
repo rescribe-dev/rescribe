@@ -24,6 +24,8 @@ from asyncio import get_event_loop
 from clean.stackoverflow.stackoverflow_clean import main as dataclean
 from clean.github.github_clean import main as clean
 from shared.file_extensions import FileExtensions
+
+
 async def main():
     """
     main clean data script
@@ -33,5 +35,5 @@ async def main():
 
 
 if __name__ == '__main__':
-    loop  = get_event_loop()
+    loop = get_event_loop()
     loop.run_until_complete(main())
