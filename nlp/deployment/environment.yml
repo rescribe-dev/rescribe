@@ -8,7 +8,6 @@ dependencies:
   - aiohttp=3.6.2
   - astroid=2.4.2
   - async-timeout=3.0.1
-  - attrs=20.2.0
   - autopep8=1.5.4
   - boto3=1.14.60
   - botocore=1.17.60
@@ -73,10 +72,15 @@ dependencies:
   - yarl=1.4.2
   - zlib=1.2.11
   - pip:
+    - aiohttp-swagger3==0.4.4
+    - attrs==19.3.0
+    - fastjsonschema==2.14.5
     - filelock==3.0.12
     - flatbuffers==1.12
     - future==0.18.2
+    - jinja2==2.11.2
     - joblib==0.16.0
+    - markupsafe==1.1.1
     - packaging==20.4
     - pyasn1==0.4.8
     - pyparsing==2.4.7
@@ -84,6 +88,7 @@ dependencies:
     - requests==2.24.0
     - rsa==4.6
     - sacremoses==0.0.43
+    - strict-rfc3339==0.7
     - tb-nightly==2.4.0a20200914
     - tf-estimator-nightly==2.4.0.dev2020091401
     - tf-nightly==2.4.0.dev20200914

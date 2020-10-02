@@ -4,6 +4,7 @@ import { logout, setToken } from './actions';
 import { axiosClient } from 'utils/axios';
 import { runLogout } from './thunks';
 import { RootState } from '..';
+import { definitions as restDef } from 'lib/generated/apiREST';
 
 export const getAuthToken = (): string => {
   return (store.getState() as RootState).authReducer.authToken;
@@ -13,19 +14,15 @@ export const getOauthToken = (): string => {
   return (store.getState() as RootState).authReducer.oauthID;
 };
 
-interface RefreshRes {
-  data: string;
-}
-
 export const refreshAuth = async (): Promise<void> => {
-  const refreshTokenRes = await axiosClient.post<RefreshRes>(
+  const refreshTokenRes = await axiosClient.post<restDef['RestReturnObj']>(
     '/refreshToken',
     {},
     {
       withCredentials: true,
     }
   );
-  store.dispatch(setToken(refreshTokenRes.data.data));
+  store.dispatch(setToken(refreshTokenRes.data.data as string));
 };
 
 export const getUsername = (): string => {

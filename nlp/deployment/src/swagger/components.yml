@@ -1,0 +1,8 @@
+components:
+  schemas:
+    Message:
+      type: "object"
+      properties:
+          message:
+              type: string
+              description: Response message

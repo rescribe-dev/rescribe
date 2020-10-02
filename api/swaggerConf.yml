@@ -3,7 +3,7 @@ swagger:
   entryFile:
     - ./src/**/*.rest.ts
     - ./src/server.ts
-  outputFormat: openapi_3
+  outputFormat: OpenApi_3
   name: api rest
   description: schema for rest portion of apiKey
   ignore:
