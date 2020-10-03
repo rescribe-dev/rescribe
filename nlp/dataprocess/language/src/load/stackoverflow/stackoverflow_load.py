@@ -35,11 +35,9 @@ from shared.type import NLPType
 from shared.libraries import libraries
 from shared.languages import languages
 from glob import glob
-from bigquery.get_bigquery_credentials import create_bigquery_client
+from load.bigquery.get_bigquery_credentials import create_bigquery_client
 from shared.variables import bucket_name, dataset_length as default_dataset_length, \
-    data_folder, main_data_file, type_path_dict, datasets_folder
-
-credentials_file: str = 'load/bigquery/bigquery_credentials.json'
+    data_folder, main_data_file, type_path_dict, datasets_folder, credentials_file
 
 s3_client = boto3.client('s3')
 
