@@ -72,7 +72,6 @@ def get_storage_formatted_name(filename: str, file_id: str) -> str:
     Output: file_java_1234.java
     """
     split_filename = splitext(filename)
-
     file_name_no_extension: str = split_filename[0]
     file_extension: str = split_filename[1].replace('.', '')
 
@@ -95,8 +94,8 @@ def get_storage_formatted_name(filename: str, file_id: str) -> str:
 #     """
 #     file_without_output_extension = '.'.join(storage_filename.split(".")[:-1])
 #      # TODO: type this... List[str]?
-#     split_file_name = file_without_output_extension.split("_")  
-   
+#     split_file_name = file_without_output_extension.split("_")
+
 #     file_id: str = split_file_name[-1]
 #     file_extension: str = split_file_name[-2]
 
@@ -117,10 +116,14 @@ def setup_output_folder(output_folder_path: str, delete_old_data=False) -> None:
         makedirs(dirname(output_folder_path))
 
 
-def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_length) -> DataFrame:
+def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_length, batch_size: int = 1000) -> DataFrame:
     """
-    externally callable version of the main dataload function
+    Dataload: Submit sql queries to bigquery for java files and write them to disk. Note that this
+    does not necessarily save out dataset_length number of queries to disk, but can save fewer if
+    there are errors or Nones returned from the sql query
     """
+    assert(batch_size % 1000 == 0 or 1000 % batch_size == 0)
+    # The dataset size is in multiples of 1000
     folder_name: str = type_path_dict[dataload_type]
 
     client = create_bigquery_client(dataload_type)
@@ -135,23 +138,24 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     setup_output_folder(data_folder_path)
 
     pbar = tqdm(total=dataset_length)
-    for i in range(0, dataset_length, 1000):
+    for i in range(0, dataset_length, batch_size):
         filecontent_col_title: str = "content"
         id_col_title: str = "id"
         filename_col_title: str = "filename"
         file_extension: str = ".java"
+        assert(file_extension.startswith("."))  # If not, this will break...
 
         query: str = f"""
         #
         SELECT
-        {filecontent_col_title}, {id_col_title}, REGEXP_EXTRACT(sample_path,"[A-Z a-z 0-9]+\\\{file_extension}") {filename_col_title}
+        {filecontent_col_title}, {id_col_title}, REGEXP_EXTRACT(sample_path,"[A-Z a-z 0-9]+\\\\{file_extension}") {filename_col_title}
         FROM
         `bigquery-public-data.github_repos.sample_contents`
         WHERE sample_path LIKE '%{file_extension}'
         ORDER BY 
             id desc
         LIMIT
-            {1000}
+            {batch_size}
         OFFSET
             {i};
         """
@@ -161,9 +165,10 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
             filename = row[1][filename_col_title]
             content = row[1][filecontent_col_title]
             file_id = row[1][id_col_title]
+            if(filename is None or content is None or file_id is None):
+                continue
             with open(f"{data_folder_path}/{get_storage_formatted_name(filename, file_id)}", 'w') as outfile:
                 outfile.write(content)
-            # IF YOU WANT TO RUN THIS FOR REAL THEN CHANGE pbar.update(100) TO pbar.update(1) AND REMOVE THE BREAK STATEMENT
             pbar.update(1)
     pbar.close()
 
