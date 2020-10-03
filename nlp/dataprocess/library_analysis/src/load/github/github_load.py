@@ -156,8 +156,6 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
             {i};
         """
 
-        # Note that the offset should be fine because we should always pull batch # of files until
-        # the last iteration, where we pull a remainder, if any
         dumped_dataframe: DataFrame = data.query_to_pandas(query)
         for row in dumped_dataframe.iterrows():
             filename = row[1][filename_col_title]
@@ -168,22 +166,6 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
             # IF YOU WANT TO RUN THIS FOR REAL THEN CHANGE pbar.update(100) TO pbar.update(1) AND REMOVE THE BREAK STATEMENT
             pbar.update(1)
     pbar.close()
-
-        # dumped_dataframe.to_csv(f"{data_folder_path}/{get_storage_formatted_name(filename, file_id)}", mode='a', header=header=not exists(output_path)))
-
-
-        
-        # logger.info(dumped_dataframe.head())
-        # logger.info(type(dumped_dataframe.head()))
-        # # imports_frame.to_csv(data_folder_path) # convert to dump all files...
-        # for a_tuple in dumped_dataframe:
-        #     columns = a_tuple[1]
-        #     filename = columns[filename_col_title]
-        #     file_id = columns[id_col_title]
-
-        #     with open('/'.join(data_folder_path, get_storage_formatted_name(filename, file_id)), 'w') as output_file:
-        #         output_file.write(columns[filecontent_col_title])
-        #         output_file.write(content)
 
     return dumped_dataframe
     # if PRODUCTION:
