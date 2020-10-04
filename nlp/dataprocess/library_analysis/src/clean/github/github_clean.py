@@ -14,7 +14,8 @@ from loguru import logger
 from aiohttp import ClientSession
 from shared.file_extensions import FileExtensions
 from shared.utils import get_file_path_relative, list_files
-from shared.variables import data_folder, datasets_folder, clean_data_folder, library_analysis_data_folder
+from shared.type import NLPType
+from shared.variables import data_folder, datasets_folder, clean_data_folder, type_path_dict
 
 
 async def fetch(session: ClientSession, url: str):
@@ -38,37 +39,45 @@ async def post(session: ClientSession, url: str, filepath: str):
 
 
 async def main(extensions: List[FileExtensions]):
-
+    library_analysis_data_folder = type_path_dict[NLPType.library_analysis]
     logger.info("Retrieving filepaths")
+    # TODO: Maybe add all these sorts of path creations into vars.py so it gets done ONCE and not
+    # everytime functions get called, and in different places.
+    # Get the lication of library_analysis in data, unclean
     data_path: str = get_file_path_relative(
         f"{data_folder}/{datasets_folder}/{library_analysis_data_folder}")
+    # Folder where the data will be stored, clean
     clean_data_path: str = get_file_path_relative(
         f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}")
-    outpath: str = f"{clean_data_path}/imports.pkl"
+    # Output goes into a pickle...
+    output_file_path: str = f"{clean_data_path}/imports.pkl"
 
     filepaths: List[str] = []
     for item in extensions:
         for extension in item.value:
-            filepaths += [join(data_path, x)
-                          for x in list_files(data_path, extension)]
+            filepaths += [join(data_path, file_name)
+                          for file_name in list_files(data_path, extension)]
             # extension = 'java' or 'cpp'
 
     logger.info("Making post requests")
     imports = []
     async with ClientSession() as session:
-        for filepath in tqdm(filepaths):
-            parsed_file = await post(session, "http://localhost:8081/processFile", filepath)
+        for abs_file_path in tqdm(filepaths):
+            parsed_file = await post(session, "http://localhost:8081/processFile", abs_file_path)
             json_data = json.loads(parsed_file)
-            import_statements = [x["path"] + '.' + x["selection"]
+            import_statements = ['.'.join([x["path"], x["selection"]])
                                  for x in json_data["imports"]]
-            imports.append(import_statements)
+            if(len(import_statements) > 1):
+                imports.append(import_statements)
+
     logger.success("Post requests complete")
     logger.info(f"Preview:\n\n {imports[0]}\n")
-    logger.info(f"Writing to file {outpath}")
-    with open(f"{outpath}", 'wb') as file:
-        pickle.dump(imports, file)
-    logger.success(f"File created")
+    logger.info(f"Writing to file {output_file_path}")
+    with open(output_file_path, 'wb') as output_file:
+        pickle.dump(imports, output_file)
+    logger.success(
+        f"{len(imports)} files were processed and stored to {output_file_path}")
 
 if __name__ == "__main__":
     loop = get_event_loop()
-    loop.run_until_complete(main([FileExtensions.java, FileExtensions.cpp]))
+    loop.run_until_complete(main([FileExtensions.java]))

@@ -14,7 +14,7 @@ class NLPType(Enum):
     language = "language"
     library = "library"
     library_analysis = "library_analysis"
-    
+
     @classmethod
     def has_value(cls, value: Any) -> bool:
         """
