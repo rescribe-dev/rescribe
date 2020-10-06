@@ -3,6 +3,7 @@ import { print } from 'graphql/language/printer';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { RequestInterface as restClientType } from '@octokit/types';
 import { fromBuffer as readMime } from 'file-type';
+import { maxFileUploadSize } from '../utils/variables';
 
 
 interface BaseArgs {
@@ -71,6 +72,9 @@ export const getGithubFile = async (githubClient: graphql, args: BaseArgs): Prom
   } else {
     encoding = 'utf8';
     content = res.repository.text;
+  }
+  if (content.length > maxFileUploadSize) {
+    throw new Error(`github file ${args.path} is larger than the max file size of ${maxFileUploadSize} bytes`);
   }
   const buffer = Buffer.from(content, encoding);
   const mimeTypeData = await readMime(buffer);

@@ -1,12 +1,13 @@
 import { Language } from '../schema/misc/language';
 
 export const defaultRepositoryImage = 'https://example.com/image.jpg';
+export const maxFileUploadSize = 15 * 1e6; // bytes
 
 export const languageColorMap: {[key: string]: string} = {};
 
 languageColorMap[Language.none] = '#cccccc';
 languageColorMap[Language.java] = '#f0ad4e';
-languageColorMap[Language.javascript] = '#0275d8'; // switch to hex
+languageColorMap[Language.javascript] = '#0275d8';
 
 const validHex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 

@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { isProduction } from './mode';
 import { getLogger } from 'log4js';
 import internal from 'stream';
-import { streamToString } from './misc';
+import { binaryMimeType, streamToString } from './misc';
 import { GetObjectRequest } from 'aws-sdk/clients/s3';
 
 const logger = getLogger();
@@ -37,7 +37,7 @@ export const getS3Data = async (key: string, bucket: string, allowBinary: boolea
   if (!headerData.Metadata) {
     throw new Error(`cannot find meta data for s3 file ${key}`);
   }
-  if (!allowBinary && headerData.Metadata['content-type'] === 'application/octet-stream') {
+  if (!allowBinary && headerData.Metadata['content-type'] === binaryMimeType) {
     throw new Error(`file ${key} is binary, when binary files are not allowed`);
   }
   const fileStream = s3Client.getObject({
