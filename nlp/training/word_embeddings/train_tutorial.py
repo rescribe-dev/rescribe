@@ -24,7 +24,7 @@ dataset = tf.keras.utils.get_file("aclImdb_v1.tar.gz", url,
                                     cache_subdir='')
 
 dataset_dir = os.path.join(os.path.dirname(dataset), 'aclImdb')
-print(os.listdir(dataset_dir))
+# print(os.listdir(dataset_dir))
 
 '''
 Take a look at the train/ directory. It has pos and neg folders with movie reviews labelled as positive and negative respectively. 
@@ -32,7 +32,7 @@ You will use reviews from pos and neg folders to train a binary classification m
 '''
 
 train_dir = os.path.join(dataset_dir, 'train')
-print(os.listdir(train_dir))
+# print(os.listdir(train_dir))
 
 '''
 The train directory also has additional folders which should be removed before creating training dataset.
@@ -60,9 +60,9 @@ val_ds = tf.keras.preprocessing.text_dataset_from_directory(
 Take a look at a few movie reviews and their labels (1: positive, 0: negative) from the train dataset.
 '''
 
-for text_batch, label_batch in train_ds.take(1):
-  for i in range(5):
-    print(label_batch[i].numpy(), text_batch.numpy()[i])
+# for text_batch, label_batch in train_ds.take(1):
+#   for i in range(5):
+#     print(label_batch[i].numpy(), text_batch.numpy()[i])
 
 '''
 Configure the dataset for performance
@@ -154,19 +154,29 @@ text_ds = train_ds.map(lambda x, y: x)
 vectorize_layer.adapt(text_ds)
 
 '''
-Use the Keras Sequential API to define the sentiment classification model. In this case it is a "Continuous bag of words" style model.
+Use the Keras Sequential API to define the sentiment classification model. In this case it is a
+"Continuous bag of words" style model.
 
-    The TextVectorization layer transforms strings into vocabulary indices. You have already initialized vectorize_layer as a TextVectorization layer and built it's vocabulary by calling adapt on text_ds. Now vectorize_layer can be used as the first layer of your end-to-end classification model, feeding tranformed strings into the Embedding layer.
+    The TextVectorization layer transforms strings into vocabulary indices. You have already
+    initialized vectorize_layer as a TextVectorization layer and built it's vocabulary by calling
+    adapt on text_ds. Now vectorize_layer can be used as the first layer of your end-to-end
+    classification model, feeding tranformed strings into the Embedding layer.
 
-    The Embedding layer takes the integer-encoded vocabulary and looks up the embedding vector for each word-index. These vectors are learned as the model trains. The vectors add a dimension to the output array. The resulting dimensions are: (batch, sequence, embedding).
+    The Embedding layer takes the integer-encoded vocabulary and looks up the embedding vector for
+    each word-index. These vectors are learned as the model trains. The vectors add a dimension to
+    the output array. The resulting dimensions are: (batch, sequence, embedding).
 
-    The GlobalAveragePooling1D layer returns a fixed-length output vector for each example by averaging over the sequence dimension. This allows the model to handle input of variable length, in the simplest way possible.
+    The GlobalAveragePooling1D layer returns a fixed-length output vector for each example by
+    averaging over the sequence dimension. This allows the model to handle input of variable
+    length, in the simplest way possible.
 
-    The fixed-length output vector is piped through a fully-connected (Dense) layer with 16 hidden units.
+    The fixed-length output vector is piped through a fully-connected (Dense) layer with 16 hidden
+    units.
 
     The last layer is densely connected with a single output node.
 
-    Caution: This model doesn't use masking, so the zero-padding is used as part of the input and hence the padding length may affect the output. To fix this, see the masking and padding guide.
+    Caution: This model doesn't use masking, so the zero-padding is used as part of the input and
+    hence the padding length may affect the output. To fix this, see the masking and padding guide.
     https://www.tensorflow.org/guide/keras/masking_and_padding
 '''
 
@@ -183,7 +193,8 @@ model = Sequential([
 '''
 Compile and train the model
 
-You will use TensorBoard to visualize metrics including loss and accuracy. Create a tf.keras.callbacks.TensorBoard.
+You will use TensorBoard to visualize metrics including loss and accuracy.
+Create a tf.keras.callbacks.TensorBoard.
 '''
 
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="logs")
@@ -194,7 +205,7 @@ model.compile(optimizer='adam',
 
 model.fit(
     train_ds,
-    validation_data=val_ds, 
+    validation_data=val_ds,
     epochs=15,
     callbacks=[tensorboard_callback])
 
@@ -205,17 +216,20 @@ model.summary()
 '''
 Retrieve the trained word embeddings and save them to disk
 
-Next, retrieve the word embeddings learned during training. The embeddings are weights of the Embedding layer in the model. The weights matrix is of shape (vocab_size, embedding_dimension).
+Next, retrieve the word embeddings learned during training. The embeddings are weights of the
+Embedding layer in the model. The weights matrix is of shape (vocab_size, embedding_dimension).
 '''
 
 vocab = vectorize_layer.get_vocabulary()
-print(vocab[:10])
+# print(vocab[:10])
 # Get weights matrix of layer named 'embedding'
 weights = model.get_layer('embedding').get_weights()[0]
-print(weights.shape) 
+# print(weights.shape) 
 
 '''
-Write the weights to disk. To use the Embedding Projector, you will upload two files in tab separated format: a file of vectors (containing the embedding), and a file of meta data (containing the words).
+Write the weights to disk. To use the Embedding Projector, you will upload two files in tab
+separated format: a file of vectors (containing the embedding), and a file of meta data
+(containing the words).
 '''
 
 out_v = io.open('vecs.tsv', 'w', encoding='utf-8')

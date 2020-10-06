@@ -16,7 +16,7 @@ from aiohttp import ClientSession
 from shared.file_extensions import FileExtensions
 from shared.utils import get_file_path_relative, list_files
 from shared.type import NLPType
-from shared.variables import data_folder, datasets_folder, clean_data_folder, type_path_dict
+from shared.variables import data_folder, datasets_folder, clean_data_folder, type_path_dict, main_data_file
 
 
 async def fetch(session: ClientSession, url: str):
@@ -49,7 +49,7 @@ async def main(extensions: List[FileExtensions]):
     clean_data_path: str = get_file_path_relative(
         f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}")
 
-    output_file_path: str = f"{clean_data_path}/imports.csv"
+    output_file_path: str = f"{clean_data_path}/{main_data_file}"
 
     filepaths: List[str] = []
     for item in extensions:
