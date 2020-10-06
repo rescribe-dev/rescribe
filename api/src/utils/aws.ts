@@ -47,6 +47,10 @@ export const getS3Data = async (key: string, bucket: string, allowBinary: boolea
   return fileStream;
 };
 
+export const getMediaKey = (media: ObjectId): string => {
+  return media.toHexString();
+};
+
 export const getFileKey = (repository: ObjectId, file: ObjectId): string => {
   return `${repository.toHexString()}/${file.toHexString()}`;
 };

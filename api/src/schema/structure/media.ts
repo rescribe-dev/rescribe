@@ -1,10 +1,10 @@
 import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { getModelForClass, modelOptions, Prop } from '@typegoose/typegoose';
-import { BaseFileObject } from './baseFile';
+import { BaseFileObject, DownloadLinks, ViewportSizes } from './baseFile';
 import { AccessLevel } from '../users/access';
 
-@ObjectType({ description: 'user media objects' })
+@modelOptions({ schemaOptions: { collection: 'media' } })
 class MediaDB extends BaseFileObject {
   @Prop()
   readonly _id: ObjectId;
@@ -12,14 +12,16 @@ class MediaDB extends BaseFileObject {
 
 export const MediaModel = getModelForClass(MediaDB);
 
-@ObjectType({ description: 'user account' })
-@modelOptions({ schemaOptions: { collection: 'users' } })
+@ObjectType({ description: 'media object' })
 export default class Media implements MediaDB {
   @Field()
   readonly _id: ObjectId;
 
-  @Field({ description: 'download file link' })
-  downloadLink?: string;
+  @Field(_type => ViewportSizes, { description: 'viewport sizes for media object', nullable: true })
+  viewportSizes?: ViewportSizes;
+
+  @Field(_type => DownloadLinks, { description: 'download file links', nullable: true })
+  downloadLinks?: DownloadLinks;
 
   @Field({ description: 'mime type of file' })
   mime: string;

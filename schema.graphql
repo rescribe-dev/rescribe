@@ -135,6 +135,12 @@ type Currency {
   name: String!
 }
 
+"""download link data"""
+type DownloadLinks {
+  blurred: String!
+  original: String!
+}
+
 """file"""
 type File {
   _id: ObjectId!
@@ -151,8 +157,8 @@ type File {
   """date created"""
   created: Float!
 
-  """download file link"""
-  downloadLink: String!
+  """download file links"""
+  downloadLinks: DownloadLinks
 
   """number of lines in file"""
   fileLength: Int!
@@ -204,6 +210,9 @@ type File {
 
   """variables"""
   variables: [Variable!]!
+
+  """viewport sizes for media object"""
+  viewportSizes: ViewportSizes
 }
 
 """file owner"""
@@ -388,6 +397,35 @@ type Location {
 
   """start"""
   start: Float!
+}
+
+"""media object"""
+type Media {
+  _id: ObjectId!
+
+  """date created"""
+  created: Float!
+
+  """download file links"""
+  downloadLinks: DownloadLinks
+
+  """file size"""
+  fileSize: Float!
+
+  """mime type of file"""
+  mime: String!
+
+  """file name"""
+  name: String!
+
+  """public access level"""
+  public: AccessLevel!
+
+  """date updated"""
+  updated: Float!
+
+  """viewport sizes for media object"""
+  viewportSizes: ViewportSizes
 }
 
 type Mutation {
@@ -1501,4 +1539,10 @@ type Variable {
 
   """type"""
   type: String!
+}
+
+"""file viewport info"""
+type ViewportSizes {
+  height: Float!
+  width: Float!
 }
