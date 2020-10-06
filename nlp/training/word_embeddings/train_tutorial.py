@@ -195,7 +195,7 @@ model.compile(optimizer='adam',
 model.fit(
     train_ds,
     validation_data=val_ds, 
-    epochs=10,
+    epochs=15,
     callbacks=[tensorboard_callback])
 
 model.summary()
@@ -222,20 +222,21 @@ out_v = io.open('vecs.tsv', 'w', encoding='utf-8')
 out_m = io.open('meta.tsv', 'w', encoding='utf-8')
 
 for num, word in enumerate(vocab):
-if num == 0: continue # skip padding token from vocab
-vec = weights[num]
-out_m.write(word + "\n")
-out_v.write('\t'.join([str(x) for x in vec]) + "\n")
+    if num == 0:
+        continue # skip padding token from vocab
+    vec = weights[num]
+    out_m.write(word + "\n")
+    out_v.write('\t'.join([str(x) for x in vec]) + "\n")
 out_v.close()
 out_m.close()
 
 try:
-from google.colab import files
+    from google.colab import files
 except ImportError:
-pass
+    pass
 else:
-files.download('vecs.tsv')
-files.download('meta.tsv')
+    files.download('vecs.tsv')
+    files.download('meta.tsv')
 
 '''
 Visualize the embeddings
