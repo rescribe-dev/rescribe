@@ -6,6 +6,7 @@ parse out all of the import statements from the incoming JSON files
 
 import json
 import pickle
+import pandas as pd
 from typing import List
 from os.path import join
 from asyncio import get_event_loop
@@ -41,16 +42,14 @@ async def post(session: ClientSession, url: str, filepath: str):
 async def main(extensions: List[FileExtensions]):
     library_analysis_data_folder = type_path_dict[NLPType.library_analysis]
     logger.info("Retrieving filepaths")
-    # TODO: Maybe add all these sorts of path creations into vars.py so it gets done ONCE and not
-    # everytime functions get called, and in different places.
-    # Get the lication of library_analysis in data, unclean
+
     data_path: str = get_file_path_relative(
         f"{data_folder}/{datasets_folder}/{library_analysis_data_folder}")
     # Folder where the data will be stored, clean
     clean_data_path: str = get_file_path_relative(
         f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}")
-    # Output goes into a pickle...
-    output_file_path: str = f"{clean_data_path}/imports.pkl"
+
+    output_file_path: str = f"{clean_data_path}/imports.csv"
 
     filepaths: List[str] = []
     for item in extensions:
@@ -73,8 +72,11 @@ async def main(extensions: List[FileExtensions]):
     logger.success("Post requests complete")
     logger.info(f"Preview:\n\n {imports[0]}\n")
     logger.info(f"Writing to file {output_file_path}")
-    with open(output_file_path, 'wb') as output_file:
-        pickle.dump(imports, output_file)
+
+    output_data = {"imports": imports}
+    output_df = pd.DataFrame(output_data, columns=["imports"])
+    output_df.to_csv(output_file_path)
+
     logger.success(
         f"{len(imports)} files were processed and stored to {output_file_path}")
 

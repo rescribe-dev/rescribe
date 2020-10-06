@@ -27,7 +27,6 @@ from typing import Union, List, Dict
 from pandas import DataFrame
 from loguru import logger
 from tqdm import tqdm
-from google.cloud import bigquery
 import boto3
 from load.bigquery.big_query_helper import BigQueryHelper as bqh
 from load.bigquery.get_bigquery_credentials import main as get_bigquery_credentials
@@ -85,24 +84,9 @@ def get_storage_formatted_name(filename: str, file_id: str) -> str:
     return new_file_name
 
 
-# TODO: Need to define what this returns... tuple?
+# TODO - write this function
 # def get_original_file_info(storage_filename: str):
-#     """
-#     (filename, fileID)
-#     Returns the file information given the name saved to disk. Note that this will fail for any
-#     files with _ in the original extension
-#     """
-#     file_without_output_extension = '.'.join(storage_filename.split(".")[:-1])
-#      # TODO: type this... List[str]?
-#     split_file_name = file_without_output_extension.split("_")
-
-#     file_id: str = split_file_name[-1]
-#     file_extension: str = split_file_name[-2]
-
-#     og_file_basename: str = '_'.join(split_file_name[:-2])
-#     og_filename = f"{og_file_basename}.{file_extension}"
-
-#     return (og_filename, file_id)
+#      pass
 
 
 def setup_output_folder(output_folder_path: str, delete_old_data=False) -> None:
@@ -122,7 +106,7 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     does not necessarily save out dataset_length number of queries to disk, but can save fewer if
     there are errors or Nones returned from the sql query
     """
-    assert(batch_size % 1000 == 0 or 1000 % batch_size == 0)
+    assert(batch_size % 1000 == 0)
     # The dataset size is in multiples of 1000
     folder_name: str = type_path_dict[dataload_type]
 
@@ -173,11 +157,6 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     pbar.close()
 
     return dumped_dataframe
-    # if PRODUCTION:
-    #     s3_client.upload_file(
-    #         questions_file_abs, bucket_name, basename(questions_file_abs))
-
-    # return imports_frame
 
 
 def main(dataload_type: NLPType):
@@ -189,7 +168,7 @@ def main(dataload_type: NLPType):
     imports_frame: DataFrame = dataload(dataload_type)
 
     logger.info("\nMETADATA:\n" + str(imports_frame.dtypes))
-    logger.info(f"Number of rows: {len(imports_frame)}")
+    logger.info(f"Number of rows per batch: {len(imports_frame)}")
     logger.info('\n' + str(imports_frame.sample(5)) + '\n')
     logger.success("\n\nData Load Complete\n")
 

@@ -21,14 +21,14 @@ if __name__ == '__main__':
 #################################
 
 from load.github.github_load import main as dataload_github
-# from shared.type import NLPType
+from shared.type import NLPType
 
 
 def main():
     """
     main function for dataload
     """
-    dataload_stackoverflow()
+    dataload_github(NLPType.library_analysis)
 
 
 if __name__ == '__main__':

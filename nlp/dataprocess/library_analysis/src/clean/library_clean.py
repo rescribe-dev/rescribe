@@ -21,7 +21,6 @@ if __name__ == '__main__':
 #################################
 
 from asyncio import get_event_loop
-from clean.stackoverflow.stackoverflow_clean import main as dataclean
 from clean.github.github_clean import main as clean
 from shared.file_extensions import FileExtensions
 
