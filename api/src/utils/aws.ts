@@ -3,6 +3,9 @@ import { configData } from './config';
 import { ObjectId } from 'mongodb';
 import { isProduction } from './mode';
 import { getLogger } from 'log4js';
+import internal from 'stream';
+import { streamToString } from './misc';
+import { GetObjectRequest } from 'aws-sdk/clients/s3';
 
 const logger = getLogger();
 
@@ -11,31 +14,53 @@ export const s3Client = new AWS.S3();
 export let fileBucket: string;
 export let emailBucket: string;
 
-export const getS3Data = async (key: string, bucket: string): Promise<string> => {
-  const s3File = await s3Client.getObject({
+const defaultExpirationTime = 60; // seconds
+
+interface GetSignedURLParams extends GetObjectRequest {
+  Expires: number;
+};
+
+export const getS3DownloadSignedURL = async (key: string, bucket: string): Promise<string> => {
+  const params: GetSignedURLParams = {
+    Bucket: bucket,
+    Key: key,
+    Expires: defaultExpirationTime,
+  };
+  return await s3Client.getSignedUrlPromise('getObject', params);
+};
+
+export const getS3Data = async (key: string, bucket: string, allowBinary: boolean): Promise<internal.Readable> => {
+  const headerData = await s3Client.headObject({
     Bucket: bucket,
     Key: key,
   }).promise();
-  if (!s3File.Body) {
-    throw new Error(`no body for file ${key}`);
+  if (!headerData.Metadata) {
+    throw new Error(`cannot find meta data for s3 file ${key}`);
   }
-  return s3File.Body.toString();
+  if (!allowBinary && headerData.Metadata['content-type'] === 'application/octet-stream') {
+    throw new Error(`file ${key} is binary, when binary files are not allowed`);
+  }
+  const fileStream = s3Client.getObject({
+    Bucket: bucket,
+    Key: key,
+  }).createReadStream();
+  return fileStream;
 };
 
 export const getFileKey = (repository: ObjectId, file: ObjectId): string => {
   return `${repository.toHexString()}/${file.toHexString()}`;
 };
 
-export const getS3FileData = async (fileKey: string): Promise<string> => {
-  return await getS3Data(fileKey, fileBucket);
+export const getS3FileData = async (fileKey: string, allowBinary: boolean): Promise<internal.Readable> => {
+  return await getS3Data(fileKey, fileBucket, allowBinary);
 };
 
 export const getEmailKey = (templateName: string): string => {
   return `templates/${templateName}`;
 };
 
-export const getS3EmailData = async (emailKey: string): Promise<string> => {
-  return await getS3Data(emailKey, emailBucket);
+export const getS3EmailData = async (emailKey: string, allowBinary: boolean): Promise<string> => {
+  return await streamToString(await getS3Data(emailKey, emailBucket, allowBinary));
 };
 
 export const initializeAWS = async (): Promise<void> => {

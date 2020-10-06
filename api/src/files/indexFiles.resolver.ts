@@ -107,7 +107,6 @@ class IndexFilesResolver {
         readStream.on('end', async () => {
           const buffer = Buffer.concat(data);
           const isBinary = await isBinaryFile(buffer);
-          const content = buffer.toString('utf8');
           try {
             await indexFile({
               action: WriteType.add,
@@ -116,12 +115,14 @@ class IndexFilesResolver {
               path: getFilePath(path).path,
               fileName: file.filename,
               public: repository.public,
-              content,
+              buffer,
+              encoding: file.encoding,
+              mimeType: file.mimetype,
               isBinary,
               fileElasticWrites,
               fileMongoWrites,
               fileWrites,
-              aggregates
+              aggregates,
             });
             numIndexed++;
             if (numIndexed === args.files.length) {

@@ -1,4 +1,4 @@
-export const pairwiseDifferece = (elements: number[]): number => {
+export const pairwiseDifference = (elements: number[]): number => {
   let differencesSum = 0;
   let differencesCount = 0;
   for (let i = 0; i < elements.length; i++) {

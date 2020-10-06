@@ -20,7 +20,8 @@ import { checkAccessLevel } from '../auth/checkAccess';
 import { queryMinLength } from '../shared/variables';
 import { Language } from '../schema/misc/language';
 import { predictLanguage } from '../nlp/nlpBridge';
-import { pairwiseDifferece } from '../utils/math';
+import { pairwiseDifference } from '../utils/math';
+import { configData } from '../utils/config';
 
 const logger = getLogger();
 
@@ -280,17 +281,18 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           });
         }
       }
-    } else if (args.query) {
+    } else if (args.query && configData.CONNECT_NLP) {
       // get the language from nlp
       const languagePrediction = await predictLanguage({
         query: args.query
       });
       if (languagePrediction.data.length > 0) {
         const scores = languagePrediction.data.map(elem => elem.score);
-        const pairwiseDiff = pairwiseDifferece(scores);
+        const pairwiseDiff = pairwiseDifference(scores);
         if (pairwiseDiff > minPairwiseDifference) {
           // TODO - change to have a weight for all the languages
-          const bestLanguage = languagePrediction.data.reduce((prev, elem) => elem.score > prev.score ? elem : prev, {
+          const bestLanguage = languagePrediction.data.reduce(
+            (prev, curr) => curr.score > prev.score ? curr : prev, {
             name: Language.none,
             score: 0
           });

@@ -34,11 +34,11 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
     if (foundUserAgentHeaders.length === 0) {
       throw new Error('cannot find user agent');
     }
-    const userAgent = (req.headers[foundUserAgentHeaders[0]] as string).toLowerCase();
-    if (!isBot(userAgent)) {
-      throw new Error('user is not a bot');
-    }
     if (isProduction()) {
+      const userAgent = (req.headers[foundUserAgentHeaders[0]] as string).toLowerCase();
+      if (!isBot(userAgent)) {
+        throw new Error('user is not a bot');
+      }
       let foundBot = false;
       const requestIP = req.ip;
       for (const bot of supportedBots) {

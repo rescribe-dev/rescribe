@@ -151,8 +151,14 @@ type File {
   """date created"""
   created: Float!
 
+  """download file link"""
+  downloadLink: String!
+
   """number of lines in file"""
   fileLength: Int!
+
+  """file size"""
+  fileSize: Float!
 
   """folder"""
   folder: ObjectId
@@ -174,6 +180,9 @@ type File {
 
   """language type"""
   language: Language!
+
+  """mime type of file"""
+  mime: String!
 
   """file name"""
   name: String!
@@ -1416,6 +1425,9 @@ scalar Upload
 """user account"""
 type User {
   _id: ObjectId!
+
+  """avatar picture"""
+  avatar: ObjectId
 
   """default address"""
   defaultAddress: ObjectId

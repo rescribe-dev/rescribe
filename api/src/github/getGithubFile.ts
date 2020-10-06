@@ -1,18 +1,51 @@
 import { gql } from 'apollo-server-express';
 import { print } from 'graphql/language/printer';
 import { graphql } from '@octokit/graphql/dist-types/types';
+import { RequestInterface as restClientType } from '@octokit/types';
+import { fromBuffer as readMime } from 'file-type';
 
-interface ResponseData {
-  isBinary: boolean;
-  text: string;
-}
+
+interface BaseArgs {
+  githubClientREST: restClientType;
+  ref: string;
+  path: string;
+  repositoryName: string;
+  repositoryOwner: string;
+};
+
+interface GithubFileRESTData {
+  encoding: BufferEncoding;
+  content: string;
+};
+
+const getGithubFileREST = async (args: BaseArgs): Promise<GithubFileRESTData> => {
+  const res = await args.githubClientREST('GET /repos/:owner/:repo/contents/:path', {
+    owner: args.repositoryOwner,
+    path: args.path,
+    repo: args.repositoryName,
+  });
+  return {
+    content: res.data.content,
+    encoding: res.data.encoding as BufferEncoding,
+  };
+};
 
 interface GithubFileRes {
-  repository: ResponseData
-}
+  repository: {
+    isBinary: boolean;
+    text: string;
+  };
+};
 
-export const getGithubFile = async (githubClient: graphql, ref: string, path: string, repositoryName: string, repositoryOwner: string): Promise<ResponseData> => {
-  const expression = `${ref}:${path}`;
+interface GithubFileData {
+  isBinary: boolean;
+  encoding: BufferEncoding;
+  buffer: Buffer;
+  mimeType: string;
+};
+
+export const getGithubFile = async (githubClient: graphql, args: BaseArgs): Promise<GithubFileData> => {
+  const expression = `${args.ref}:${args.path}`;
   const res = await githubClient<GithubFileRes>(print(gql`
     query files($name: String!, $owner: String!, $expression: String!) { 
       repository(name: $name, owner: $owner) { 
@@ -26,8 +59,28 @@ export const getGithubFile = async (githubClient: graphql, ref: string, path: st
     }
   `), {
     expression,
-    name: repositoryName,
-    owner: repositoryOwner
+    name: args.repositoryName,
+    owner: args.repositoryOwner
   });
-  return res.repository;
+  let encoding: BufferEncoding;
+  let content: string;
+  if (res.repository.isBinary) {
+    const githubData = await getGithubFileREST(args);
+    encoding = githubData.encoding;
+    content = githubData.content;
+  } else {
+    encoding = 'utf8';
+    content = res.repository.text;
+  }
+  const buffer = Buffer.from(content, encoding);
+  const mimeTypeData = await readMime(buffer);
+  if (!mimeTypeData) {
+    throw new Error('cannot read mime type');
+  }
+  return {
+    isBinary: res.repository.isBinary,
+    buffer,
+    encoding,
+    mimeType: mimeTypeData.mime
+  };
 };
