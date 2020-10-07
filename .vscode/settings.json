@@ -15,5 +15,6 @@
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
   "files.eol": "\n",
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "git.ignoreLimitWarning": true
 }
