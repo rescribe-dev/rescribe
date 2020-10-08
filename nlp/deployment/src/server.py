@@ -21,6 +21,17 @@ from json import dumps as json_dump, loads as json_load
 async def index() -> web.Response:
     """
     index page resolver
+    ---
+    description: Index page request resolver.
+    tags:
+    - Health check
+    responses:
+      '200':
+        description: successful operation. Return index message.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Message"
     """
     return web.json_response({
         'message': 'work in progress nlp'
@@ -71,6 +82,17 @@ NUM_RES_KEY: str = 'limit'
 async def predict_library(request: web.Request) -> web.Response:
     """
     predict a library given the query input
+    ---
+    description: Library prediction resolver
+    tags:
+    - NLP
+    responses:
+      '200':
+        description: successful operation. Return library predictions.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Prediction"
     """
     json_data = await request.json()
     if QUERY_KEY not in json_data:
@@ -86,6 +108,17 @@ async def predict_library(request: web.Request) -> web.Response:
 async def predict_language(request: web.Request) -> web.Response:
     """
     predict the language given the query input
+    ---
+    description: Language prediction resolver
+    tags:
+    - NLP
+    responses:
+      '200':
+        description: successful operation. Return language predictions.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Prediction"
     """
     json_data = await request.json()
     if QUERY_KEY not in json_data:

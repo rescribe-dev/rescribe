@@ -3,8 +3,8 @@ import statusCodes from 'http-status-codes';
 import { configData } from '../utils/config';
 import { getLogger } from 'log4js';
 import sleep from '../shared/sleep';
-import { Language } from '../schema/misc/language';
 import { contentTypeHeader } from '../utils/misc';
+import { components } from '../generated/nlp';
 
 const logger = getLogger();
 
@@ -13,10 +13,7 @@ let nlpClient: AxiosInstance;
 const defaultLimitPredict = 5;
 
 interface NLPPredictLanguageOutput {
-  data: {
-    name: Language;
-    score: number;
-  }[];
+  data: components['schemas']['Prediction'][];
 };
 
 interface NLPPredictLanguageInput {

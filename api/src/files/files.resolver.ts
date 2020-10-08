@@ -145,9 +145,9 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   if (args.onlyUser && !user) {
     throw new Error('cannot get only user files when not logged in');
   }
-  const filterShouldParams: TermQuery[] = [];
-  let filterMustParams: TermQuery[] = [];
-  const mustShouldParams: Record<string, unknown>[] = [];
+  const filterPermissions: TermQuery[] = [];
+  let filterPath: TermQuery[] = [];
+  const queryFilters: Record<string, unknown>[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
@@ -186,7 +186,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       }
     }
     if (args.name && args.branches && args.repositories && args.path) {
-      filterMustParams = filterMustParams.concat([{
+      filterPath = filterPath.concat([{
         term: {
           name: args.name
         }
@@ -208,7 +208,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       }
       ]);
     } else {
-      filterMustParams.push({
+      filterPath.push({
         term: {
           _id: args.file?.toHexString()
         }
@@ -262,7 +262,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   }
 
   if (!oneFile && args.path) {
-    filterMustParams.push({
+    filterPath.push({
       term: {
         path: args.path
       }
@@ -292,7 +292,10 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         if (pairwiseDiff > minPairwiseDifference) {
           // TODO - change to have a weight for all the languages
           const bestLanguage = languagePrediction.data.reduce(
-            (prev, curr) => curr.score > prev.score ? curr : prev, {
+            (prev, curr) => curr.score > prev.score ? {
+              ...curr,
+              name: name as Language
+            } : prev, {
             name: Language.none,
             score: 0
           });
@@ -309,7 +312,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   if (!oneFile && args.branches && args.branches.length > 0) {
     hasStructureFilter = true;
     for (const branch of args.branches) {
-      filterShouldParams.push({
+      filterPermissions.push({
         term: {
           branches: branch
         }
@@ -320,7 +323,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   if (!oneFile && !hasStructureFilter) {
     if (args.onlyUser === undefined || !args.onlyUser) {
       // include public files too
-      filterShouldParams.push({
+      filterPermissions.push({
         term: {
           public: AccessLevel.view
         }
@@ -331,18 +334,18 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         return null;
       }
       for (const repository of user.repositories) {
-        filterShouldParams.push({
+        filterPermissions.push({
           term: {
             repository: repository._id.toHexString()
           }
         });
       }
-      filterShouldParams.push({
+      filterPermissions.push({
         term: {
           public: AccessLevel.view
         }
       });
-      filterShouldParams.push({
+      filterPermissions.push({
         term: {
           public: AccessLevel.edit
         }
@@ -368,7 +371,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       } : {
           match_all: {}
         };
-      mustShouldParams.push({
+      queryFilters.push({
         nested: {
           path: nestedField,
           query: currentQuery,
@@ -386,29 +389,29 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         fields: args.baseFileOnly ? baseMainFields : mainFields
       }
     };
-    mustShouldParams.push(fieldsQuery);
+    queryFilters.push(fieldsQuery);
   }
   const searchParams: RequestParams.Search = {
     index: fileIndexName,
     body: {
       query: {
         bool: {
-          must: [ // must adds to score
+          should: [
             { // holds the query itself
               bool: {
-                should: mustShouldParams
+                should: queryFilters
               }
             }
           ],
           filter: [ // filter is ignored from score
             { // can match to any of should - holds permissions right now
               bool: {
-                should: filterShouldParams
+                should: filterPermissions
               }
             }, // needs to match all in must
             { // holds single file and / or path
               bool: {
-                must: filterMustParams
+                must: filterPath
               }
             }, // single category match for individuals
             { // holds language filters
