@@ -231,7 +231,8 @@ class SearchResolver {
           end: currentFile.fileLength + 1
         },
         language: {
-          color: languageColorMap[currentFile.language],
+          lightColor: languageColorMap[currentFile.language].light,
+          darkColor: languageColorMap[currentFile.language].dark,
           name: currentFile.language
         },
         location: locationData[fileID.toHexString()],

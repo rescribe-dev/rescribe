@@ -383,8 +383,11 @@ enum Language {
 
 """language data"""
 type LanguageData {
-  """associated color"""
-  color: String!
+  """dark language color"""
+  darkColor: String!
+
+  """light language color"""
+  lightColor: String!
 
   """language name"""
   name: Language!

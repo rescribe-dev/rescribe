@@ -11,6 +11,10 @@ registerEnumType(Language, {
 export class LanguageData {
   @Field(_type => Language, { description: 'language name' })
   name: Language;
-  @Field({ description: 'associated color' })
-  color: string;
+
+  @Field({ description: 'light language color' })
+  lightColor: string;
+  
+  @Field({ description: 'dark language color' })
+  darkColor: string;
 }
