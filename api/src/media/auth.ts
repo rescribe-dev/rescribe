@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { checkAccess, checkAccessLevel } from '../auth/checkAccess';
 import { AccessLevel } from '../schema/users/access';
 import User from '../schema/users/user';
-import Media, { MediaModel } from '../schema/structure/media';
+import Media, { MediaModel, MediaParentType } from '../schema/structure/media';
 
 export const checkMediaPublic = async (media: ObjectId | Media, accessLevel: AccessLevel): Promise<boolean> => {
   if (media instanceof ObjectId) {
@@ -23,8 +23,16 @@ export const checkMediaAccess = async (user: User, media: ObjectId | Media, acce
     }
     media = mediaData;
   }
-  // TODO - fix this:
-  return checkAccessLevel(media.public, accessLevel) ||
-    (!checkAccess(media._id, user.repositories, AccessLevel.none) &&
-      checkAccess(media._id, user.repositories, accessLevel));
+  if (checkAccessLevel(media.public, accessLevel)) {
+    return true;
+  }
+  switch (media.parentType) {
+    case MediaParentType.User:
+      return user._id === media.parent;
+    case MediaParentType.Repository:
+      return !checkAccess(media.parent, user.repositories, AccessLevel.none) &&
+      checkAccess(media.parent, user.repositories, accessLevel);
+    default:
+      throw new Error('unhandled media parent type provided');
+  }
 };

@@ -418,6 +418,12 @@ type Media {
   """file name"""
   name: String!
 
+  """parent id"""
+  parent: ObjectId!
+
+  """parent type"""
+  parentType: MediaParentType!
+
   """public access level"""
   public: AccessLevel!
 
@@ -426,6 +432,12 @@ type Media {
 
   """viewport sizes for media object"""
   viewportSizes: ViewportSizes
+}
+
+"""media parent type"""
+enum MediaParentType {
+  Repository
+  User
 }
 
 type Mutation {

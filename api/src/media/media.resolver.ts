@@ -34,7 +34,7 @@ export const getMediaAuthenticated = async (args: MediaArgs, ctx: GraphQLContext
   if (!user) {
     throw new Error('cannot find user data');
   }
-  if (!(await checkMediaAccess(user, media._id, AccessLevel.view))) {
+  if (!(await checkMediaAccess(user, media, AccessLevel.view))) {
     throw new Error('user not authorized to view media');
   }
   return media;

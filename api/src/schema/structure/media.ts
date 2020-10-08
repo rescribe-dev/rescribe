@@ -1,11 +1,29 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, registerEnumType } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { getModelForClass, modelOptions, Prop } from '@typegoose/typegoose';
 import { BaseFileObject, DownloadLinks, ViewportSizes } from './baseFile';
 import { AccessLevel } from '../users/access';
 
+export enum MediaParentType {
+  Repository,
+  User,
+}
+
+registerEnumType(MediaParentType, {
+  name: 'MediaParentType',
+  description: 'media parent type',
+});
+
+class BaseMedia extends BaseFileObject {
+  @Prop({ required: true })
+  parentType: MediaParentType;
+
+  @Prop({ required: true })
+  parent: ObjectId;
+}
+
 @modelOptions({ schemaOptions: { collection: 'media' } })
-class MediaDB extends BaseFileObject {
+class MediaDB extends BaseMedia {
   @Prop()
   readonly _id: ObjectId;
 }
@@ -13,7 +31,7 @@ class MediaDB extends BaseFileObject {
 export const MediaModel = getModelForClass(MediaDB);
 
 @ObjectType({ description: 'media object' })
-export default class Media implements MediaDB {
+export default class Media implements BaseMedia {
   @Field()
   readonly _id: ObjectId;
 
@@ -34,6 +52,12 @@ export default class Media implements MediaDB {
 
   @Field(_type => AccessLevel, { description: 'public access level' })
   public: AccessLevel;
+
+  @Field(_type => MediaParentType, { description: 'parent type' })
+  parentType: MediaParentType;
+
+  @Field({ description: 'parent id' })
+  parent: ObjectId;
 
   @Field({ description: 'date created' })
   created: number;
