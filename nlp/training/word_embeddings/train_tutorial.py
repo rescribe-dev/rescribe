@@ -56,6 +56,9 @@ val_ds = tf.keras.preprocessing.text_dataset_from_directory(
     'aclImdb/train', batch_size=batch_size, validation_split=0.2, 
     subset='validation', seed=seed)
 
+print(type(train_ds))
+input()
+print(train_ds)
 '''
 Take a look at a few movie reviews and their labels (1: positive, 0: negative) from the train dataset.
 '''

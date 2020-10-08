@@ -5,7 +5,7 @@ global variables
 from typing import Dict
 from shared.type import NLPType
 
-dataset_length: int = 10000
+dataset_length: int = 75000
 
 # dataset length verification
 assert(dataset_length % 1000 == 0 and dataset_length >= 5000)

@@ -16,7 +16,7 @@ async def main() -> None:
     main entry point
     """
     read_config()
-    # dataload_main()
+    dataload_main()
     await dataclean_main()
 
 
