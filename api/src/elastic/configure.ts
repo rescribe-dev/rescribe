@@ -1,4 +1,4 @@
-import { OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { getLogger } from 'log4js';
 import { elasticClient } from './init';
 import * as settings from './settings';
@@ -23,7 +23,7 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
         settings: indexSettings
       }
     });
-    logger.info(`created ${indexName} index: ${createIndexRes.statusCode === OK}`);
+    logger.info(`created ${indexName} index: ${createIndexRes.statusCode === statusCodes.OK}`);
   } catch(err) {
     logger.error(err.meta.body.error);
     throw err;
@@ -38,7 +38,7 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
   };
   try {
     const setIndexMappingsRes = await elasticClient.indices.putMapping(mappingsConfig);
-    logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === OK}`);
+    logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === statusCodes.OK}`);
   } catch(err) {
     logger.error(err.meta.body.error);
     throw err;

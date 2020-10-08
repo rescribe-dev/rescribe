@@ -16,7 +16,7 @@ import { RepositoryMessages } from 'locale/templates/repository/repositoryMessag
 import { client } from 'utils/apollo';
 import { ApolloQueryResult, ApolloError } from 'apollo-client';
 import { getErrorCode } from 'utils/misc';
-import { NOT_FOUND } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RepositoryPageDataProps extends PageProps {}
@@ -57,7 +57,7 @@ const RepositoryPage = (args: RepositoryProps): JSX.Element => {
       })
       .catch((err: ApolloError) => {
         const errorCode = getErrorCode(err);
-        if (errorCode === NOT_FOUND) {
+        if (errorCode === statusCodes.NOT_FOUND) {
           navigate('/404', {
             state: {
               location: window.location.href,

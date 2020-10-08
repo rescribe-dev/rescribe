@@ -62,7 +62,7 @@ export const emailTemplateFiles: TemplateFiles = {
 const compileEmailTemplates = async (): Promise<void> => {
   for (const emailTemplateKey in emailTemplateFiles) {
     const currentTemplateElement = emailTemplateFiles[propertyOf<TemplateFiles>(emailTemplateKey)];
-    const emailTemplate = await getS3EmailData(getEmailKey(currentTemplateElement.file));
+    const emailTemplate = await getS3EmailData(getEmailKey(currentTemplateElement.file), false);
     currentTemplateElement.template = Handlebars.compile(emailTemplate);
   }
 };

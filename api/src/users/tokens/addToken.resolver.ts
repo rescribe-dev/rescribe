@@ -9,7 +9,7 @@ import argon2 from 'argon2';
 import { nanoid } from 'nanoid';
 import { randomComponentLen, keyComponentLen } from './util';
 import { ApolloError } from 'apollo-server-express';
-import { FORBIDDEN } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 // number of days for default duration
 const defaultDuration = 1000 * 60 * 60 * 24 * 5;
@@ -31,7 +31,7 @@ class AddTokenResolver {
   @Mutation(_returns => ReturnObj)
   async addToken(@Args() args: AddTokenArgs, @Ctx() ctx: GraphQLContext): Promise<ReturnObj> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
-      throw new ApolloError('user not logged in', `${FORBIDDEN}`);
+      throw new ApolloError('user not logged in', `${statusCodes.FORBIDDEN}`);
     }
     const userID = new ObjectId(ctx.auth.id);
     const currentTime = new Date().getTime();

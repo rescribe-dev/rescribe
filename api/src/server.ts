@@ -5,13 +5,12 @@ import compression from 'compression';
 import cors, { CorsOptions } from 'cors';
 import express from 'express';
 import depthLimit from 'graphql-depth-limit';
-import { BAD_REQUEST } from 'http-status-codes';
-import { getLogger } from 'log4js';
+import { Server } from 'typescript-rest';
+import { connectLogger, getLogger } from 'log4js';
 import statusMonitor from 'express-status-monitor';
 import cookieParser from 'cookie-parser';
-import { initializeMappings } from './elastic/configure';
 import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext } from './utils/context';
-import { enableInitialization } from './utils/mode';
+import { enableInitialization, isProduction } from './utils/mode';
 import { createServer } from 'http';
 import { buildSchema } from 'type-graphql';
 import { ObjectId } from 'mongodb';
@@ -20,14 +19,9 @@ import { join } from 'path';
 import { pubSub } from './utils/redis';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { TypegooseMiddleware } from './db/typegoose';
-import { handleRefreshToken } from './utils/jwt';
 import { configData } from './utils/config';
 import { getSitemap } from './sitemap/getSitemap';
 import { sitemapPaths } from './sitemap/sitemaps';
-import { initializeProducts } from './products/init';
-import { authHandler } from './utils/express';
-import { paymentSystemInitialized } from './stripe/init';
-import stripeWebookHandler from './stripe/hooks';
 
 const maxDepth = 7;
 const logger = getLogger();
@@ -55,6 +49,7 @@ export const initializeServer = async (): Promise<void> => {
     },
     pubSub
   });
+  app.use(connectLogger(logger, {}));
   // https://github.com/MichalLytek/type-graphql/issues/37#issuecomment-592467594
   app.use(graphqlUploadExpress({
     maxFileSize: 10000000,
@@ -90,45 +85,28 @@ export const initializeServer = async (): Promise<void> => {
     extended: true
   }));
   app.use(bodyParser.json());
-  app.get('/hello', (_, res) => {
-    res.json({
-      message: 'hello world!'
-    });
+
+  Server.buildServices(app);
+  Server.loadServices(app, '**/*.rest.{ts,js}', __dirname);
+  const swaggerSchemes = [];
+  let swaggerHost = `localhost:${configData.PORT}`;
+  if (isProduction()) {
+    swaggerSchemes.push('https');
+    swaggerHost = configData.API_HOST;
+  }
+  swaggerSchemes.push('http');
+  Server.swagger(app, {
+    endpoint: 'swagger',
+    filePath: join(__dirname, '../swagger.yml'),
+    host: swaggerHost,
+    schemes: swaggerSchemes
   });
-  app.get('/', (_, res) => {
-    res.json({
-      message: 'go to /graphql for playground'
-    });
-  });
+
+  // not included in typescript rest:
   for (const sitemapPath of sitemapPaths) {
     app.get(sitemapPath, getSitemap);
   }
-  app.post('/refreshToken', async (req, res) => {
-    try {
-      const accessToken = await handleRefreshToken(req);
-      res.json({
-        accessToken,
-        message: 'got access token'
-      });
-    } catch (err) {
-      const errObj = err as Error;
-      res.status(BAD_REQUEST).json({
-        message: errObj.message
-      });
-    }
-  });
-  if (paymentSystemInitialized) {
-    app.post('/stripeHooks', stripeWebookHandler);
-  }
-  if (enableInitialization()) {
-    logger.info('initialization is enabled');
-    app.post('/initializeElastic', (req, res) =>
-      authHandler(configData.INITIALIZATION_KEY, initializeMappings, req, res));
-    app.post('/initializeProducts', (req, res) =>
-      authHandler(configData.INITIALIZATION_KEY, initializeProducts, req, res));
-  } else {
-    logger.info('initialization is disabled');
-  }
+  logger.info(`initialization is ${enableInitialization() ? 'enabled' : 'disabled'}`);
   const httpServer = createServer(app);
   server.installSubscriptionHandlers(httpServer);
   httpServer.listen(configData.PORT, () => logger.info(`Api started: http://localhost:${configData.PORT}/graphql 🚀`));

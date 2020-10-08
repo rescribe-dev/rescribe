@@ -8,6 +8,7 @@ reads configuration from environment
 from dotenv import load_dotenv
 from os import getenv, environ
 from typing import Union
+import shared.json_fix  # pylint: disable=unused-import
 
 PRODUCTION: bool = False
 

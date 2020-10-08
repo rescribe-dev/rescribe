@@ -1,1 +1,1 @@
-../../src/utils/languages.ts
+../../../api/src/shared/languages.ts

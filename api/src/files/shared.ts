@@ -11,14 +11,14 @@ import checkFileExtension from '../languages/checkFileExtension';
 import { FolderModel, BaseFolder, Folder, FolderDB } from '../schema/structure/folder';
 import { getParentFolderPaths, baseFolderPath, baseFolderName } from '../shared/folders';
 import { getFolder } from '../folders/folder.resolver';
-import { createHash } from 'crypto';
+import { BinaryLike, createHash } from 'crypto';
 import { WriteType } from '../utils/writeType';
 import { Language } from '../schema/misc/language';
 
 
 const hashAlgorithm = 'sha256';
 
-const getHash = (input: string): string => {
+const getHash = (input: BinaryLike): string => {
   return createHash(hashAlgorithm).update(input).digest('hex');
 };
 
@@ -153,9 +153,11 @@ export interface FileIndexArgs {
   branch: string;
   path: string;
   fileName: string;
-  content: string;
+  buffer: Buffer;
   public: AccessLevel;
   isBinary: boolean;
+  encoding: string;
+  mimeType: string;
   fileElasticWrites: SaveElasticElement[];
   fileMongoWrites: WriteMongoElement[];
   fileWrites: CombinedWriteData[];
@@ -171,7 +173,12 @@ interface IndexFileWriteArgs extends FileIndexArgs {
   hasAntlrData: boolean;
 }
 
+const getContentStr = (isBinary: boolean, buffer: Buffer, encoding: BufferEncoding): string => {
+  return !isBinary ? buffer.toString(encoding) : '';
+};
+
 const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
+  const fileSize = args.buffer.byteLength;
   const newFileDB: FileDB = {
     _id: args.id,
     hash: args.hash,
@@ -182,19 +189,24 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
     name: args.fileName,
     fileLength: args.fileLength,
     public: args.public,
+    fileSize,
+    mime: args.mimeType,
     created: args.currentTime,
     updated: args.currentTime,
   };
+  const content = getContentStr(args.isBinary, args.buffer, args.encoding as BufferEncoding);
   const baseElasticContent: BaseFileElastic = {
     name: args.fileName,
     hash: args.hash,
-    content: !args.isBinary ? args.content : '',
+    content,
     hasStructure: args.hasAntlrData,
     repository: args.repository,
     branches: [args.branch],
     numBranches: 1,
     created: args.currentTime,
     updated: args.currentTime,
+    fileSize,
+    mime: args.mimeType,
     path: args.path,
     public: args.public,
     fileLength: args.fileLength,
@@ -229,7 +241,7 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
   await s3Client.upload({
     Bucket: fileBucket,
     Key: getFileKey(args.repository, args.id),
-    Body: args.content
+    Body: args.buffer
   }).promise();
 
   args.fileWrites.push({
@@ -263,8 +275,9 @@ const indexFileUpdate = async (args: IndexFileUpdateArgs): Promise<void> => {
     };
   }
   elasticContent.hasStructure = args.hasAntlrData;
+  const content = getContentStr(args.isBinary, args.buffer, args.encoding as BufferEncoding);
   if (args.isBinary) {
-    elasticContent.content = args.content;
+    elasticContent.content = content;
   }
   const elasticElement: SaveElasticElement = {
     action: args.action,
@@ -286,7 +299,7 @@ const indexFileUpdate = async (args: IndexFileUpdateArgs): Promise<void> => {
   await s3Client.upload({
     Bucket: fileBucket,
     Key: getFileKey(args.repository, args.id),
-    Body: args.content
+    Body: args.buffer
   }).promise();
 
   args.fileWrites.push({
@@ -412,19 +425,20 @@ export const indexFile = async (args: FileIndexArgs): Promise<void> => {
   });
   let id = currentFile ? currentFile._id : new ObjectId();
   const hasAntlrData = !args.isBinary && checkFileExtension(args.fileName);
+  const content = getContentStr(args.isBinary, args.buffer, args.encoding as BufferEncoding);
   if (hasAntlrData) {
     fileData = await processFile({
       id,
       fileName: args.fileName,
-      content: args.content,
+      content,
       path: args.path
     });
   }
   const currentTime = new Date().getTime();
-  const fileLength = args.content.split('\n').length - 1;
+  const fileLength = content.split('\n').length - 1;
   // check if file is the same as a file that is already there
   // if it is, point to it
-  const hash = getHash(args.content);
+  const hash = getHash(args.buffer);
 
   if (currentFile) {
     id = currentFile._id;

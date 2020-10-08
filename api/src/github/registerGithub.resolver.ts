@@ -5,7 +5,7 @@ import User, { UserType, UserModel } from '../schema/users/user';
 import { createGithubOauthClientREST } from './init';
 import { defaultProductName } from '../shared/variables';
 import { ApolloError } from 'apollo-server-express';
-import { NOT_FOUND } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 @ArgsType()
 class RegisterGithubArgs {
@@ -36,7 +36,7 @@ class RegisterGithubResolver {
       }
     }
     if (!email) {
-      throw new ApolloError('cannot find primary email in github', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find primary email in github', `${statusCodes.NOT_FOUND}`);
     }
 
     if (await accountExistsEmail(email)) {

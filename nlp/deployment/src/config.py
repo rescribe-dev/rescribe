@@ -27,8 +27,10 @@ from typing import Union
 from shared.config import read_config as read_shared_config
 
 PORT: int = -1
-
 DEFAULT_PORT: int = 8082
+
+VERSION: str = ''
+DEFAULT_VERSION: str = '0.0.1'
 
 
 def read_config() -> None:
@@ -36,7 +38,10 @@ def read_config() -> None:
     read the config for deployment
     """
     global PORT
+    global VERSION
 
     read_shared_config()
     env_port: Union[str, None] = getenv('PORT')
     PORT = DEFAULT_PORT if env_port is None else int(env_port)
+    env_version: Union[str, None] = getenv('VERSION')
+    VERSION = DEFAULT_VERSION if env_version is None else env_version

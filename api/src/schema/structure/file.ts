@@ -5,8 +5,9 @@ import AntlrFile from '../antlr/file';
 import { AccessLevel } from '../users/access';
 import { Language } from '../misc/language';
 import { BaseTimestamp } from '../misc/timestamp';
+import { BaseFileObject, DownloadLinks, ViewportSizes } from './baseFile';
 
-export class BaseFile {
+export class BaseFile extends BaseFileObject {
   @Property({ required: true })
   name: string;
 
@@ -43,7 +44,6 @@ export class BaseFile {
 
 @modelOptions({ schemaOptions: { collection: 'files' } })
 export class FileDB extends BaseFile {
-  @Field()
   readonly _id: ObjectId;
 }
 
@@ -63,6 +63,18 @@ export class BaseFileElastic extends BaseFile {
 export default class File extends AntlrFile implements BaseFileElastic, BaseTimestamp {
   @Field({ description: 'sha-1 hash' })
   hash: string;
+
+  @Field(_type => ViewportSizes, { description: 'viewport sizes for media object', nullable: true })
+  viewportSizes?: ViewportSizes;
+
+  @Field(_type => DownloadLinks, { description: 'download file links', nullable: true })
+  downloadLinks?: DownloadLinks;
+
+  @Field({ description: 'mime type of file' })
+  mime: string;
+
+  @Field({ description: 'file size' })
+  fileSize: number;
 
   @Field({ description: 'has antlr data' })
   hasStructure: boolean;

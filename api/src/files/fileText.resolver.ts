@@ -10,6 +10,7 @@ import Location from '../schema/antlr/location';
 import { getS3FileData, getFileKey } from '../utils/aws';
 import { cache, RedisKey } from '../utils/redis';
 import { configData } from '../utils/config';
+import { streamToString } from '../utils/misc';
 
 const redisExpireSeconds = 60 * 20;
 
@@ -79,7 +80,7 @@ export const getText = async (file: FileDB, location?: Location): Promise<string
   if (redisData && !configData.DISABLE_CACHE) {
     return getLines(redisData, location);
   }
-  const content = await getS3FileData(fileKey);
+  const content = await streamToString((await getS3FileData(fileKey, false)).file);
   await cache.set(redisKey, content, 'ex', redisExpireSeconds);
   return getLines(content, location);
 };

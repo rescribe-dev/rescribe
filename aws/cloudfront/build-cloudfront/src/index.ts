@@ -139,11 +139,13 @@ const runAction = async (): Promise<void> => {
   if (!process.env.AWS_ACCESS_KEY_ID) {
     throw new Error('no aws access key id provided');
   }
-  AWS.config.accessKeyId = process.env.AWS_ACCESS_KEY_ID;
   if (!process.env.AWS_SECRET_ACCESS_KEY) {
     throw new Error('no aws secret access key provided');
   }
-  AWS.config.secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  AWS.config.credentials = new AWS.Credentials({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  });
   if (!process.env.AWS_REGION) {
     throw new Error('no aws region provided');
   }

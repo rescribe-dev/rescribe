@@ -10,7 +10,6 @@ from initialize_models import main as initialize_models
 from config import read_config
 from shared.type import NLPType
 from typing import Optional
-from sys import argv
 
 # TODO - finalize environment file
 
@@ -25,6 +24,4 @@ def main(model_type: Optional[NLPType] = None) -> None:
 
 
 if __name__ == '__main__':
-    if len(argv) < 2:
-        raise ValueError('no nlp type provided')
-    main(NLPType(argv[1]))
+    main()
