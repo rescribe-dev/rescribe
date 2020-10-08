@@ -28,7 +28,7 @@ const CodeHighlight = (args: {
             textAlign: 'left',
             margin: '0.2em 0',
             padding: '0.1em',
-            overflow: 'hideen',
+            overflow: 'hidden',
             backgroundColor: 'var(--code-bg)',
             boxSizing: 'initial',
           }}

@@ -22,9 +22,21 @@ const SearchResultComponent = (args: SearchResultCardArgs): JSX.Element => {
   return (
     <Container>
       <Card>
-        <CardText className="text-right"
-        style={{position:'absolute', right:'100px', top:'20px', color:'var(--gray4)', fontStyle:'italic'}}
-        > {args.type}{' > '}{args.name} </CardText>
+        <CardText
+          className="text-right"
+          style={{
+            position: 'absolute',
+            right: '100px',
+            top: '20px',
+            color: 'var(--gray4)',
+            fontStyle: 'italic',
+          }}
+        >
+          {' '}
+          {args.type}
+          {' > '}
+          {args.name}{' '}
+        </CardText>
         <CardBody>
           <CodeHighlight
             startIndex={args.preview.startPreviewLineNumber}
