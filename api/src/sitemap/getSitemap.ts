@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import { isProduction } from '../utils/mode';
 import { s3Client } from '../utils/aws';
 import { configData } from '../utils/config';
+import { contentTypeHeader } from '../utils/misc';
 
 const reverseLookup = promisify(reverse);
 const forwardLookup = promisify(lookup);
@@ -79,7 +80,7 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
       Bucket: configData.AWS_S3_BUCKET_SITEMAP,
       Key: key
     }).promise();
-    res.setHeader('Content-Type', s3Metadata.ContentType as string);
+    res.setHeader(contentTypeHeader, s3Metadata.ContentType as string);
     res.setHeader('Content-Encoding', s3Metadata.ContentEncoding as string);
     res.setHeader('Content-Length', s3Metadata.ContentLength as number);
     res.setHeader('Last-Modified', (s3Metadata.LastModified as Date).getTime());

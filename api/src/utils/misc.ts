@@ -9,4 +9,16 @@ export const streamToString = (stream: internal.Readable): Promise<string> => {
   });
 };
 
-export const binaryMimeType = 'application/octet-stream';
+const textMimes = new Set<string>(['application/json', 'application/ld+json']);
+
+export const checkText = (mime: string): boolean => {
+  return mime.startsWith('text/') || textMimes.has(mime);
+};
+
+const mediaMimes: string[] = ['image/', 'video/', 'audio/'];
+
+export const checkMedia = (mime: string): boolean => {
+  return mediaMimes.some(start => mime.startsWith(start));
+};
+
+export const contentTypeHeader = 'content-type';

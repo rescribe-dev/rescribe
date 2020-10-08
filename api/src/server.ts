@@ -6,7 +6,7 @@ import cors, { CorsOptions } from 'cors';
 import express from 'express';
 import depthLimit from 'graphql-depth-limit';
 import { Server } from 'typescript-rest';
-import { getLogger } from 'log4js';
+import { connectLogger, getLogger } from 'log4js';
 import statusMonitor from 'express-status-monitor';
 import cookieParser from 'cookie-parser';
 import { getContext, GraphQLContext, onSubscription, SubscriptionContextParams, SubscriptionContext } from './utils/context';
@@ -49,6 +49,7 @@ export const initializeServer = async (): Promise<void> => {
     },
     pubSub
   });
+  app.use(connectLogger(logger, {}));
   // https://github.com/MichalLytek/type-graphql/issues/37#issuecomment-592467594
   app.use(graphqlUploadExpress({
     maxFileSize: 10000000,

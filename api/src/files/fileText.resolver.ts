@@ -80,7 +80,7 @@ export const getText = async (file: FileDB, location?: Location): Promise<string
   if (redisData && !configData.DISABLE_CACHE) {
     return getLines(redisData, location);
   }
-  const content = await streamToString(await getS3FileData(fileKey, false));
+  const content = await streamToString((await getS3FileData(fileKey, false)).file);
   await cache.set(redisKey, content, 'ex', redisExpireSeconds);
   return getLines(content, location);
 };

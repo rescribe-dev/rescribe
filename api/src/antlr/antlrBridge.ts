@@ -3,6 +3,7 @@ import statusCodes from 'http-status-codes';
 import { ProcessFileInput } from './antlrTypes';
 import AntlrFile from '../schema/antlr/file';
 import { configData } from '../utils/config';
+import { contentTypeHeader } from '../utils/misc';
 
 let antlrClient: AxiosInstance;
 
@@ -48,7 +49,7 @@ export const initializeAntlr = async (): Promise<boolean> => {
       common: {
         Accept: 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json',
+        [contentTypeHeader]: 'application/json',
         Pragma: 'no-cache',
       },
     },

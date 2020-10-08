@@ -1138,6 +1138,10 @@ type Query {
   ): [Folder!]!
   hello: String!
   languages: [LanguageData!]!
+  media(
+    """media id"""
+    id: ObjectId
+  ): Media!
   paymentMethod(
     """payment method id"""
     id: ObjectId!

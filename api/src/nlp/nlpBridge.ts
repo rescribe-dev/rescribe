@@ -4,6 +4,7 @@ import { configData } from '../utils/config';
 import { getLogger } from 'log4js';
 import sleep from '../shared/sleep';
 import { Language } from '../schema/misc/language';
+import { contentTypeHeader } from '../utils/misc';
 
 const logger = getLogger();
 
@@ -60,7 +61,7 @@ export const initializeNLP = async (): Promise<boolean> => {
       common: {
         Accept: 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json',
+        [contentTypeHeader]: 'application/json',
         Pragma: 'no-cache',
       },
     },
