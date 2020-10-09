@@ -12,7 +12,7 @@ from os.path import join
 from asyncio import get_event_loop
 from tqdm import tqdm
 from loguru import logger
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from shared.file_extensions import FileExtensions
 from shared.utils import get_file_path_relative, list_files
 from shared.type import NLPType
@@ -60,12 +60,22 @@ async def main(extensions: List[FileExtensions]):
 
     logger.info("Making post requests")
     imports = []
-    async with ClientSession() as session:
+    timeout = ClientTimeout(total=15)
+    async with ClientSession(timeout=timeout) as session:
         for abs_file_path in tqdm(filepaths):
-            parsed_file = await post(session, "http://localhost:8081/processFile", abs_file_path)
+            try:
+                parsed_file = await post(session, "http://localhost:8081/processFile", abs_file_path)
+            except Exception as err:
+                logger.error(f"Error for path: {abs_file_path}")
+                exit()
             json_data = json.loads(parsed_file)
+            import_key: str = "imports"
+            
+            if import_key not in json_data:
+                continue
+
             import_statements = ['.'.join([x["path"], x["selection"]])
-                                 for x in json_data["imports"]]
+                                 for x in json_data[import_key]]
             if(len(import_statements) > 1):
                 imports.append(import_statements)
 

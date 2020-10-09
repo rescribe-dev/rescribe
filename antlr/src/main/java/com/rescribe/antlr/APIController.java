@@ -44,9 +44,19 @@ class APIController {
 
   @PostMapping("/processFile")
   @ResponseBody
-  File processFile(@Valid @RequestBody FileInput input) {
-    //     System.out.println(input);
-    this.lastOutput = FileHandler.getFileData(input);
+  File processFile(@Valid @RequestBody FileInput input) throws Exception{
+    // System.out.println(input);
+    // long startTime = System.nanoTime();
+    // System.out.println("Start: " + startTime);
+    try {
+      this.lastOutput = FileHandler.getFileData(input);
+    } catch (Exception e) {
+      throw e;
+    }
+
+    // long endTime = System.nanoTime();
+    // long elapsed = endTime - startTime;
+    // System.out.println("Elapsed Time : " + elapsed/1e6);
     return lastOutput;
   }
 }
