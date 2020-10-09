@@ -5,6 +5,7 @@ const englishMessages: CommonMessages = {
   pricing: 'pricing',
   start: 'get started',
   projects: 'projects',
+  repositories: 'repositories',
   'sign up': 'sign up',
   login: 'login',
   month: 'month',
