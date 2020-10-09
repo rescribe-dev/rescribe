@@ -124,7 +124,7 @@ const UserPage = (args: UserProps): JSX.Element => {
                         <Button
                           onClick={(evt) => {
                             evt.preventDefault();
-                            navigate('/repositories');
+                            navigate(`/${username}/repositories`);
                           }}
                           color="primary"
                         >

@@ -1,5 +1,13 @@
 import React from 'react';
-import { Container, Table, Button } from 'reactstrap';
+import {
+  Container,
+  Table,
+  Button,
+  // Modal,
+  // ModalBody,
+  // ModalFooter,
+  // ModalHeader,
+} from 'reactstrap';
 import { PageProps, Link } from 'gatsby';
 
 import './index.scss';
@@ -15,6 +23,7 @@ import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { navigate } from '@reach/router';
+import { RepositoriesMessages } from 'locale/templates/repositories/repositoriesMessages';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RepositoriesPageDataProps extends PageProps {}
@@ -23,7 +32,16 @@ interface RepositoriesProps extends RepositoriesPageDataProps {
   messages: RepositoriesMessages;
 }
 
-const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
+// interface ModalArgs {
+//   deleteRepository: () => Promise<void>;
+//   toggle: () => void;
+//   isOpen: boolean;
+// }
+
+const RepositoriesPage = (
+  _args: RepositoriesProps,
+  _modalArgs: ModalArgs
+): JSX.Element => {
   const repositoriesQueryRes:
     | QueryResult<RepositoriesQuery, RepositoriesQueryVariables>
     | undefined = isSSR
@@ -51,7 +69,7 @@ const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
         <p>loading...</p>
       ) : (
         <>
-          {repositoriesQueryRes.data.projects.length === 0 ? (
+          {repositoriesQueryRes.data.repositories.length === 0 ? (
             <p>no Repositories found.</p>
           ) : (
             <Table>
@@ -61,14 +79,12 @@ const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
                 </tr>
               </thead>
               <tbody>
-                {repositoriesQueryRes.data.projects.map((repositories) => {
+                {repositoriesQueryRes.data.repositories.map((repository) => {
                   return (
-                    <tr key={Repositories._id}>
+                    <tr key={repository._id}>
                       <td>
-                        <Link
-                          to={`/${username}/projects/${respositories.name}`}
-                        >
-                          {repositories.name}
+                        <Link to={`/${username}/projects/${repository.name}`}>
+                          {repository.name}
                         </Link>
                       </td>
                     </tr>
@@ -85,6 +101,24 @@ const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
           >
             New Repositories
           </Button>
+          {/* <Modal isOpen={_modalArgs.isOpen} toggle={_modalArgs.toggle}>
+            <ModalHeader toggle={_modalArgs.toggle}>Delete Repository</ModalHeader>
+            <ModalBody>Are you sure?</ModalBody>
+            <ModalFooter>
+              <Button
+                color="danger"
+                onClick={async () => {
+                  await args.deleteFolder();
+                  args.toggle();
+                }}
+              >
+                Delete
+              </Button>{" "}
+              <Button color="secondary" onClick={args.toggle}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal> */}
         </>
       )}
     </Container>
