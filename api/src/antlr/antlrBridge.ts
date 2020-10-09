@@ -1,8 +1,9 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { ProcessFileInput } from './antlrTypes';
 import AntlrFile from '../schema/antlr/file';
 import { configData } from '../utils/config';
+import { contentTypeHeader } from '../utils/misc';
 
 let antlrClient: AxiosInstance;
 
@@ -12,7 +13,7 @@ export const processFile = async (inputData: ProcessFileInput): Promise<AntlrFil
       throw new Error('antlr client not initialized');
     }
     const res = await antlrClient.post<AntlrFile>('/processFile', inputData);
-    if (res.status === OK) {
+    if (res.status === statusCodes.OK) {
       return res.data;
     }
     else {
@@ -27,7 +28,7 @@ export const processFile = async (inputData: ProcessFileInput): Promise<AntlrFil
 export const pingAntlr = async (): Promise<boolean> => {
   try {
     const res = await antlrClient.get('/ping');
-    if (res.status === OK) {
+    if (res.status === statusCodes.OK) {
       return true;
     }
     return false;
@@ -48,7 +49,7 @@ export const initializeAntlr = async (): Promise<boolean> => {
       common: {
         Accept: 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json',
+        [contentTypeHeader]: 'application/json',
         Pragma: 'no-cache',
       },
     },

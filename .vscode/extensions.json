@@ -4,7 +4,7 @@
     "ms-vsliveshare.vsliveshare-pack",
     "mikestead.dotenv",
     "eamodio.gitlens",
-    "prisma.vscode-graphql",
+    "graphql.vscode-graphql",
     "ms-python.python",
     "sibiraj-s.vscode-scss-formatter",
     "redhat.vscode-yaml",

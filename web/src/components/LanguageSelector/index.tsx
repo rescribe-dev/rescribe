@@ -11,7 +11,7 @@ import { languages, Language } from 'countries-list';
 import { propertyOf } from 'utils/misc';
 import { Container, Row, Col } from 'reactstrap';
 import { setLanguage } from 'state/settings/actions';
-import { languageOptions } from 'utils/languages';
+import { languageOptions } from 'shared/languages';
 import { navigate } from '@reach/router';
 import {
   getCurrentLanguageFromURL,

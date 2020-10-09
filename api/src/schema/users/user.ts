@@ -74,6 +74,10 @@ export default class User extends PublicUser {
   @Property({ required: true, type: Access })
   projects: Access[];
 
+  @Field({ description: 'avatar picture', nullable: true })
+  @Property({ required: false })
+  avatar?: ObjectId;
+
   @Field({ description: 'default payment method', nullable: true })
   @Property({ required: false })
   defaultPaymentMethod?: ObjectId;

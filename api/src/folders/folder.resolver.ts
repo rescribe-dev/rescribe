@@ -8,7 +8,7 @@ import { UserModel } from '../schema/users/user';
 import { checkRepositoryAccess, checkRepositoryPublic } from '../repositories/auth';
 import { AccessLevel } from '../schema/users/access';
 import { ApolloError } from 'apollo-server-express';
-import { NOT_FOUND, BAD_REQUEST, FORBIDDEN } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 @ArgsType()
 export class FolderArgs {
@@ -38,7 +38,7 @@ export const getFolder = async (args: FolderArgs): Promise<FolderDB> => {
   if (args.id) {
     const folder = await FolderModel.findById(args.id);
     if (!folder) {
-      throw new ApolloError('cannot find folder with given id', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find folder with given id', `${statusCodes.NOT_FOUND}`);
     }
     return folder;
   }
@@ -46,7 +46,7 @@ export const getFolder = async (args: FolderArgs): Promise<FolderDB> => {
     && (args.repositoryID || (args.repository && args.owner))) {
     if (!args.repositoryID) {
       if (!args.repository || !args.owner) {
-        throw new ApolloError('repo or owner is undefined', `${BAD_REQUEST}`);
+        throw new ApolloError('repo or owner is undefined', `${statusCodes.BAD_REQUEST}`);
       }
       const repository = await getRepositoryByOwner(args.repository, args.owner);
       args.repositoryID = repository._id;
@@ -57,14 +57,14 @@ export const getFolder = async (args: FolderArgs): Promise<FolderDB> => {
       path: args.path
     });
     if (!folder) {
-      throw new ApolloError('cannot find folder with given name, path, and repository', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find folder with given name, path, and repository', `${statusCodes.NOT_FOUND}`);
     }
     if (args.branch && !folder.branches.includes(args.branch)) {
-      throw new ApolloError(`folder does not exist on branch ${args.branch}`, `${NOT_FOUND}`);
+      throw new ApolloError(`folder does not exist on branch ${args.branch}`, `${statusCodes.NOT_FOUND}`);
     }
     return folder;
   } else {
-    throw new ApolloError('invalid combination of parameters to get folder data', `${BAD_REQUEST}`);
+    throw new ApolloError('invalid combination of parameters to get folder data', `${statusCodes.BAD_REQUEST}`);
   }
 };
 
@@ -74,7 +74,7 @@ class FolderResolver {
   async folder(@Args() args: FolderArgs, @Ctx() ctx: GraphQLContext): Promise<FolderDB> {
     const folder = await getFolder(args);
     if (!folder) {
-      throw new ApolloError('cannot find folder', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find folder', `${statusCodes.NOT_FOUND}`);
     }
     if (await checkRepositoryPublic(folder.repository, AccessLevel.view)) {
       return folder;
@@ -82,14 +82,14 @@ class FolderResolver {
       const userID = new ObjectId(ctx.auth.id);
       const user = await UserModel.findById(userID);
       if (!user) {
-        throw new ApolloError('cannot find user data', `${NOT_FOUND}`);
+        throw new ApolloError('cannot find user data', `${statusCodes.NOT_FOUND}`);
       }
       if (!(await checkRepositoryAccess(user, new ObjectId(folder.repository), AccessLevel.view))) {
-        throw new ApolloError('user not authorized to view folder', `${FORBIDDEN}`);
+        throw new ApolloError('user not authorized to view folder', `${statusCodes.FORBIDDEN}`);
       }
       return folder;
     } else {
-      throw new ApolloError('user must be logged in to get private folder', `${FORBIDDEN}`);
+      throw new ApolloError('user must be logged in to get private folder', `${statusCodes.FORBIDDEN}`);
     }
   }
 }

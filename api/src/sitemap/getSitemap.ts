@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
-import { UNAUTHORIZED } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { reverse, lookup } from 'dns';
 import isBot from 'isbot';
 import { promisify } from 'util';
 import { isProduction } from '../utils/mode';
 import { s3Client } from '../utils/aws';
 import { configData } from '../utils/config';
+import { contentTypeHeader } from '../utils/misc';
 
 const reverseLookup = promisify(reverse);
 const forwardLookup = promisify(lookup);
@@ -34,11 +35,11 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
     if (foundUserAgentHeaders.length === 0) {
       throw new Error('cannot find user agent');
     }
-    const userAgent = (req.headers[foundUserAgentHeaders[0]] as string).toLowerCase();
-    if (!isBot(userAgent)) {
-      throw new Error('user is not a bot');
-    }
     if (isProduction()) {
+      const userAgent = (req.headers[foundUserAgentHeaders[0]] as string).toLowerCase();
+      if (!isBot(userAgent)) {
+        throw new Error('user is not a bot');
+      }
       let foundBot = false;
       const requestIP = req.ip;
       for (const bot of supportedBots) {
@@ -79,7 +80,7 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
       Bucket: configData.AWS_S3_BUCKET_SITEMAP,
       Key: key
     }).promise();
-    res.setHeader('Content-Type', s3Metadata.ContentType as string);
+    res.setHeader(contentTypeHeader, s3Metadata.ContentType as string);
     res.setHeader('Content-Encoding', s3Metadata.ContentEncoding as string);
     res.setHeader('Content-Length', s3Metadata.ContentLength as number);
     res.setHeader('Last-Modified', (s3Metadata.LastModified as Date).getTime());
@@ -100,7 +101,7 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
     s3FileStream.pipe(res);
   } catch (err) {
     const errObj = err as Error;
-    res.status(UNAUTHORIZED).json({
+    res.status(statusCodes.UNAUTHORIZED).json({
       message: errObj.message
     });
   }

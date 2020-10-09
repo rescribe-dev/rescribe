@@ -14,3 +14,6 @@ lib_test
 
 # config files
 .env
+
+# output files
+dist_swagger/

@@ -1,0 +1,20 @@
+components:
+  schemas:
+    Message:
+      type: "object"
+      properties:
+        message:
+          type: string
+          description: Response message
+    Prediction:
+      type: "object"
+      required:
+        - name
+        - score
+      properties:
+        name:
+          type: string
+          description: Name of output
+        score:
+          type: number
+          description: Confidence level

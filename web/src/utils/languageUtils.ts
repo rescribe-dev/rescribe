@@ -1,5 +1,5 @@
 import { isSSR } from './checkSSR';
-import { languageOptions, defaultLanguage } from './languages';
+import { languageOptions, defaultLanguage } from 'shared/languages';
 
 export const getCurrentLanguageFromURL = (): string => {
   let currentLanguage = defaultLanguage;

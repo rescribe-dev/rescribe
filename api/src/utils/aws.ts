@@ -3,6 +3,9 @@ import { configData } from './config';
 import { ObjectId } from 'mongodb';
 import { isProduction } from './mode';
 import { getLogger } from 'log4js';
+import internal from 'stream';
+import { checkText, streamToString } from './misc';
+import { GetObjectRequest } from 'aws-sdk/clients/s3';
 
 const logger = getLogger();
 
@@ -11,31 +14,65 @@ export const s3Client = new AWS.S3();
 export let fileBucket: string;
 export let emailBucket: string;
 
-export const getS3Data = async (key: string, bucket: string): Promise<string> => {
-  const s3File = await s3Client.getObject({
+const defaultExpirationTime = 60; // seconds
+
+interface GetSignedURLParams extends GetObjectRequest {
+  Expires: number;
+};
+
+export const getS3DownloadSignedURL = async (key: string, bucket: string): Promise<string> => {
+  const params: GetSignedURLParams = {
+    Bucket: bucket,
+    Key: key,
+    Expires: defaultExpirationTime,
+  };
+  return await s3Client.getSignedUrlPromise('getObject', params);
+};
+
+export interface S3Data {
+  file: internal.Readable;
+  mime: string | undefined;
+};
+
+export const getS3Data = async (key: string, bucket: string, allowBinary: boolean): Promise<S3Data> => {
+  const headerData = await s3Client.headObject({
     Bucket: bucket,
     Key: key,
   }).promise();
-  if (!s3File.Body) {
-    throw new Error(`no body for file ${key}`);
+  if (!headerData.Metadata) {
+    throw new Error(`cannot find meta data for s3 file ${key}`);
   }
-  return s3File.Body.toString();
+  if (!allowBinary && headerData.ContentType && !checkText(headerData.ContentType)) {
+    throw new Error(`file ${key} is binary, when binary files are not allowed`);
+  }
+  const fileStream = s3Client.getObject({
+    Bucket: bucket,
+    Key: key,
+  }).createReadStream();
+  return {
+    file: fileStream,
+    mime: headerData.ContentType,
+  };
+};
+
+export const getMediaKey = (media: ObjectId): string => {
+  return media.toHexString();
 };
 
 export const getFileKey = (repository: ObjectId, file: ObjectId): string => {
   return `${repository.toHexString()}/${file.toHexString()}`;
 };
 
-export const getS3FileData = async (fileKey: string): Promise<string> => {
-  return await getS3Data(fileKey, fileBucket);
+export const getS3FileData = async (fileKey: string, allowBinary: boolean): Promise<S3Data> => {
+  return await getS3Data(fileKey, fileBucket, allowBinary);
 };
 
 export const getEmailKey = (templateName: string): string => {
   return `templates/${templateName}`;
 };
 
-export const getS3EmailData = async (emailKey: string): Promise<string> => {
-  return await getS3Data(emailKey, emailBucket);
+export const getS3EmailData = async (emailKey: string, allowBinary: boolean): Promise<string> => {
+  return await streamToString((await getS3Data(emailKey, emailBucket, allowBinary)).file);
 };
 
 export const initializeAWS = async (): Promise<void> => {
@@ -49,15 +86,23 @@ export const initializeAWS = async (): Promise<void> => {
   emailBucket = configData.AWS_S3_BUCKET_EMAILS;
 
   AWS.config = new AWS.Config();
+  
+  let setCredentials = false;
   if (configData.AWS_ACCESS_KEY_ID.length === 0 && !isProduction()) {
     throw new Error('no aws access key id provided');
   } else if (configData.AWS_ACCESS_KEY_ID.length > 0) {
-    AWS.config.accessKeyId = configData.AWS_ACCESS_KEY_ID;
+    setCredentials = true;
   }
   if (configData.AWS_SECRET_ACCESS_KEY.length === 0 && !isProduction()) {
     throw new Error('no aws secret access key provided');
   } else if (configData.AWS_SECRET_ACCESS_KEY.length > 0) {
-    AWS.config.secretAccessKey = configData.AWS_SECRET_ACCESS_KEY;
+    setCredentials = true;
+  }
+  if (setCredentials) {
+    AWS.config.credentials = new AWS.Credentials({
+      accessKeyId: configData.AWS_ACCESS_KEY_ID,
+      secretAccessKey: configData.AWS_SECRET_ACCESS_KEY
+    });
   }
   if (configData.AWS_REGION.length === 0) {
     throw new Error('no aws region provided');

@@ -3,7 +3,7 @@ import { Page, Viewport } from 'puppeteer';
 import { parse } from 'url';
 import { getLogger } from 'log4js';
 import { brotliCompress, gzip } from 'zlib';
-import { NOT_FOUND, OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { webClient } from './utils/webBridge';
 import { extension } from 'mime-types';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -177,7 +177,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     if (err.response) {
       await sendAxiosResponse(err.response, res);
     } else {
-      res.status(NOT_FOUND).send(err.message);
+      res.status(statusCodes.NOT_FOUND).send(err.message);
     }
     return;
   }
@@ -197,7 +197,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
         await sendAxiosResponse(requestResponse, res, await page.content(), originalEncodingHeaderData);
         break;
       case RenderType.pdf:
-        res.contentType('pdf').status(OK).send(await page.pdf({ format: 'A4' }));
+        res.contentType('pdf').status(statusCodes.OK).send(await page.pdf({ format: 'A4' }));
         break;
       case RenderType.png:
         res.contentType('png').send(await page.screenshot({
@@ -217,7 +217,7 @@ const prerender = async (req: Request, res: Response): Promise<void> => {
     const err = error as Error;
     const message = `unable to render ${pageURL}: ${err.message}`;
     logger.error(message);
-    res.status(NOT_FOUND).send(message);
+    res.status(statusCodes.NOT_FOUND).send(message);
   } finally {
     if (page) {
       page.close();

@@ -1,0 +1,10 @@
+swagger:
+  outputDirectory: ./dist_swagger
+  entryFile:
+    - ./src/**/*.rest.ts
+    - ./src/server.ts
+  outputFormat: OpenApi_3
+  name: api rest
+  description: schema for rest portion of apiKey
+  ignore:
+    - /node_modules/**

@@ -20,7 +20,7 @@ import { FormattedMessage } from 'react-intl';
 import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
 import { CheckoutValues } from '../misc';
 import { isSSR } from 'utils/checkSSR';
-import { defaultLanguage } from 'utils/languages';
+import { defaultLanguage } from 'shared/languages';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { CurrencyData } from 'state/settings/types';

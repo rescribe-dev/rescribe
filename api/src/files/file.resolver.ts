@@ -115,27 +115,31 @@ export const getFile = async (args: FileArgs): Promise<File> => {
   }
 };
 
+export const getFileAuthenticated = async (args: FileArgs, ctx: GraphQLContext): Promise<File> => {
+  const file = await getFile(args);
+  const repositoryID = new ObjectId(file.repository);
+  if (await checkRepositoryPublic(repositoryID, AccessLevel.view)) {
+    return file;
+  }
+  if (!verifyLoggedIn(ctx) || !ctx.auth) {
+    throw new Error('user not logged in');
+  }
+  const userID = new ObjectId(ctx.auth.id);
+  const user = await UserModel.findById(userID);
+  if (!user) {
+    throw new Error('cannot find user data');
+  }
+  if (!(await checkRepositoryAccess(user, repositoryID, AccessLevel.view))) {
+    throw new Error('user not authorized to view file');
+  }
+  return file;
+};
+
 @Resolver()
 class FileResolver {
   @Query(_returns => File)
   async file(@Args() args: FileArgs, @Ctx() ctx: GraphQLContext): Promise<File> {
-    const file = await getFile(args);
-    const repositoryID = new ObjectId(file.repository);
-    if (await checkRepositoryPublic(repositoryID, AccessLevel.view)) {
-      return file;
-    }
-    if (!verifyLoggedIn(ctx) || !ctx.auth) {
-      throw new Error('user not logged in');
-    }
-    const userID = new ObjectId(ctx.auth.id);
-    const user = await UserModel.findById(userID);
-    if (!user) {
-      throw new Error('cannot find user data');
-    }
-    if (!(await checkRepositoryAccess(user, repositoryID, AccessLevel.view))) {
-      throw new Error('user not authorized to view file');
-    }
-    return file;
+    return await getFileAuthenticated(args, ctx);
   }
 }
 
