@@ -22,5 +22,6 @@ module.exports = {
       'development/nlp',
     ],
     Notes: ['notes/index', 'notes/github'],
+    'White Paper': ['whitepaper/abstract'],
   },
 };

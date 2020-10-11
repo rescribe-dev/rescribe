@@ -65,7 +65,7 @@ export const FileResult = (): JSX.Element => {
               resultTypeOptions,
               resultTypeOptions[0]
             ),
-            preview: getPreviewData(previewText)
+            preview: getPreviewData(previewText),
           },
         ]}
       />
