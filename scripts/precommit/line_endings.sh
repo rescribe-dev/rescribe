@@ -3,7 +3,7 @@
 cd ../..
 
 line_endings_files=$(grep -R -I -U -P "\r$" \
-  --exclude-dir={.git,node_modules,grammars,.gradle,.cache,build,dist,data} .)
+  --exclude-dir={.git,node_modules,grammars,.gradle,.cache,build,dist} .)
 
 num_line_endings_files=$(echo -n "$line_endings_files" | grep -c '^')
 

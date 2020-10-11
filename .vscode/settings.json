@@ -16,6 +16,5 @@
   "python.linting.enabled": true,
   "files.eol": "\n",
   "editor.tabSize": 2,
-  "git.ignoreLimitWarning": true
   "python.pythonPath": "/home/joshua/anaconda3/envs/rescribe-nlp-deployment/bin/python"
 }

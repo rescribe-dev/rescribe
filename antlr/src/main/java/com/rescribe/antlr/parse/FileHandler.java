@@ -13,16 +13,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import com.google.common.util.concurrent.SimpleTimeLimiter;
-import com.google.common.util.concurrent.TimeLimiter;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 public class FileHandler {
-
-  private final static int timeout = 10; //seconds
 
   private static String getFileExtension(String name) {
     String extension = "";
@@ -34,35 +25,18 @@ public class FileHandler {
     return extension.replaceAll("\\s", "");
   }
 
-  public static File getFileData(FileInput input) throws UnsupportedFileException, TimeoutException, Exception {
-    System.out.println("Enter file handler");
+  public static File getFileData(FileInput input) throws UnsupportedFileException {
     String file_extension = getFileExtension(input.getFileName());
     ParseTreeWalker walker = new ParseTreeWalker();
     ParseTree tree;
     CustomListener listener;
-    TimeLimiter limiter = SimpleTimeLimiter.create(Executors.newCachedThreadPool());
-
     switch (file_extension) {
       case "java":
         {
-
           JavaLexer lexer = new JavaLexer(CharStreams.fromString(input.getContent()));
           CommonTokenStream tokens = new CommonTokenStream(lexer);
           JavaParser parser = new JavaParser(tokens);
-
-          long startTime = System.nanoTime();
-          try {
-            tree = limiter.callWithTimeout((Callable<ParseTree>) () -> {
-                return parser.compilationUnit();
-            }, timeout, TimeUnit.SECONDS);
-          } catch (TimeoutException e) {
-              System.out.println("Timeout for parser.compilationUnit");
-              throw e;
-          } catch (Throwable e) {
-              System.out.println("Error for parser.compilationUnit");
-              throw e;
-          }
-
+          tree = parser.compilationUnit();
           JavaDeclarationListener jdl =
               new JavaDeclarationListener(tokens, input, LanguageType.java);
           walker.walk(jdl, tree);
