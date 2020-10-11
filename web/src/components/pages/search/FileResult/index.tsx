@@ -29,33 +29,55 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
       <CardBody>
         <CardTitle>
           <Row>
-            <Col md="1">
-              <Media
-                object
-                data-src={args.file.location.image}
-                alt="Generic placeholder image"
+            <Col
+              md="1"
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+              }}
+            >
+              <LazyLoadImage
+                src={args.file.location.image}
+                style={{
+                  width: '2em',
+                  height: '2em',
+                  borderRadius: '1em',
+                }}
               />
             </Col>
             <Col md="10" className="align-items-start justify-content-end">
-              <CardText>{args.file.name}</CardText>
-              <Row fluid={true}>
-                <b>
-                  {args.file.location.repository}/{args.file.location.owner}
-                </b>
-                <p
-                  style={{
-                    margin: '0em 0.6em 0em 0.6em',
-                  }}
-                >
-                  {' > '}
-                </p>
-                <p
-                  style={{
-                    color: 'var(--link-blue)',
-                  }}
-                >
-                  {args.file.path}
-                </p>
+              <Row>
+                <Col>
+                  <Row>
+                    <Col>
+                      <CardText>{args.file.name}</CardText>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <CardText
+                        style={{
+                          display: 'inline',
+                        }}
+                      >
+                        <b>
+                          {args.file.location.repository}/
+                          {args.file.location.owner}
+                        </b>
+                        {' > '}
+                      </CardText>
+                      <Link
+                        to="/"
+                        style={{
+                          color: 'var(--link-blue)',
+                        }}
+                      >
+                        {args.file.path}
+                      </Link>
+                    </Col>
+                  </Row>
+                </Col>
               </Row>
             </Col>
             <Col md="1">

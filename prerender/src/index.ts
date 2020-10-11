@@ -24,7 +24,7 @@ const runPrerender = async (): Promise<void> => {
   }
 };
 
-if (!module.parent) {
+if (require.main === module) {
   runPrerender();
 }
 

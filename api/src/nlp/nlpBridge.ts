@@ -3,28 +3,35 @@ import { OK } from 'http-status-codes';
 import { configData } from '../utils/config';
 import { getLogger } from 'log4js';
 import sleep from '../shared/sleep';
+import { Language } from '../schema/misc/language';
 
 const logger = getLogger();
 
 let nlpClient: AxiosInstance;
 
-interface NLPProcessOutput {
-  matches: string[];
-}
+const defaultLimitPredict = 5;
 
-interface NLPProcessInput {
-  query: string
-}
+interface NLPPredictLanguageOutput {
+  data: {
+    name: Language;
+    score: number;
+  }[];
+};
+
+interface NLPPredictLanguageInput {
+  query: string,
+  limit?: number;
+};
 
 const pingRetryAfter = 5;
 
-export const processInput = async(query: string): Promise<NLPProcessOutput> => {
-  const input: NLPProcessInput = {
-    query
-  };
-  const processOutput = await nlpClient.put<NLPProcessOutput>('/processInput', input);
+export const predictLanguage = async(input: NLPPredictLanguageInput): Promise<NLPPredictLanguageOutput> => {
+  if (!input.limit) {
+    input.limit = defaultLimitPredict;
+  }
+  const processOutput = await nlpClient.put<NLPPredictLanguageOutput>('/predictLanguage', input);
   if (!processOutput.data) {
-    throw new Error('cannot find process input data');
+    throw new Error('cannot find predict language data');
   }
   return processOutput.data;
 };
