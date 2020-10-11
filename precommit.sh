@@ -30,7 +30,7 @@ do
 done
 
 script_paths=("antlr/" "fast/" "nlp/dataprocess/language/" "nlp/dataprocess/library/" \
-  "nlp/dataprocess/library_analysis" "nlp/deployment/" "nlp/training/bert/" "aws/sagemaker/deploy/")
+  "nlp/deployment/" "nlp/training/bert/" "aws/sagemaker/deploy/")
 
 for path in "${script_paths[@]}"
 do

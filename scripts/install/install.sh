@@ -55,8 +55,7 @@ cd -
 
 # python
 python_paths=("nlp/dataprocess/language" "nlp/dataprocess/library" \
-  "nlp/dataprocess/library_analysis" "nlp/deployment" \
-  "nlp/training/bert" "aws/sagemaker/deploy")
+  "nlp/deployment" "nlp/training/bert" "aws/sagemaker/deploy")
 
 for path in "${python_paths[@]}"
 do
