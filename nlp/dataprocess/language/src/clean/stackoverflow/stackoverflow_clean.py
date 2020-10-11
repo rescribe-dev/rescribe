@@ -17,8 +17,8 @@ from shared.utils import get_file_path_relative, compress_labels
 from shared.type import NLPType
 from shared.languages import languages
 from shared.libraries import libraries
-from shared.variables import data_folder, clean_data_folder, main_data_file, language_data_folder, \
-    datasets_folder, library_data_folder, classes_file
+from shared.variables import data_folder, clean_data_folder, main_data_file, \
+    datasets_folder, classes_file, type_path_dict
 from clean.utils.clean_utils import library_label_to_numeric, language_label_to_numeric
 
 
@@ -29,7 +29,7 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
 
     logger.info("Loading Data From Disk")
 
-    folder_name: str = language_data_folder if cleaning_type == NLPType.language else library_data_folder
+    folder_name: str = type_path_dict[cleaning_type]
 
     df_chunk: Union[pd.DataFrame] = pd.read_csv(
         get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}/{main_data_file}'), chunksize=chunksize)

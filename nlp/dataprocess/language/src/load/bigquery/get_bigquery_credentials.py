@@ -3,9 +3,35 @@
 get bigquery credentials
 """
 from boto3.session import Session
-
+from google.cloud import bigquery
+from os import getenv
+from os.path import exists
+from typing import Union
+from shared.config import PRODUCTION
+from shared.type import NLPType
+from shared.variables import type_path_dict, credentials_file
+from shared.utils import get_file_path_relative
 secret_name: str = 'BIGQUERY_CREDENTIALS'
 region_name: str = 'us-east-1'
+
+
+def create_bigquery_client(dataload_type: NLPType) -> bigquery.Client:
+    folder_name: str = type_path_dict[dataload_type]
+
+    credentials_file_path = get_file_path_relative(
+        f'dataprocess/{folder_name}/src/{credentials_file}')
+
+    if not exists(credentials_file_path):
+        environment_data: Union[str, None] = getenv('BIGQUERY_CREDENTIALS')
+        if environment_data is None:
+            if not PRODUCTION:
+                raise ValueError(
+                    'cannot find big query credentials in ' + str(credentials_file_path))
+            environment_data = main()
+        with open(credentials_file_path, 'w') as credentials_file_object:
+            credentials_file_object.write(environment_data)
+
+    return bigquery.Client.from_service_account_json(credentials_file_path)
 
 
 def main() -> str:

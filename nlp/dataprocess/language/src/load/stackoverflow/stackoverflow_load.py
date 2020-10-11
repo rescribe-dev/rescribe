@@ -35,11 +35,9 @@ from shared.type import NLPType
 from shared.libraries import libraries
 from shared.languages import languages
 from glob import glob
+from load.bigquery.get_bigquery_credentials import create_bigquery_client
 from shared.variables import bucket_name, dataset_length as default_dataset_length, \
-    data_folder, main_data_file, language_data_folder, \
-    library_data_folder, datasets_folder
-
-credentials_file: str = 'load/bigquery/bigquery_credentials.json'
+    data_folder, main_data_file, type_path_dict, datasets_folder, credentials_file
 
 s3_client = boto3.client('s3')
 
@@ -67,20 +65,9 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     """
     from shared.config import PRODUCTION
 
-    folder_name: str = language_data_folder if dataload_type == NLPType.language else library_data_folder
+    folder_name: str = type_path_dict[dataload_type]
 
-    credentials_file_path = get_file_path_relative(
-        f'dataprocess/{folder_name}/src/{credentials_file}')
-    if not exists(credentials_file_path):
-        environment_data: Union[str, None] = getenv('BIGQUERY_CREDENTIALS')
-        if environment_data is None:
-            if not PRODUCTION:
-                raise ValueError('cannot find big query credentials')
-            environment_data = get_bigquery_credentials()
-        with open(credentials_file_path, 'w') as credentials_file_object:
-            credentials_file_object.write(environment_data)
-    client: bigquery.Client = bigquery.Client.from_service_account_json(
-        credentials_file_path)
+    client: bigquery.Client = create_bigquery_client(dataload_type)
 
     data = bqh(active_project="bigquery-public-data",
                dataset_name="stackoverflow",

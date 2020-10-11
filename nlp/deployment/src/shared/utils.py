@@ -72,6 +72,6 @@ def get_file_path_relative(path):
 
 def list_files(directory, extension) -> List[str]:
     """
-    list files
+    Returns files that end with the given extension (NO DOT) (NOT REGEX COMPATIBLE)
     """
     return [f for f in listdir(directory) if f.endswith('.' + extension)]
