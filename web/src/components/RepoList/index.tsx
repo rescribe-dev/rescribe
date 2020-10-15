@@ -75,7 +75,7 @@ const ProjectPage = (_args: RepoListProps): JSX.Element => {
   return (
     <>
       {projectName ? (
-        <Container className="default-container">
+        <Container>
           {!projectQueryRes ||
           projectQueryRes.loading ||
           !projectQueryRes.data ||

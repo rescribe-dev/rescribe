@@ -22,9 +22,10 @@ import { RootState } from 'state';
 import { ProjectMessages } from 'locale/templates/project/projectMessages';
 import { getErrorCode } from 'utils/misc';
 import statusCodes from 'http-status-codes';
+import ObjectId from 'bson-objectid';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectPageDataProps extends PageProps {}
+export interface ProjectPageDataProps extends PageProps { }
 
 interface ProjectProps extends ProjectPageDataProps {
   messages: ProjectMessages;
@@ -50,92 +51,95 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
     isSSR || projectName === undefined
       ? undefined
       : useQuery<ProjectQuery, ProjectQueryVariables>(Project, {
-          variables: {
-            name: projectName,
-          },
-          onError: (err) => {
-            const errorCode = getErrorCode(err);
-            if (errorCode === statusCodes.NOT_FOUND) {
-              navigate('/404', {
-                state: {
-                  location: window.location.href,
+        variables: {
+          name: projectName,
+        },
+        onError: (err) => {
+          const errorCode = getErrorCode(err);
+          if (errorCode === statusCodes.NOT_FOUND) {
+            navigate('/404', {
+              state: {
+                location: window.location.href,
+              },
+            });
+          } else {
+            toast(err.message, {
+              type: 'error',
+            });
+          }
+        },
+        onCompleted: async (data) => {
+          //TODO: properly handle pagination
+          setRepositoriesData(
+            await client.query<RepositoriesQuery, RepositoriesQueryVariables>(
+              {
+                query: Repositories,
+                variables: {
+                  projects: [data.project._id as ObjectId],
+                  page: 0,
+                  perpage: 18,
                 },
-              });
-            } else {
-              toast(err.message, {
-                type: 'error',
-              });
-            }
-          },
-          onCompleted: async (data) => {
-            //TODO: properly handle pagination
-            setRepositoriesData(
-              await client.query<RepositoriesQuery, RepositoriesQueryVariables>(
-                {
-                  query: Repositories,
-                  variables: {
-                    projects: [data.project._id],
-                    page: 0,
-                    perpage: 18,
-                  },
-                  fetchPolicy: 'no-cache',
-                }
-              )
-            );
-          },
-        });
+                fetchPolicy: 'no-cache',
+              }
+            )
+          );
+        },
+      });
 
   return (
     <>
       {projectName ? (
-        <Container className="default-container">
+        <Container style={{
+          marginTop: '3rem',
+          marginBottom: '2rem',
+        }}>
           {!projectQueryRes ||
-          projectQueryRes.loading ||
-          !projectQueryRes.data ||
-          !repositoriesData ||
-          repositoriesData.loading ||
-          !repositoriesData.data ? (
-            <p>loading...</p>
-          ) : (
-            <>
-              {repositoriesData.data.repositories.length === 0 ? (
-                <p>no repositories in project {projectName}</p>
-              ) : (
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Repositories:</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {repositoriesData.data.repositories.map((repository) => {
-                      return (
-                        <tr key={repository._id}>
-                          <td>
-                            <Link to={`/${username}/${repository.name}`}>
-                              {repository.name}
-                            </Link>
-                          </td>
+            projectQueryRes.loading ||
+            !projectQueryRes.data ||
+            !repositoriesData ||
+            repositoriesData.loading ||
+            !repositoriesData.data ? (
+              <p>loading...</p>
+            ) : (
+              <>
+                {repositoriesData.data.repositories.length === 0 ? (
+                  <p>no repositories in project {projectName}</p>
+                ) : (
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>Repositories:</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </Table>
-              )}
-              <Button
-                onClick={(evt) => {
-                  evt.preventDefault();
-                  navigate(`/new?type=repository&project=${projectName}`);
-                }}
-              >
-                New Repository
+                      </thead>
+                      <tbody>
+                        {repositoriesData.data.repositories.map((repository) => {
+                          return (
+                            <tr key={repository._id}>
+                              <td>
+                                <Link to={`/${username}/${repository.name}`}>
+                                  {repository.name}
+                                </Link>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  )}
+                <Button
+                  onClick={(evt) => {
+                    evt.preventDefault();
+                    navigate(`/new?type=repository&project=${projectName}`);
+                  }}
+                >
+                  New Repository
               </Button>
-            </>
-          )}
+              </>
+            )}
         </Container>
       ) : (
-        <p>cannot find project!</p>
-      )}
+          <p>cannot find project!</p>
+        )}
     </>
   );
 };

@@ -1,127 +1,176 @@
-import React from 'react';
-import {
-  Container,
-  Table,
-  Button,
-  // Modal,
-  // ModalBody,
-  // ModalFooter,
-  // ModalHeader,
-} from 'reactstrap';
+import React, { useEffect, useState } from 'react';
+import { Container, Table, Button, Col, Row } from 'reactstrap';
 import { PageProps, Link } from 'gatsby';
 
 import './index.scss';
 
-import { useQuery, QueryResult } from '@apollo/react-hooks';
+import { ApolloQueryResult } from 'apollo-client';
+import { useMutation } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
 import {
   RepositoriesQueryVariables,
   RepositoriesQuery,
   Repositories,
+  DeleteRepository,
+  DeleteRepositoryMutationVariables,
+  DeleteRepositoryMutation,
 } from 'lib/generated/datamodel';
 import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { navigate } from '@reach/router';
 import { RepositoriesMessages } from 'locale/templates/repositories/repositoriesMessages';
+import ObjectId from 'bson-objectid';
+import { AiFillDelete } from 'react-icons/ai';
+import { client } from 'utils/apollo';
+import DeleteRepositoryModal from './DeleteRepositoryModal';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RepositoriesPageDataProps extends PageProps {}
+export interface RepositoriesPageDataProps extends PageProps { }
 
 interface RepositoriesProps extends RepositoriesPageDataProps {
   messages: RepositoriesMessages;
 }
 
-// interface ModalArgs {
-//   deleteRepository: () => Promise<void>;
-//   toggle: () => void;
-//   isOpen: boolean;
-// }
+const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
+  const [repositories, setRepositories] = useState<
+    ApolloQueryResult<RepositoriesQuery> | undefined
+  >(undefined);
 
-const RepositoriesPage = (
-  _args: RepositoriesProps,
-  _modalArgs: ModalArgs
-): JSX.Element => {
-  const repositoriesQueryRes:
-    | QueryResult<RepositoriesQuery, RepositoriesQueryVariables>
-    | undefined = isSSR
-    ? undefined
-    : //TODO: properly handle pagination
-      useQuery<RepositoriesQuery, RepositoriesQueryVariables>(Repositories, {
-        variables: {
-          page: 0,
-          perpage: 18,
-        },
-        onError: (err) => {
-          toast(err.message, {
-            type: 'error',
-          });
-        },
-      });
+  const [deleteRepositoryModalIsOpen, setDeleteRepositoryModalIsOpen] = useState(false);
+  const deleteRepositoriesModalToggle = () =>
+    setDeleteRepositoryModalIsOpen(!deleteRepositoryModalIsOpen);
+
+
+  const [currentRepository, setCurrentRepository] = useState<ObjectId | undefined>(
+    undefined
+  );
+  const [deleteRepositoryMutation] = useMutation<
+    DeleteRepositoryMutation,
+    DeleteRepositoryMutationVariables
+  >(DeleteRepository);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const repositoriesRes = await client.query<
+          RepositoriesQuery,
+          RepositoriesQueryVariables
+        >({
+          query: Repositories,
+          variables: {
+            page: 0,
+            perpage: 18,
+          },
+          fetchPolicy: 'network-only',
+        });
+        repositoriesRes.data.repositories.map((repository) => {
+          repository._id = new ObjectId(repository._id);
+        });
+        setRepositories(repositoriesRes);
+      } catch (err) {
+        const errObj = err as Error;
+        toast(errObj.message, {
+          type: 'error',
+        });
+      }
+    })();
+  });
+
   const username = isSSR
     ? undefined
     : useSelector<RootState, string>((state) => state.authReducer.username);
   return (
-    <Container className="default-container">
-      {!repositoriesQueryRes ||
-      repositoriesQueryRes.loading ||
-      !repositoriesQueryRes.data ? (
-        <p>loading...</p>
-      ) : (
-        <>
-          {repositoriesQueryRes.data.repositories.length === 0 ? (
-            <p>no Repositories found.</p>
+    <>
+      <Container style={{
+        marginTop: '3rem',
+        marginBottom: '2rem',
+      }}>
+        {!repositories ||
+          repositories.loading ||
+          !repositories.data ? (
+            <p>loading...</p>
           ) : (
-            <Table>
-              <thead>
-                <tr>
-                  <th>Repositories:</th>
-                </tr>
-              </thead>
-              <tbody>
-                {repositoriesQueryRes.data.repositories.map((repository) => {
-                  return (
-                    <tr key={repository._id}>
-                      <td>
-                        <Link to={`/${username}/projects/${repository.name}`}>
-                          {repository.name}
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          )}
-          <Button
-            onClick={(evt) => {
-              evt.preventDefault();
-              navigate('/new?type=project');
-            }}
-          >
-            New Repositories
-          </Button>
-          {/* <Modal isOpen={_modalArgs.isOpen} toggle={_modalArgs.toggle}>
-            <ModalHeader toggle={_modalArgs.toggle}>Delete Repository</ModalHeader>
-            <ModalBody>Are you sure?</ModalBody>
-            <ModalFooter>
+            <>
+              {repositories.data.repositories.length === 0 ? (
+                <p>no repositories found.</p>
+              ) : (
+                  <Table>
+                    <thead>
+                      <tr>
+                        <th>Repositories</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {repositories.data.repositories.map((repository) => {
+                        return (
+                          <tr key={(repository._id as ObjectId).toHexString()}>
+                            <td>
+                              <Row>
+                                <Col>
+                                  <Link to={`/${username}/${repository.name}`}>
+                                    {repository.name}
+                                  </Link>
+                                </Col>
+                                <Col>
+                                  <Button
+                                    style={{
+                                      color: '#818A91',
+                                      backgroundColor: '#fff',
+                                      border: '0px',
+                                    }}
+                                    onClick={(evt) => {
+                                      evt.preventDefault();
+                                      setCurrentRepository(repository._id);
+                                      deleteRepositoriesModalToggle();
+                                    }}
+                                  >
+                                    <AiFillDelete />
+                                  </Button>
+                                </Col>
+                              </Row>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </Table>
+                )}
               <Button
-                color="danger"
-                onClick={async () => {
-                  await args.deleteFolder();
-                  args.toggle();
+                onClick={(evt) => {
+                  evt.preventDefault();
+                  navigate('/new?type=repository');
                 }}
               >
-                Delete
-              </Button>{" "}
-              <Button color="secondary" onClick={args.toggle}>
-                Cancel
+                New Repository
               </Button>
-            </ModalFooter>
-          </Modal> */}
-        </>
-      )}
-    </Container>
+              <DeleteRepositoryModal
+                isOpen={deleteRepositoryModalIsOpen}
+                toggle={deleteRepositoriesModalToggle}
+                deleteRepository={async (): Promise<void> => {
+                  if (!currentRepository) return;
+                  await deleteRepositoryMutation({
+                    variables: {
+                      id: currentRepository,
+                    },
+                    update: () => {
+                      setRepositories({
+                        ...repositories,
+                        loading: false,
+                        data: {
+                          repositories: repositories.data.repositories.filter(
+                            (elem) => !(elem._id as ObjectId).equals(currentRepository)
+                          ),
+                        },
+                      });
+                    },
+                  });
+                }}
+              />
+            </>
+          )}
+      </Container>
+    </>
   );
 };
 

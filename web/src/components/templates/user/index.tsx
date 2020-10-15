@@ -22,7 +22,7 @@ import statusCodes from 'http-status-codes';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserPageDataProps extends PageProps {}
+export interface UserPageDataProps extends PageProps { }
 
 interface UserProps extends UserPageDataProps {
   messages: UserMessages;
@@ -39,8 +39,8 @@ const UserPage = (args: UserProps): JSX.Element => {
   const currentUser = isSSR
     ? undefined
     : useSelector<RootState, UserFieldsFragment | undefined>(
-        (state) => state.authReducer.user
-      );
+      (state) => state.authReducer.user
+    );
   const [user, setUser] = useState<PublicUserFieldsFragment | undefined>(
     undefined
   );
@@ -74,47 +74,51 @@ const UserPage = (args: UserProps): JSX.Element => {
     }
   }, []);
   return (
-    <Container className="default-container">
+    <Container style={{
+      marginTop: '3rem',
+      marginBottom: '2rem',
+    }}>
       <div>
         {user === undefined ? (
           <div>loading</div>
         ) : (
-          <div>
-            <Container>
-              <Row>
-                <Col md="4">
-                  <Row className="text-center">
-                    <Col>
-                      <Container
-                        style={{
-                          marginBottom: '2rem',
-                        }}
-                      >
-                        <LazyLoadImage
-                          src={'https://i.stack.imgur.com/frlIf.png'}
+            <div>
+              <Container>
+                <Row>
+                  <Col md="4">
+                    <Row className="text-center">
+                      <Col>
+                        <Container
                           style={{
-                            borderRadius: '50%',
+                            marginBottom: '2rem',
                           }}
-                        />
-                      </Container>
-                    </Col>
-                  </Row>
-                  <Row className="text-center">
-                    <Col>
-                      <Button
-                        onClick={(evt) => {
-                          evt.preventDefault();
-                          navigate('/settings');
-                        }}
-                        color="secondary"
-                      >
-                        Change User Profile
+                        >
+                          <LazyLoadImage
+                            src={'https://i.stack.imgur.com/frlIf.png'}
+                            style={{
+                              borderRadius: '50%',
+                            }}
+                          />
+                        </Container>
+                      </Col>
+                    </Row>
+                    <Row className="text-center">
+                      <Col>
+                        <Button
+                          onClick={(evt) => {
+                            evt.preventDefault();
+                            navigate('/settings');
+                          }}
+                          color="secondary"
+                        >
+                          Change User Profile
                       </Button>
-                    </Col>
-                  </Row>
-                </Col>
-                <Col md="8">
-                  <Container
+                      </Col>
+                    </Row>
+                  </Col>
+                  <Col md="8">
+
+                    {/* <Container
                     style={{
                       marginBottom: '1rem',
                     }}
@@ -143,24 +147,24 @@ const UserPage = (args: UserProps): JSX.Element => {
                         </Button>
                       </Col>
                     </Row>
-                  </Container>
+                  </Container> */}
 
-                  <Row>
-                    <Container
-                      style={{
-                        marginLeft: '1rem',
-                      }}
-                    >
-                      <Col md="6">
-                        <h5>Previous Searches</h5>
-                      </Col>
-                    </Container>
-                  </Row>
-                </Col>
-              </Row>
-            </Container>
-          </div>
-        )}
+                    <Row>
+                      <Container
+                        style={{
+                          marginLeft: '1rem',
+                        }}
+                      >
+                        <Col md="6">
+                          <h5>Previous Searches</h5>
+                        </Col>
+                      </Container>
+                    </Row>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+          )}
       </div>
     </Container>
   );
