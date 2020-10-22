@@ -37,7 +37,7 @@ const SearchBar = (): JSX.Element => {
       onSubmit={async (formData, { setSubmitting, setStatus }) => {
         setSubmitting(true);
         dispatch(setQuery(formData.query));
-        await navigate(getSearchURL());
+        window.history.pushState({search: formData.query}, "", getSearchURL());
         // TODO - fix this
         // hack to allow for react state to update before search
         await sleep(50);

@@ -22,6 +22,7 @@ import { Language } from '../schema/misc/language';
 import { predictLanguage } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
+import { mapArrayOptions } from '@typegoose/typegoose/lib/internal/utils';
 
 const logger = getLogger();
 
@@ -138,6 +139,27 @@ export const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]:
     }
   }
 };
+
+export const usesQueryLang = (query: string | undefined): boolean => {
+  if (!query) {
+    return false;
+  }
+
+  const languageQueryTerms: string[] = ["language:", "lang:", "languages:", "langs:"];
+  const libraryQueryTerms: string[] = ["library:", "lib:", "libraries:", "libs:"];
+  const queryTerms: string[] = languageQueryTerms.concat(libraryQueryTerms);
+
+  const containsTerms = (queryTerms: string[]): boolean => {
+    for(let i = 0; i < queryTerms.length; i++) {
+      if (query.includes(queryTerms[i])) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  return containsTerms(queryTerms);
+}
 
 export const search = async (user: User | null, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
@@ -269,6 +291,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     });
   }
 
+  const usesQLang: boolean = usesQueryLang(args.query);
   const languageFilters: TermQuery[] = [];
   if (!oneFile) {
     if (args.languages) {
@@ -306,6 +329,10 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           });
         }
       }
+    } else if (usesQLang) {
+      console.log("THIS THING USES THE QUERY LANGUAGE!!!");
+      
+      // QUERY LANGUAGE HANDLING FOR LANGUAGE
     }
   }
 
