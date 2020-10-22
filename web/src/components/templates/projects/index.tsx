@@ -4,7 +4,8 @@ import { PageProps, Link } from 'gatsby';
 
 import './index.scss';
 
-import { useMutation, ApolloQueryResult } from '@apollo/react-hooks';
+import { ApolloQueryResult } from 'apollo-client';
+import { useMutation } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
 import {
   ProjectsQuery,
@@ -76,24 +77,7 @@ const ProjectsPage = (_args: ProjectsProps): JSX.Element => {
         });
       }
     })();
-  });
-  // Do I still need this if I implement the useEffect above? (Ask Josh)
-  // const projectsQueryRes:
-  //   | QueryResult<ProjectsQuery, ProjectsQueryVariables>
-  //   | undefined = isSSR
-  //     ? undefined
-  //     : //TODO: properly handle pagination
-  //     useQuery<ProjectsQuery, ProjectsQueryVariables>(Projects, {
-  //       variables: {
-  //         page: 0,
-  //         perpage: 18,
-  //       },
-  //       onError: (err) => {
-  //         toast(err.message, {
-  //           type: 'error',
-  //         });
-  //       },
-  //     });
+  }, []);
   const username = isSSR
     ? undefined
     : useSelector<RootState, string>((state) => state.authReducer.username);
@@ -155,7 +139,9 @@ const ProjectsPage = (_args: ProjectsProps): JSX.Element => {
           <Button
             onClick={(evt) => {
               evt.preventDefault();
-              navigate('/new?type=project');
+              navigate('/new?type=project', {
+                replace: true
+              });
             }}
           >
             New Project

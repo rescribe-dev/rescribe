@@ -20,7 +20,7 @@ import { client } from 'utils/apollo';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { ProjectMessages } from 'locale/templates/project/projectMessages';
-import { getErrorCode } from 'utils/misc';
+import { capitalizeFirstLetter, capitalizeOnlyFirstLetter, getErrorCode } from 'utils/misc';
 import statusCodes from 'http-status-codes';
 import ObjectId from 'bson-objectid';
 
@@ -104,6 +104,9 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
             <p>loading...</p>
           ) : (
             <>
+              <h2 style={{
+                marginBottom: '2rem'
+              }}>Project {capitalizeFirstLetter(projectName)}</h2>
               {repositoriesData.data.repositories.length === 0 ? (
                 <p>no repositories in project {projectName}</p>
               ) : (

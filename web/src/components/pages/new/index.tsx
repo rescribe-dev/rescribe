@@ -43,6 +43,11 @@ import {
   ProjectNameExistsQuery,
   ProjectNameExistsQueryVariables,
   ProjectNameExists,
+  AddProjectMutation,
+  AddProjectMutationVariables,
+  Projects,
+  ProjectsQuery,
+  ProjectsQueryVariables,
 } from 'lib/generated/datamodel';
 import { client } from 'utils/apollo';
 import { NewMessages } from 'locale/pages/new/newMessages';

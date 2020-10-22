@@ -77,7 +77,7 @@ const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
         });
       }
     })();
-  });
+  }, []);
 
   const username = isSSR
     ? undefined

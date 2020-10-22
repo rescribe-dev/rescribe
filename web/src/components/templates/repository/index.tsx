@@ -15,11 +15,11 @@ import {
 import { RepositoryMessages } from 'locale/templates/repository/repositoryMessages';
 import { client } from 'utils/apollo';
 import { ApolloQueryResult, ApolloError } from 'apollo-client';
-import { getErrorCode } from 'utils/misc';
+import { capitalizeFirstLetter, getErrorCode } from 'utils/misc';
 import statusCodes from 'http-status-codes';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RepositoryPageDataProps extends PageProps {}
+export interface RepositoryPageDataProps extends PageProps { }
 
 interface RepositoryProps extends RepositoryPageDataProps {
   messages: RepositoryMessages;
@@ -75,25 +75,32 @@ const RepositoryPage = (args: RepositoryProps): JSX.Element => {
       {repositoryName ? (
         <>
           {!repositoryOwner ||
-          !repositoryQueryRes ||
-          repositoryQueryRes.loading ||
-          !repositoryQueryRes.data ? (
-            <p>loading...</p>
-          ) : repositoryQueryRes.data.repository.branches.length === 0 ? (
-            <p>no branches</p>
-          ) : (
-            <Files
-              repositoryID={repositoryQueryRes.data.repository._id}
-              repositoryName={repositoryName}
-              defaultBranch={repositoryQueryRes.data.repository.branches[0]}
-              repositoryOwner={repositoryOwner}
-              location={args.location}
-            />
-          )}
+            !repositoryQueryRes ||
+            repositoryQueryRes.loading ||
+            !repositoryQueryRes.data ? (
+              <p>loading...</p>
+            ) : (
+              <>
+                <h2 style={{
+                  marginBottom: '2rem'
+                }}>Repository {capitalizeFirstLetter(repositoryName)}</h2>
+                {repositoryQueryRes.data.repository.branches.length === 0 ? (
+                  <p>no branches</p>
+                ) : (
+                    <Files
+                      repositoryID={repositoryQueryRes.data.repository._id}
+                      repositoryName={repositoryName}
+                      defaultBranch={repositoryQueryRes.data.repository.branches[0]}
+                      repositoryOwner={repositoryOwner}
+                      location={args.location}
+                    />
+                  )}
+              </>
+            )}
         </>
       ) : (
-        <p>Cannot find repository</p>
-      )}
+          <p>Cannot find repository</p>
+        )}
     </Container>
   );
 };
