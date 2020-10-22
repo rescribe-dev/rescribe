@@ -137,7 +137,7 @@ const NewPage = (args: NewProps): JSX.Element => {
   );
   const [selectedProject, setSelectedProject] = useState<SelectProjectObject>(
     noneProject
- );
+  );
 
   const getProjects = async (
     inputValue: string
