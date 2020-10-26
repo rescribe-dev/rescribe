@@ -22,7 +22,8 @@ import { Language } from '../schema/misc/language';
 import { predictLanguage } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
-import { mapArrayOptions } from '@typegoose/typegoose/lib/internal/utils';
+import { Parser } from 'simple-text-parser';
+import { stringify } from 'querystring';
 
 const logger = getLogger();
 
@@ -101,6 +102,10 @@ export class FilesArgs {
   perpage?: number;
 }
 
+export interface LangContext {
+  text: string;
+};
+
 export const nestedFields = [
   'classes',
   'functions',
@@ -145,8 +150,8 @@ export const usesQueryLang = (query: string | undefined): boolean => {
     return false;
   }
 
-  const languageQueryTerms: string[] = ["language:", "lang:", "languages:", "langs:"];
-  const libraryQueryTerms: string[] = ["library:", "lib:", "libraries:", "libs:"];
+  const languageQueryTerms: string[] = ['language:', 'lang:', 'languages:', 'langs:'];
+  const libraryQueryTerms: string[] = ['library:', 'lib:', 'libraries:', 'libs:'];
   const queryTerms: string[] = languageQueryTerms.concat(libraryQueryTerms);
 
   const containsTerms = (queryTerms: string[]): boolean => {
@@ -159,7 +164,7 @@ export const usesQueryLang = (query: string | undefined): boolean => {
   };
 
   return containsTerms(queryTerms);
-}
+};
 
 export const search = async (user: User | null, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
@@ -329,10 +334,32 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           });
         }
       }
-    } else if (usesQLang) {
-      console.log("THIS THING USES THE QUERY LANGUAGE!!!");
-      
+    } else if (usesQLang && args.query) {
       // QUERY LANGUAGE HANDLING FOR LANGUAGE
+      const parser = new Parser();
+      
+      parser.addRule(/lang:[\s]*[A-z]+/gi, (lang: string) => {
+        return { type: "language", text: lang.replace('lang:', '').trim() };
+      });
+      parser.addRule(/langs:([\s]*[A-z]+\,)+[\s]*[A-z]+/gi, (langs: string) => {
+        return { type: "language", text: langs.replace('langs:', '').trim() };
+      });
+
+      const tree = parser.toTree(args.query);
+
+      for (let i = 0; i < tree.length; i++) {
+        if (tree[i].type === "language") {
+          let splitList = tree[i].text.split(',');
+          for(let i = 0; i < splitList.length; i++) {
+            languageFilters.push({
+              term: {
+                language: splitList[i].trim()
+              }
+            });
+          }
+        }
+      }
+
     }
   }
 
