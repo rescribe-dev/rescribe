@@ -1,6 +1,7 @@
 import { ApolloError } from 'apollo-server-express';
 import { Language } from '../schema/misc/language';
 import statusCodes from 'http-status-codes';
+import { uniformSpacing } from '../utils/misc';
 
 export const languageKey: unique symbol = Symbol('languages');
 
@@ -27,7 +28,8 @@ const parseQueryLanguage = (query: string): QueryLangRes => {
     libraries: []
   };
   let foundData: boolean = false;
-  for (const word of query.split(' ')) {
+  const uniformQuery = uniformSpacing(query);
+  for (const word of uniformQuery.split(' ')) {
     const delimIndex = word.indexOf(mapDeliminator);
     if (delimIndex > -1) {
       const givenKey = word.substring(0, delimIndex);
@@ -43,11 +45,10 @@ const parseQueryLanguage = (query: string): QueryLangRes => {
                 throw new ApolloError(`language ${language} is not supported`, `${statusCodes.BAD_REQUEST}`)
               }
               data[languageKey].push(language);
-              foundData = true;
             } else {
               data[currentKey].push(currentElement);
-              foundData = true;
             }
+            foundData = true;
           }
         }
       }
