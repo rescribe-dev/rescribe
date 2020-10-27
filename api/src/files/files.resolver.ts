@@ -22,7 +22,8 @@ import { Language } from '../schema/misc/language';
 import { predictLanguage } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
-import { Parser } from 'simple-text-parser';
+import parseQueryLanguage, { languageKey } from './queryLanguage';
+
 const logger = getLogger();
 
 const maxPerPage = 20;
@@ -143,26 +144,6 @@ export const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]:
   }
 };
 
-export const usesQueryLang = (query: string | undefined): boolean => {
-  if (!query) {
-    return false;
-  }
-
-  const languageQueryTerms: string[] = ['language:', 'lang:', 'languages:', 'langs:'];
-  const libraryQueryTerms: string[] = ['library:', 'lib:', 'libraries:', 'libs:'];
-  const queryTerms: string[] = languageQueryTerms.concat(libraryQueryTerms);
-
-  const containsTerms = (queryTerms: string[]): boolean => {
-    for(let i = 0; i < queryTerms.length; i++) {
-      if (query.includes(queryTerms[i])) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  return containsTerms(queryTerms);
-};
 
 export const search = async (user: User | null, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
@@ -294,7 +275,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     });
   }
 
-  const usesQLang: boolean = usesQueryLang(args.query);
   const languageFilters: TermQuery[] = [];
   if (!oneFile) {
     if (args.languages) {
@@ -332,32 +312,18 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           });
         }
       }
-    } else if (usesQLang && args.query) {
-      // QUERY LANGUAGE HANDLING FOR LANGUAGE
-      const parser = new Parser();
-      
-      parser.addRule(/lang:[\s]*[A-z]+/gi, (lang: string) => {
-        return { type: 'language', text: lang.replace('lang:', '').trim() };
-      });
-      parser.addRule(/langs:([\s]*[A-z]+,)+[\s]*[A-z]+/gi, (langs: string) => {
-        return { type: 'language', text: langs.replace('langs:', '').trim() };
-      });
-
-      const tree = parser.toTree(args.query);
-
-      for (let i = 0; i < tree.length; i++) {
-        if (tree[i].type === 'language') {
-          const splitList = tree[i].text.split(',');
-          for(let i = 0; i < splitList.length; i++) {
-            languageFilters.push({
-              term: {
-                language: splitList[i].trim()
-              }
-            });
-          }
+    } else if (args.query) {
+      // query language handler
+      const queryLanguageRes = parseQueryLanguage(args.query);
+      if (queryLanguageRes.hasData) {
+        for (const language of queryLanguageRes.data[languageKey]) {
+          languageFilters.push({
+            term: {
+              language: language
+            }
+          });
         }
       }
-
     }
   }
 

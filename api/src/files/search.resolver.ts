@@ -21,6 +21,7 @@ import { hasPagination } from '../elastic/pagination';
 import Location from '../schema/antlr/location';
 import { languageColorMap } from '../utils/variables';
 import { GraphQLResolveInfo } from 'graphql';
+import { propertyOf } from '../utils/misc';
 
 @ArgsType()
 class SearchArgs extends FilesArgs {
@@ -36,8 +37,6 @@ const logger = getLogger();
 const maxPreviewLineLen = 100;
 const minLinesToSplit = 7;
 const splitLength = Math.floor(minLinesToSplit / 2);
-
-const propertyOf = <TObj>(name: keyof TObj): string => name as string;
 
 export const fileHitInclude = [
   propertyOf<File>('name'),

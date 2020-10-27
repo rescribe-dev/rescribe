@@ -22,3 +22,5 @@ export const checkMedia = (mime: string): boolean => {
 };
 
 export const contentTypeHeader = 'content-type';
+
+export const propertyOf = <TObj>(name: keyof TObj): string => name as string;
