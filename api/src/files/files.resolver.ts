@@ -23,8 +23,6 @@ import { predictLanguage } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
 import { Parser } from 'simple-text-parser';
-import { stringify } from 'querystring';
-
 const logger = getLogger();
 
 const maxPerPage = 20;
@@ -339,17 +337,17 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       const parser = new Parser();
       
       parser.addRule(/lang:[\s]*[A-z]+/gi, (lang: string) => {
-        return { type: "language", text: lang.replace('lang:', '').trim() };
+        return { type: 'language', text: lang.replace('lang:', '').trim() };
       });
-      parser.addRule(/langs:([\s]*[A-z]+\,)+[\s]*[A-z]+/gi, (langs: string) => {
-        return { type: "language", text: langs.replace('langs:', '').trim() };
+      parser.addRule(/langs:([\s]*[A-z]+,)+[\s]*[A-z]+/gi, (langs: string) => {
+        return { type: 'language', text: langs.replace('langs:', '').trim() };
       });
 
       const tree = parser.toTree(args.query);
 
       for (let i = 0; i < tree.length; i++) {
-        if (tree[i].type === "language") {
-          let splitList = tree[i].text.split(',');
+        if (tree[i].type === 'language') {
+          const splitList = tree[i].text.split(',');
           for(let i = 0; i < splitList.length; i++) {
             languageFilters.push({
               term: {
