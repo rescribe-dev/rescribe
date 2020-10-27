@@ -1,4 +1,3 @@
-import sys
 import io
 import os
 import re
@@ -8,9 +7,8 @@ import string
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-import tensorflow_addons as tfa
 import pickle
-import typing
+
 import seaborn as sns
 from datetime import datetime
 from loguru import logger
@@ -124,30 +122,26 @@ def main():
         raise err
 
     ds = tuple(imports_df["imports"])
-    print(len(ds))
-    # exit(1)
     logger.debug(f"Length of dataset: {len(ds)}")
     # path_to_load = os.path.join(clean_data_dir,tf_data_folder)
 
     # logger.debug(f"Attempting to open {path_to_load}")
     # ds = tf.data.experimental.load(path_to_load, tf.TensorSpec(shape=(max_sequence_length), dtype=tf.int64))
     dataset_length = 0
-    for _ in ds:
+    for elem in ds:
         dataset_length += 1
 
     train_size = int(0.7 * dataset_length)
     val_size = int((dataset_length - train_size) / 2)
-    # test_size = int(dataset_length - val_size - train_size)
+    test_size = int(dataset_length - val_size - train_size)
 
     train_ds = ds[:train_size]
-    # savepath = os.path.join(clean_data_dir, tf_data_folder)
-    # train_ds = tf.data.experimental.load(
-    #     savepath, tf.TensorSpec(shape=(None,), dtype=tf.int64)
-    # )
-    # logger.success("Imported tensorflow experiment")
     val_ds = ds[train_size : train_size + val_size]
     test_ds = ds[train_size + val_size :]
-
+    # train_ds = ds.take(train_size)
+    # test_ds = ds.skip(train_size)
+    # val_ds = test_ds.skip(val_size)
+    # test_ds = test_ds.take(test_size)
     logger.info(
         f"Lengths:\n train_ds: {get_ds_length(train_ds)}\n test_ds: {get_ds_length(test_ds)}\n val_ds: {get_ds_length(val_ds)}"
     )
@@ -158,64 +152,13 @@ def main():
         ) as file:
             vocab_length = int(pickle.load(file))
     except Exception as err:
-        logger.critical(
-            "Failed to import length of vocabulary. Exiting..."
+        logger.error(
+            "Failed to import length of vocabulary. Please enter it now..."
         )
         logger.error(err)
         raise err
-    logger.debug(f"Type of imports_df = {type(imports_df)}")
+
     logger.info(f"Vocab length: {vocab_length}")
-    vectorize_layer = TextVectorization(
-        max_tokens=vocab_length, output_mode="int"
-    )
-    logger.success("Created text vectorization layer")
-    # batch_size = 70
-    list_of_imports_joined: typing.List[str] = np.hstack(ds).tolist()
-    dataset_all_tokens = tf.data.Dataset.from_tensor_slices(
-        list_of_imports_joined
-    )
-    vectorize_layer.adapt(dataset_all_tokens.batch(batch_size))
-    text_vectorization_model = tf.keras.models.Sequential(
-        [tf.keras.Input(shape=(1,), dtype=tf.string), vectorize_layer]
-    )
-    logger.success("Text vectorization complete?")
-    ### Josh saves the model out to disk at this point
-    vectorized_tokens: typing.List[int] = np.hstack(
-        text_vectorization_model.predict(
-            list_of_imports_joined, batch_size=batch_size
-        )
-    ).tolist()
-    vectorized_tokens_dataset = tf.data.Dataset.from_tensor_slices(
-        vectorized_tokens
-    )
-    """ I have no idea what window_size should be, assuming bigger is better... """
-    window_size = 30
-    batched_vectorized_tokens = vectorized_tokens_dataset.batch(
-        window_size + 1, drop_remainder=True
-    )
-
-    ### Josh's code but I think not relevant here because it's essentially for guessing the last word of a sentence.
-    def split_train_test(batch: typing.List[int]):
-        input_text = batch[:-1]
-        target_text = batch[1:]
-        return input_text, target_text
-
-    training_dataset = batched_vectorized_tokens.map(split_train_test)
-    logger.success("Training data sample:")
-
-    for input_example, target_example in training_dataset.take(20):
-        logger.info(f"\ninput: {input_example} --> {target_example}")
-        logger.info(f"type of first is: {type(input_example[0])}")
-    """ I have no idea what buffer_size should be """
-    buffer_size = 50
-    training_dataset = training_dataset.shuffle(buffer_size).batch(
-        batch_size, drop_remainder=True
-    )
-
-    # train_ds = ds.take(train_size)
-    # test_ds = ds.skip(train_size)
-    # val_ds = test_ds.skip(val_size)
-    # test_ds = test_ds.take(test_size)
 
     # train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
     # val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
@@ -232,74 +175,31 @@ def main():
         output_mode="int",
         output_sequence_length=max_sequence_length,
     )
-
     # losses = tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=self.input_y)
     model = Sequential(
         [
+            vectorize_layer,
             Embedding(
                 vocab_length, embedding_dimensionality, name="embedding"
             ),
+            GlobalAveragePooling1D(),
+            Dense(16, activation="relu"),
         ]
     )
-
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="logs")
-    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath="rnn/", save_weights_only=True
-    )
-
-    def loss(pred, targs):
-        """
-        return loss for given iteration
-        """
-        logger.critical(f"type of targs: {type(targs[0])}")
-        cos_loss = tf.keras.losses.CosineSimilarity(
-            axis=1  # pred, targs  # , tf.ones([50, embedding_dimensionality])
-        )
-        return cos_loss(pred, targs).numpy()
-
-    def loss(targets, logits):
-        """
-        return loss for given iteration
-        """
-        return tfa.seq2seq.sequence_loss(
-            logits, targets, tf.ones([batch_size, window_size])
-        )
-
-    logger.critical("Vocab Length: " + str(vocab_length))
     model.compile(
-        # optimizer=tf.keras.optimizers.Adam(
-        #     learning_rate=1e-3
-        # ),  # "adam",  # tf.keras.optimizers.Adam(learning_rate=1e-3),
-        loss=loss,  # tf.keras.losses.CosineSimilarity,  # loss, -- need this no gradients for for any variables
+        optimizer="adam",
+        loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),
         metrics=["accuracy"],
     )
-    logger.info(f"training dataset shape: {training_dataset}")
-    # input(">>>")
-    try:
-        model.fit(
-            training_dataset,
-            # validation_data=val_ds,
-            epochs=15,
-            callbacks=[checkpoint_callback, tensorboard_callback],
-        )
-    except RuntimeError as ex:
-        # input()
-        print(ex)
-        logger.critical("Broken during model.fit")
-
-        sys.exit(1)
-    try:
-        model.summary()
-    except RuntimeError as ex:
-        print(ex)
-        logger.critical("Broken during model.summary")
-        sys.exit(1)
-    logger.success("No errors?")
+    model.fit(
+        train_ds,
+        validation_data=val_ds,
+        epochs=15,
+        callbacks=[tensorboard_callback],
+    )
+    # model.summary()
 
 
 if __name__ == "__main__":
     main()
-"""
-I concede defeat --- I feel like the data should be formatted into tuples with each import getting paired with every other import in a file after the vectorization process and then those getting passed into the model with loss function cosine similarity?
-"""
-
