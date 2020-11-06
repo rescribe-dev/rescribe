@@ -140,7 +140,7 @@ const ProjectsPage = (_args: ProjectsProps): JSX.Element => {
             onClick={(evt) => {
               evt.preventDefault();
               navigate('/new?type=project', {
-                replace: true
+                replace: true,
               });
             }}
           >
