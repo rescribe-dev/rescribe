@@ -29,14 +29,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
       <CardBody>
         <CardTitle>
           <Row>
-            <Col
-              md="1"
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-              }}
-            >
+            <Col md="1" className="vertical-center">
               <LazyLoadImage
                 src={args.file.location.image}
                 style={{

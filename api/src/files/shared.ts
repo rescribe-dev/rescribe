@@ -173,7 +173,13 @@ interface IndexFileWriteArgs extends FileIndexArgs {
   hasAntlrData: boolean;
 }
 
-const getContentStr = (isBinary: boolean, buffer: Buffer, encoding: BufferEncoding): string => {
+const getContentStr = (isBinary: boolean, buffer: Buffer, givenEncoding: string): string => {
+  let encoding: BufferEncoding;
+  if (givenEncoding === '7bit') {
+    encoding = 'ascii';
+  } else {
+    encoding = givenEncoding as BufferEncoding;
+  }
   return !isBinary ? buffer.toString(encoding) : '';
 };
 
@@ -241,7 +247,9 @@ const indexFileAdd = async (args: IndexFileWriteArgs): Promise<void> => {
   await s3Client.upload({
     Bucket: fileBucket,
     Key: getFileKey(args.repository, args.id),
-    Body: args.buffer
+    Body: args.buffer,
+    ContentType: args.mimeType,
+    ContentEncoding: args.encoding,
   }).promise();
 
   args.fileWrites.push({
@@ -299,7 +307,9 @@ const indexFileUpdate = async (args: IndexFileUpdateArgs): Promise<void> => {
   await s3Client.upload({
     Bucket: fileBucket,
     Key: getFileKey(args.repository, args.id),
-    Body: args.buffer
+    Body: args.buffer,
+    ContentType: args.mimeType,
+    ContentEncoding: args.encoding,
   }).promise();
 
   args.fileWrites.push({

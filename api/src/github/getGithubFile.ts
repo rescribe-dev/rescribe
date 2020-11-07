@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express';
 import { print } from 'graphql/language/printer';
 import { graphql } from '@octokit/graphql/dist-types/types';
 import { RequestInterface as restClientType } from '@octokit/types';
-import { fromBuffer as readMime } from 'file-type';
+import { fromBuffer } from 'file-type';
 import { maxFileUploadSize } from '../utils/variables';
 
 
@@ -77,7 +77,7 @@ export const getGithubFile = async (githubClient: graphql, args: BaseArgs): Prom
     throw new Error(`github file ${args.path} is larger than the max file size of ${maxFileUploadSize} bytes`);
   }
   const buffer = Buffer.from(content, encoding);
-  const mimeTypeData = await readMime(buffer);
+  const mimeTypeData = await fromBuffer(buffer); //readMime
   if (!mimeTypeData) {
     throw new Error('cannot read mime type');
   }

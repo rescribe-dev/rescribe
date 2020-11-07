@@ -81,18 +81,16 @@ const FileData = (args: FilesProps): JSX.Element => {
         <p>loading...</p>
       ) : (
         <>
-          <p>{fileMode}</p>
-          <Button
-            onClick={(evt) => {
-              evt.preventDefault();
-              setFileMode(ViewState.edit);
-            }}
-          >
-            <AiFillEdit />
-          </Button>
           {fileMode === ViewState.view ? (
             <>
-              <p>{fileRes.data.file.name}</p>
+              <Button
+                onClick={(evt) => {
+                  evt.preventDefault();
+                  setFileMode(ViewState.edit);
+                }}
+              >
+                <AiFillEdit />
+              </Button>
               <p>File text:</p>
               <CodeHighlight
                 startIndex={0}
