@@ -34,7 +34,7 @@ enum ViewState {
   edit = 'edit',
 }
 
-const FileData = (args: FilesProps): JSX.Element => {
+const FileView = (args: FilesProps): JSX.Element => {
   const [fileTextData, setFileTextData] = useState<
     ApolloQueryResult<FileTextQuery> | undefined
   >(undefined);
@@ -101,8 +101,13 @@ const FileData = (args: FilesProps): JSX.Element => {
           ) : fileMode === ViewState.edit ? (
             <EditFile
               fileText={fileTextData.data.fileText}
-              onExit={(evt) => {
-                evt.preventDefault();
+              onExit={(newText) => {
+                setFileTextData({
+                  ...fileTextData,
+                  data: {
+                    fileText: newText.split('\n')
+                  }
+                });
                 setFileMode(ViewState.view);
               }}
             />
@@ -115,4 +120,4 @@ const FileData = (args: FilesProps): JSX.Element => {
   );
 };
 
-export default FileData;
+export default FileView;

@@ -75,8 +75,9 @@ const FilesList = (args: FilesProps): JSX.Element => {
   const [loading, setLoading] = useState<boolean>(true);
   const [name, setName] = useState<string>('');
   const [fileView, setFileView] = useState<boolean>(false);
-  const branches = ['test', 'asdf'];
+  const branches = ['dummy branch1', 'branch2'];
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   useEffect(() => {
     let localBranch: string = args.defaultBranch;
