@@ -644,6 +644,16 @@ type Mutation {
     """token id"""
     id: ObjectId!
   ): String!
+  editFileText(
+    """branch"""
+    branch: String!
+
+    """files"""
+    fileText: [String!]!
+
+    """file ID"""
+    id: ObjectId!
+  ): String!
   indexFiles(
     """create branch automatically"""
     autoCreateBranch: Boolean = false

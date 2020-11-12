@@ -1,0 +1,3 @@
+mutation editFileText($id: ObjectId!, $branch: String!, $fileText: [String!]!) {
+  editFileText(id: $id, branch: $branch, fileText: $fileText)
+}

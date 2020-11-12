@@ -154,8 +154,8 @@ const FilesList = (args: FilesProps): JSX.Element => {
                       args.repositoryName,
                       path
                     ).map((pathData, i) => (
-                      <>
-                        <Col sm="auto" key={`path-${i}`}>
+                      <React.Fragment key={`path-${i}`}>
+                        <Col sm="auto">
                           <Link to={pathData.path}>{pathData.name}</Link>
                         </Col>
                         <Col
@@ -165,7 +165,7 @@ const FilesList = (args: FilesProps): JSX.Element => {
                         >
                           /
                         </Col>
-                      </>
+                      </React.Fragment>
                     ))}
                     {name.length > 0 ? <Col>{name}</Col> : null}
                   </Row>

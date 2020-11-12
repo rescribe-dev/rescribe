@@ -51,7 +51,7 @@ export const initializeConfig = async (requireAWSConfig: boolean): Promise<void>
     if ('SecretString' in secretData) {
       dbConnectionURI = secretData.SecretString as string;
     } else {
-      const secretsBuffer = new Buffer(secretData.SecretBinary as string, 'base64');
+      const secretsBuffer = Buffer.from(secretData.SecretBinary as string, 'base64');
       dbConnectionURI = secretsBuffer.toString('ascii');
     }
   } else {

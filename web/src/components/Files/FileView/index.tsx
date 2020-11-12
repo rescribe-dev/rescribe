@@ -101,12 +101,14 @@ const FileView = (args: FilesProps): JSX.Element => {
           ) : fileMode === ViewState.edit ? (
             <EditFile
               fileText={fileTextData.data.fileText}
+              branch={args.branch}
+              id={fileRes.data.file._id}
               onExit={(newText) => {
                 setFileTextData({
                   ...fileTextData,
                   data: {
-                    fileText: newText.split('\n')
-                  }
+                    fileText: newText.split('\n'),
+                  },
                 });
                 setFileMode(ViewState.view);
               }}

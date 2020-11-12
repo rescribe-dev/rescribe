@@ -37,6 +37,7 @@ class FileArgs {
 
 const processFile = (id: ObjectId, baseFile: File | BaseFile): File => {
   let file: File;
+  baseFile.repository = new ObjectId(baseFile.repository);
   if (baseFile.hasStructure) {
     file = {
       ...baseFile as File,

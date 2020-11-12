@@ -1,12 +1,27 @@
 import { Formik } from 'formik';
+import {
+  EditFileText,
+  EditFileTextMutation,
+  EditFileTextMutationVariables,
+} from 'lib/generated/datamodel';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Button, Container, Form, FormFeedback, FormGroup, Input } from 'reactstrap';
+import {
+  Button,
+  Container,
+  Form,
+  FormFeedback,
+  FormGroup,
+  Input,
+} from 'reactstrap';
 import { client } from 'utils/apollo';
 import * as yup from 'yup';
+import ObjectId from 'bson-objectid';
 
 interface EditFileProps {
+  id: ObjectId;
   fileText: string[];
+  branch: string;
   onExit: (newText: string) => void;
 }
 
@@ -21,16 +36,23 @@ const EditFile = (args: EditFileProps): JSX.Element => {
           text: yup.string().required('required'),
         })}
         onSubmit={async (formData, { setSubmitting, setStatus }) => {
+          console.log(formData);
           const onError = () => {
             setStatus({ success: false });
             setSubmitting(false);
           };
           try {
-            // TODO send data to api here
-            // await client.mutate<indexFiles, indexFilesArgs>({
-            //   fileText= FileText
-            // })
-            // then run onExit
+            await client.mutate<
+              EditFileTextMutation,
+              EditFileTextMutationVariables
+            >({
+              mutation: EditFileText,
+              variables: {
+                id: args.id,
+                branch: args.branch,
+                fileText: formData.text.split('\n'),
+              },
+            });
             args.onExit(formData.text);
           } catch (err) {
             toast(err.message, {
@@ -49,50 +71,46 @@ const EditFile = (args: EditFileProps): JSX.Element => {
           handleSubmit,
           isSubmitting,
         }) => (
-            <Form onSubmit={handleSubmit}>
-              <FormGroup>
-                <Input
-                  id="text"
-                  name="text"
-                  type="text"
-                  placeholder="text"
-                  className="form-input"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.text}
-                  invalid={
-                    !!(touched.text && errors.text)
-                  }
-                  disabled={isSubmitting}
-                />
-                <FormFeedback
-                  style={{
-                    marginBottom: '1rem',
-                  }}
-                  className="feedback"
-                  type="invalid"
-                >
-                  {touched.text && errors.text
-                    ? errors.text
-                    : ''}
-                </FormFeedback>
-              </FormGroup>
-              <Button
-                type="submit"
-                style={{
-                  width: '100%',
-                }}
-                color="primary"
-                onClick={(evt: React.MouseEvent) => {
-                  evt.preventDefault();
-                  handleSubmit();
-                }}
+          <Form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Input
+                id="text"
+                name="text"
+                type="text"
+                placeholder="text"
+                className="form-input"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.text}
+                invalid={!!(touched.text && errors.text)}
                 disabled={isSubmitting}
+              />
+              <FormFeedback
+                style={{
+                  marginBottom: '1rem',
+                }}
+                className="feedback"
+                type="invalid"
               >
-                Submit
+                {touched.text && errors.text ? errors.text : ''}
+              </FormFeedback>
+            </FormGroup>
+            <Button
+              type="submit"
+              style={{
+                width: '100%',
+              }}
+              color="primary"
+              onClick={(evt: React.MouseEvent) => {
+                evt.preventDefault();
+                handleSubmit();
+              }}
+              disabled={isSubmitting}
+            >
+              Submit
             </Button>
-            </Form>
-          )}
+          </Form>
+        )}
       </Formik>
     </Container>
   );

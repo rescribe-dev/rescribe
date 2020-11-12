@@ -1,47 +1,76 @@
 import { Resolver, ArgsType, Field, Args, Mutation, Ctx } from 'type-graphql';
-import { GraphQLUpload } from 'graphql-upload';
 import { ObjectId } from 'mongodb';
-import { ArrayUnique } from 'class-validator';
 import { getFileAuthenticated } from './file.resolver';
-import File, { FileModel } from '../schema/structure/file';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
+import { Aggregates, CombinedWriteData, indexFile, saveChanges } from './shared';
+import { WriteType } from '../utils/writeType';
+import { WriteMongoElement } from '../db/mongo';
+import { SaveElasticElement } from '../elastic/elastic';
+import { saveAggregates } from './deleteFiles.resolver';
 
 @ArgsType()
 class EditFileTextArgs {
-  @ArrayUnique({
-    message: 'all paths must be unique'
-  })
-  @Field(_type => [ObjectId], { description: 'file ID' })
+  @Field(_type => ObjectId, { description: 'file ID' })
   id: ObjectId;
 
-  @Field(_type => [GraphQLUpload], { description: 'files' })
-  fileText: String[];
+  @Field(_type => String, { description: 'branch' })
+  branch: string;
+
+  @Field(_type => [String], { description: 'files' })
+  fileText: string[];
 }
 
 @Resolver()
 class EditFileTextResolver {
-  @Mutation(_returns => File)
-  async indexFiles(@Args() args: EditFileTextArgs, @Ctx() ctx: GraphQLContext): Promise<File> {
+  @Mutation(_returns => String)
+  async editFileText(@Args() args: EditFileTextArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
-
     const fileData = await getFileAuthenticated({
-      id: args.id, 
+      id: args.id,
     }, ctx);
 
-    const newContent = args.fileText.join('\n');
-    
-    await FileModel.updateOne({
-      id: args.id
-    }, {
-      content: newContent
-    });
-  
-    fileData.content = newContent;
+    const fileMongoWrites: WriteMongoElement[] = [];
+    const fileElasticWrites: SaveElasticElement[] = [];
+    const fileWrites: CombinedWriteData[] = [];
+    const aggregates: Aggregates = {
+      linesOfCode: 0,
+      numberOfFiles: 0
+    };
 
-    return fileData;
+    const newText = args.fileText.join('\n');
+    await indexFile({
+      action: WriteType.update,
+      repository: fileData.repository,
+      branch: args.branch,
+      path: fileData.path,
+      fileName: fileData.name,
+      public: fileData.public,
+      buffer: Buffer.from(newText, 'utf-8'),
+      encoding: 'utf-8',
+      mimeType: fileData.mime,
+      isBinary: false,
+      fileElasticWrites: fileElasticWrites,
+      fileMongoWrites: fileMongoWrites,
+      fileWrites: fileWrites,
+      aggregates: aggregates,
+    });
+    
+    await saveChanges({
+      branch: args.branch,
+      repositoryID: fileData.repository,
+      fileElasticWrites,
+      fileMongoWrites,
+      fileWrites,
+      folderMongoWrites: [],
+      folderElasticWrites: [],
+      folderWrites: []
+    });
+    await saveAggregates(aggregates, fileData.repository);
+
+    return `updated ${fileData.name}`;
   }
 }
 
