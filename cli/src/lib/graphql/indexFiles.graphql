@@ -1,0 +1,3 @@
+mutation indexFiles($files: [Upload!]!, $paths: [String!]!, $repository: String!, $owner: String! $branch: String!, $autoCreateBranch: Boolean) {
+  indexFiles(files: $files, paths: $paths, repository: $repository, owner: $owner, branch: $branch, autoCreateBranch: $autoCreateBranch)
+}
