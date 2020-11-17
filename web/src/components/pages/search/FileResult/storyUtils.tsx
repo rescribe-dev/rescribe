@@ -7,12 +7,19 @@ public class Test {
   }
 }`;
 
+export const defaultEndPreview = `public class Later {
+  public static string hello() {
+    System.out.println("Hello World");
+  }
+}`;
+
 export const getPreviewData = (previewText: string): PreviewFieldsFragment => {
   const splitText = previewText.split('\n');
+  const endSplit = defaultEndPreview.split('\n');
   return {
     startPreviewLineNumber: 0,
     endPreviewLineNumber: splitText.length,
     startPreviewContent: splitText,
-    endPreviewContent: [],
+    endPreviewContent: endSplit,
   };
 };

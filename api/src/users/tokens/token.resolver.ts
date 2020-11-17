@@ -6,7 +6,7 @@ import { loginType } from '../../auth/shared';
 import { validateAuthToken, getTokenKey } from './util';
 import Token, { TokenModel } from '../../schema/users/token';
 import { ApolloError } from 'apollo-server-express';
-import { NOT_FOUND } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 @ArgsType()
 export class TokenArgs {
@@ -42,7 +42,7 @@ class TokenResolver {
       key: key ? key : undefined,
     });
     if (!tokenData) {
-      throw new ApolloError('cannot find token data', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find token data', `${statusCodes.NOT_FOUND}`);
     }
     return tokenData;
   }

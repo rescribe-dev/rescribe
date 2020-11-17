@@ -20,8 +20,9 @@ import { client } from 'utils/apollo';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { ProjectMessages } from 'locale/templates/project/projectMessages';
-import { getErrorCode } from 'utils/misc';
-import { NOT_FOUND } from 'http-status-codes';
+import { capitalizeFirstLetter, getErrorCode } from 'utils/misc';
+import statusCodes from 'http-status-codes';
+import ObjectId from 'bson-objectid';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ProjectPageDataProps extends PageProps {}
@@ -55,7 +56,7 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
           },
           onError: (err) => {
             const errorCode = getErrorCode(err);
-            if (errorCode === NOT_FOUND) {
+            if (errorCode === statusCodes.NOT_FOUND) {
               navigate('/404', {
                 state: {
                   location: window.location.href,
@@ -74,7 +75,7 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
                 {
                   query: Repositories,
                   variables: {
-                    projects: [data.project._id],
+                    projects: [data.project._id as ObjectId],
                     page: 0,
                     perpage: 18,
                   },
@@ -88,7 +89,12 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
   return (
     <>
       {projectName ? (
-        <Container className="default-container">
+        <Container
+          style={{
+            marginTop: '3rem',
+            marginBottom: '2rem',
+          }}
+        >
           {!projectQueryRes ||
           projectQueryRes.loading ||
           !projectQueryRes.data ||
@@ -98,6 +104,13 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
             <p>loading...</p>
           ) : (
             <>
+              <h2
+                style={{
+                  marginBottom: '2rem',
+                }}
+              >
+                Project {capitalizeFirstLetter(projectName)}
+              </h2>
               {repositoriesData.data.repositories.length === 0 ? (
                 <p>no repositories in project {projectName}</p>
               ) : (

@@ -26,6 +26,12 @@ const fileMappings = {
       }
     }
   },
+  mime: {
+    type: 'keyword'
+  },
+  fileSize: {
+    type: 'integer'
+  },
   importPath: {
     type: 'text',
     analyzer: 'trigrams'

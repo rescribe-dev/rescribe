@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Container } from 'reactstrap';
+import {
+  Container,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Col,
+  Row,
+} from 'reactstrap';
 
 import './index.scss';
 
@@ -16,6 +24,7 @@ import { client } from 'utils/apollo';
 import FileView from './FileView';
 import FolderView from './FolderView';
 import { getFilePath } from 'shared/files';
+import { Link } from 'gatsby';
 
 interface FilesProps {
   repositoryName: string;
@@ -25,12 +34,51 @@ interface FilesProps {
   location: WindowLocation;
 }
 
+interface PathDescriptor {
+  name: string;
+  path: string;
+}
+
+const getPaths = (
+  repoOwner: string,
+  repoName: string,
+  path: string
+): PathDescriptor[] => {
+  const res: PathDescriptor[] = [];
+  const pathElements: string[] = [repoOwner, repoName].concat(
+    path.split('/').filter((val) => val.length > 0)
+  );
+
+  let lastPath = '';
+
+  for (let i = 0; i < pathElements.length; i++) {
+    const pathElement = pathElements[i];
+    if (i === 2) {
+      lastPath += '/tree';
+    }
+    const currentPath = `${lastPath}/${pathElement}`;
+
+    res.push({
+      name: pathElement,
+      path: currentPath,
+    });
+
+    lastPath = currentPath;
+  }
+
+  return res;
+};
+
 const FilesList = (args: FilesProps): JSX.Element => {
   const [branch, setBranch] = useState<string | undefined>(undefined);
   const [path, setPath] = useState<string>('/');
   const [loading, setLoading] = useState<boolean>(true);
   const [name, setName] = useState<string>('');
   const [fileView, setFileView] = useState<boolean>(false);
+  const branches = ['dummy branch1', 'branch2'];
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
+  const toggle = () => setDropdownOpen((prevState) => !prevState);
   useEffect(() => {
     let localBranch: string = args.defaultBranch;
     let localPath = '/';
@@ -84,22 +132,65 @@ const FilesList = (args: FilesProps): JSX.Element => {
     <Container>
       {loading || !branch ? (
         <p>loading...</p>
-      ) : fileView ? (
-        <FileView
-          branch={branch}
-          name={name}
-          path={path}
-          repositoryID={args.repositoryID}
-        />
       ) : (
-        <FolderView
-          branch={branch}
-          path={path}
-          name={name}
-          repositoryID={args.repositoryID}
-          repositoryName={args.repositoryName}
-          repositoryOwner={args.repositoryOwner}
-        />
+        <>
+          <Container>
+            <Row>
+              <Col sm="auto">
+                <Dropdown isOpen={dropdownOpen} toggle={toggle}>
+                  <DropdownToggle caret>{branch}</DropdownToggle>
+                  <DropdownMenu>
+                    {branches.map((branch, i) => (
+                      <DropdownItem key={`branch-${i}`}>{branch}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </Col>
+              <Col md="auto" className="vertical-center">
+                <Container>
+                  <Row>
+                    {getPaths(
+                      args.repositoryOwner,
+                      args.repositoryName,
+                      path
+                    ).map((pathData, i) => (
+                      <React.Fragment key={`path-${i}`}>
+                        <Col sm="auto">
+                          <Link to={pathData.path}>{pathData.name}</Link>
+                        </Col>
+                        <Col
+                          style={{
+                            padding: 0,
+                          }}
+                        >
+                          /
+                        </Col>
+                      </React.Fragment>
+                    ))}
+                    {name.length > 0 ? <Col>{name}</Col> : null}
+                  </Row>
+                </Container>
+              </Col>
+            </Row>
+          </Container>
+          {fileView ? (
+            <FileView
+              branch={branch}
+              name={name}
+              path={path}
+              repositoryID={args.repositoryID}
+            />
+          ) : (
+            <FolderView
+              branch={branch}
+              path={path}
+              name={name}
+              repositoryID={args.repositoryID}
+              repositoryName={args.repositoryName}
+              repositoryOwner={args.repositoryOwner}
+            />
+          )}
+        </>
       )}
     </Container>
   );

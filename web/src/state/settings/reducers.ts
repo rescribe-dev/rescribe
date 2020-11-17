@@ -8,7 +8,7 @@ import {
 } from './types';
 import { defaultCurrency } from 'shared/variables';
 import { Theme } from 'utils/theme';
-import { defaultLanguage } from 'utils/languages';
+import { defaultLanguage } from 'shared/languages';
 
 export const defaultCurrencyData: CurrencyData = {
   exchangeRate: 1,

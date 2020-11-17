@@ -274,7 +274,6 @@ const FilesList = (args: FolderProps): JSX.Element => {
           />
         </>
       )}
-      ;
     </>
   );
 };

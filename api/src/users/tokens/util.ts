@@ -4,7 +4,7 @@ import { UserModel } from '../../schema/users/user';
 import { getProduct } from '../../products/product.resolver';
 import { loginType } from '../../auth/shared';
 import { ApolloError } from 'apollo-server-express';
-import { BAD_REQUEST } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import argon2 from 'argon2';
 
 export const randomComponentLen = 18;
@@ -13,7 +13,7 @@ export const totalTokenLen = randomComponentLen + keyComponentLen;
 
 export const validateAuthToken = (token: string): void => {
   if (token.length !== totalTokenLen) {
-    throw new ApolloError('invalid token length', `${BAD_REQUEST}`);
+    throw new ApolloError('invalid token length', `${statusCodes.BAD_REQUEST}`);
   }
 };
 

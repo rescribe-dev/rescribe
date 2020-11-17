@@ -18,9 +18,9 @@ const resultTypeOptions: ResultType[] = Object.keys(ResultType).map(
 export const FileResult = (): JSX.Element => {
   const previewText = text('preview', defaultPreview);
 
-  const getColor = (): string => {
+  const getColor = (name: string): string => {
     const selectedColor = color(
-      'language color',
+      `${name} color`,
       hexRGB('#f0ad4e', {
         format: 'css',
       })
@@ -38,7 +38,8 @@ export const FileResult = (): JSX.Element => {
         file={{
           _id: new ObjectId(),
           language: {
-            color: getColor(),
+            darkColor: getColor('dark'),
+            lightColor: getColor('light'),
             name: select<Language>(
               'language',
               languageOptions,

@@ -21,6 +21,7 @@ do
   npx npm-check-updates -u
   if [ -f yarn.lock ]; then
     echo "using yarn package manager"
+    rm -f package-lock.json
     yarn install
   else
     echo "using npm package manager"

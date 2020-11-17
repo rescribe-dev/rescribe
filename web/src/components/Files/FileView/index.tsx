@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container } from 'reactstrap';
+import { Button, Container } from 'reactstrap';
 
 import './index.scss';
 import {
@@ -19,6 +19,8 @@ import { ApolloQueryResult } from 'apollo-client';
 
 import CodeHighlight from 'components/codeHighlight';
 import { Language } from 'prism-react-renderer';
+import { AiFillEdit } from 'react-icons/ai';
+import EditFile from './EditFile';
 
 interface FilesProps {
   repositoryID: ObjectId;
@@ -27,10 +29,18 @@ interface FilesProps {
   path: string;
 }
 
-const FileData = (args: FilesProps): JSX.Element => {
+enum ViewState {
+  view = 'view',
+  edit = 'edit',
+}
+
+const FileView = (args: FilesProps): JSX.Element => {
   const [fileTextData, setFileTextData] = useState<
     ApolloQueryResult<FileTextQuery> | undefined
   >(undefined);
+
+  const [fileMode, setFileMode] = useState<ViewState>(ViewState.view);
+
   const fileRes: QueryResult<FileQuery, FileQueryVariables> | undefined = isSSR
     ? undefined
     : useQuery<FileQuery, FileQueryVariables>(File, {
@@ -71,17 +81,45 @@ const FileData = (args: FilesProps): JSX.Element => {
         <p>loading...</p>
       ) : (
         <>
-          <p>{fileRes.data.file.name}</p>
-          <p>File text:</p>
-          <CodeHighlight
-            startIndex={0}
-            code={fileTextData.data.fileText}
-            language={(fileRes.data.file.language as unknown) as Language}
-          />
+          {fileMode === ViewState.view ? (
+            <>
+              <Button
+                onClick={(evt) => {
+                  evt.preventDefault();
+                  setFileMode(ViewState.edit);
+                }}
+              >
+                <AiFillEdit />
+              </Button>
+              <p>File text:</p>
+              <CodeHighlight
+                startIndex={0}
+                code={fileTextData.data.fileText}
+                language={(fileRes.data.file.language as unknown) as Language}
+              />
+            </>
+          ) : fileMode === ViewState.edit ? (
+            <EditFile
+              fileText={fileTextData.data.fileText}
+              branch={args.branch}
+              id={fileRes.data.file._id}
+              onExit={(newText) => {
+                setFileTextData({
+                  ...fileTextData,
+                  data: {
+                    fileText: newText.split('\n'),
+                  },
+                });
+                setFileMode(ViewState.view);
+              }}
+            />
+          ) : (
+            <p>invalid file mode provided</p>
+          )}
         </>
       )}
     </Container>
   );
 };
 
-export default FileData;
+export default FileView;

@@ -3,7 +3,7 @@ import express from 'express';
 import { getLogger } from 'log4js';
 import { createServer } from 'http';
 import { configData } from './utils/config';
-import { OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import prerender from './prerender';
 
 const logger = getLogger();
@@ -22,7 +22,7 @@ export const initializeServer = async (): Promise<void> => {
     });
   });
   app.get('/_ping', (_, res) => {
-    res.status(OK).send();
+    res.status(statusCodes.OK).send();
   });
   app.get('*', prerender);
   const httpServer = createServer(app);

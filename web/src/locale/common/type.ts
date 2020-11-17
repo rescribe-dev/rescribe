@@ -3,6 +3,7 @@ export default interface CommonMessages {
   pricing: string;
   start: string;
   projects: string;
+  repositories: string;
   'sign up': string;
   login: string;
   month: string;

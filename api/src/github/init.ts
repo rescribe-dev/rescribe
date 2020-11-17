@@ -1,6 +1,6 @@
 import { graphql as graphqlClient } from '@octokit/graphql';
 import { request as restClient } from '@octokit/request';
-import { request as restClientType } from '@octokit/request/dist-types/index';
+import { RequestInterface as restClientType } from '@octokit/types';
 import { createAppAuth } from '@octokit/auth-app';
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app';
 import { graphql as graphqlClientType } from '@octokit/graphql/dist-types/types';
@@ -29,6 +29,18 @@ export const createGithubAppClient = async (installationID: number): Promise<gra
   });
 };
 
+export const createGithubAppClientREST = async (installationID: number): Promise<restClientType> => {
+  const authData = (await githubAppClient({
+    installationId: installationID,
+    type: 'installation'
+  }));
+  return restClient.defaults({
+    headers: {
+      authorization: `Bearer ${authData.token}`,
+    },
+  });
+};
+
 export const createGithubOauthClient = async (code: string, state: string): Promise<graphqlClientType> => {
   const authData = (await githubOauthClient({
     code,
@@ -42,7 +54,7 @@ export const createGithubOauthClient = async (code: string, state: string): Prom
   });
 };
 
-export const createGithubOauthClientREST = async (code: string, state: string): Promise<typeof restClientType> => {
+export const createGithubOauthClientREST = async (code: string, state: string): Promise<restClientType> => {
   const authData = (await githubOauthClient({
     code,
     state,

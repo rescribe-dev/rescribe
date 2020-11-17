@@ -1,9 +1,10 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { configData } from '../utils/config';
 import { getLogger } from 'log4js';
 import sleep from '../shared/sleep';
-import { Language } from '../schema/misc/language';
+import { contentTypeHeader } from '../utils/misc';
+import { components } from '../generated/nlp';
 
 const logger = getLogger();
 
@@ -12,10 +13,7 @@ let nlpClient: AxiosInstance;
 const defaultLimitPredict = 5;
 
 interface NLPPredictLanguageOutput {
-  data: {
-    name: Language;
-    score: number;
-  }[];
+  data: components['schemas']['Prediction'][];
 };
 
 interface NLPPredictLanguageInput {
@@ -39,7 +37,7 @@ export const predictLanguage = async(input: NLPPredictLanguageInput): Promise<NL
 export const pingNLP = async (): Promise<boolean> => {
   try {
     const res = await nlpClient.get('/ping');
-    if (res.status === OK) {
+    if (res.status === statusCodes.OK) {
       return true;
     }
     return false;
@@ -60,7 +58,7 @@ export const initializeNLP = async (): Promise<boolean> => {
       common: {
         Accept: 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json',
+        [contentTypeHeader]: 'application/json',
         Pragma: 'no-cache',
       },
     },

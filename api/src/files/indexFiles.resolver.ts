@@ -18,6 +18,7 @@ import { WriteMongoElement } from '../db/mongo';
 import { saveAggregates } from './deleteFiles.resolver';
 import { getFilePath } from '../shared/files';
 import { WriteType } from '../utils/writeType';
+import { maxFileUploadSize } from '../utils/variables';
 
 @ArgsType()
 class IndexFilesArgs {
@@ -96,18 +97,16 @@ class IndexFilesResolver {
       for (let i = 0; i < args.files.length; i++) {
         const path = args.paths[i];
         const file = await args.files[i];
-        // see this: https://github.com/apollographql/apollo-server/issues/3508
-        // currently added a resolution as per this:
-        // https://github.com/apollographql/apollo-server/issues/3508#issuecomment-558717168
-        // eventually this needs to be changed.
         const readStream = file.createReadStream();
+        if (readStream.readableLength > maxFileUploadSize) {
+          throw new Error(`file ${file.filename} is larger than the max file size of ${maxFileUploadSize} bytes`);
+        }
         const data: Uint8Array[] = [];
         readStream.on('data', (chunk: Uint8Array) => data.push(chunk));
         readStream.on('error', reject);
         readStream.on('end', async () => {
           const buffer = Buffer.concat(data);
           const isBinary = await isBinaryFile(buffer);
-          const content = buffer.toString('utf8');
           try {
             await indexFile({
               action: WriteType.add,
@@ -116,12 +115,14 @@ class IndexFilesResolver {
               path: getFilePath(path).path,
               fileName: file.filename,
               public: repository.public,
-              content,
+              buffer,
+              encoding: file.encoding,
+              mimeType: file.mimetype,
               isBinary,
               fileElasticWrites,
               fileMongoWrites,
               fileWrites,
-              aggregates
+              aggregates,
             });
             numIndexed++;
             if (numIndexed === args.files.length) {

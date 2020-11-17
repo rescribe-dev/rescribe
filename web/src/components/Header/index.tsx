@@ -188,6 +188,18 @@ const Header = (args: HeaderArgs): JSX.Element => {
                         }
                       </FormattedMessage>
                     </NavLink>,
+                    <NavLink
+                      className="navbar-link"
+                      tag={Link}
+                      to={username ? `/${username}/repositories` : '#'}
+                      key="repositories"
+                    >
+                      <FormattedMessage id="repositories">
+                        {(messages: string[]) =>
+                          capitalizeFirstLetter(messages[0])
+                        }
+                      </FormattedMessage>
+                    </NavLink>,
                   ]
                 : []}
             </Nav>

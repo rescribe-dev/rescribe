@@ -9,7 +9,8 @@ class LanguagesResolver {
   languages(): LanguageData[] {
     const allValues = Object.values(Language);
     return allValues.map(language => ({
-      color: languageColorMap[language],
+      darkColor: languageColorMap[language].dark,
+      lightColor: languageColorMap[language].light,
       name: language
     }));
   }

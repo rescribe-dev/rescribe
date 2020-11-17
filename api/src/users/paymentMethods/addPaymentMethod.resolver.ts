@@ -10,7 +10,7 @@ import { MinLength } from 'class-validator';
 import ReturnObj from '../../schema/utils/returnObj';
 import { getLogger } from 'log4js';
 import { ApolloError } from 'apollo-server-express';
-import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import getUserCurrency from '../getUserCurrency';
 
 const logger = getLogger();
@@ -56,7 +56,7 @@ class AddPaymentMethodResolver {
 
     const cardData = await stripeClient.paymentMethods.retrieve(args.cardToken);
     if (!cardData.card) {
-      throw new ApolloError('cannot get card data', `${INTERNAL_SERVER_ERROR}`);
+      throw new ApolloError('cannot get card data', `${statusCodes.INTERNAL_SERVER_ERROR}`);
     }
     const setupIntent = await stripeClient.setupIntents.create({
       confirm: true,
@@ -71,7 +71,7 @@ class AddPaymentMethodResolver {
     }
     const lastFourDigits = new Number(cardData.card.last4);
     if (!lastFourDigits) {
-      throw new ApolloError('cannot cast last four digits to string', `${INTERNAL_SERVER_ERROR}`);
+      throw new ApolloError('cannot cast last four digits to string', `${statusCodes.INTERNAL_SERVER_ERROR}`);
     }
     const brand = CreditCardBrand[cardData.card.brand as keyof typeof CreditCardBrand];
     const newPaymentMethod: PaymentMethod = {

@@ -5,35 +5,72 @@ server
 web server for application
 """
 
+from yaml import dump as yaml_dump
 from logging import Logger
 from typing import cast
 from loguru import logger
 from aiohttp import web
 from bert.predict.main import main as predict_bert
 from shared.type import NLPType
+from shared.utils import get_file_path_relative
+from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
+from aiohttp_swagger3.routes import _SWAGGER_SPECIFICATION as swaggerspec_key, CustomEncoder
+from json import dumps as json_dump, loads as json_load
 
 
-async def index(_request: web.Request) -> web.Response:
+async def index() -> web.Response:
     """
     index page resolver
+    ---
+    description: Index page request resolver.
+    tags:
+    - Health check
+    responses:
+      '200':
+        description: successful operation. Return index message.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Message"
     """
     return web.json_response({
         'message': 'work in progress nlp'
     })
 
 
-async def hello(_request: web.Request) -> web.Response:
+async def hello() -> web.Response:
     """
-    hello world request resolver
+    ---
+    description: Hello World request resolver.
+    tags:
+    - Hello
+    - Health check
+    responses:
+      '200':
+        description: successful operation. Return hello message.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Message"
     """
     return web.json_response({
         'message': 'Hello World!'
     })
 
 
-async def ping(_request: web.Request) -> web.Response:
+async def ping() -> web.Response:
     """
-    hello world request resolver
+    ---
+    description: Ping request resolver.
+    tags:
+    - Health check
+    responses:
+      '200':
+        description: successful operation. Return empty text
+        content:
+          text/plain:
+            schema:
+              type: string
     """
     return web.Response(text='')
 
@@ -45,6 +82,17 @@ NUM_RES_KEY: str = 'limit'
 async def predict_library(request: web.Request) -> web.Response:
     """
     predict a library given the query input
+    ---
+    description: Library prediction resolver
+    tags:
+    - NLP
+    responses:
+      '200':
+        description: successful operation. Return library predictions.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Prediction"
     """
     json_data = await request.json()
     if QUERY_KEY not in json_data:
@@ -60,6 +108,17 @@ async def predict_library(request: web.Request) -> web.Response:
 async def predict_language(request: web.Request) -> web.Response:
     """
     predict the language given the query input
+    ---
+    description: Language prediction resolver
+    tags:
+    - NLP
+    responses:
+      '200':
+        description: successful operation. Return language predictions.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Prediction"
     """
     json_data = await request.json()
     if QUERY_KEY not in json_data:
@@ -76,16 +135,34 @@ def start_server():
     """
     run web server
     """
-    from config import PORT
+    from config import PORT, VERSION
 
     app = web.Application()
-    app.add_routes([
+
+    current_folder: str = 'deployment'
+    components_file = get_file_path_relative(
+        f'{current_folder}/src/swagger/components.yml')
+    swagger = SwaggerDocs(
+        app,
+        swagger_ui_settings=SwaggerUiSettings(path="/swagger"),
+        components=components_file,
+        title="NLP",
+        version=VERSION
+    )
+    swagger.add_routes([
         web.get('/', index),
         web.get('/hello', hello),
         web.get('/ping', ping),
         web.put('/predictLibrary', predict_library),
         web.put('/predictLanguage', predict_language)
     ])
+    swagger_spec_dict = json_load(
+        json_dump(app[swaggerspec_key], cls=CustomEncoder))
+    swagger_spec_file_path = get_file_path_relative(
+        f'{current_folder}/swagger.yml')
+    with open(swagger_spec_file_path, 'w') as swagger_spec_file:
+        yaml_dump(swagger_spec_dict, swagger_spec_file)
+
     logger.info(f'Nlp started: http://localhost:{PORT} 🚀')
     web_logger = cast(Logger, logger)
     web.run_app(app, port=PORT, access_log=web_logger)

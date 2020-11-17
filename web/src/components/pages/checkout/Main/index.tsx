@@ -43,7 +43,7 @@ import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { CurrencyData } from 'state/settings/types';
-import { defaultLanguage } from 'utils/languages';
+import { defaultLanguage } from 'shared/languages';
 
 export type OnCheckoutComplete = (
   name: string,

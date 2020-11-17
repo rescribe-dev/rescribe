@@ -17,6 +17,7 @@ module.exports = {
     '@storybook/addon-notes/register',
     '@storybook/addon-knobs/register',
     '@storybook/addon-essentials',
+    '@storybook/preset-scss',
     // '@storybook/addon-viewport/register'
   ],
   webpackFinal: async config => {
@@ -63,13 +64,6 @@ module.exports = {
     config.resolve.extensions.push('.ts', '.tsx');
 
     config.module.rules[0].include = path.resolve('../..');
-
-    // sass
-    config.module.rules.push({
-      test: /\.scss$/,
-      use: ['style-loader', 'css-loader', 'sass-loader'],
-      include: path.resolve(__dirname, '../'),
-    });
 
     // paths
     config.resolve.plugins = [

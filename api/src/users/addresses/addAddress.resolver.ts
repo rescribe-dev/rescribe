@@ -9,7 +9,7 @@ import { Status, AddressType, GeocodingAddressComponentType } from '@googlemaps/
 import { mapsClient, apiKey } from './init';
 import ReturnObj from '../../schema/utils/returnObj';
 import { ApolloError } from 'apollo-server-express';
-import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { PaymentMethodModel } from '../../schema/users/paymentMethod';
 import { defaultCurrency } from '../../shared/variables';
 import getUserCurrency from '../getUserCurrency';
@@ -124,13 +124,13 @@ class AddAddressResolver {
     if (args.setDefault) {
       const userData = await UserModel.findById(userID);
       if (!userData) {
-        throw new ApolloError('cannot find user data', `${INTERNAL_SERVER_ERROR}`);
+        throw new ApolloError('cannot find user data', `${statusCodes.INTERNAL_SERVER_ERROR}`);
       }
       let currency = defaultCurrency;
       if (userData.defaultPaymentMethod) {
         const paymentMethodData = await PaymentMethodModel.findById(userData.defaultPaymentMethod);
         if (!paymentMethodData) {
-          throw new ApolloError('cannot find payment method data', `${INTERNAL_SERVER_ERROR}`);
+          throw new ApolloError('cannot find payment method data', `${statusCodes.INTERNAL_SERVER_ERROR}`);
         }
         currency = paymentMethodData.currency;
       }

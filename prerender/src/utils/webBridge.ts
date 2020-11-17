@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { configData } from '../utils/config';
 
 export let webClient: AxiosInstance;
@@ -7,7 +7,7 @@ export let webClient: AxiosInstance;
 export const pingWeb = async (): Promise<boolean> => {
   try {
     const res = await webClient.get('/');
-    if (res.status === OK) {
+    if (res.status === statusCodes.OK) {
       return true;
     }
     return false;

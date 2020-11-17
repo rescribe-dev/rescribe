@@ -6,7 +6,7 @@ import { IsOptional } from 'class-validator';
 import { verifyLoggedIn, verifyAdmin } from '../auth/checkAuth';
 import { UserModel } from '../schema/users/user';
 import { ApolloError } from 'apollo-server-express';
-import { NOT_FOUND } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import { AccessLevel } from '../schema/users/access';
 import { deleteProjectUtil } from '../projects/deleteProject.resolver';
 import { deleteRepositoryUtil } from '../repositories/deleteRepository.resolver';
@@ -38,7 +38,7 @@ class UpdateAccountResolver {
     }
     const userData = await UserModel.findById(args.id);
     if (!userData) {
-      throw new ApolloError('cannot find user data', `${NOT_FOUND}`);
+      throw new ApolloError('cannot find user data', `${statusCodes.NOT_FOUND}`);
     }
     for (const projectAccess of userData.projects) {
       if (projectAccess.level === AccessLevel.owner) {

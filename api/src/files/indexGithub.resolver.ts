@@ -1,6 +1,7 @@
-import { createGithubAppClient } from '../github/init';
+import { createGithubAppClient, createGithubAppClientREST } from '../github/init';
 import { verifyGithub } from '../auth/checkAuth';
 import { GraphQLContext } from '../utils/context';
+import { RequestInterface as restClientType } from '@octokit/types';
 import yaml from 'js-yaml';
 import { Resolver, ArgsType, Field, Args, Ctx, Mutation, Int } from 'type-graphql';
 import { getGithubFile } from '../github/getGithubFile';
@@ -58,12 +59,18 @@ interface GithubConfiguration {
 
 let githubConfig: GithubConfiguration | undefined = undefined;
 
-const getConfigurationData = async (githubClient: graphql, args: GithubIndexArgs): Promise<void> => {
-  const content = await getGithubFile(githubClient, args.ref, githubConfigFilePath, args.repositoryName, args.repositoryOwner);
+const getConfigurationData = async (githubClient: graphql, githubClientREST: restClientType, args: GithubIndexArgs): Promise<void> => {
+  const content = await getGithubFile(githubClient, {
+    githubClientREST: githubClientREST,
+    ref: args.ref,
+    path: githubConfigFilePath,
+    repositoryName: args.repositoryName,
+    repositoryOwner: args.repositoryOwner,
+  });
   if (content.isBinary) {
     throw new Error('configuration file is binary');
   }
-  githubConfig = yaml.safeLoad(content.text) as GithubConfiguration | undefined;
+  githubConfig = yaml.safeLoad(content.buffer.toString(content.encoding)) as GithubConfiguration | undefined;
   if (!githubConfig) {
     throw new Error('valid configuration file not found');
   }
@@ -95,6 +102,7 @@ class IndexGithubResolver {
       });
     }
     const githubClient = await createGithubAppClient(args.installationID);
+    const githubClientREST = await createGithubAppClientREST(args.installationID);
     let repository = await RepositoryModel.findOne({
       githubID: args.githubRepositoryID
     });
@@ -102,7 +110,7 @@ class IndexGithubResolver {
     // if repository or project does not exist create using client
     if (!repository) {
       try {
-        await getConfigurationData(githubClient, args);
+        await getConfigurationData(githubClient, githubClientREST, args);
       } catch (err) {
         throw new Error('project & repo configuration data not found');
       }
@@ -137,7 +145,13 @@ class IndexGithubResolver {
 
     // as a stopgap use the configuration file to check for this stuff
     for (const filePath of args.added) {
-      const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
+      const content = await getGithubFile(githubClient, {
+        githubClientREST: githubClientREST,
+        ref: args.ref,
+        path: filePath,
+        repositoryName: args.repositoryName,
+        repositoryOwner: args.repositoryOwner,
+      });
       await indexFile({
         action: WriteType.add,
         repository: repositoryID,
@@ -145,8 +159,7 @@ class IndexGithubResolver {
         path: getFilePath(filePath).path,
         fileName: getFileName(filePath),
         public: repository.public,
-        content: content.text,
-        isBinary: content.isBinary,
+        ...content,
         fileElasticWrites,
         fileMongoWrites,
         fileWrites,
@@ -154,7 +167,13 @@ class IndexGithubResolver {
       });
     }
     for (const filePath of args.modified) {
-      const content = await getGithubFile(githubClient, args.ref, filePath, args.repositoryName, args.repositoryOwner);
+      const content = await getGithubFile(githubClient, {
+        githubClientREST: githubClientREST,
+        ref: args.ref,
+        path: filePath,
+        repositoryName: args.repositoryName,
+        repositoryOwner: args.repositoryOwner,
+      });
       await indexFile({
         action: WriteType.update,
         repository: repositoryID,
@@ -162,8 +181,7 @@ class IndexGithubResolver {
         path: filePath,
         fileName: getFileName(filePath),
         public: repository.public,
-        content: content.text,
-        isBinary: content.isBinary,
+        ...content,
         fileElasticWrites,
         fileMongoWrites,
         fileWrites,
@@ -177,7 +195,7 @@ class IndexGithubResolver {
     await deleteFilesUtil({
       repository: repositoryID,
       branch,
-      files: deletePaths, 
+      files: deletePaths,
       aggregates,
       bulkUpdateFileElasticData: fileElasticWrites,
       bulkUpdateFileMongoData: fileMongoWrites,

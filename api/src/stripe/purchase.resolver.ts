@@ -14,7 +14,7 @@ import { configData } from '../utils/config';
 import { defaultCurrency } from '../shared/variables';
 import ReturnObj from '../schema/utils/returnObj';
 import { ApolloError } from 'apollo-server-express';
-import { INTERNAL_SERVER_ERROR } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 import Address, { AddressModel } from '../schema/users/address';
 
 @ArgsType()
@@ -224,7 +224,7 @@ class PurchaseResolver {
       };
     } else if (!product.isFree) {
       if (typeof paymentMethod === 'undefined') {
-        throw new ApolloError('payment method undefined', `${INTERNAL_SERVER_ERROR}`);
+        throw new ApolloError('payment method undefined', `${statusCodes.INTERNAL_SERVER_ERROR}`);
       }
       if (coupon) {
         if (coupon.isPercent) {

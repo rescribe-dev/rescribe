@@ -135,6 +135,12 @@ type Currency {
   name: String!
 }
 
+"""download link data"""
+type DownloadLinks {
+  blurred: String!
+  original: String!
+}
+
 """file"""
 type File {
   _id: ObjectId!
@@ -151,8 +157,14 @@ type File {
   """date created"""
   created: Float!
 
+  """download file links"""
+  downloadLinks: DownloadLinks
+
   """number of lines in file"""
   fileLength: Int!
+
+  """file size"""
+  fileSize: Float!
 
   """folder"""
   folder: ObjectId
@@ -175,6 +187,9 @@ type File {
   """language type"""
   language: Language!
 
+  """mime type of file"""
+  mime: String!
+
   """file name"""
   name: String!
 
@@ -195,6 +210,9 @@ type File {
 
   """variables"""
   variables: [Variable!]!
+
+  """viewport sizes for media object"""
+  viewportSizes: ViewportSizes
 }
 
 """file owner"""
@@ -365,8 +383,11 @@ enum Language {
 
 """language data"""
 type LanguageData {
-  """associated color"""
-  color: String!
+  """dark language color"""
+  darkColor: String!
+
+  """light language color"""
+  lightColor: String!
 
   """language name"""
   name: Language!
@@ -379,6 +400,47 @@ type Location {
 
   """start"""
   start: Float!
+}
+
+"""media object"""
+type Media {
+  _id: ObjectId!
+
+  """date created"""
+  created: Float!
+
+  """download file links"""
+  downloadLinks: DownloadLinks
+
+  """file size"""
+  fileSize: Float!
+
+  """mime type of file"""
+  mime: String!
+
+  """file name"""
+  name: String!
+
+  """parent id"""
+  parent: ObjectId!
+
+  """parent type"""
+  parentType: MediaParentType!
+
+  """public access level"""
+  public: AccessLevel!
+
+  """date updated"""
+  updated: Float!
+
+  """viewport sizes for media object"""
+  viewportSizes: ViewportSizes
+}
+
+"""media parent type"""
+enum MediaParentType {
+  Repository
+  User
 }
 
 type Mutation {
@@ -580,6 +642,16 @@ type Mutation {
   ): String!
   deleteToken(
     """token id"""
+    id: ObjectId!
+  ): String!
+  editFileText(
+    """branch"""
+    branch: String!
+
+    """files"""
+    fileText: [String!]!
+
+    """file ID"""
     id: ObjectId!
   ): String!
   indexFiles(
@@ -1091,6 +1163,10 @@ type Query {
   ): [Folder!]!
   hello: String!
   languages: [LanguageData!]!
+  media(
+    """media id"""
+    id: ObjectId
+  ): Media!
   paymentMethod(
     """payment method id"""
     id: ObjectId!
@@ -1417,6 +1493,9 @@ scalar Upload
 type User {
   _id: ObjectId!
 
+  """avatar picture"""
+  avatar: ObjectId
+
   """default address"""
   defaultAddress: ObjectId
 
@@ -1489,4 +1568,10 @@ type Variable {
 
   """type"""
   type: String!
+}
+
+"""file viewport info"""
+type ViewportSizes {
+  height: Float!
+  width: Float!
 }

@@ -1,0 +1,3 @@
+mutation deleteProject($id: ObjectId!) {
+  deleteProject(id: $id)
+}

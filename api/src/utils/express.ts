@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getToken } from './context';
-import { UNAUTHORIZED, OK } from 'http-status-codes';
+import statusCodes from 'http-status-codes';
 
 export type ExpressHandlerType = (req: Request, res: Response) => Promise<string>;
 
@@ -14,12 +14,12 @@ export const authHandler = async (key: string, callback: ExpressHandlerType, req
       throw new Error('invalid token provided');
     }
     const message = await callback(req, res);
-    res.status(OK).json({
+    res.status(statusCodes.OK).json({
       message
     });
   } catch (err) {
     const errObj = err as Error;
-    res.status(UNAUTHORIZED).json({
+    res.status(statusCodes.UNAUTHORIZED).json({
       message: errObj.message
     });
   }
