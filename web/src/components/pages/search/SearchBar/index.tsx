@@ -5,7 +5,6 @@ import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import { FormGroup, Input, FormFeedback, Button } from 'reactstrap';
-import { navigate } from 'gatsby';
 import { getSearchURL, getQuery } from 'state/search/getters';
 import { useDispatch } from 'react-redux';
 import { isSSR } from 'utils/checkSSR';
@@ -37,7 +36,11 @@ const SearchBar = (): JSX.Element => {
       onSubmit={async (formData, { setSubmitting, setStatus }) => {
         setSubmitting(true);
         dispatch(setQuery(formData.query));
-        await navigate(getSearchURL());
+        window.history.pushState(
+          { search: formData.query },
+          '',
+          getSearchURL()
+        );
         // TODO - fix this
         // hack to allow for react state to update before search
         await sleep(50);

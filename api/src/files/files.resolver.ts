@@ -22,6 +22,7 @@ import { Language } from '../schema/misc/language';
 import { predictLanguage } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
+import parseQueryLanguage, { languageKey } from './queryLanguage';
 
 const logger = getLogger();
 
@@ -100,6 +101,10 @@ export class FilesArgs {
   perpage?: number;
 }
 
+export interface LangContext {
+  text: string;
+};
+
 export const nestedFields = [
   'classes',
   'functions',
@@ -138,6 +143,7 @@ export const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]:
     }
   }
 };
+
 
 export const search = async (user: User | null, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
@@ -302,6 +308,18 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           languageFilters.push({
             term: {
               language: bestLanguage.name
+            }
+          });
+        }
+      }
+    } else if (args.query) {
+      // query language handler
+      const queryLanguageRes = parseQueryLanguage(args.query);
+      if (queryLanguageRes.hasData) {
+        for (const language of queryLanguageRes.data[languageKey]) {
+          languageFilters.push({
+            term: {
+              language: language
             }
           });
         }

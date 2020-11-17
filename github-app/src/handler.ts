@@ -3,7 +3,7 @@ import appFunction from './';
 import { createProbot } from 'probot';
 import statusCodes from 'http-status-codes';
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { EventNames } from '@octokit/webhooks';
+import { WebhookEvents } from '@octokit/webhooks';
 import { appID, webhookSecret, privateKey } from './config';
 
 const lowerCaseKeys = (obj: Record<string, unknown>): Record<string, unknown> =>
@@ -57,7 +57,7 @@ const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewa
     try {
       await probot.receive({
         id: '',
-        name: e as EventNames.StringNames,
+        name: e as WebhookEvents,
         payload: event.body
       });
       return {
