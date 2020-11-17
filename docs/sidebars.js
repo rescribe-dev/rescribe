@@ -23,5 +23,7 @@ module.exports = {
     ],
     Notes: ['notes/index', 'notes/github'],
     'White Paper': ['whitepaper/abstract'],
+    'Milestone 1': ['milestone_1/customers', 'milestone_1/requirements', 'milestone_1/needs_requirements_mapping'],
+    'Milestone 2': ['milestone_2/analysis_and_testing_plan', 'milestone_2/concept_selection', 'milestone_2/concepts', 'milestone_2/project_plan'],
   },
 };
