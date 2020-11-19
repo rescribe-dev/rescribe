@@ -4,8 +4,7 @@ title: Analysis and Testing Plan
 sidebar_label: Analysis and Testing Plan
 ---
 
-To create the anaconda environment initially, the following command was used: `conda create rescribe-nlp`, followed by `conda env export > environment.yml`. To activate the environment, run `conda env create --file environment.yml` to create conda env from environment file, and `conda activate rescribe-nlp` to start it. To deactivate the environment, run `conda deactivate`.
-
-Once the environment is activated, packages can be installed and used with `conda install` commands. To update the environment.yml file, run `conda env export > environment.yml`.
-
-To update all dependencies based on `environment.yml`, run `conda env update --file environment.yml --prune`.
+### Rolling Analysis and Testing Plan
+- We at reScribe are of the philosophy that "move fast and break things" is an art form. So much so, that we manage to break something nearly every week! Jokes aside, the API and all modules attached to it experience frequent (sometimes breaking) updates. This necessitates a somewhat lax testing and analysis plan. In terms of quality assurance, we keep broken code away from the master branch, and segregate it to a series of development branches. These get quality checked as their being written, and then again just before they are merged into master and deployed. As for analysis, the entire system is conceptually evaluated about once per month to make sure that we are not developing code that has no clear goal. The NLP and web sections are what usually garner the most attention at these meetings. 
+- Upon completion of a major feature which is merged into the development branch, the production system is checked for errors and they are recorded by the team to be addressed in their development branches
+- We also keep a documentation branch which is a mirror 
