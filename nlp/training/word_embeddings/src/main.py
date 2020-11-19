@@ -178,6 +178,7 @@ def main() -> None:
 
     # RNN:
     # train
+
     rnn_text_vectorization_model = rnn_train(
         train_name, clean_data=train_data
     )
@@ -185,6 +186,7 @@ def main() -> None:
     input(">>> ")
     # test
     # rnn_predict_next(train_name, clean_input_data=validation_data)
+
     rnn_predict_next(
         train_name,
         clean_input_data=validation_data,

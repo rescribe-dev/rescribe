@@ -185,6 +185,18 @@ def rnn_train(
     dataset_all_tokens = tf.data.Dataset.from_tensor_slices(
         flattened_tokens
     )
+    logger.critical(dataset_all_tokens)
+    # imports_formatted_for_train = []
+    # for row in vectorized_tokens:
+    #     list_of_imports = row["imports"]
+    #     for i in range(len(list_of_imports) - 1):
+    #         for j in range(i + 1, len(list_of_imports)):
+    #             imports_formatted_for_train.append(
+    #                 [list_of_imports[i], list_of_imports[j]]
+    #             )
+    # vectorized_tokens_dataset = {}
+    # vectorized_tokens_dataset["imports"] = imports_formatted_for_train
+    # vectorized_tokens_dataset = pd.DataFrame(vectorized_tokens_dataset)
     logger.success("created all tokens text dataset")
 
     text_vectorization_filepath = file_path_relative(
@@ -211,14 +223,23 @@ def rnn_train(
     )
 
     def split_train_test(batch: List[int]):
+        # logger.info(batch)
         input_text = batch[:-1]
         target_text = batch[1:]
+        # logger.info(input_text)
+        # logger.info(target_text)
+        # exit(2)
         return input_text, target_text
 
     training_dataset = batched_vectorized_tokens.map(split_train_test)
-
     logger.success("training data sample:")
-    for input_example, target_example in training_dataset.take(20):
+    list_x = []
+    for input_example, target_example in training_dataset.take(10):
+        if input_example in list_x or target_example in list_x:
+            logger.success("Duplicate found")
+        list_x.append(input_example)
+        list_x.append(target_example)
+
         logger.info(f"\ninput: {input_example}\ntarget: {target_example}")
     # exit(1)
 
