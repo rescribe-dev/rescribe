@@ -85,6 +85,27 @@ def get_data(clean_data_path):
     return imported_data
 
 
+# first vectorize the libraries
+# take difference between one library and another
+# each library
+
+# cosine idea
+# pandas numpy scikit-learn
+# [11234, 4321421, 43214]
+
+# model.predict("numpy, scikit-learn, testasdf")
+# numpy scikit-learn tensorflow
+# [4321421, 43214, 98343]
+
+# cosine_sim([11234, 4321421, 43214], [4321421, 43214, 98343]) approximates 1
+# therefore numpy scikit-learn tensorflow is output
+
+# before we forget
+# first step - try neural net with pairs of imports
+# add vectorize layer to sequential model, make sure you have the tensorflow dataset created with correct shape
+# then try changing the sequential model to be a graph, with edge weights that are equal to the number of
+# times the two libraries are used together
+
 def newmain():
     initialize()
 
@@ -128,6 +149,7 @@ def newmain():
         output_sequence_length=max_len,
         split=SPLIT_ON_WHITESPACE,
     )
+
     logger.success("Created vectorize layer")
     logger.info("Preparing to adapt data to vectorize layer")
     imports_series = imports_df["imports"].to_list()
@@ -140,6 +162,11 @@ def newmain():
     model = tf.keras.models.Sequential()
     model.add(tf.keras.Input(shape=(1,), dtype=tf.string))
     model.add(vectorize_layer)
+    # option 1
+    # model.add(graphLayer)
+    # option 2
+    # model.add(LSTM())
+    # model.add(Dense())
     space_stripper = lambda s: s.strip()
     super_space_stripper = lambda l: list(map(space_stripper, l))
     stripped_imports = list(map(super_space_stripper, imports_series))
