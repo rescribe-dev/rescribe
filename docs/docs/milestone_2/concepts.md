@@ -4,8 +4,8 @@ title: Concepts
 sidebar_label: Concepts
 ---
 
-## github actions
-
-There are several scripts that can be run to trigger github actions. They can be found in the `scripts/actions` folder. These scripts run the actions on your local computer, and you should have at least 50 gb of disk space free (since the docker images become fairly large). The first step is to install the `act` command, using [these instructions](https://github.com/nektos/act#installation). For arch, it's `yay -Syu act-git`.
-
-There are secrets that need to be added to the `.github/workflows/secrets` folder before the actions can be used. They should be in the google drive.
+### Concepts Considered
+- To address the problem of "lost code", organization, and open source connectivity, several concepts were explored
+  1. A system where users were able to name individual fragments of code and store those exclusively in local text files. They would be able to share these files with their friends "the old fashioned way" (email) so that they also had access to these code snippets. The program would have been entirely locally hosted on the users machine and would have been exclusively a VSCode extension. 
+  2. A system where the user pre saves a series of code fragments and instead of remembering their names they would search for them with a structured query language. 
+  3. A system where a "universal" API was developed around a system that would index entire repoistories of source code files while simultaneously maintaining the topological structure of the reposiotry and understanding the hierarchical relationships between source code fragments (functions belong to classes which belong to files). These fragments would then be searchable based off of their location topologically, or their individual structure (file / class / function name + raw text search for source code).
