@@ -106,6 +106,7 @@ def get_data(clean_data_path):
 # then try changing the sequential model to be a graph, with edge weights that are equal to the number of
 # times the two libraries are used together
 
+
 def newmain():
     initialize()
 
@@ -148,6 +149,7 @@ def newmain():
         output_mode="int",
         output_sequence_length=max_len,
         split=SPLIT_ON_WHITESPACE,
+        standardize=None,
     )
 
     logger.success("Created vectorize layer")
@@ -172,11 +174,8 @@ def newmain():
     stripped_imports = list(map(super_space_stripper, imports_series))
     concatter = lambda l: " ".join(l)
     space_joined_imports = list(map(concatter, stripped_imports))
-    # input_data = [["test", "idk", "123"], ["test"]]
-    ########## DONE WITH VECTORIZATION
     vectorized_imports = model.predict(space_joined_imports)
     vectorized_imports = vectorized_imports.tolist()
-    # logger.critical(vectorized_imports)
     from itertools import combinations
 
     pairs = []
@@ -185,7 +184,8 @@ def newmain():
     # logger.debug(vectorized_imports[0])
     # exit(1)
 
-    def get_pairs(l):
+    def make_pairs(l):
+        # ToDO: Change this to binary search, because otherwise, this could get slow (31*num_files comparisons)
         index = 0
         len_l = len(l)
         while index < len_l:
@@ -195,26 +195,57 @@ def newmain():
         if index > 0:
             generate_and_add_to_pairs(l[0:index])
 
-    apply_get_pairs = lambda l: get_pairs(l)
-    # apply_get_pairs(vectorized_imports)
-    # func = np.vectorize(get_pairs)
-    # func(vectorized_imports)
-    # map(get_pairs, vectorized_imports)
     for i in range(len(vectorized_imports)):
-        get_pairs(vectorized_imports[i])
+        make_pairs(vectorized_imports[i])
     logger.success(
         f"Finished generating pairs of all imports ({len(pairs)} pairs). Example:"
     )
     logger.debug(pairs[0])
-    # vectorized_2d_list = model.predict(imports_df["imports"])
-    # i = 5
+    import networkx as nx
 
-    # def predict(l):
-    #     p = model.predict(l)
-    #     # logger.info(f"{l}: {p}")
+    graph_of_imports = nx.Graph()
+    # graph_of_imports.add_edges_from(pairs)
+    for import_a, import_b in pairs:
+        if graph_of_imports.has_edge(import_a, import_b):
+            graph_of_imports[import_a][import_b]["weight"] += 1
+        else:
+            graph_of_imports.add_edge(import_a, import_b, weight=1)
 
-    # imports_df["imports"].apply(predict)
     logger.success("No errors")
+    logger.info("Stepping into infinite loop to test...")
+    import code
+
+    vocabulary = vectorize_layer.get_vocabulary()
+    format_import = lambda n: f"{n}:{vocabulary[n]}"
+    while True:
+        try:
+            import_to_try = input(
+                "What import would you like to try? >>> "
+            )
+            max_num_imports_to_show = int(
+                input(
+                    "What is the maximum number of imports you would like to see? >>> "
+                )
+            )
+            print("\n" * 100)
+            try:
+                import_to_try = int(import_to_try)
+            except Exception:
+                import_to_try = model.predict([import_to_try])[0][0]
+            logger.info(f"{format_import(import_to_try)} was received.")
+            edges = list(graph_of_imports.edges(import_to_try, data=True))
+            edges = sorted(
+                edges, key=lambda i: i[2]["weight"], reverse=True
+            )
+            edges = edges[:max_num_imports_to_show]
+            for e in edges:
+                logger.debug(f"{format_import(e[1])}: {e[2]['weight']}")
+            # code.interact(local=locals())
+
+            # if node in graph, grab the nearest neighbors, return to list
+            # else print failed to find import or whatever
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
