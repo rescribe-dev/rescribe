@@ -3,13 +3,13 @@ import { Container, Row, Col } from 'reactstrap';
 import Img, { FixedObject } from 'gatsby-image';
 import { useStaticQuery, graphql } from 'gatsby';
 
-interface ImageObj {
+export interface ImageObj {
   childImageSharp: {
     fixed: FixedObject;
   };
 }
 
-interface QueryData {
+export interface QueryData {
   ibm: ImageObj;
   github: ImageObj;
   gitlab: ImageObj;
