@@ -990,6 +990,10 @@ type Query {
     """repository id"""
     repository: ObjectId!
   ): [String!]!
+  classifySearch(
+    """query"""
+    query: String!
+  ): SearchType!
   countries: [String!]!
   coupon(
     """coupon name"""
@@ -1451,6 +1455,14 @@ type SearchResult {
 
   """item type"""
   type: ResultType!
+}
+
+"""search type"""
+enum SearchType {
+  fileContent
+  fileText
+  folderName
+  repository
 }
 
 type Subscription {

@@ -44,7 +44,7 @@ const getSearchType = (args: ClassifySearchArgs): SearchType => {
       return SearchType.fileContent;
     }
   }
-  if (args.query.toLowerCase().includes("readme")) {
+  if (args.query.toLowerCase().includes('readme')) {
     return SearchType.repository;
   }
   return SearchType.repository;
