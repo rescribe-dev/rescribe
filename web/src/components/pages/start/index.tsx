@@ -73,12 +73,16 @@ const StartPage = (_args: StartPageContentProps): JSX.Element => {
 
   return (
     <>
-      <Container style={{
-        marginTop: '2rem'
-      }}>
-        <Row style={{
-          marginTop: '2rem'
-        }}>
+      <Container
+        style={{
+          marginTop: '2rem',
+        }}
+      >
+        <Row
+          style={{
+            marginTop: '2rem',
+          }}
+        >
           <Col>
             <h2>Getting Started</h2>
             <p>
@@ -91,13 +95,13 @@ const StartPage = (_args: StartPageContentProps): JSX.Element => {
           </Col>
         </Row>
         <>
-          <Row style={{
-            marginTop: '2rem'
-          }}>
+          <Row
+            style={{
+              marginTop: '2rem',
+            }}
+          >
             <Col>
-              <h3>
-                VSCode Extension
-              </h3>
+              <h3>VSCode Extension</h3>
             </Col>
           </Row>
           <Row>
@@ -124,13 +128,13 @@ const StartPage = (_args: StartPageContentProps): JSX.Element => {
           </Row>
         </>
         <>
-          <Row style={{
-            marginTop: '2rem'
-          }}>
+          <Row
+            style={{
+              marginTop: '2rem',
+            }}
+          >
             <Col>
-              <h3>
-                GitHub Application
-              </h3>
+              <h3>GitHub Application</h3>
             </Col>
           </Row>
           <Row>
@@ -158,13 +162,13 @@ const StartPage = (_args: StartPageContentProps): JSX.Element => {
           </Row>
         </>
         <>
-          <Row style={{
-            marginTop: '2rem'
-          }}>
+          <Row
+            style={{
+              marginTop: '2rem',
+            }}
+          >
             <Col>
-              <h3>
-                Command Line Interface (CLI)
-              </h3>
+              <h3>Command Line Interface (CLI)</h3>
             </Col>
           </Row>
           <Row>
@@ -177,8 +181,8 @@ const StartPage = (_args: StartPageContentProps): JSX.Element => {
           <Row>
             <Col>
               <p>
-                Our CLI allows you to quickly index and organize any folder or project you
-                come across. Built in NodeJS and available via NPM!
+                Our CLI allows you to quickly index and organize any folder or
+                project you come across. Built in NodeJS and available via NPM!
                 below are some of the CLI commands we have availble
               </p>
             </Col>
