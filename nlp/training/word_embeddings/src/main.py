@@ -14,7 +14,9 @@ from variables import random_state
 # import tensorflow as tf
 import random
 
+
 from rnn import rnn_train, rnn_predict_next
+import networkx as nx
 
 # from loguru import logger
 
@@ -59,6 +61,11 @@ from shared.variables import (
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 embedding_dimensionality: int = 5
 
+# import code
+# code.interact(local=locals())
+# Use this snippet to stop running the program and test stuff in the IDE
+IMPORTS_COLUMN_NAME = "imports"
+
 
 def initialize() -> None:
     """
@@ -72,127 +79,203 @@ def initialize() -> None:
     )
 
 
-def get_data(clean_data_path):
+def get_data(clean_data_path=None):
+    if clean_data_path == None:
+        train_name: str = "train"
+        library_analysis_data_folder = type_path_dict[
+            NLPType.library_analysis
+        ]
 
+        clean_data_dir = get_file_path_relative(
+            f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}"
+        )
+        clean_data_path = get_file_path_relative(
+            f"{clean_data_dir}/{main_data_file}"
+        )
+        logger.info(f"Loading data from: {clean_data_path}")
     assert os.path.exists(clean_data_path)
     imported_data = pd.read_csv(clean_data_path, index_col=0)
     imported_data["imports"] = imported_data["imports"].apply(
         lambda x: ast.literal_eval(x)
     )
     # need index_col = 0 to avoid duplicating the index column
-
+    logger.success("Data loaded")
     return imported_data
 
 
-def main() -> None:
-    """
-    main entry point
-    """
-    initialize()
+# first vectorize the libraries
+# take difference between one library and another
+# each library
 
-    # Clean Data
+# cosine idea
+# pandas numpy scikit-learn
+# [11234, 4321421, 43214]
 
-    train_name: str = "train"
-    # train_data = clean_tokenize(f'{train_name}.txt')[0]
-    # valid_name: str = 'valid'
-    # validation_data = clean_tokenize(f'{valid_name}.txt')[0]
-    # input_name: str = 'input'
-    # input_data = clean_tokenize(f'{input_name}.txt')[0]
-    library_analysis_data_folder = type_path_dict[NLPType.library_analysis]
+# model.predict("numpy, scikit-learn, testasdf")
+# numpy scikit-learn tensorflow
+# [4321421, 43214, 98343]
 
-    clean_data_dir = get_file_path_relative(
-        f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}"
+# cosine_sim([11234, 4321421, 43214], [4321421, 43214, 98343]) approximates 1
+# therefore numpy scikit-learn tensorflow is output
+
+# before we forget
+# first step - try neural net with pairs of imports
+# add vectorize layer to sequential model, make sure you have the tensorflow dataset created with correct shape
+# then try changing the sequential model to be a graph, with edge weights that are equal to the number of
+# times the two libraries are used together
+
+
+def count_imports_and_max_len(
+    imports_df, imports_column_name=IMPORTS_COLUMN_NAME
+):
+    logger.info("Counting number of imports")
+    total_number_imports = 0
+    max_len = 0
+    for _, row in imports_df.iterrows():
+        num_imports_in_row = len(row[imports_column_name])
+        total_number_imports += num_imports_in_row
+        max_len = max(num_imports_in_row, max_len)
+    logger.success(f"Counted {total_number_imports} imports.")
+    return total_number_imports, max_len
+
+
+def vectorize_imports(imports_df, total_number_imports, max_len):
+    logger.info("Creating Vectorize layer")
+    from tensorflow.python.keras.layers.preprocessing import (
+        text_vectorization,
     )
-    clean_data_path = get_file_path_relative(
-        f"{clean_data_dir}/{main_data_file}"
+
+    vectorize_layer = tf.keras.layers.experimental.preprocessing.TextVectorization(
+        max_tokens=total_number_imports,
+        output_mode="int",
+        output_sequence_length=max_len,
+        split=text_vectorization.SPLIT_ON_WHITESPACE,
+        standardize=None,
     )
 
-    logger.info(f"Loading data from: {clean_data_path}")
-    imports_df = get_data(clean_data_path)
+    logger.success("Created vectorize layer")
+    logger.info("Preparing to adapt data to vectorize layer")
+    imports_series = imports_df["imports"].to_list()
+    imports_flattened = np.concatenate(imports_series)
+    tf_data = tf.data.Dataset.from_tensor_slices(imports_flattened)
+    vectorize_layer.adapt(tf_data.batch(64))
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.Input(shape=(1,), dtype=tf.string))
+    model.add(vectorize_layer)
+    # option 1
+    # model.add(graphLayer)
+    # option 2
+    # model.add(LSTM())
+    # model.add(Dense())
+    space_stripper = lambda s: s.strip()
+    super_space_stripper = lambda l: list(map(space_stripper, l))
+    stripped_imports = list(map(super_space_stripper, imports_series))
+    concatter = lambda l: " ".join(l)
+    space_joined_imports = list(map(concatter, stripped_imports))
+    vectorized_imports = model.predict(space_joined_imports)
+    return vectorized_imports, vectorize_layer, model
 
-    imports_formatted_for_train = []
-    for list_of_imports in imports_df["imports"]:
-        for i in range(len(list_of_imports) - 1):
-            for j in range(i + 1, len(list_of_imports)):
-                imports_formatted_for_train.append(
-                    [list_of_imports[i], list_of_imports[j]]
+
+def get_pairs_of_imports(vectorized_imports):
+    from itertools import combinations
+
+    pairs = []
+    generate_and_add_to_pairs = lambda l: pairs.extend(combinations(l, 2))
+    # logger.debug(len(vectorized_imports))
+    # logger.debug(vectorized_imports[0])
+    # exit(1)
+
+    def make_pairs(l):
+        # ToDO: Change this to binary search, because otherwise, this could get slow (31*num_files comparisons)
+        index = 0
+        len_l = len(l)
+        while index < len_l:
+            if l[index] == 0:
+                break
+            index += 1
+        if index > 0:
+            generate_and_add_to_pairs(l[0:index])
+
+    # TODO: Should this be a mapped function instead of a for .. in range ..?
+    for i in range(len(vectorized_imports)):
+        make_pairs(vectorized_imports[i])
+    logger.success(
+        f"Finished generating pairs of all imports ({len(pairs)} pairs). Example:"
+    )
+    logger.debug(pairs[0])
+    return pairs
+
+
+def make_graph(pairs):
+    logger.debug("About to create a graph")
+    graph_of_imports = nx.Graph()
+    # graph_of_imports.add_edges_from(pairs)
+    # ToDO: Shouldn't this also be a mapped function??
+    for import_a, import_b in pairs:
+        if graph_of_imports.has_edge(import_a, import_b):
+            graph_of_imports[import_a][import_b]["weight"] += 1
+        else:
+            graph_of_imports.add_edge(import_a, import_b, weight=1)
+    logger.success("Made a graph!")
+    return graph_of_imports
+
+
+def run_interactive_test_loop(vocabulary, model, graph):
+    logger.info("Stepping into infinite loop to test...")
+    format_import = lambda n: f"{n}:{vocabulary[n]}"
+    while True:
+        try:
+            import_to_try = input(
+                "What import would you like to try? >>> "
+            )  # Note that this can either be index of import or name of import
+            max_num_imports_to_show = int(
+                input(
+                    "What is the maximum number of imports you would like to see? >>> "
                 )
-    imports_df = {}
-    imports_df["imports"] = imports_formatted_for_train
-    imports_df = pd.DataFrame(imports_df)
-    # logger.critical(type(imports_df))
-    # logger.critical(imports_df["imports"][0])
-    # logger.critical(type(imports_df["imports"][0]))
-    # exit(1)
-    # exit(1)
-    # diff between Josh's code and this:
-    # 1) imports_df is one set, no validation right now...
-    # 2) instead of having [sentences], we have [imports] as the column name...
+            )  # This is only a number
+            print("\n" * 100)  # Clear the screen
 
-    # Code from stack overflow: split the single dataframe into train and test...
-    imports_df = imports_df.sample(
-        frac=0.001, random_state=random_state
-    )  # random state is a seed value
-    # train_data = train_data.drop(train_data.index)
-    train_data = imports_df.sample(
-        frac=0.8, random_state=random_state
-    )  # random state is a seed value
-    validation_data = imports_df.drop(train_data.index)
-    # end stack overflow code
-    num_predict_input = 30
+            # If possible, convert the input into an index. If not an index, give up, it's the name of an import
+            try:
+                import_to_try = int(import_to_try)
+            except Exception:
+                import_to_try = model.predict([import_to_try])[0][0]
 
-    # N-Grams
+            # Print out the import received and the imports it is connected to
+            logger.info(f"{format_import(import_to_try)} was received.")
+            edges = list(graph.edges(import_to_try, data=True))
+            edges = sorted(
+                edges, key=lambda i: i[2]["weight"], reverse=True
+            )
+            edges = edges[:max_num_imports_to_show]
+            for e in edges:
+                logger.debug(f"{format_import(e[1])}: {e[2]['weight']}")
+        except Exception as e:
+            logger.debug(e)
+            # pass
+            # logger.debug("An Exception occurred: ")
+            # logger.debug(e.args)
+            # If the index provided is out of range, this block will get triggered
+            # If the import string doesn't exist, then it'll just return <UNK>
 
-    # train
-    # n_grams_train(train_name, clean_data=train_data)
-    # # test
-    # n_grams_predict_next(
-    #     valid_name,
-    #     clean_input_data=validation_data,
-    #     file_name=f"{train_name}.json",
-    #     smoothing=SmoothingType.basic,
-    # )
-    # n_grams_predict_next(
-    #     valid_name,
-    #     clean_input_data=validation_data,
-    #     file_name=f"{train_name}.json",
-    #     smoothing=SmoothingType.good_turing,
-    # )
-    # n_grams_predict_next(
-    #     valid_name,
-    #     clean_input_data=validation_data,
-    #     file_name=f"{train_name}.json",
-    #     smoothing=SmoothingType.kneser_ney,
-    # )
-    # # check kneser-ney with input because it has unseen data
-    # n_grams_train(
-    #     input_name, clean_data=train_data, n_grams=2, fill_in_blank=True
-    # )
-    # n_grams_predict_next(
-    #     input_name,
-    #     clean_input_data=input_data,
-    #     file_name=f"{train_name}.json",
-    #     smoothing=SmoothingType.kneser_ney,
-    #     num_lines_predict=num_predict_input,
-    # )
 
-    # RNN:
-    # train
-
-    rnn_text_vectorization_model = rnn_train(
-        train_name, clean_data=train_data
+def main():
+    initialize()
+    imports_df = get_data()
+    total_number_imports, max_len = count_imports_and_max_len(imports_df)
+    vectorized_imports, vectorize_layer, model = vectorize_imports(
+        imports_df, total_number_imports, max_len
     )
-    logger.critical(rnn_text_vectorization_model)
-    input(">>> ")
-    # test
-    # rnn_predict_next(train_name, clean_input_data=validation_data)
+    # An array of imports in the order they were
+    vocabulary = vectorize_layer.get_vocabulary()
 
-    rnn_predict_next(
-        train_name,
-        clean_input_data=validation_data,
-        num_lines_predict=num_predict_input,
-        text_vectorization_model=rnn_text_vectorization_model,
-    )
+    # TODO: Can't this be better done with a numpy array?
+    vectorized_imports = vectorized_imports.tolist()
+    # imports = imports_df[IMPORTS_COLUMN_NAME].tolist()
+    imports = vectorized_imports
+    pairs = get_pairs_of_imports(imports)
+    graph = make_graph(pairs)
+    run_interactive_test_loop(vocabulary, model, graph)
 
 
 if __name__ == "__main__":
@@ -207,4 +290,3 @@ idk which works better, but we will see
 generating tuples: 
 
 """
-
