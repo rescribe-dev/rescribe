@@ -129,14 +129,12 @@ def count_imports_and_max_len(
     imports_df, imports_column_name=IMPORTS_COLUMN_NAME
 ):
     logger.info("Counting number of imports")
-    total_number_imports = 0
-    max_len = 0
-    for _, row in imports_df.iterrows():
-        num_imports_in_row = len(row[imports_column_name])
-        total_number_imports += num_imports_in_row
-        max_len = max(num_imports_in_row, max_len)
+    length_of_imports_list: List[int] = [
+        len(x) for x in imports_df[imports_column_name]
+    ]
+    total_number_imports: int = sum(length_of_imports_list)
     logger.success(f"Counted {total_number_imports} imports.")
-    return total_number_imports, max_len
+    return total_number_imports, max(length_of_imports_list)
 
 
 def vectorize_imports(imports_df, total_number_imports, max_len):
