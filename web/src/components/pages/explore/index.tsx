@@ -2,23 +2,24 @@ import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import './index.scss';
 import { PageProps } from 'gatsby';
-import { ExploreResult } from 'locale/pages/explore/exploreMessages';
 import Description from './description';
 import logoBlack from 'assets/images/logo-black.svg';
 import PopRes from './exploreResult';
 import { WindowLocation } from '@reach/router';
+import ExploreResultComponent from './exploreResult';
 
-export interface ExplorePageProps extends PageProps {
-  data: Record<string, unknown>;
-}
+// This is Josh's code so I don't want to delete it
+// export interface ExplorePageProps extends PageProps {
+//   data: Record<string, unknown>;
+// }
 /* For these args, we are going to need 
   - repositoryName
   - repostoryCode
   - repositoryLanguage
   - repositoryDescription
 */
-interface ExplorePageContentProps extends ExplorePageProps {
-  results: ExploreResult[];
+interface ExplorePageContentProps {
+  results: JSX.Element[];
   location: WindowLocation;
 }
 
@@ -54,14 +55,15 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                 <h3>Popular Results</h3>
               </Row>
               <Row>
-                {results.map((result) => {
+                {results.map((res) => {
                   return (
-                    <PopRes
-                      key={result.repoName}
-                      url={result.repoUrl}
-                      code={result.repoCode}
-                      lang={result.repoLang}
-                      selected={result.selected}
+                    <ExploreResultComponent
+                        repoUrl  = {res.repoUrl}
+                        repoCode = {res.repoCode}
+                        repoName = {res.repoCode}
+                        repoDes  = {res.repoDes}
+                        repoLang = {res.repoLang}
+                        selected = {res.selected}
                     />
                   );
                 })}

@@ -1,44 +1,42 @@
 import React from 'react';
-import ExplorePageComponent from '.';
+import ExplorePage from '.';
 import 'storybook/global';
 import markdown from './README.md';
 import { wrapRootElement } from 'storybook/rootWrapper';
 import { withKnobs } from '@storybook/addon-knobs';
 import { WindowLocation } from '@reach/router';
-import { ExploreResult } from 'locale/pages/explore/exploreMessages';
+import { ExploreResultType } from 'locale/pages/explore/exploreMessages';
+import ExploreResultComponent from './exploreResult';
+import { result } from 'lodash';
 
 const defaultPath = '/explore';
 
-const dummyResults = [
-  {
-    repoUrl: 'jschmidtnj/rescribe/api/login.go',
-    repoCode: '',
-    repoName: 'reScribe',
-    repoLang: 'TypeScript',
-    repoDes:
-      'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository',
-    selected: true,
-  },
-  {
-    repoUrl: 'jschmidtnj/rescribe/api/login.go',
-    repoCode: '',
-    repoName: 'reScribe',
-    repoLang: 'TypeScript',
-    repoDes:
-      'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository',
-    selected: false,
-  },
-];
+const dummyResults: JSX.Element[] = [
+    <ExploreResultComponent 
+      repoUrl  = {'jschmidtnj/rescribe/api/login.go'}
+      repoCode = {''}
+      repoName = {'reScribe'}
+      repoDes  = {'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository'}
+      repoLang = {'TypeScript'}
+      selected = {false}
+    />,
+    <ExploreResultComponent
+      repoUrl  = {'the other file'}
+      repoCode = {''}
+      repoName = {'reScribe2'}
+      repoDes  = {'On mobile asif is going to make an app and this will go below the search result, or disappear entirely to be replaced by only the link to the full repository'}
+      repoLang = {'Swift'}
+      selected = {true}
+    />
+  ];
 
-export const ExplorePage = (): JSX.Element => {
+export const ExplorePageStorybook = (): JSX.Element => {
   const currentPath: WindowLocation = ({
     pathname: `${defaultPath}`,
   } as unknown) as WindowLocation;
-  const dummy: ExploreResult[] = ({
-    results: dummyResults,
-  } as unknown) as ExploreResult[];
+
   return wrapRootElement({
-    element: <ExplorePageComponent location={currentPath} results={dummy} />,
+    element: <ExplorePage location={currentPath} results={dummyResults}/>
   });
 };
 
