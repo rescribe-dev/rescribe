@@ -1,23 +1,22 @@
 import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import './index.scss';
-import { PageProps } from 'gatsby';
 import { ExploreResult } from 'locale/pages/explore/exploreMessages';
 import Description from './description';
 import logoBlack from 'assets/images/logo-black.svg';
 import PopRes from './exploreResult';
 import { WindowLocation } from '@reach/router';
 
-export interface ExplorePageProps extends PageProps {
-  data: Record<string, unknown>;
-}
+// export interface ExplorePageProps extends PageProps {
+//   data: Record<string, unknown>;
+// }
 /* For these args, we are going to need 
   - repositoryName
   - repostoryCode
   - repositoryLanguage
   - repositoryDescription
 */
-interface ExplorePageContentProps extends ExplorePageProps {
+interface ExplorePageContentProps {
   results: ExploreResult[];
   location: WindowLocation;
 }
