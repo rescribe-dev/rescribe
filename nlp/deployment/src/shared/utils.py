@@ -3,12 +3,13 @@
 list files
 """
 import pandas as pd
-from os import listdir
-from os.path import abspath, join
-from enum import Enum
-from typing import List, Dict, Optional, Any
-from pathlib import Path
 
+from os import listdir, remove, makedirs
+from os.path import abspath, join, exists
+from enum import Enum
+from pathlib import Path
+from loguru import logger
+from typing import List, Dict, Optional, Any, Iterable
 
 def enum_to_dict(enum: Enum) -> Dict[Any, Any]:
     """
@@ -75,3 +76,43 @@ def list_files(directory, extension) -> List[str]:
     list files
     """
     return [f for f in listdir(directory) if f.endswith('.' + extension)]
+
+def clean_directory(directory: str, extensions: Iterable) -> None:
+    """
+    Remove all files within a directory with the specified extensions
+    If the directory does not exist create the empty directory
+    """
+    if not exists(directory):
+        logger.info("Attempting to clean a nonexistent directory, creating empty path")
+        makedirs(directory)
+        return
+
+    filepaths: List[str] = []
+    for extension in extensions:
+        filepaths += list_files(directory, extension)
+
+    for filepath in filepaths:
+        remove(join(directory, filepath))
+
+def normalize_filename(filename: str, file_id: str) -> str:
+    """
+    Given a filename and fileID, return the save path
+    input: filename.extension, id
+    returns: filename.id.extension.dat
+    """
+    filename_list: List[str] = filename.split('.')
+    filename_list.append('dat')
+    filename_list.insert(-2, file_id)
+
+    return '.'.join(filename_list)
+
+def original_filename(normalized_filename: str) -> str:
+    """
+    Given a normalized filename, return the original filename
+    input: filename.id.extension.dat
+    returns: filename.extension, id
+    """
+    filename_list: List[str] = normalized_filename.split('.')
+    file_id: str = filename_list.pop(-3)
+
+    return '.'.join(filename_list[:-1]), file_id

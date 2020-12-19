@@ -20,15 +20,15 @@ if __name__ == '__main__':
         pass
 #################################
 
-from load.stackoverflow.stackoverflow_load import main as dataload_stackoverflow
-from shared.type import NLPType
+from load.github.github_load import main as dataload_github
 
 
 def main():
     """
     main function for dataload
     """
-    dataload_stackoverflow(NLPType.library)
+
+    dataload_github(NLPType.library)
 
 
 if __name__ == '__main__':
