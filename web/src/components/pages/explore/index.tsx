@@ -1,11 +1,10 @@
 import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import './index.scss';
-import { ExploreResult } from 'locale/pages/explore/exploreMessages';
 import Description from './description';
 import logoBlack from 'assets/images/logo-black.svg';
-import PopRes from './exploreResult';
 import { WindowLocation } from '@reach/router';
+import ExploreResultComponent from './exploreResult';
 
 // export interface ExplorePageProps extends PageProps {
 //   data: Record<string, unknown>;
@@ -17,7 +16,7 @@ import { WindowLocation } from '@reach/router';
   - repositoryDescription
 */
 interface ExplorePageContentProps {
-  results: ExploreResult[];
+  results: JSX.Element[];
   location: WindowLocation;
 }
 
@@ -53,14 +52,16 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                 <h3>Popular Results</h3>
               </Row>
               <Row>
-                {results.map((result) => {
+                {results.map((res) => {
                   return (
-                    <PopRes
-                      key={result.repoName}
-                      url={result.repoUrl}
-                      code={result.repoCode}
-                      lang={result.repoLang}
-                      selected={result.selected}
+                    <ExploreResultComponent
+                      key={res.repoUrl}
+                      repoUrl={res.repoUrl}
+                      repoCode={res.repoCode}
+                      repoName={res.repoCode}
+                      repoDes={res.repoDes}
+                      repoLang={res.repoLang}
+                      selected={res.selected}
                     />
                   );
                 })}
