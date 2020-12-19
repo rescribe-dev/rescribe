@@ -18,6 +18,7 @@ from tensorflow import convert_to_tensor
 from shared.type import NLPType
 from shared.utils import get_file_path_relative, list_files
 from shared.variables import (
+    random_state,
     data_folder,
     clean_data_folder,
     type_path_dict,
