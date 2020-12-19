@@ -111,12 +111,12 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
     return questions
 
 
-def main(dataload_type: NLPType, clean_directory: bool = True):
+def main(dataload_type: NLPType, clean_dir: bool = True):
     """
     main dataload function
     """
     logger.info("\n\nInitiating Data Load\n")
-    if clean_directory:
+    if clean_dir:
         logger.info("Cleaning directory")
         folder_name = type_path_dict[dataload_type]
         clean_directory(
