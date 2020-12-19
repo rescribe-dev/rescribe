@@ -1,22 +1,21 @@
+import { ExploreResultType } from 'locale/pages/explore/exploreMessages';
 import React from 'react';
 import { Row, Button, Col, Container } from 'reactstrap';
 import './index.scss';
 
-interface popResArgs {
-  url: string;
-  code: string;
-  lang: string;
-  selected: boolean;
-}
-const PopRes = (args: popResArgs): JSX.Element => {
+// interface ExploreResultArgs {
+//   result: ExploreResultType;
+// };
+
+const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
   return (
     <Container>
       <Row>
-        <a href={args.url}>{args.url}</a>
-        <p>{args.lang}</p>
+        <a href={args.repoUrl}>{args.repoUrl}</a>
+        <p>{args.repoLang}</p>
       </Row>
       <Row>
-        <p>{args.code}</p>
+        <p>{args.repoCode}</p>
       </Row>
       <Row>
         <Col>
@@ -28,4 +27,4 @@ const PopRes = (args: popResArgs): JSX.Element => {
   );
 };
 
-export default PopRes;
+export default ExploreResultComponent;

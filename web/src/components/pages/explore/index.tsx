@@ -1,11 +1,12 @@
-import React from 'react';
-import { Col, Container, Row } from 'reactstrap';
-import './index.scss';
-import { ExploreResult } from 'locale/pages/explore/exploreMessages';
-import Description from './description';
-import logoBlack from 'assets/images/logo-black.svg';
-import PopRes from './exploreResult';
-import { WindowLocation } from '@reach/router';
+import React from "react";
+import { Col, Container, Row } from "reactstrap";
+import "./index.scss";
+import { ExploreResult } from "locale/pages/explore/exploreMessages";
+import Description from "./description";
+import logoBlack from "assets/images/logo-black.svg";
+import PopRes from "./exploreResult";
+import { WindowLocation } from "@reach/router";
+import ExploreResultComponent from "./exploreResult";
 
 // export interface ExplorePageProps extends PageProps {
 //   data: Record<string, unknown>;
@@ -25,21 +26,21 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
   // Dummy variable, set to some client query with useState
   const results = [
     {
-      repoUrl: 'jschmidtnj/rescribe/api/login.go',
-      repoCode: '',
-      repoName: 'reScribe',
-      repoLang: 'TypeScript',
+      repoUrl: "jschmidtnj/rescribe/api/login.go",
+      repoCode: "",
+      repoName: "reScribe",
+      repoLang: "TypeScript",
       repoDes:
-        'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository',
+        "On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository",
       selected: true,
     },
     {
-      repoUrl: 'jschmidtnj/rescribe/api/login.go',
-      repoCode: '',
-      repoName: 'reScribe',
-      repoLang: 'TypeScript',
+      repoUrl: "jschmidtnj/rescribe/api/login.go",
+      repoCode: "",
+      repoName: "reScribe",
+      repoLang: "TypeScript",
       repoDes:
-        'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository',
+        "On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository",
       selected: false,
     },
   ];
@@ -53,14 +54,15 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                 <h3>Popular Results</h3>
               </Row>
               <Row>
-                {results.map((result) => {
+                {results.map((res) => {
                   return (
-                    <PopRes
-                      key={result.repoName}
-                      url={result.repoUrl}
-                      code={result.repoCode}
-                      lang={result.repoLang}
-                      selected={result.selected}
+                    <ExploreResultComponent
+                      repoUrl={res.repoUrl}
+                      repoCode={res.repoCode}
+                      repoName={res.repoCode}
+                      repoDes={res.repoDes}
+                      repoLang={res.repoLang}
+                      selected={res.selected}
                     />
                   );
                 })}
@@ -72,9 +74,9 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
           <Col>
             <Row>
               <Description
-                repository={'asdf123'}
-                source={'https://apple.com'}
-                description={'asdflkdsaf;ljkfd  lkasdjkfsdlk asdflkasjkl'}
+                repository={"asdf123"}
+                source={"https://apple.com"}
+                description={"asdflkdsaf;ljkfd  lkasdjkfsdlk asdflkasjkl"}
               />
               {/* 
                 Insert the Description component for the code snippet, this will probably amount to a segment
@@ -87,7 +89,7 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                   src={logoBlack}
                   alt="reScribe"
                   style={{
-                    width: '9rem',
+                    width: "9rem",
                     marginBottom: 0,
                   }}
                 />
