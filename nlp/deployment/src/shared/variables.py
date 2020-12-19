@@ -5,6 +5,8 @@ global variables
 from typing import Dict
 from shared.type import NLPType
 
+random_state: int = 42
+
 dataset_length: int = 5000
 
 # dataset length verification
