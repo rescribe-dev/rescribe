@@ -123,7 +123,7 @@ def main(dataload_type: NLPType, clean_dir: bool = True):
             get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}'), 
             ["dat", "csv"]
         )
-        logger.info("Cleaning complete")
+        logger.success("Cleaning complete")
 
     questions: DataFrame = dataload(dataload_type)
 

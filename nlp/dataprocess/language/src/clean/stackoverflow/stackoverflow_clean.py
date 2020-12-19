@@ -3,6 +3,23 @@
 clean data
 """
 
+#################################
+# for handling relative imports #
+#################################
+if __name__ == '__main__':
+    import sys
+    from pathlib import Path
+    current_file = Path(__file__).resolve()
+    root = next(elem for elem in current_file.parents
+                if str(elem).endswith('src'))
+    sys.path.append(str(root))
+    # remove the current file's directory from sys.path
+    try:
+        sys.path.remove(str(current_file.parent))
+    except ValueError:  # Already removed
+        pass
+#################################
+
 from typing import Dict, Union
 import pandas as pd
 import numpy as np
@@ -13,12 +30,12 @@ from os.path import join
 from loguru import logger
 import yaml
 from sklearn.preprocessing import LabelEncoder
-from shared.utils import get_file_path_relative, compress_labels
+from shared.utils import get_file_path_relative, compress_labels, clean_directory
 from shared.type import NLPType
 from shared.languages import languages
 from shared.libraries import libraries
 from shared.variables import data_folder, clean_data_folder, main_data_file, language_data_folder, \
-    datasets_folder, library_data_folder, classes_file
+    datasets_folder, library_data_folder, classes_file, type_path_dict
 from clean.utils.clean_utils import library_label_to_numeric, language_label_to_numeric
 
 
@@ -83,11 +100,20 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
     return output_preview
 
 
-def main(cleaning_type: NLPType):
+def main(cleaning_type: NLPType, clean_dir: bool = True):
     """
     main clean data script
     """
     logger.info("\n\nInitiating Data Cleaning\n")
+
+    if clean_dir:
+        logger.info("Cleaning directory")
+        folder_name = type_path_dict[cleaning_type]
+        clean_directory(
+            get_file_path_relative(f'{data_folder}/{clean_data_folder}/{folder_name}'), 
+            ["dat", "csv"]
+        )
+        logger.success("Cleaning complete")
 
     if cleaning_type == NLPType.language:
         output_preview = dataclean(
