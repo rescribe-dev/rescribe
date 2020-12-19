@@ -57,12 +57,12 @@ async def post(session: ClientSession, url: str, raw_filepath: str):
         return await response.text()
 
 
-async def main(extensions: List[FileExtensions], clean_dir: bool = True):
-    library_data_folder = type_path_dict[NLPType.library]
+async def main(nlp_type: NLPType, extensions: List[FileExtensions], clean_dir: bool = True):
+    library_data_folder = type_path_dict[nlp_type]
 
     if clean_dir:
         logger.info("Cleaning directory")
-        folder_name = type_path_dict[NLPType.library]
+        folder_name = type_path_dict[nlp_type]
         clean_directory(
             get_file_path_relative(f'{data_folder}/{clean_data_folder}/{folder_name}'), 
             ["dat", "csv"]

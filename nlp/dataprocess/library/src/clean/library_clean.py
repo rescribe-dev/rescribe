@@ -20,16 +20,19 @@ if __name__ == '__main__':
         pass
 #################################
 
-from clean.stackoverflow.stackoverflow_clean import main as dataclean
+from asyncio import get_event_loop
+from clean.github.github_clean import main as dataclean
+from shared.file_extensions import FileExtensions
 from shared.type import NLPType
 
 
-def main():
+async def main():
     """
     main clean data script
     """
-    dataclean(NLPType.library)
+    await dataclean(NLPType.library, [FileExtensions.java])
 
 
 if __name__ == '__main__':
-    main()
+    loop = get_event_loop()
+    loop.run_until_complete(main())
