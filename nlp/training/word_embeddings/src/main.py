@@ -4,47 +4,16 @@ main file
 
 entry point for running assignment 1
 """
-
-# from clean import clean_tokenize
-# from ngrams import n_grams_train, n_grams_predict_next, SmoothingType
-from variables import random_state
-
-# random_state = 42
-# import numpy as np
-# import tensorflow as tf
-import random
-
-
-from rnn import rnn_train, rnn_predict_next
 import networkx as nx
-
-# from loguru import logger
-
-import io
-import os
-import re
 import ast
-import shutil
 import string
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-import pickle
 
-import seaborn as sns
-from datetime import datetime
+from os.path import exists
 from loguru import logger
 from tensorflow import convert_to_tensor
-from tensorflow.keras import Model, Sequential
-from tensorflow.keras.layers import (
-    Activation,
-    Dense,
-    Embedding,
-    GlobalAveragePooling1D,
-)
-from tensorflow.keras.layers.experimental.preprocessing import (
-    TextVectorization,
-)
 
 from shared.type import NLPType
 from shared.utils import get_file_path_relative, list_files
@@ -53,9 +22,6 @@ from shared.variables import (
     clean_data_folder,
     type_path_dict,
     main_data_file,
-    we_max_sequence_length as max_sequence_length,
-    we_batch_size as batch_size,
-    we_tf_data_folder as tf_data_folder,
 )
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -82,18 +48,18 @@ def initialize() -> None:
 def get_data(clean_data_path=None):
     if clean_data_path == None:
         train_name: str = "train"
-        library_analysis_data_folder = type_path_dict[
-            NLPType.library_analysis
+        library_data_folder = type_path_dict[
+            NLPType.library
         ]
 
         clean_data_dir = get_file_path_relative(
-            f"{data_folder}/{clean_data_folder}/{library_analysis_data_folder}"
+            f"{data_folder}/{clean_data_folder}/{library_data_folder}"
         )
         clean_data_path = get_file_path_relative(
             f"{clean_data_dir}/{main_data_file}"
         )
         logger.info(f"Loading data from: {clean_data_path}")
-    assert os.path.exists(clean_data_path)
+    assert exists(clean_data_path)
     imported_data = pd.read_csv(clean_data_path, index_col=0)
     imported_data["imports"] = imported_data["imports"].apply(
         lambda x: ast.literal_eval(x)
@@ -157,7 +123,7 @@ def vectorize_imports(imports_df, total_number_imports, max_len):
     imports_flattened = np.concatenate(imports_series)
     tf_data = tf.data.Dataset.from_tensor_slices(imports_flattened)
     vectorize_layer.adapt(tf_data.batch(64))
-    model = tf.keras.models.Sequential()
+    model = tf.keras.modelsSequential()
     model.add(tf.keras.Input(shape=(1,), dtype=tf.string))
     model.add(vectorize_layer)
     # option 1
