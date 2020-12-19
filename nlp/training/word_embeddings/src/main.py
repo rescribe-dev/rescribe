@@ -27,8 +27,6 @@ from shared.variables import (
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 embedding_dimensionality: int = 5
 
-# import code
-# code.interact(local=locals())
 # Use this snippet to stop running the program and test stuff in the IDE
 IMPORTS_COLUMN_NAME = "imports"
 
@@ -68,29 +66,6 @@ def get_data(clean_data_path=None):
     logger.success("Data loaded")
     return imported_data
 
-
-# first vectorize the libraries
-# take difference between one library and another
-# each library
-
-# cosine idea
-# pandas numpy scikit-learn
-# [11234, 4321421, 43214]
-
-# model.predict("numpy, scikit-learn, testasdf")
-# numpy scikit-learn tensorflow
-# [4321421, 43214, 98343]
-
-# cosine_sim([11234, 4321421, 43214], [4321421, 43214, 98343]) approximates 1
-# therefore numpy scikit-learn tensorflow is output
-
-# before we forget
-# first step - try neural net with pairs of imports
-# add vectorize layer to sequential model, make sure you have the tensorflow dataset created with correct shape
-# then try changing the sequential model to be a graph, with edge weights that are equal to the number of
-# times the two libraries are used together
-
-
 def count_imports_and_max_len(
     imports_df, imports_column_name=IMPORTS_COLUMN_NAME
 ):
@@ -126,11 +101,7 @@ def vectorize_imports(imports_df, total_number_imports, max_len):
     model = tf.keras.modelsSequential()
     model.add(tf.keras.Input(shape=(1,), dtype=tf.string))
     model.add(vectorize_layer)
-    # option 1
-    # model.add(graphLayer)
-    # option 2
-    # model.add(LSTM())
-    # model.add(Dense())
+
     space_stripper = lambda s: s.strip()
     super_space_stripper = lambda l: list(map(space_stripper, l))
     stripped_imports = list(map(super_space_stripper, imports_series))
@@ -145,12 +116,9 @@ def get_pairs_of_imports(vectorized_imports):
 
     pairs = []
     generate_and_add_to_pairs = lambda l: pairs.extend(combinations(l, 2))
-    # logger.debug(len(vectorized_imports))
-    # logger.debug(vectorized_imports[0])
-    # exit(1)
 
     def make_pairs(l):
-        # ToDO: Change this to binary search, because otherwise, this could get slow (31*num_files comparisons)
+        # TODO: Change this to binary search, because otherwise, this could get slow (31*num_files comparisons)
         index = 0
         len_l = len(l)
         while index < len_l:
@@ -174,7 +142,7 @@ def make_graph(pairs):
     logger.debug("About to create a graph")
     graph_of_imports = nx.Graph()
     # graph_of_imports.add_edges_from(pairs)
-    # ToDO: Shouldn't this also be a mapped function??
+    # TODO: Shouldn't this also be a mapped function??
     for import_a, import_b in pairs:
         if graph_of_imports.has_edge(import_a, import_b):
             graph_of_imports[import_a][import_b]["weight"] += 1
@@ -216,9 +184,6 @@ def run_interactive_test_loop(vocabulary, model, graph):
                 logger.debug(f"{format_import(e[1])}: {e[2]['weight']}")
         except Exception as e:
             logger.debug(e)
-            # pass
-            # logger.debug("An Exception occurred: ")
-            # logger.debug(e.args)
             # If the index provided is out of range, this block will get triggered
             # If the import string doesn't exist, then it'll just return <UNK>
 
