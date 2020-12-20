@@ -98,7 +98,8 @@ jobs:
       - name: get commit message
         id: commit-message
         run: |
-          echo ::set-env name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
+          message=$(git log --format=%B -n 1 ${{ github.event.after }})
+          echo "{commitmsg}={$message}" >> $GITHUB_ENV
       - name: publish to aur
         env:
           PUBLIC_KEY: ${{ secrets.AUR_CLI_PUBLIC_KEY }}
