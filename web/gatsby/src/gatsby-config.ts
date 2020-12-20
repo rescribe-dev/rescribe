@@ -23,7 +23,12 @@ export default {
     'gatsby-plugin-react-helmet-async',
     // Add typescript stack into webpack
     'gatsby-plugin-typescript',
-    'gatsby-plugin-sass',
+    {
+      resolve: 'gatsby-plugin-sass',
+      options: {
+        implementation: require('sass'),
+      },
+    },
     // You can have multiple instances of this plugin
     // to read source nodes from different locations on your
     // filesystem.

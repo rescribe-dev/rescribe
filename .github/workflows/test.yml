@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 12.x
       - name: Setup Conda
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
           miniconda-version: latest

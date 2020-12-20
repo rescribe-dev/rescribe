@@ -52,7 +52,6 @@
     "locale-emoji": "^0.3.0",
     "lodash": "^4.17.20",
     "mustache": "^4.1.0",
-    "node-sass": "^5.0.0",
     "pretty-bytes": "^5.4.1",
     "prism-react-renderer": "^1.1.1",
     "react": "^17.0.1",
@@ -108,7 +107,7 @@
     "clean": "gatsby clean && yarn remove:dist && rimraf gatsby/.gatsby && rimraf dist-storybook",
     "precommit": "yarn lint && yarn codegen && yarn codegenREST",
     "storybook": "start-storybook -p 9000 -c .storybook",
-    "build:storybook": "build-storybook --static-dir storybook -c .storybook -o dist-storybook",
+    "build:storybook": "build-storybook -c .storybook -o dist-storybook",
     "serve:storybook": "node static-server.js dist-storybook 9001",
     "codegen": "graphql-codegen --config codegen.yml",
     "codegenREST": "swagger-to-ts ../api/swagger.yml --output src/lib/generated/apiREST.ts"
@@ -174,6 +173,7 @@
     "prettier": "^2.2.1",
     "react-docgen-typescript-loader": "^3.7.2",
     "rgb2hex": "^0.2.5",
+    "sass": "^1.30.0",
     "serve-static": "^1.14.1",
     "webpack": "^5.11.0"
   },
