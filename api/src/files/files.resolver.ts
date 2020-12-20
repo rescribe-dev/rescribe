@@ -300,7 +300,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           const bestLanguage = languagePrediction.data.reduce(
             (prev, curr) => curr.score > prev.score ? {
               ...curr,
-              name: name as Language
+              name: curr.name as Language
             } : prev, {
             name: Language.none,
             score: 0

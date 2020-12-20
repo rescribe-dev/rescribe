@@ -25,7 +25,8 @@
     "strictPropertyInitialization": false,
     "strictNullChecks": true,
     "noImplicitAny": false,
-    "pretty": false
+    "pretty": false,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.ts"

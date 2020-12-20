@@ -1,9 +1,9 @@
-import { Application } from 'probot';
+import { Probot } from 'probot';
 import ApolloClient from 'apollo-boost';
 import jwt from 'jsonwebtoken';
 import fetch from 'isomorphic-fetch';
 import { IndexGithub, IndexGithubMutationVariables, IndexGithubMutation } from './lib/generated/datamodel';
-import { initializeConfig, appID, privateKey } from './config';
+import { appID, privateKey } from './config';
 
 interface Commit {
   id: string;
@@ -15,9 +15,7 @@ interface Commit {
 
 const githubUserAgent = 'rescribe-github-app';
 
-initializeConfig();
-
-export = (app: Application): void => {
+const probotApp = (app: Probot): void => {
   const api = new ApolloClient({
     uri: `${process.env.API_URL}/graphql`,
     fetch,
@@ -96,3 +94,5 @@ export = (app: Application): void => {
     });
   });
 };
+
+export = probotApp;

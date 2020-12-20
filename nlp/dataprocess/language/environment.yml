@@ -9,6 +9,9 @@ dependencies:
   - arrow-cpp=1.0.1
   - astroid=2.4.2
   - autopep8=1.5.4
+  - aws-c-common=0.4.57
+  - aws-c-event-stream=0.1.6
+  - aws-checksums=0.1.9
   - aws-sdk-cpp=1.7.164
   - backcall=0.2.0
   - backports=1.0
@@ -47,6 +50,7 @@ dependencies:
   - grpc-cpp=1.30.2
   - grpcio=1.31.0
   - idna=2.10
+  - intel-openmp=2020.2
   - ipython=7.18.1
   - ipython_genutils=0.2.0
   - isort=5.5.2
@@ -55,7 +59,7 @@ dependencies:
   - joblib=0.16.0
   - krb5=1.17.1
   - lazy-object-proxy=1.4.3
-  - ld_impl_linux-64=2.35
+  - ld_impl_linux-64=2.35.1
   - libblas=3.8.0
   - libcblas=3.8.0
   - libcrc32c=1.1.1
@@ -66,6 +70,7 @@ dependencies:
   - libffi=3.2.1
   - libgcc-ng=9.3.0
   - libgfortran-ng=7.5.0
+  - libgfortran4=7.5.0
   - libgomp=9.3.0
   - liblapack=3.8.0
   - libnghttp2=1.41.0
@@ -73,10 +78,12 @@ dependencies:
   - libprotobuf=3.12.4
   - libssh2=1.9.0
   - libstdcxx-ng=9.3.0
+  - libthrift=0.13.0
   - libutf8proc=2.5.0
   - loguru=0.5.0
   - lz4-c=1.9.2
   - mccabe=0.6.1
+  - mkl=2020.2
   - mypy=0.782
   - mypy_extensions=0.4.3
   - ncurses=6.2
@@ -120,6 +127,7 @@ dependencies:
   - snappy=1.1.8
   - sqlite=3.33.0
   - threadpoolctl=2.1.0
+  - thrift-compiler=0.13.0
   - thrift-cpp=0.13.0
   - tk=8.6.10
   - toml=0.10.1

@@ -581,9 +581,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                             cacheOptions={true}
                             defaultValue={defaultPublicAccessLevel}
                             onChange={(
-                              selectedOption: ValueType<
-                                SelectPublicAccessObject
-                              >
+                              selectedOption: ValueType<SelectPublicAccessObject>
                             ) => {
                               if (!selectedOption) {
                                 selectedOption = null;

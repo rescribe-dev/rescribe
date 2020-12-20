@@ -1,10 +1,10 @@
 import template from './template';
 import appFunction from './';
-import { createProbot } from 'probot';
+import { Probot } from 'probot';
 import statusCodes from 'http-status-codes';
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { WebhookEvents } from '@octokit/webhooks';
-import { appID, webhookSecret, privateKey } from './config';
+import { appID, webhookSecret, privateKey, initializeConfig } from './config';
 
 const lowerCaseKeys = (obj: Record<string, unknown>): Record<string, unknown> =>
   Object.keys(obj).reduce((accumulator, key) =>
@@ -24,10 +24,11 @@ const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewa
       body: template
     };
   }
-  const probot = createProbot({
-    id: appID,
+  initializeConfig();
+  const probot = new Probot({
+    appId: appID,
     secret: webhookSecret,
-    cert: privateKey
+    privateKey: privateKey
   });
   probot.load(appFunction);
   // Ends function immediately after callback
@@ -44,7 +45,7 @@ const github: APIGatewayProxyHandler = async (event, context): Promise<APIGatewa
   let body: GithubData;
   try {
     body = (typeof event.body === 'string') ? JSON.parse(event.body) : event.body;
-  } catch(err) {
+  } catch (err) {
     return {
       statusCode: 400,
       body: JSON.stringify({

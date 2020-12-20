@@ -24,6 +24,9 @@ class LoginGithubResolver {
     const githubEmailData = await githubRESTClient('GET /user/emails');
     let email: string | undefined = undefined;
     for (const currentEmailData of githubEmailData.data) {
+      if (typeof currentEmailData === 'string') {
+        continue;
+      }
       if (currentEmailData.primary) {
         email = currentEmailData.email;
       }

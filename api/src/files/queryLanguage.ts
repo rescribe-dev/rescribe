@@ -20,14 +20,14 @@ const keyMap: Record<keyof QueryLangData, string[]> = {
   libraries: ['lib', 'library', 'libraries'],
 };
 
-const mapDeliminator: string = ':';
+const mapDeliminator = ':';
 
 const parseQueryLanguage = (query: string): QueryLangRes => {
   const data: QueryLangData = {
     [languageKey]: [],
     libraries: []
   };
-  let foundData: boolean = false;
+  let foundData = false;
   const uniformQuery = uniformSpacing(query);
   for (const word of uniformQuery.split(' ')) {
     const delimIndex = word.indexOf(mapDeliminator);
@@ -42,7 +42,7 @@ const parseQueryLanguage = (query: string): QueryLangRes => {
             if (currentKey === languageKey) {
               const language = currentElement as Language;
               if (!Object.values(Language).includes(language)) {
-                throw new ApolloError(`language ${language} is not supported`, `${statusCodes.BAD_REQUEST}`)
+                throw new ApolloError(`language ${language} is not supported`, `${statusCodes.BAD_REQUEST}`);
               }
               data[languageKey].push(language);
             } else {
