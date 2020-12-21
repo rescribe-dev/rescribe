@@ -13,12 +13,12 @@ from os.path import join
 from loguru import logger
 import yaml
 from sklearn.preprocessing import LabelEncoder
-from shared.utils import get_file_path_relative, compress_labels
+from shared.utils import get_file_path_relative, compress_labels, clean_directory
 from shared.type import NLPType
 from shared.languages import languages
 from shared.libraries import libraries
 from shared.variables import data_folder, clean_data_folder, main_data_file, language_data_folder, \
-    datasets_folder, library_data_folder, classes_file
+    datasets_folder, library_data_folder, classes_file, type_path_dict
 from clean.utils.clean_utils import library_label_to_numeric, language_label_to_numeric
 
 
@@ -29,7 +29,7 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
 
     logger.info("Loading Data From Disk")
 
-    folder_name: str = language_data_folder if cleaning_type == NLPType.language else library_data_folder
+    folder_name: str = type_path_dict[cleaning_type]
 
     df_chunk: Union[pd.DataFrame] = pd.read_csv(
         get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}/{main_data_file}'), chunksize=chunksize)
@@ -67,6 +67,7 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
             frame.to_csv(write_path, index=False)
             logger.success("Done\n")
         except Exception as err:
+            logger.error(err)
             logger.error(f"failed to read chunk {i}")
             continue
 
@@ -83,11 +84,19 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
     return output_preview
 
 
-def main(cleaning_type: NLPType):
+def main(cleaning_type: NLPType, clean_dir: bool = True):
     """
     main clean data script
     """
     logger.info("\n\nInitiating Data Cleaning\n")
+    if clean_dir:
+        logger.info("Cleaning directory")
+        folder_name = type_path_dict[cleaning_type]
+        clean_directory(
+            get_file_path_relative(f'{data_folder}/{clean_data_folder}/{folder_name}'), 
+            ["dat", "csv"]
+        )
+        logger.success("Cleaning complete")
 
     if cleaning_type == NLPType.language:
         output_preview = dataclean(

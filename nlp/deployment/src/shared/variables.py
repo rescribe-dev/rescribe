@@ -2,6 +2,10 @@
 """
 global variables
 """
+from typing import Dict
+from shared.type import NLPType
+
+random_state: int = 42
 
 dataset_length: int = 10000
 # dataset length verification
@@ -23,8 +27,19 @@ models_folder: str = 'models'
 language_data_folder: str = 'language'
 library_data_folder: str = 'library'
 
+credentials_file: str = "load/bigquery/bigquery_credentials.json"
 classes_file: str = 'classes.yml'
 checkpoint_file: str = 'cp.ckpt'
 main_data_file: str = 'data_file.csv'
 
 batch_size: int = 32
+
+# we_max_sequence_length: int = 64
+# we_batch_size: int = 64
+# we_tf_data_folder: str = "tf_dataset"
+
+type_path_dict: Dict[NLPType, str] = {
+    NLPType.language: "language",
+    NLPType.library: "library",
+    NLPType.library_analysis: "library_analysis",
+}

@@ -1,0 +1,74 @@
+{
+  "name": "java-library-dataset",
+  "version": "0.0.1",
+  "description": "get the java library dataset and save to s3",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rescribe-dev/rescribe.git"
+  },
+  "author": {
+    "name": "rescribe"
+  },
+  "keywords": [
+    "backend",
+    "edge"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index",
+  "types": "lib/index",
+  "scripts": {
+    "start": "node lib/index",
+    "dev": "tsc-watch --onSuccess \"npm run postbuildWatch\"",
+    "clean": "rimraf lib && rimraf coverage",
+    "format": "prettier --config prettier.config.js --ignore-path .gitignore --write \"{src,__tests__}/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "precommit": "npm run lint && npm run format",
+    "predeploy": "npm run build && ./build_zip.sh",
+    "prepublishOnly": "npm run build",
+    "printTypescriptVersion": "echo Using TypeScript && tsc --version",
+    "prebuild": "npm run format && npm run lint && npm run printTypescriptVersion",
+    "build": "yarn clean && tsc",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "postbuildWatch": "npm run lint && npm run format && npm run printTypescriptVersion && npm start",
+    "watch:test": "jest --watch"
+  },
+  "dependencies": {
+    "axios": "^0.21.0",
+    "dotenv": "^8.2.0",
+    "http-status-codes": "^2.1.4",
+    "log4js": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.66",
+    "@types/jest": "^26.0.19",
+    "@types/node": "^14.14.14",
+    "@typescript-eslint/eslint-plugin": "^4.10.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^4.10.0",
+    "@typescript-eslint/parser": "^4.10.0",
+    "aws-lambda": "^1.0.6",
+    "eslint": "^7.16.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-import-resolver-typescript": "^2.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^30.7.9",
+    "eslint-plugin-prefer-arrow": "^1.2.2",
+    "eslint-plugin-prettier": "^3.3.0",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.4.4",
+    "ts-node": "^9.1.1",
+    "tsc-watch": "^4.2.9",
+    "typescript": "^4.1.3"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest"
+  }
+}
