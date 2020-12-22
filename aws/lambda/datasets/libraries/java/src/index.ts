@@ -1,23 +1,29 @@
-import { EventBridgeHandler } from 'aws-lambda';
+import { Callback, Context, EventBridgeEvent, EventBridgeHandler, SQSEvent, SQSHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { getLogger } from 'log4js';
 import { dataFolder, initializeConfig, repositoryURL } from './utils/config';
 import { initializeLogger } from './shared/logger';
 import axios from 'axios';
 import statusCodes from 'http-status-codes';
-import { baseFolder, s3Bucket, saveLocal, paginationSize } from './shared/libraries_global_config';
+import { baseFolder, s3Bucket, saveLocal, paginationSize, useQueue, queueURL } from './shared/libraries_global_config';
 import YAML from 'yaml';
 import cheerio from 'cheerio';
 import { writeFileSync } from 'fs';
+import { format } from 'date-fns';
 import { deleteObjects } from './shared/s3utils';
+import { average } from './shared/utils';
+import { createHash } from 'crypto';
 
 const logger = getLogger();
 
 const s3Client = new AWS.S3();
 
 const localDataFolder = 'data';
+const estimatedNumberArtifacts = 5e6;
 
-const writeDataS3 = async (basename: string, content: string): Promise<void> => {
+const writeData = async (content: string): Promise<void> => {
+  const hash = createHash('sha256').update(content).digest('hex');
+  const basename = `${hash}.yml`;
   logger.info(`write data to s3: ${basename}`);
   const fileType = 'application/x-yaml';
   if (saveLocal) {
@@ -44,17 +50,32 @@ interface LibraryData {
 interface PageData {
   paths: string[][];
   libraries: LibraryData[];
+  requestTime: number;
+  totalTime: number;
 }
 
 const getData = async (currentPath: string[]): Promise<PageData> => {
+  const totalStartTime = new Date();
   const baseURL = new URL(repositoryURL);
-  const fullPath = `${baseURL.pathname}/${currentPath.join('/')}`;
-  const currentURL = new URL(fullPath, repositoryURL);
-  const res = await axios.get<string>(currentURL.href);
-  if (res.status !== statusCodes.OK) {
-    throw new Error('problem with getting data');
+  let fullPath = `${baseURL.pathname}/${currentPath.join('/')}`;
+  if (!fullPath.endsWith('/')) {
+    fullPath += '/';
   }
-  const $ = cheerio.load(res.data);
+  const currentURL = new URL(fullPath, repositoryURL);
+  let requestData: string;
+  const requestStartTime = new Date();
+  try {
+    const res = await axios.get<string>(currentURL.href);
+    if (res.status !== statusCodes.OK) {
+      throw new Error('problem with getting data');
+    }
+    requestData = res.data;
+  } catch (err) {
+    logger.error(`got error with http request for ${currentURL}`);
+    throw err;
+  }
+  const requestTime = new Date().getTime() - requestStartTime.getTime();
+  const $ = cheerio.load(requestData);
   let paths: string[] = [];
   let library: LibraryData | undefined = undefined;
   $('a').each((_, elem) => {
@@ -97,42 +118,89 @@ const getData = async (currentPath: string[]): Promise<PageData> => {
       return current;
     });
   }
+  const totalTime = new Date().getTime() - totalStartTime.getTime();
   const data: PageData = {
     libraries,
-    paths: fullPaths
+    paths: fullPaths,
+    requestTime,
+    totalTime: totalTime
   };
   return data;
 };
 
-const writeDatasetRecursive = async (): Promise<void> => {
-  let pathsToCheck: string[][] = [[]];
+const writeDatasetRecursive = async (pathsToCheck: string[][]): Promise<void> => {
   let allData: LibraryData[] = [];
   let currentPage = 1;
+  let countVersions = 0;
+  const requestTimes: number[] = [];
+  const totalPageTimes: number[] = [];
+  const startTime = new Date();
+
+  logger.info(`starting at ${format(startTime, 'HH:mm:ss')}`);
+
   while (pathsToCheck.length > 0) {
     const currentPath = pathsToCheck.pop();
     if (!currentPath) {
       break;
     }
     const currentData = await getData(currentPath);
-    pathsToCheck = pathsToCheck.concat(currentData.paths);
+    requestTimes.push(currentData.requestTime);
+    totalPageTimes.push(currentData.totalTime);
+    if (useQueue) {
+      // add to aws queue
+      const sqsClient = new AWS.SQS();
+      await sqsClient.sendMessage({
+        MessageBody: JSON.stringify(currentData.paths),
+        QueueUrl: queueURL
+      }).promise();
+    } else {
+      pathsToCheck = pathsToCheck.concat(currentData.paths);
+    }
+    countVersions += currentData.libraries.reduce((prev, curr) => prev += curr.versions.length, 0);
     allData = allData.concat(currentData.libraries);
     while (allData.length >= paginationSize) {
-      await writeDataS3(`${currentPage}.yml`, YAML.stringify(allData.slice(0, paginationSize)));
+      await writeData(YAML.stringify(allData.slice(0, paginationSize)));
       allData = allData.slice(paginationSize);
+
+      const numRemaining = estimatedNumberArtifacts - countVersions;
+      const currentTime = new Date();
+      const timeElapsed = currentTime.getTime() - startTime.getTime();
+      const timeRemaining = timeElapsed / countVersions * numRemaining; // in ms
+
+      logger.info(`wrote page ${currentPage}`);
+      logger.info(`as of ${format(currentTime, 'HH:mm:ss')} processed ${countVersions} versions`);
+      logger.info(`estimated time remaining: ${format(new Date(timeRemaining), 'dd:HH:mm:ss')}`);
+      logger.info(`average request time: ${average(requestTimes)}, total time: ${average(totalPageTimes)}`);
+      logger.info(`paths remaining to check: ${pathsToCheck.length}`);
       currentPage++;
     }
   }
   if (allData.length > 0) {
-    await writeDataS3(`${currentPage}.yml`, YAML.stringify(allData));
+    await writeData(YAML.stringify(allData));
   }
   logger.info('done with getting datasets');
 };
 
-export const handler: EventBridgeHandler<string, null, void> = async (_event, _context, callback): Promise<void> => {
+export const handler: EventBridgeHandler<string, null, void> | SQSHandler = async (
+  event: EventBridgeEvent<string, null> | SQSEvent,
+  _context: Context, callback: Callback<void>): Promise<void> => {
+  const inQueue = 'Records' in event;
+  let startingPaths: string[][];
+  if (inQueue) {
+    // in queue
+    event = event as SQSEvent;
+    startingPaths = event.Records.map(record => JSON.parse(record.body));
+  } else {
+    // triggered by cron job
+    event = event as EventBridgeEvent<string, null>;
+    startingPaths = [[]];
+  }
   await initializeConfig(false);
   initializeLogger();
-  await deleteObjects(s3Client, s3Bucket, `${baseFolder}/${dataFolder}`);
-  await writeDatasetRecursive();
+  if (!inQueue) {
+    await deleteObjects(s3Client, s3Bucket, `${baseFolder}/${dataFolder}`);
+  }
+  await writeDatasetRecursive(startingPaths);
   callback();
   process.exit(0);
 };
@@ -141,7 +209,7 @@ const getDataset = async (): Promise<void> => {
   await initializeConfig(true);
   initializeLogger();
   await deleteObjects(s3Client, s3Bucket, `${baseFolder}/${dataFolder}`);
-  await writeDatasetRecursive();
+  await writeDatasetRecursive([[]]);
 };
 
 if (require.main === module) {
