@@ -23,7 +23,7 @@ const Description = (args: DescriptionArgs): JSX.Element => {
         <h2>
           {args.repo.split('/')[0]}&apos;s {args.repo.split('/')[1]}
         </h2>
-        <h6>
+        <h6 style={{ fontSize: '0.75em' }}>
           See the rest here:{' '}
           <Link to={args.repo}>{args.repo.split('/')[1]}</Link>
         </h6>
@@ -33,6 +33,7 @@ const Description = (args: DescriptionArgs): JSX.Element => {
           style={{
             outline: '0.05rem solid gray',
             padding: '0.25rem',
+            fontFamily: 'Noto Sans, sans-serif',
           }}
         >
           {args.desc}

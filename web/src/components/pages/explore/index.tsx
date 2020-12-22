@@ -45,7 +45,7 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
       repoName: 'reScribe',
       repoLang: 'TypeScript',
       repoDes:
-        'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository',
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." This is the readme (or the text from the beginning of the readme) of the selected text’s repo. On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repostiory',
       selected: false,
     },
   ];
@@ -57,7 +57,7 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
       <Container
         style={{
           background: 'var(--purple-blue)',
-          clipPath: 'polygon(0% 0%, 0% 89%, 54% 0%)',
+          // clipPath: "polygon(0% 0%, 0% 89%, 54% 0%)",
         }}
       >
         <>
@@ -78,31 +78,36 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                   </h5>
                 </Col>
               </Row>
-              {results.map((res) => {
-                return (
-                  <Row key={res.repoUrl}>
-                    <Col sm="7">
-                      <ExploreResultComponent
-                        repoUrl={res.repoUrl}
-                        repoCode={res.repoCode}
-                        repoName={res.repoCode}
-                        repoDes={res.repoDes}
-                        repoLang={res.repoLang}
-                        selected={res.selected}
-                      />
-                    </Col>
-                    <Col sm="5">
-                      {res.selected && (
-                        <Description
-                          repo={res.repoUrl}
-                          desc={'asdflkdsaf;ljkfd  lkasdjkfsdlk asdflkasjkl'}
+              {results
+                .slice(
+                  (currentPage - 1) * resultsPerPage,
+                  currentPage * resultsPerPage
+                )
+                .map((res) => {
+                  return (
+                    <Row key={res.repoUrl}>
+                      <Col sm="7">
+                        <ExploreResultComponent
+                          repoUrl={res.repoUrl}
+                          repoCode={res.repoCode}
+                          repoName={res.repoCode}
+                          repoDes={res.repoDes}
+                          repoLang={res.repoLang}
+                          selected={res.selected}
                         />
-                      )}
-                    </Col>
-                  </Row>
-                );
-              })}
-              <Pagination aria-label="Explore Navigation">
+                      </Col>
+                      <Col sm="5">
+                        {res.selected && (
+                          <Description repo={res.repoUrl} desc={res.repoDes} />
+                        )}
+                      </Col>
+                    </Row>
+                  );
+                })}
+              <Pagination
+                aria-label="Explore Navigation"
+                className="d-flex flex-row justify-content-center"
+              >
                 <PaginationItem>
                   <PaginationLink first href="explore/1" />
                 </PaginationItem>

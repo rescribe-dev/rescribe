@@ -27,7 +27,6 @@ const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
             style={{
               flexGrow: 0,
               height: '25px',
-              width: '20px',
               background: '#C4C4C4',
               borderRadius: '50%',
               padding: '12.5px',
@@ -77,11 +76,17 @@ const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
               borderRadius: '50%',
               padding: '6px',
               textAlign: 'right',
+              marginTop: '19px',
+              marginLeft: '6em',
+              marginRight: '10px',
             }}
           ></Col>
           <Col
+            className="d-flex align-items-center"
+            sm="2"
             style={{
               textAlign: 'right',
+              padding: '0%',
             }}
           >
             <p style={{ fontFamily: 'Noto Sans, sans-serif' }}>
@@ -127,10 +132,25 @@ const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
           </Col>
         </Row>
         <Row>
-          <Col>
-            <a href={args.repoUrl}>See all 20 results</a>
+          <Col sm="6" className="d-flex align-items-center">
+            <a
+              style={{
+                color: '#0275D8',
+              }}
+              href={args.repoUrl}
+            >
+              See all 20 results
+            </a>
           </Col>
-          <Col>
+          <Col sm="6" className="d-flex flex-row-reverse align-items-center">
+            <Button
+              style={{
+                backgroundColor: 'transparent',
+                borderColor: 'transparent',
+              }}
+            >
+              <img alt="download" src={downloadIcon}></img>
+            </Button>
             <Button
               className="rounded-0"
               style={{
@@ -138,15 +158,12 @@ const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
                 height: '27px',
                 background: '#DADADA',
                 fontSize: '14px',
-                fontFamily: 'NotoSans',
+                fontFamily: 'NotoSans, sans-serif',
                 color: 'black',
                 borderWidth: '0px',
               }}
             >
               Copy {args.repoCode.split('\n').length} lines
-            </Button>
-            <Button>
-              <img alt="download" src={downloadIcon}></img>
             </Button>
           </Col>
         </Row>
