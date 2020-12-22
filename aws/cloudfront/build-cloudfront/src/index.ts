@@ -4,6 +4,7 @@ import AWS from 'aws-sdk';
 import { createBrotliCompress, createGzip } from 'zlib';
 import mime from 'mime-types';
 import { config } from 'dotenv';
+import { deleteObjects } from './shared/s3utils';
 
 const defaultBase = 'none';
 const gzipBase = 'gzip';
@@ -15,39 +16,6 @@ const cloudfrontClient = new AWS.CloudFront();
 let s3Bucket: string;
 let sourceDir: string;
 let cloudfrontID: string;
-
-const deleteObjects = async (): Promise<void> => {
-  const data = await s3Client.listObjects({
-    Bucket: s3Bucket
-  }).promise();
-  if (!data.Contents) {
-    throw new Error('no data found');
-  }
-  const callback = async (): Promise<void> => {
-    if (data.IsTruncated) {
-      await deleteObjects();
-    }
-  };
-  for (let i = 0; i < data.Contents.length; i++) {
-    if (!data.Contents[i].Key) {
-      throw new Error('cannot find key for content');
-    }
-    await s3Client.deleteObject({
-      Bucket: s3Bucket,
-      Key: data.Contents[i].Key as string
-    }).promise();
-
-    if (!data.Contents) {
-      throw new Error('no data found');
-    }
-    if (i === data.Contents.length - 1) {
-      callback();
-    }
-  }
-  if (data.Contents.length === 0) {
-    callback();
-  }
-};
 
 const processFile = async (filePath: string): Promise<void> => {
   const mimeFileType = mime.lookup(extname(filePath));
@@ -150,7 +118,7 @@ const runAction = async (): Promise<void> => {
     throw new Error('no aws region provided');
   }
   AWS.config.region = process.env.AWS_REGION;
-  await deleteObjects();
+  await deleteObjects(s3Client, s3Bucket, '/');
   await processDirectory(sourceDir);
   await clearCloudfront();
 };

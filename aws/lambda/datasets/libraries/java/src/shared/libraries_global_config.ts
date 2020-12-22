@@ -1,7 +1,7 @@
 export let baseFolder = 'libraries';
 export let s3Bucket = 'rescribe-datasets';
 export let saveLocal = false;
-export let paginationSize: number = 100;
+export let paginationSize = 100;
 
 export const initializeLibrariesConfig = (): void => {
   if (process.env.BASE_FOLDER) {

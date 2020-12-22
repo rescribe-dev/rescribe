@@ -9,6 +9,7 @@ import { baseFolder, s3Bucket, saveLocal, paginationSize } from './shared/librar
 import YAML from 'yaml';
 import cheerio from 'cheerio';
 import { writeFileSync } from 'fs';
+import { deleteObjects } from './shared/s3utils';
 
 const logger = getLogger();
 
@@ -130,6 +131,7 @@ const writeDatasetRecursive = async (): Promise<void> => {
 export const handler: EventBridgeHandler<string, null, void> = async (_event, _context, callback): Promise<void> => {
   await initializeConfig(false);
   initializeLogger();
+  await deleteObjects(s3Client, s3Bucket, `${baseFolder}/${dataFolder}`);
   await writeDatasetRecursive();
   callback();
   process.exit(0);
@@ -138,6 +140,7 @@ export const handler: EventBridgeHandler<string, null, void> = async (_event, _c
 const getDataset = async (): Promise<void> => {
   await initializeConfig(true);
   initializeLogger();
+  await deleteObjects(s3Client, s3Bucket, `${baseFolder}/${dataFolder}`);
   await writeDatasetRecursive();
 };
 
