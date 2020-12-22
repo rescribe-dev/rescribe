@@ -24,8 +24,11 @@ datasets_folder: str = 'datasets'
 clean_data_folder: str = 'clean_data'
 models_folder: str = 'models'
 
-# language_data_folder: str = 'language'
-# library_data_folder: str = 'base_library'
+# Training - Deployment
+# Inter-Library-Relation-Project
+inter_library_graph_file = "graph.pkl"
+inter_library_vocabulary_file = "vocab.yaml"
+inter_library_tokenization_model_path = "tokenization_model"
 
 credentials_file: str = "load/bigquery/bigquery_credentials.json"
 classes_file: str = 'classes.yml'

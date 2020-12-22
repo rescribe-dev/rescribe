@@ -12,11 +12,12 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 import tensorflow as tf
+import yaml
 
-from os.path import exists
+from os.path import exists, join
 from loguru import logger
 from tensorflow import convert_to_tensor
-from typing import List
+from typing import List, Union, Tuple
 
 from shared.type import NLPType
 from shared.utils import get_file_path_relative, list_files
@@ -26,6 +27,10 @@ from shared.variables import (
     clean_data_folder,
     type_path_dict,
     main_data_file,
+    models_folder,
+    inter_library_graph_file,
+    inter_library_vocabulary_file,
+    inter_library_tokenization_model_path
 )
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -35,7 +40,7 @@ embedding_dimensionality: int = 5
 IMPORTS_COLUMN_NAME = "imports"
 
 
-def initialize() -> None:
+def initialize_randomState_GPU() -> None:
     """
     initialize before running anything
     """
@@ -109,6 +114,7 @@ def vectorize_imports(imports_df, total_number_imports, max_len):
     concatter = lambda l: " ".join(l)
     space_joined_imports = list(map(concatter, stripped_imports))
     vectorized_imports = model.predict(space_joined_imports)
+    
     return vectorized_imports, vectorize_layer, model
 
 
@@ -153,6 +159,40 @@ def make_graph(pairs):
     return graph_of_imports
 
 
+def get_n_nearest_libraries(base_library: Union[str, int], n: int, vocabulary: List[str], model: tf.keras.models.Sequential, graph: nx.Graph)->List[Tuple[str, int]]:
+    """
+    Returns the n most related libraries given a base library and a 
+    """
+    format_import = lambda n: f"{n}:{vocabulary[n]}"
+    try:
+        import_to_try = base_library  # Note that this can either be index of import or name of import
+        max_num_imports_to_show = n  # This is only a number
+        print("\n" * 10)  # Clear the screen
+
+        # If possible, convert the input into an index. If not an index, give up, it's the name of an import
+        try:
+            import_to_try = int(import_to_try)
+        except Exception:
+            import_to_try = model.predict([import_to_try])[0][0]
+
+        # Print out the import received and the imports it is connected to
+        logger.info(f"{format_import(import_to_try)} was received.")
+        edges = list(graph.edges(import_to_try, data=True))
+        edges = sorted(
+            edges, key=lambda i: i[2]["weight"], reverse=True
+        )
+        edges = edges[:max_num_imports_to_show]
+        # for e in edges:
+        #     logger.debug(f"{format_import(e[1])}: {e[2]['weight']}")
+        return [(vocabulary[e[1]], e[2]['weight']) for e in edges]
+
+    except Exception as e:
+        logger.debug(e)
+        logger.error("Import was likely out of range")
+        # If the index provided is out of range, this block will get triggered
+        # If the import string doesn't exist, then it'll just return <UNK>
+
+
 def run_interactive_test_loop(vocabulary, model, graph):
     logger.info("Stepping into infinite loop to test...")
     format_import = lambda n: f"{n}:{vocabulary[n]}"
@@ -167,30 +207,30 @@ def run_interactive_test_loop(vocabulary, model, graph):
                 )
             )  # This is only a number
             print("\n" * 100)  # Clear the screen
+            [print(x) for x in get_n_nearest_libraries(import_to_try, max_num_imports_to_show, vocabulary, model, graph)]
+        except Exception:
+            logger.error("Import was out of range")
 
-            # If possible, convert the input into an index. If not an index, give up, it's the name of an import
-            try:
-                import_to_try = int(import_to_try)
-            except Exception:
-                import_to_try = model.predict([import_to_try])[0][0]
 
-            # Print out the import received and the imports it is connected to
-            logger.info(f"{format_import(import_to_try)} was received.")
-            edges = list(graph.edges(import_to_try, data=True))
-            edges = sorted(
-                edges, key=lambda i: i[2]["weight"], reverse=True
-            )
-            edges = edges[:max_num_imports_to_show]
-            for e in edges:
-                logger.debug(f"{format_import(e[1])}: {e[2]['weight']}")
-        except Exception as e:
-            logger.debug(e)
-            # If the index provided is out of range, this block will get triggered
-            # If the import string doesn't exist, then it'll just return <UNK>
+def save_graph_state(data_type: NLPType, vocabulary: List[str], model: tf.keras.models.Sequential, graph: nx.Graph)->None:
+    folder_name: str = type_path_dict[data_type]
+    graph_output_path = get_file_path_relative(
+        f'{data_folder}/{models_folder}/{folder_name}')
+
+    logger.info("Saving graph")
+    nx.write_gpickle(graph, join(graph_output_path, inter_library_graph_file))
+
+    logger.info("Saving vectorization model")
+    model.save(join(graph_output_path, inter_library_tokenization_model_path))
+
+    logger.info("Saving vocabulary")
+    with open(join(graph_output_path, inter_library_vocabulary_file), 'w') as f:
+        yaml.dump(vocabulary, stream=f, explicit_start=True, default_flow_style=False)
+    
 
 @logger.catch
-def main(data_type: NLPType):
-    initialize()
+def main(data_type: NLPType, interactive_debug: bool = False):
+    initialize_randomState_GPU()
     imports_df = get_data(data_type)
     total_number_imports, max_len = count_imports_and_max_len(imports_df)
     vectorized_imports, vectorize_layer, model = vectorize_imports(
@@ -205,11 +245,18 @@ def main(data_type: NLPType):
     imports = vectorized_imports
     pairs = get_pairs_of_imports(imports)
     graph = make_graph(pairs)
-    run_interactive_test_loop(vocabulary, model, graph)
 
+    logger.info("Saving graph state")
+    save_graph_state(data_type, vocabulary, model, graph)
+    logger.success("Graph state saved")
+    
+    if interactive_debug:
+        run_interactive_test_loop(vocabulary, model, graph)
+    else:
+        pass
 
 if __name__ == "__main__":
-    main(NLPType.library_relation)
+    main(NLPType.library_relation, interactive_debug=True)
 
 """
 Two ways of splitting data: 
