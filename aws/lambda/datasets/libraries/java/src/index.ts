@@ -2,16 +2,21 @@ import { EventBridgeHandler } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { getLogger } from 'log4js';
 import { dataFolder, initializeConfig, repositoryURL } from './utils/config';
-import { initializeLogger } from './utils/logger';
+import { initializeLogger } from './shared/logger';
 import axios from 'axios';
 import statusCodes from 'http-status-codes';
 import { baseFolder, s3Bucket } from './shared/libraries_global_config';
+import YAML from 'yaml';
+import cheerio from 'cheerio';
 
 const logger = getLogger();
 
 const s3Client = new AWS.S3();
 
+const paginationSize = 10;
+
 const writeDataS3 = async (basename: string, content: string): Promise<void> => {
+  logger.info(`write data to s3: ${basename}`);
   const fileType = 'application/x-yaml';
   await s3Client.upload({
     Bucket: s3Bucket,
@@ -26,16 +31,95 @@ const writeDataS3 = async (basename: string, content: string): Promise<void> => 
     .promise();
 };
 
-const getData = async (currentPath: string): Promise<void> => {
-  const res = await axios.get(`${repositoryURL}/${currentPath}`);
+interface LibraryData {
+  id: string[];
+  versions: string[];
+}
+
+interface PageData {
+  paths: string[][];
+  libraries: LibraryData[];
+}
+
+const getData = async (currentPath: string[]): Promise<PageData> => {
+  const baseURL = new URL(repositoryURL);
+  const fullPath = `${baseURL.pathname}/${currentPath.join('/')}`;
+  const currentURL = new URL(fullPath, repositoryURL);
+  const res = await axios.get<string>(currentURL.href);
   if (res.status !== statusCodes.OK) {
     throw new Error('problem with getting data');
   }
+  const $ = cheerio.load(res.data);
+  let paths: string[] = [];
+  let library: LibraryData | undefined = undefined;
+  $('a').each((_, elem) => {
+    let link = $(elem).attr('href');
+    if (!link) {
+      return;
+    }
+    link = link.trim();
+    if (link.startsWith('.') || !link.endsWith('/')) {
+      return;
+    }
+    // remove the backslash
+    link = link.slice(0, -1);
+    if (link.length === 0) {
+      return;
+    }
+    if (link.match(/^\d/)) {
+      // found a version. ignore path data
+      if (library === undefined) {
+        library = {
+          id: currentPath,
+          versions: []
+        };
+      }
+      library.versions.push(link);
+    } else {
+      paths.push(link);
+    }
+  });
+  const libraries: LibraryData[] = [];
+  let fullPaths: string[][] = [];
+  if (library !== undefined) {
+    libraries.push(library);
+    paths = [];
+  } else {
+    fullPaths = paths.map(path => {
+      const current = [...currentPath];
+      current.push(path);
+      return current;
+    });
+  }
+  const data: PageData = {
+    libraries,
+    paths: fullPaths
+  };
+  return data;
 };
 
 const writeDatasetRecursive = async (): Promise<void> => {
-  await getData('/');
-  await writeDataS3('', '');
+  let pathsToCheck: string[][] = [[]];
+  let allData: LibraryData[] = [];
+  let currentPage = 1;
+  while (pathsToCheck.length > 0) {
+    const currentPath = pathsToCheck.pop();
+    if (!currentPath) {
+      break;
+    }
+    const currentData = await getData(currentPath);
+    pathsToCheck = pathsToCheck.concat(currentData.paths);
+    allData = allData.concat(currentData.libraries);
+    logger.info(allData.length);
+    while (allData.length > paginationSize) {
+      await writeDataS3(`${currentPage}.yml`, YAML.stringify(allData.slice(0, paginationSize)));
+      allData = allData.slice(paginationSize);
+      currentPage++;
+    }
+  }
+  if (allData.length > 0) {
+    await writeDataS3(`${currentPage}.yml`, YAML.stringify(allData));
+  }
   logger.info('done with getting datasets');
 };
 

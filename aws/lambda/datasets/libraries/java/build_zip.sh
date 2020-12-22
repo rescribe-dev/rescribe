@@ -2,8 +2,8 @@
 
 set -e
 
-cd ../../../scripts
+cd ../../../../../scripts
 
-./build_zip_lambda.sh aws/lambda/update-sitemap
+./build_zip_lambda.sh aws/lambda/datasets/libraries/java
 
 cd -

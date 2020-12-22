@@ -1,5 +1,5 @@
 import { configure, getLogger, Logger } from 'log4js';
-import { debug } from './config';
+import { debug } from './global-config';
 
 export const initializeLogger = (): Logger => {
   configure({

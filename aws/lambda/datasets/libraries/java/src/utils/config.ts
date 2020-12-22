@@ -1,5 +1,5 @@
-import { initializeGlobalConfig } from "../shared/global-config";
-import { initializeLibrariesConfig } from "../shared/libraries_global_config";
+import { initializeGlobalConfig } from '../shared/global-config';
+import { initializeLibrariesConfig } from '../shared/libraries_global_config';
 
 export let dataFolder = 'java';
 export let repositoryURL = 'https://repo1.maven.org/maven2';

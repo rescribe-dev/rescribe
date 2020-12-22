@@ -3,7 +3,7 @@ import { getLogger } from 'log4js';
 import { initializeDB } from './shared/db/connect';
 import { initializeConfig } from './utils/config';
 import { dbConnectionURI, dbName } from './shared/global-config';
-import { initializeLogger } from './utils/logger';
+import { initializeLogger } from './shared/logger';
 import { CurrencyModel } from './shared/schema/payments/currency';
 import { getActualExchangeRate } from './shared/currencies/getForexData';
 

@@ -8,7 +8,7 @@ import { initializeDB } from './shared/db/connect';
 import { UserModel } from './shared/schema/users/user';
 import { initializeConfig, s3Bucket } from './utils/config';
 import { websiteURL, dbConnectionURI, dbName } from './shared/global-config';
-import { initializeLogger } from './utils/logger';
+import { initializeLogger } from './shared/logger';
 import { sitemapPaths, staticSitemapPath } from './shared/sitemaps';
 import { createHash } from 'crypto';
 import axios from 'axios';
