@@ -36,8 +36,8 @@ from shared.libraries import libraries
 from shared.languages import languages
 from glob import glob
 from shared.variables import bucket_name, dataset_length as default_dataset_length, \
-    data_folder, main_data_file, language_data_folder, \
-    library_data_folder, datasets_folder, type_path_dict
+    data_folder, main_data_file, \
+    datasets_folder, type_path_dict
 
 credentials_file: str = 'load/bigquery/bigquery_credentials.json'
 

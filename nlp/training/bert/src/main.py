@@ -9,8 +9,9 @@ import argparse
 from shared.config import read_config
 from shared.type import NLPType
 from train import main as training_main
+from loguru import logger
 
-
+@logger.catch
 def main() -> None:
     """
     main entry point
@@ -26,14 +27,14 @@ def main() -> None:
 
     # dataload type
     parser.add_argument('--type', type=str,
-                        choices=[NLPType.language.name, NLPType.library.name])
+                        choices=[NLPType.language.name, NLPType.base_library.name])
 
     # optional arguments
     args = parser.parse_args()
 
     if args.type is None:
         raise ValueError(
-            f'No type argument provided for training\nValid choices are: --type={[NLPType.language.name, NLPType.library.name]}')
+            f'No type argument provided for training\nValid choices are: --type={[NLPType.language.name, NLPType.base_library.name]}')
 
     training_main(NLPType(args.type))
 

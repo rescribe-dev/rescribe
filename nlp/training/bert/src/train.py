@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from shared.utils import list_files, get_file_path_relative
 from shared.type import NLPType
 from shared.variables import clean_data_folder, batch_size, do_lower_case, max_sequence_length, holdout, albert, \
-    data_folder, language_data_folder, library_data_folder, models_folder, checkpoint_file, classes_file
+    data_folder, models_folder, checkpoint_file, classes_file, type_path_dict
 from sys import argv
 from glob import glob
 from transformers import AlbertTokenizer
@@ -54,7 +54,7 @@ def delete_all_checkpoints(checkpoint_folder_path: str) -> None:
 
 
 # pylint: disable=too-many-statements
-
+@logger.catch
 def main(train_type: NLPType, delete_checkpoints: bool = False):
     """
     Main function for training the language classifier
@@ -62,7 +62,7 @@ def main(train_type: NLPType, delete_checkpoints: bool = False):
     logger.info(
         f"Num GPUs Available: {len(tf.config.experimental.list_physical_devices('GPU'))}")
 
-    folder_name: str = language_data_folder if train_type == NLPType.language else library_data_folder
+    folder_name: str = type_path_dict[train_type]
 
     clean_data_folder_rel = get_file_path_relative(
         f'{data_folder}/{clean_data_folder}/{folder_name}')
@@ -97,7 +97,7 @@ def main(train_type: NLPType, delete_checkpoints: bool = False):
 
     # read classes
     classes_file_path = get_file_path_relative(
-        f'{data_folder}/{clean_data_folder}/{folder_name}/{classes_file}')
+        f'{data_folder}/{models_folder}/{folder_name}/{classes_file}')
     classes = []
     with open(classes_file_path, 'r') as stream:
         classes = yaml.safe_load(stream)

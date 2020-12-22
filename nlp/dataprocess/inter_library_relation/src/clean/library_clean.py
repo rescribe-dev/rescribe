@@ -24,8 +24,9 @@ from asyncio import get_event_loop
 from clean.github.github_clean import main as dataclean
 from shared.file_extensions import FileExtensions
 from shared.type import NLPType
+from loguru import logger
 
-
+@logger.catch
 async def main():
     """
     main clean data script

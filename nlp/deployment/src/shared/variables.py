@@ -24,8 +24,8 @@ datasets_folder: str = 'datasets'
 clean_data_folder: str = 'clean_data'
 models_folder: str = 'models'
 
-language_data_folder: str = 'language'
-library_data_folder: str = 'library'
+# language_data_folder: str = 'language'
+# library_data_folder: str = 'base_library'
 
 credentials_file: str = "load/bigquery/bigquery_credentials.json"
 classes_file: str = 'classes.yml'

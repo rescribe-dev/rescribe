@@ -17,8 +17,8 @@ from shared.utils import get_file_path_relative, compress_labels, clean_director
 from shared.type import NLPType
 from shared.languages import languages
 from shared.libraries import libraries
-from shared.variables import data_folder, clean_data_folder, main_data_file, language_data_folder, \
-    datasets_folder, library_data_folder, classes_file, type_path_dict
+from shared.variables import data_folder, clean_data_folder, main_data_file, \
+    datasets_folder, classes_file, models_folder, type_path_dict
 from clean.utils.clean_utils import library_label_to_numeric, language_label_to_numeric
 
 
@@ -76,7 +76,7 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
             output_preview = output_preview.append(
                 frame.head(1), ignore_index=True)
     yaml_path = get_file_path_relative(
-        f"{data_folder}/{clean_data_folder}/{folder_name}/{classes_file}")
+        f"{data_folder}/{models_folder}/{folder_name}/{classes_file}")
     with open(yaml_path, 'w') as yaml_file:
         yaml.dump(classes.tolist(), yaml_file)
 

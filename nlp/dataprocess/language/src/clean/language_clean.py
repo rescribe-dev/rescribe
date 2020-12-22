@@ -22,8 +22,9 @@ if __name__ == '__main__':
 
 from clean.stackoverflow.stackoverflow_clean import main as dataclean
 from shared.type import NLPType
+from loguru import logger
 
-
+@logger.catch
 def main():
     """
     main clean data script

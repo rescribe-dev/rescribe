@@ -30,7 +30,7 @@ from transformers.modeling_albert import AlbertPreTrainedModel
 from tensorflow.keras.models import Model
 from shared.type import NLPType
 from shared.variables import do_lower_case, max_sequence_length, albert, \
-    data_folder, models_folder, language_data_folder, library_data_folder, \
+    data_folder, models_folder, type_path_dict, \
     checkpoint_file, classes_file, bucket_name
 from typing import Tuple
 from shared.utils import get_file_path_relative
@@ -131,7 +131,7 @@ def main(model_load_type: NLPType) -> Tuple[Model, AlbertTokenizer]:
     """
     from shared.config import PRODUCTION
 
-    folder_name: str = language_data_folder if model_load_type == NLPType.language else library_data_folder
+    folder_name: str = type_path_dict[model_load_type]
 
     model_abs = get_file_path_relative(
         f'{data_folder}/{models_folder}/{folder_name}/{checkpoint_file}')
