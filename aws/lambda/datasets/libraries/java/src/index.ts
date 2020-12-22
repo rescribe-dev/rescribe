@@ -16,12 +16,10 @@ import { createHash } from 'crypto';
 
 const logger = getLogger();
 
-const s3Client = new AWS.S3();
-
 const localDataFolder = 'data';
 const estimatedNumberArtifacts = 5e6;
 
-const writeData = async (content: string): Promise<void> => {
+const writeData = async (content: string, s3Client: AWS.S3): Promise<void> => {
   const hash = createHash('sha256').update(content).digest('hex');
   const basename = `${hash}.yml`;
   logger.info(`write data to s3: ${basename}`);
@@ -128,7 +126,7 @@ const getData = async (currentPath: string[]): Promise<PageData> => {
   return data;
 };
 
-const writeDatasetRecursive = async (pathsToCheck: string[][]): Promise<void> => {
+const writeDatasetRecursive = async (pathsToCheck: string[][], s3Client: AWS.S3, sqsClient: AWS.SQS): Promise<void> => {
   let allData: LibraryData[] = [];
   let currentPage = 1;
   let countVersions = 0;
@@ -136,6 +134,7 @@ const writeDatasetRecursive = async (pathsToCheck: string[][]): Promise<void> =>
   const totalPageTimes: number[] = [];
   const startTime = new Date();
 
+  console.log(pathsToCheck);
   logger.info(`starting at ${format(startTime, 'HH:mm:ss')}`);
 
   while (pathsToCheck.length > 0) {
@@ -148,18 +147,20 @@ const writeDatasetRecursive = async (pathsToCheck: string[][]): Promise<void> =>
     totalPageTimes.push(currentData.totalTime);
     if (useQueue) {
       // add to aws queue
-      const sqsClient = new AWS.SQS();
+      logger.info('send to queue');
       await sqsClient.sendMessage({
         MessageBody: JSON.stringify(currentData.paths),
-        QueueUrl: queueURL
+        QueueUrl: queueURL,
+
       }).promise();
     } else {
       pathsToCheck = pathsToCheck.concat(currentData.paths);
     }
+    // TODO - need to write the data...
     countVersions += currentData.libraries.reduce((prev, curr) => prev += curr.versions.length, 0);
     allData = allData.concat(currentData.libraries);
     while (allData.length >= paginationSize) {
-      await writeData(YAML.stringify(allData.slice(0, paginationSize)));
+      await writeData(YAML.stringify(allData.slice(0, paginationSize)), s3Client);
       allData = allData.slice(paginationSize);
 
       const numRemaining = estimatedNumberArtifacts - countVersions;
@@ -176,7 +177,7 @@ const writeDatasetRecursive = async (pathsToCheck: string[][]): Promise<void> =>
     }
   }
   if (allData.length > 0) {
-    await writeData(YAML.stringify(allData));
+    await writeData(YAML.stringify(allData), s3Client);
   }
   logger.info('done with getting datasets');
 };
@@ -184,12 +185,20 @@ const writeDatasetRecursive = async (pathsToCheck: string[][]): Promise<void> =>
 export const handler: EventBridgeHandler<string, null, void> | SQSHandler = async (
   event: EventBridgeEvent<string, null> | SQSEvent,
   _context: Context, callback: Callback<void>): Promise<void> => {
+  logger.info('enter handler');
+  const sqsClient = new AWS.SQS({
+    apiVersion: '2012-11-05'
+  });
+  console.log(await sqsClient.listQueues().promise());
   const inQueue = 'Records' in event;
   let startingPaths: string[][];
   if (inQueue) {
     // in queue
     event = event as SQSEvent;
-    startingPaths = event.Records.map(record => JSON.parse(record.body));
+    startingPaths = [];
+    for (const record of event.Records) {
+      startingPaths = startingPaths.concat(JSON.parse(record.body));
+    }
   } else {
     // triggered by cron job
     event = event as EventBridgeEvent<string, null>;
@@ -197,19 +206,23 @@ export const handler: EventBridgeHandler<string, null, void> | SQSHandler = asyn
   }
   await initializeConfig(false);
   initializeLogger();
+  const s3Client = new AWS.S3();
   if (!inQueue) {
     await deleteObjects(s3Client, s3Bucket, `${baseFolder}/${dataFolder}`);
   }
-  await writeDatasetRecursive(startingPaths);
+  await writeDatasetRecursive(startingPaths, s3Client, sqsClient);
   callback();
-  process.exit(0);
 };
 
 const getDataset = async (): Promise<void> => {
   await initializeConfig(true);
   initializeLogger();
+  const s3Client = new AWS.S3();
   await deleteObjects(s3Client, s3Bucket, `${baseFolder}/${dataFolder}`);
-  await writeDatasetRecursive([[]]);
+  const sqsClient = new AWS.SQS({
+    apiVersion: '2012-11-05'
+  });
+  await writeDatasetRecursive([[]], s3Client, sqsClient);
 };
 
 if (require.main === module) {

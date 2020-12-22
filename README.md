@@ -26,6 +26,7 @@
 ![Upload Prerender](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Prerender/badge.svg)
 ![Upload Update Sitemap](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Update%20Sitemap/badge.svg)
 ![Upload Update Currencies](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Update%20Currencies/badge.svg)
+![Build Dataset Libraries Java](https://github.com/rescribe-dev/rescribe/workflows/Build%20Dataset%20Libraries%20Java/badge.svg)
 ![Upload Fast](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Fast/badge.svg)
 ![Upload CLI](https://github.com/rescribe-dev/rescribe/workflows/Upload%20CLI/badge.svg)
 ![Upload vscode](https://github.com/rescribe-dev/rescribe/workflows/Upload%20Vscode/badge.svg)

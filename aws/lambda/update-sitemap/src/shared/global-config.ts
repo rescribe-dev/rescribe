@@ -32,11 +32,13 @@ export const initializeGlobalConfig = async (requireAWSConfig: boolean, requires
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     });
   }
-  if (requireAWSConfig && !process.env.AWS_REGION) {
+  if (!process.env.AWS_REGION) {
     throw new Error('no aws region provided');
   }
   if (process.env.AWS_REGION) {
-    AWS.config.region = process.env.AWS_REGION;
+    AWS.config.update({
+      region: process.env.AWS_REGION
+    });
   }
   if (requiresDBConfig) {
     if (!process.env.DB_CONNECTION_URI) {
