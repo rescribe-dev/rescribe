@@ -1,10 +1,14 @@
-import React from "react";
-import { Col, Container, Row } from "reactstrap";
+import React, { useState } from "react";
+import {
+  Col,
+  Container,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+  Row,
+} from "reactstrap";
 import "./index.scss";
-import { ExploreResult } from "locale/pages/explore/exploreMessages";
 import Description from "./description";
-import logoBlack from "assets/images/logo-black.svg";
-import PopRes from "./exploreResult";
 import { WindowLocation } from "@reach/router";
 import ExploreResultComponent from "./exploreResult";
 
@@ -27,7 +31,8 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
   const results = [
     {
       repoUrl: "jschmidtnj/rescribe/api/login.go",
-      repoCode: "",
+      repoCode:
+        'async create() \n{\n\tawait dataBase.crateUser({name: "hello"})\n}',
       repoName: "reScribe",
       repoLang: "TypeScript",
       repoDes:
@@ -36,7 +41,7 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
     },
     {
       repoUrl: "jschmidtnj/rescribe/api/login.go",
-      repoCode: "",
+      repoCode: "console.log('hello')",
       repoName: "reScribe",
       repoLang: "TypeScript",
       repoDes:
@@ -44,57 +49,104 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
       selected: false,
     },
   ];
+  const resultsPerPage = 5;
+  const totalPages = Math.ceil(results.length / resultsPerPage);
+  const [currentPage, setcurrentPage] = useState(1);
   return (
     <>
-      <Container>
+      <Container
+        style={{
+          background: "var(--purple-blue)",
+          clipPath: "polygon(0% 0%, 0% 89%, 54% 0%)",
+        }}
+      >
         <>
           <Col>
             <>
               <Row>
-                <h3>Popular Results</h3>
+                <Col sm="7">
+                  <h5
+                    style={{
+                      fontFamily: "NotoSans, sans-serif",
+                      fontWeight: 550,
+                      color: "white",
+                      textAlign: "center",
+                      marginTop: "140px",
+                    }}
+                  >
+                    Popular Results
+                  </h5>
+                </Col>
               </Row>
-              <Row>
-                {results.map((res) => {
+              {results.map((res) => {
+                return (
+                  <Row key={res.repoUrl}>
+                    <Col sm="7">
+                      <ExploreResultComponent
+                        repoUrl={res.repoUrl}
+                        repoCode={res.repoCode}
+                        repoName={res.repoCode}
+                        repoDes={res.repoDes}
+                        repoLang={res.repoLang}
+                        selected={res.selected}
+                      />
+                    </Col>
+                    <Col sm="5">
+                      {res.selected && (
+                        <Description
+                          repo={res.repoUrl}
+                          desc={"asdflkdsaf;ljkfd  lkasdjkfsdlk asdflkasjkl"}
+                        />
+                      )}
+                    </Col>
+                  </Row>
+                );
+              })}
+              <Pagination aria-label="Explore Navigation">
+                <PaginationItem>
+                  <PaginationLink first href="explore/1" />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink
+                    onClick={() => {
+                      if (currentPage > 1) {
+                        setcurrentPage(currentPage - 1);
+                      }
+                    }}
+                    previous
+                    href={"explore/" + currentPage}
+                  />
+                </PaginationItem>
+                {[...Array(totalPages).keys()].map((pageNumber) => {
                   return (
-                    <ExploreResultComponent
-                      repoUrl={res.repoUrl}
-                      repoCode={res.repoCode}
-                      repoName={res.repoCode}
-                      repoDes={res.repoDes}
-                      repoLang={res.repoLang}
-                      selected={res.selected}
-                    />
+                    <PaginationItem key={pageNumber + 1}>
+                      <PaginationLink
+                        onClick={() => {
+                          setcurrentPage(pageNumber + 1);
+                        }}
+                        href={"explore/" + (pageNumber + 1)}
+                      >
+                        {pageNumber + 1}
+                      </PaginationLink>
+                    </PaginationItem>
                   );
                 })}
-              </Row>
+                <PaginationItem>
+                  <PaginationLink
+                    onClick={() => {
+                      if (currentPage < totalPages) {
+                        setcurrentPage(currentPage + 1);
+                      }
+                    }}
+                    next
+                    href={"explore/" + currentPage}
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink last href={"explore/" + totalPages} />
+                </PaginationItem>
+              </Pagination>
             </>
-          </Col>
-        </>
-        <>
-          <Col>
-            <Row>
-              <Description
-                repository={"asdf123"}
-                source={"https://apple.com"}
-                description={"asdflkdsaf;ljkfd  lkasdjkfsdlk asdflkasjkl"}
-              />
-              {/* 
-                Insert the Description component for the code snippet, this will probably amount to a segment
-                from the readme when we get it, but for now we just just have it be the link to the source of the selected code
-              */}
-            </Row>
-            <Row>
-              <Col className="text-center">
-                <img
-                  src={logoBlack}
-                  alt="reScribe"
-                  style={{
-                    width: "9rem",
-                    marginBottom: 0,
-                  }}
-                />
-              </Col>
-            </Row>
           </Col>
         </>
       </Container>
