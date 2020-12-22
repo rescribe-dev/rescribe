@@ -1,24 +1,32 @@
 import React from 'react';
 import { CardText, Card, CardBody } from 'reactstrap';
 import './index.scss';
+import logoBlack from 'assets/images/logo-black.svg';
 import { Link } from 'gatsby';
 
 interface DescriptionArgs {
-  repository: string;
-  source: string;
-  description: string;
+  repo: string;
+  desc: string;
 }
 const Description = (args: DescriptionArgs): JSX.Element => {
   return (
-    <Card>
+    <Card
+      style={{
+        marginTop: '31px',
+      }}
+    >
       <CardText
         style={{
           textAlign: 'center',
         }}
       >
-        <h3>
-          <Link to={args.source}>{args.repository}</Link>
-        </h3>
+        <h2>
+          {args.repo.split('/')[0]}&apos;s {args.repo.split('/')[1]}
+        </h2>
+        <h6>
+          See the rest here:{' '}
+          <Link to={args.repo}>{args.repo.split('/')[1]}</Link>
+        </h6>
       </CardText>
       <CardBody>
         <CardText
@@ -27,7 +35,21 @@ const Description = (args: DescriptionArgs): JSX.Element => {
             padding: '0.25rem',
           }}
         >
-          {args.description}
+          {args.desc}
+        </CardText>
+        <CardText
+          style={{
+            textAlign: 'center',
+          }}
+        >
+          <img
+            alt="reScribe"
+            src={logoBlack}
+            style={{
+              width: '127px',
+              height: '23px',
+            }}
+          ></img>
         </CardText>
       </CardBody>
     </Card>

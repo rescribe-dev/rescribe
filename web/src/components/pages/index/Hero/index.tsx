@@ -32,7 +32,7 @@ const Hero = (_messages: IndexMessages): JSX.Element => {
           minHeight: '30rem',
           borderRadius: 0,
           color: 'white',
-          clipPath: 'polygon(100% 0%, 0% 0%, 0% 100%, 100% 90%)',
+          clipPath: 'polygon(100% 0%, 0% 0%, 0% 100%, 100% 60%)',
           background:
             'linear-gradient(180deg, var(--purple-blue) 0%, var(--turquoise) 100%)',
         }}

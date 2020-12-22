@@ -8,12 +8,13 @@ import { WindowLocation } from '@reach/router';
 import ExploreResultComponent from './exploreResult';
 
 const defaultPath = '/explore';
-
 const dummyResults: JSX.Element[] = [
   <ExploreResultComponent
     key={'1'}
     repoUrl={'jschmidtnj/rescribe/api/login.go'}
-    repoCode={''}
+    repoCode={`async create() {
+        await dataBase.crateUser({name: "hello"})
+      }`}
     repoName={'reScribe'}
     repoDes={
       'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository'

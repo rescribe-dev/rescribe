@@ -2,7 +2,9 @@
   "name": "rescribe",
   "version": "0.0.1",
   "description": "search through code easily",
-  "dependencies": {},
+  "dependencies": {
+    "@primer/octicons-react": "^11.2.0"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.14",
     "husky": "^4.3.0",
