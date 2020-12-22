@@ -5,19 +5,23 @@ import { dataFolder, initializeConfig, repositoryURL } from './utils/config';
 import { initializeLogger } from './shared/logger';
 import axios from 'axios';
 import statusCodes from 'http-status-codes';
-import { baseFolder, s3Bucket } from './shared/libraries_global_config';
+import { baseFolder, s3Bucket, saveLocal, paginationSize } from './shared/libraries_global_config';
 import YAML from 'yaml';
 import cheerio from 'cheerio';
+import { writeFileSync } from 'fs';
 
 const logger = getLogger();
 
 const s3Client = new AWS.S3();
 
-const paginationSize = 10;
+const localDataFolder = 'data';
 
 const writeDataS3 = async (basename: string, content: string): Promise<void> => {
   logger.info(`write data to s3: ${basename}`);
   const fileType = 'application/x-yaml';
+  if (saveLocal) {
+    writeFileSync(`${localDataFolder}/${basename}`, content);
+  }
   await s3Client.upload({
     Bucket: s3Bucket,
     Body: content,
@@ -85,6 +89,7 @@ const getData = async (currentPath: string[]): Promise<PageData> => {
     libraries.push(library);
     paths = [];
   } else {
+    paths = paths.sort().reverse();
     fullPaths = paths.map(path => {
       const current = [...currentPath];
       current.push(path);
@@ -110,8 +115,7 @@ const writeDatasetRecursive = async (): Promise<void> => {
     const currentData = await getData(currentPath);
     pathsToCheck = pathsToCheck.concat(currentData.paths);
     allData = allData.concat(currentData.libraries);
-    logger.info(allData.length);
-    while (allData.length > paginationSize) {
+    while (allData.length >= paginationSize) {
       await writeDataS3(`${currentPage}.yml`, YAML.stringify(allData.slice(0, paginationSize)));
       allData = allData.slice(paginationSize);
       currentPage++;
