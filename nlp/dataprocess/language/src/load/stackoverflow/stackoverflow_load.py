@@ -118,13 +118,13 @@ def main(dataload_type: NLPType, clean_dir: bool = True):
     logger.info("\n\nInitiating Data Load\n")
 
     if clean_dir:
-            logger.info("Cleaning directory")
+            logger.info("Initiating Directory Cleaning")
             folder_name = type_path_dict[dataload_type]
             clean_directory(
                 get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}'), 
                 ["dat", "csv"]
             )
-            logger.success("Cleaning complete")
+            logger.success("Directory Cleaning Complete")
 
     questions: DataFrame = dataload(dataload_type)
 

@@ -84,9 +84,12 @@ def clean_directory(directory: str, extensions: Iterable) -> None:
     Remove all files within a directory with the specified extensions
     If the directory does not exist create the empty directory
     """
+    if isinstance(extensions, str):
+        extensions = [extensions]
+        
     if not exists(directory):
-        logger.info(
-            "Attempting to clean a nonexistent directory, creating empty path")
+        logger.critical(
+            f"Attempting to clean a nonexistent directory: {directory}\nCreating empty folder")
         makedirs(directory)
         return
 

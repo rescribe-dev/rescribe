@@ -90,13 +90,13 @@ def main(cleaning_type: NLPType, clean_dir: bool = True):
     """
     logger.info("\n\nInitiating Data Cleaning\n")
     if clean_dir:
-        logger.info("Cleaning directory")
+        logger.info("Initiating Directory Cleaning")
         folder_name = type_path_dict[cleaning_type]
         clean_directory(
             get_file_path_relative(f'{data_folder}/{clean_data_folder}/{folder_name}'), 
             ["dat", "csv"]
         )
-        logger.success("Cleaning complete")
+        logger.success("Directory Cleaning Complete")
 
     if cleaning_type == NLPType.language:
         output_preview = dataclean(

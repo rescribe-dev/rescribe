@@ -61,13 +61,13 @@ async def main(nlp_type: NLPType, extensions: List[FileExtensions], clean_dir: b
     library_data_folder = type_path_dict[nlp_type]
 
     if clean_dir:
-        logger.info("Cleaning directory")
+        logger.info("Initiating Directory Cleaning")
         folder_name = type_path_dict[nlp_type]
         clean_directory(
             get_file_path_relative(f'{data_folder}/{clean_data_folder}/{folder_name}'), 
             ["dat", "csv"]
         )
-        logger.success("Cleaning complete")
+        logger.success("Directory Cleaning Complete")
 
     logger.info("Retrieving filepaths")
   

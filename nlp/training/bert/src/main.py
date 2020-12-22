@@ -27,14 +27,14 @@ def main() -> None:
 
     # dataload type
     parser.add_argument('--type', type=str,
-                        choices=[NLPType.language.name, NLPType.base_library.name])
+                        choices=[NLPType.language.name, NLPType.base_library.name, NLPType.library_relation.name])
 
     # optional arguments
     args = parser.parse_args()
 
     if args.type is None:
         raise ValueError(
-            f'No type argument provided for training\nValid choices are: --type={[NLPType.language.name, NLPType.base_library.name]}')
+            f'No type argument provided for training\nValid choices are: --type={[NLPType.language.name, NLPType.base_library.name, NLPType.library_relation.name]}')
 
     training_main(NLPType(args.type))
 
