@@ -28,7 +28,7 @@ from pandas import DataFrame
 from loguru import logger
 from google.cloud import bigquery
 import boto3
-from load.bigquery.get_biguqery_client import get_bigquery_client
+from load.bigquery.get_bigquery_client import get_bigquery_client
 from load.bigquery.big_query_helper import BigQueryHelper as bqh
 from shared.utils import get_file_path_relative, clean_directory
 from shared.type import NLPType
@@ -83,7 +83,7 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
         remove(file_path)
 
     tag_matching = get_values_concat(
-        libraries if dataload_type == NLPType.library else languages)
+        libraries if dataload_type == NLPType.base_library else languages)
     tags_regex = sanitize_regex_str(
         '|'.join(map(lambda tag: tag + '[\\||$]', tag_matching)))
     conditional: str = f'accepted_answer_id IS NOT NULL AND tags IS NOT NULL AND REGEXP_CONTAINS(tags, r"({tags_regex})")'

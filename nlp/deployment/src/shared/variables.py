@@ -40,6 +40,6 @@ batch_size: int = 32
 
 type_path_dict: Dict[NLPType, str] = {
     NLPType.language: "language",
-    NLPType.library: "library",
-    NLPType.library_analysis: "library_analysis",
+    NLPType.base_library: "base_library_prediction",
+    NLPType.library_relation: "inter_library_relation",
 }

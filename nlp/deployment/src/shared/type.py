@@ -12,8 +12,8 @@ class NLPType(Enum):
     Enum to store nlp types
     """
     language = "language"
-    library = "library"
-    library_analysis = "library_analysis"
+    base_library = "base_library"
+    library_relation = "library_relation"
 
     @classmethod
     def has_value(cls, value: Any) -> bool:

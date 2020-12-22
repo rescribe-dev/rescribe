@@ -28,7 +28,7 @@ def main():
     """
     main clean data script
     """
-    dataclean(NLPType.library)
+    dataclean(NLPType.base_library)
 
 
 if __name__ == '__main__':

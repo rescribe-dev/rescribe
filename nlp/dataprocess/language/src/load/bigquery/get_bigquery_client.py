@@ -1,12 +1,16 @@
 from os import getenv
 from os.path import exists
 from google.cloud import bigquery
+from typing import Union
+
 from shared.utils import get_file_path_relative
 from shared.variables import type_path_dict, credentials_file
 from shared.type import NLPType
 from .get_bigquery_credentials import main as get_bigquery_credentials
 
 def get_bigquery_client(nlp_type: NLPType) -> bigquery.Client:
+    from shared.config import PRODUCTION
+
     folder_name: str = type_path_dict[nlp_type]
     credentials_file_path = get_file_path_relative(
       f'dataprocess/{folder_name}/src/{credentials_file}')

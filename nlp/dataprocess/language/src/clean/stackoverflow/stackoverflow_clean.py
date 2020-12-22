@@ -42,7 +42,7 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
     labelencoder = LabelEncoder()
     if cleaning_type == NLPType.language:
         labelencoder.fit(list(languages.keys()))
-    elif cleaning_type == NLPType.library:
+    elif cleaning_type == NLPType.base_library:
         labelencoder.fit(list(libraries.keys()))
 
     output_folder_path: str = get_file_path_relative(
@@ -58,7 +58,7 @@ def dataclean(cleaning_type: NLPType, label_compression_dict: Dict, chunksize: i
             if cleaning_type == NLPType.language:
                 frame, classes = language_label_to_numeric(
                     frame, labelencoder, str_column="tags", cat_column="tags_cat")
-            elif cleaning_type == NLPType.library:
+            elif cleaning_type == NLPType.base_library:
                 frame, classes = library_label_to_numeric(
                     frame, labelencoder, str_column="tags", cat_column="tags_cat")
 
@@ -101,7 +101,7 @@ def main(cleaning_type: NLPType, clean_dir: bool = True):
     if cleaning_type == NLPType.language:
         output_preview = dataclean(
             cleaning_type=cleaning_type, label_compression_dict=languages)
-    elif cleaning_type == NLPType.library:
+    elif cleaning_type == NLPType.base_library:
         output_preview = dataclean(
             cleaning_type=cleaning_type, label_compression_dict=libraries)
     logger.info("\n\nSample Constructed From Processed Batches\n")

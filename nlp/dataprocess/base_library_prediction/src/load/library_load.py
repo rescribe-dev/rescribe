@@ -28,7 +28,7 @@ def main():
     """
     main function for dataload
     """
-    dataload_stackoverflow(NLPType.library)
+    dataload_stackoverflow(NLPType.base_library)
 
 
 if __name__ == '__main__':
