@@ -22,6 +22,7 @@ if __name__ == '__main__':
 
 from typing import Optional, Tuple, List
 from bert.load_model.main import main as load_model
+from library_relation.load_model.main import main as load_library_relation_model
 from transformers import AlbertTokenizer
 from tensorflow.keras.models import Model
 from shared.type import NLPType
@@ -30,7 +31,7 @@ from sys import argv
 language_model: Tuple[Optional[Model], Optional[AlbertTokenizer],
                       Optional[List[str]]] = (None, None, None)
 
-library_model: Tuple[Optional[Model], Optional[AlbertTokenizer],
+base_library_model: Tuple[Optional[Model], Optional[AlbertTokenizer],
                      Optional[List[str]]] = (None, None, None)
 
 
@@ -38,13 +39,21 @@ def main(model_type: Optional[NLPType] = None):
     """
     Load all of the ml models to global objects
     """
-    global library_model
+    global base_library_model
     global language_model
-    if model_type == NLPType.language or model_type is None:
+    global library_relation_model
+            
+    if model_type == NLPType.language or model_type:
         language_model = load_model(NLPType.language)
 
-    if model_type == NLPType.library or model_type is None:
-        library_model = load_model(NLPType.library)
+    if model_type == NLPType.base_library or model_type:
+        library_model = load_model(NLPType.base_library)
+
+    if model_type == NLPType.library_relation or model_type:
+        library_relation_model = load_library_relation_model(NLPType.library_relation)
+
+    else:
+        raise ValueError(f"Input model_type <{model_type}> is invalid, expected <{NLPType.get_values()}>")
 
 
 if __name__ == "__main__":
