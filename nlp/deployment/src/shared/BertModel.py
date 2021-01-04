@@ -2,25 +2,31 @@
 """
     Training and model construction for bert classifiers
 """
-import tensorflow as tf
-from tqdm import tqdm
-from os import remove
-from os.path import join
-from loguru import logger
-import pandas as pd
-import numpy as np
 import ast
 import yaml
-from sklearn.model_selection import train_test_split
-from shared.utils import list_files, get_file_path_relative
-from shared.type import NLPType
-from shared.variables import clean_data_folder, batch_size, do_lower_case, max_sequence_length, holdout, albert, \
-    data_folder, models_folder, checkpoint_file, classes_file, type_path_dict
+import boto3
+import tarfile
+
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+
+from tqdm import tqdm
+from loguru import logger
+from os import remove
+from os.path import join, exists, basename
+
 from glob import glob
-from transformers import AlbertTokenizer
+from sklearn.model_selection import train_test_split
+from transformers.modeling_albert import AlbertPreTrainedModel
+from transformers import AlbertTokenizer, AlbertConfig, TFAlbertModel
+
 from predict.tokenize import tokenize
-from load_model.main import create_model
-from .BaseModel import BaseModel
+from shared.BaseModel import BaseModel
+from shared.type import NLPType, BertMode
+from shared.utils import list_files, get_file_path_relative
+from shared.variables import clean_data_folder, batch_size, do_lower_case, max_sequence_length, holdout, albert, \
+    data_folder, models_folder, checkpoint_file, classes_file, type_path_dict, bucket_name
 
 
 class BertModel(BaseModel):
@@ -28,7 +34,7 @@ class BertModel(BaseModel):
     Bert Model class
     """
 
-    def __init__(self, train_type: NLPType, delete_checkpoints: bool = False, train_on_init: bool = False):
+    def __init__(self, train_type: NLPType, mode: BertMode, delete_checkpoints: bool = False, ):
         """
         init, takes train type, delete checkpoints, and train_on_init
         """
@@ -38,36 +44,82 @@ class BertModel(BaseModel):
 
         self.train_type: NLPType = train_type
         self.folder_name: str = type_path_dict[self.train_type]
-        self.delete_checkpoints = delete_checkpoints
         self.batch_size = batch_size
 
-        self.raw_data: pd.DataFrame = self._load_data()
-        # will log label stats, will also modify self.
-        self.data, self.classes, self.num_classes = self._prepare_data()
-
-        [self.train_input_ids, self.train_attention_mask, self.train_token_type_ids], [self.test_input_ids,
-                                                                                       self.test_attention_mask, self.test_token_type_ids], self.y_train, self.y_test = self._get_train_test()
-        self.train_data = [self.train_input_ids,
-                           self.train_attention_mask, self.train_token_type_ids]
-        self.test_data = [self.test_input_ids,
-                          self.test_attention_mask, self.test_token_type_ids]
-
-        self.model = self._create_model()
-
-        if train_on_init:
+        if mode == BertMode.initial_training:
+            self.delete_checkpoints = delete_checkpoints
+            self.raw_data: pd.DataFrame = self._load_data()
+            # will log label stats, will also modify self.
+            self.data, self.classes, self.num_classes = self._prepare_data()
+            [self.train_input_ids, self.train_attention_mask, self.train_token_type_ids], [self.test_input_ids,
+                                                                                           self.test_attention_mask, self.test_token_type_ids], self.y_train, self.y_test = self._get_train_test()
+            self.train_data = [self.train_input_ids,
+                               self.train_attention_mask, self.train_token_type_ids]
+            self.test_data = [self.test_input_ids,
+                              self.test_attention_mask, self.test_token_type_ids]
+            self.model = self.create_model()
             self.fit()
+            self.evaluate()
 
-        self.evaluate()
+        if mode == BertMode.load_pretrained:
+            from shared.config import PRODUCTION
+            s3_client = boto3.client('s3')
 
-    def initialize(self):
-        """
-        initialize the model and its data
-        """
+            self.model_abs = get_file_path_relative(
+                f'{data_folder}/{models_folder}/{self.folder_name}/{checkpoint_file}')
+            logger.error(self.model_abs)
+            tarfile_model_output_dir: str = get_file_path_relative(
+                f'{data_folder}/{models_folder}/{self.folder_name}/model.tar.gz')
+
+            self.model_index = self.model_abs + ".index"
+            if not exists(self.model_index):
+                tar_input_path_abs = get_file_path_relative(
+                    tarfile_model_output_dir)
+                if not exists(tar_input_path_abs):
+                    if not PRODUCTION:
+                        raise ValueError(
+                            f'cannot find saved model tar file at path: {tar_input_path_abs}')
+                    with open(tar_input_path_abs, 'wb') as file:
+                        s3_client.download_fileobj(
+                            bucket_name, basename(tar_input_path_abs), file)
+
+                with tarfile.open(tar_input_path_abs) as tar:
+                    tar.extractall(self.model_abs)
+
+            if not exists(self.model_index):
+                raise ValueError('cannot find model files')
+
+            self.classes, self.num_classes = self._get_classes()
+
+            self.model = self.create_model()
+            self.model.load_weights(self.model_abs)
+            self.model.summary()
+
+            self.tokenizer = AlbertTokenizer.from_pretrained(
+                albert, do_lower_case=do_lower_case, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True)
+
+        else:
+            logger.error(
+                f"Invalid mode argument <{mode}>. Expected {BertMode.get_values()}")
+            raise RuntimeError(
+                f"Invalid mode argument <{mode}>. Expected {BertMode.get_values()}")
 
     def predict(self):
         """
         Predict using the trained model
         """
+
+    def create_model(self):
+        """
+        use create model and compile
+        """
+        logger.info("Creating Model...")
+        model = self._create_model(self.num_classes)
+        model.summary()
+
+        model.compile(optimizer='Adam', loss=tf.keras.losses.BinaryCrossentropy(), metrics=[tf.keras.metrics.BinaryCrossentropy(),
+                                                                                            tf.keras.metrics.Accuracy(), tf.keras.metrics.AUC(), tf.keras.metrics.Recall(), tf.keras.metrics.Precision()])
+        return model
 
     def fit(self):
         """
@@ -75,6 +127,13 @@ class BertModel(BaseModel):
         """
         self.cp_callback, self.checkpoint_path = self._pre_train()
         self._train()
+
+    def evaluate(self):
+        """
+        print an evaluation of the model which has been trained
+        """
+        logger.info(
+            f"Evaluation: {self.model.evaluate(x=[self.test_input_ids, self.test_attention_mask, self.test_token_type_ids], y=self.y_test, batch_size=self.batch_size)}")
 
     def _load_data(self):
         """
@@ -112,11 +171,10 @@ class BertModel(BaseModel):
 
         return data
 
-    def _prepare_data(self):
+    def _get_classes(self):
         """
-        prepare loaded data for training and tokenization
+        get classes
         """
-        # read classes
         classes_file_path = get_file_path_relative(
             f'{data_folder}/{models_folder}/{self.folder_name}/{classes_file}')
         classes = []
@@ -124,6 +182,14 @@ class BertModel(BaseModel):
             classes = yaml.safe_load(stream)
         num_classes = len(classes)
 
+        return classes, num_classes
+
+    def _prepare_data(self):
+        """
+        prepare loaded data for training and tokenization
+        """
+        # read classes
+        classes, num_classes = self._get_classes()
         data = self.raw_data.reset_index(drop=True)
         data["tags_cat"] = data["tags_cat"].apply(self.str_to_array)
         values = data["tags_cat"].values
@@ -200,18 +266,6 @@ class BertModel(BaseModel):
                                                          verbose=1)
         return cp_callback, checkpoint_path
 
-    def _create_model(self):
-        """
-        use create model and compile
-        """
-        logger.info("Creating Model...")
-        model = create_model(self.num_classes)
-        model.summary()
-
-        model.compile(optimizer='Adam', loss=tf.keras.losses.BinaryCrossentropy(), metrics=[tf.keras.metrics.BinaryCrossentropy(),
-                                                                                            tf.keras.metrics.Accuracy(), tf.keras.metrics.AUC(), tf.keras.metrics.Recall(), tf.keras.metrics.Precision()])
-        return model
-
     def _train(self):
         """
         train the model
@@ -225,12 +279,90 @@ class BertModel(BaseModel):
             f"Training Success! - Checkpoints saved at {self.checkpoint_path}")
         self.model.training = False
 
-    def evaluate(self):
+    # TODO - different create model based on the nlp type
+    # TODO Might need to be duplicated, similar to above (for lang/lib -- different)
+
+    def _create_model(self, num_outputs) -> tf.keras.Model:
         """
-        print an evaluation of the model which has been trained
+        Return an ALBERT model framework with pretrained weights
         """
-        logger.info(
-            f"Evaluation: {self.model.evaluate(x=[self.test_input_ids, self.test_attention_mask, self.test_token_type_ids], y=self.y_test, batch_size=self.batch_size)}")
+        config = self._get_albert_config(num_outputs)
+
+        input_ids, input_masks, input_segments, embedding_layer = self._get_embedding_layer(
+            config)
+
+        X = self._add_fine_tuning_cap(embedding_layer, num_outputs)
+
+        model = tf.keras.Model(
+            inputs=[input_ids, input_masks, input_segments], outputs=X)
+
+        model = self._freeze_layers(model, 4)
+
+        # input_ids, input_masks, input_segments, model = get_embedding_layer(config)
+
+        return model
+
+    @staticmethod
+    def _get_embedding_layer(config):
+        """
+        Based off of the input configuration, generate an embedding layer with input shapes based off of the global variable max_sequence_length
+        This pulls in the pretrained weights
+        """
+        transformer_model = TFAlbertModel.from_pretrained(
+            albert, config=config)
+        input_ids = tf.keras.layers.Input(
+            shape=(max_sequence_length,), name='input_ids', dtype='int32')
+        input_masks = tf.keras.layers.Input(
+            shape=(max_sequence_length,), name='input_masks_ids', dtype='int32')
+        input_segments = tf.keras.layers.Input(
+            shape=(max_sequence_length,), name='input_segments', dtype='int32')
+
+        embedding_layer = transformer_model(
+            input_ids, attention_mask=input_masks, token_type_ids=input_segments)[0]
+
+        return input_ids, input_masks, input_segments, embedding_layer
+
+    @staticmethod
+    def _get_albert_config(num_outputs: int):
+        """
+        Return the ALBERT pretrained configuration
+        """
+        albert_base_config = AlbertConfig(
+            hidden_size=768, num_attention_heads=12, intermediate_size=3072, num_labels=num_outputs)
+        model = AlbertPreTrainedModel(albert_base_config)
+        config = model.config
+        config.output_hidden_states = False
+
+        logger.info(f"\n\nConfig: \n{config}")
+
+        return config
+
+    # TODO - add different fine tuning based on the nlp type - duplicate function for languages/libraries, change based on type of classifcation we're doing
+
+    @staticmethod
+    def _add_fine_tuning_cap(embedding_layer, num_outputs):
+        """
+        Add on a "fine tuning cap" to the end of the model with the number of output nodes specified
+        """
+        X = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+            50, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))(embedding_layer)
+        X = tf.keras.layers.GlobalMaxPool1D()(X)  # Dimension Reduction
+        X = tf.keras.layers.Dense(50, activation='relu')(X)
+        X = tf.keras.layers.Dropout(0.2)(X)
+        X = tf.keras.layers.Dense(num_outputs, activation='sigmoid')(X)
+
+        return X
+
+    @staticmethod
+    def _freeze_layers(model, n: int):
+        """
+        freeze the weights of the first n layers to stop them from being modified during training
+        """
+        for layer in model.layers[:n]:
+            logger.info(f"Freezing layer - {layer.name}")
+            layer.trainable = False
+
+        return model
 
     @staticmethod
     def label_count(values, label):

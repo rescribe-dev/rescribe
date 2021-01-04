@@ -15,12 +15,6 @@ class BaseModel(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def initialize(self):
-        """
-        initialize the model
-        """
-
-    @abstractmethod
     def fit(self):
         """
         train the model

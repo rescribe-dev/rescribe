@@ -7,14 +7,10 @@ from enum import Enum
 from typing import Any, Set
 
 
-class NLPType(Enum):
+class BaseEnum(Enum):
     """
-    Enum to store nlp types
+    Base Enum with methods that all of our enums should implement
     """
-    language = "language"
-    base_library = "base_library"
-    library_relation = "library_relation"
-
     @classmethod
     def has_value(cls, value: Any) -> bool:
         """
@@ -29,3 +25,20 @@ class NLPType(Enum):
         Return a list of the values stored within the enum
         """
         return set(item.value for item in cls)
+
+
+class NLPType(BaseEnum):
+    """
+    Enum to store nlp types
+    """
+    language = "language"
+    base_library = "base_library"
+    library_relation = "library_relation"
+
+
+class BertMode(BaseEnum):
+    """
+    Modes of bert initialization
+    """
+    initial_training = "initial_training"
+    load_pretrained = "load_pretrained"

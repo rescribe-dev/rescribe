@@ -7,9 +7,10 @@ entry point for running nlp training module
 
 import argparse
 from shared.config import read_config
-from shared.type import NLPType
+from shared.type import NLPType, BertMode
 from train import main as training_main
 from loguru import logger
+
 
 @logger.catch
 def main() -> None:
@@ -27,16 +28,16 @@ def main() -> None:
 
     # dataload type
     parser.add_argument('--type', type=str,
-                        choices=[NLPType.language.name, NLPType.base_library.name, NLPType.library_relation.name])
+                        choices=[NLPType.language, NLPType.base_library, NLPType.library_relation])
 
     # optional arguments
     args = parser.parse_args()
 
     if args.type is None:
         raise ValueError(
-            f'No type argument provided for training\nValid choices are: --type={[NLPType.language.name, NLPType.base_library.name, NLPType.library_relation.name]}')
+            f'No type argument provided for training\nValid choices are: --type={[NLPType.language, NLPType.base_library, NLPType.library_relation]}')
 
-    training_main(NLPType(args.type))
+    training_main(NLPType(args.type), BertMode.initial_training)
 
 
 if __name__ == '__main__':
