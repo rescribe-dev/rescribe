@@ -28,14 +28,14 @@ def main() -> None:
 
     # dataload type
     parser.add_argument('--type', type=str,
-                        choices=[NLPType.language, NLPType.base_library, NLPType.library_relation])
+                        choices=NLPType.get_values())
 
     # optional arguments
     args = parser.parse_args()
 
     if args.type is None:
         raise ValueError(
-            f'No type argument provided for training\nValid choices are: --type={[NLPType.language, NLPType.base_library, NLPType.library_relation]}')
+            f'No type argument provided for training\nValid choices are: --type={NLPType.get_values()}')
 
     training_main(NLPType(args.type), BertMode.initial_training)
 

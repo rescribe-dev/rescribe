@@ -23,7 +23,8 @@ from transformers.modeling_albert import AlbertPreTrainedModel
 from transformers import AlbertTokenizer, AlbertConfig, TFAlbertModel
 
 from shared.BaseModel import BaseModel
-from shared.type import NLPType, BertMode
+from shared.Prediction import Prediction
+from shared.type import NLPType, BertMode, BaseEnum
 from shared.utils import list_files, get_file_path_relative
 from shared.variables import clean_data_folder, batch_size, do_lower_case, max_sequence_length, holdout, albert, \
     data_folder, models_folder, checkpoint_file, classes_file, type_path_dict, bucket_name
@@ -33,11 +34,13 @@ class BertModel(BaseModel):
     """
     Bert Model class
     """
+    mode: BaseEnum = None
 
     def __init__(self, train_type: NLPType, mode: BertMode, delete_checkpoints: bool = False, ):
         """
         init, takes train type, delete checkpoints, and train_on_init
         """
+        self.mode = mode
         super().__init__()
         logger.info(
             f"Num GPUs Available: {len(tf.config.experimental.list_physical_devices('GPU'))}")
@@ -46,7 +49,12 @@ class BertModel(BaseModel):
         self.folder_name: str = type_path_dict[self.train_type]
         self.batch_size = batch_size
 
-        if mode == BertMode.initial_training:
+        logger.info("Retrieving ALBERT Tokenizer...")
+        self.tokenizer = AlbertTokenizer.from_pretrained(
+            albert, do_lower_case=do_lower_case, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True)
+
+        if self.mode == BertMode.initial_training:
+            logger.info("Beginning inital BERT model training")
             self.delete_checkpoints = delete_checkpoints
             self.raw_data: pd.DataFrame = self._load_data()
             # will log label stats, will also modify self.
@@ -58,10 +66,11 @@ class BertModel(BaseModel):
             self.test_data = [self.test_input_ids,
                               self.test_attention_mask, self.test_token_type_ids]
             self.model = self.create_model()
-            self.fit()
+            self._fit()
             self.evaluate()
 
-        if mode == BertMode.load_pretrained:
+        elif self.mode == BertMode.load_pretrained:
+            logger.info("Loading pretrained BERT model")
             from shared.config import PRODUCTION
             s3_client = boto3.client('s3')
 
@@ -95,19 +104,24 @@ class BertModel(BaseModel):
             self.model.load_weights(self.model_abs)
             self.model.summary()
 
-            self.tokenizer = AlbertTokenizer.from_pretrained(
-                albert, do_lower_case=do_lower_case, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True)
-
         else:
             logger.error(
                 f"Invalid mode argument <{mode}>. Expected {BertMode.get_values()}")
             raise RuntimeError(
                 f"Invalid mode argument <{mode}>. Expected {BertMode.get_values()}")
 
-    def predict(self):
+    def predict(self, query: str) -> List[Prediction]:
         """
         Predict using the trained model
         """
+        [input_ids, input_mask, token_type_ids] = self.tokenize([query])
+        confidence: List[float] = self.model.predict(
+            [input_ids, input_mask, token_type_ids]).tolist()[0]
+        res: List[Prediction] = [Prediction(self.classes[i], conf)
+                                 for i, conf in enumerate(confidence)]
+        res.sort(key=lambda elem: elem.score, reverse=True)
+
+        return res
 
     def create_model(self):
         """
@@ -121,19 +135,27 @@ class BertModel(BaseModel):
                                                                                             tf.keras.metrics.Accuracy(), tf.keras.metrics.AUC(), tf.keras.metrics.Recall(), tf.keras.metrics.Precision()])
         return model
 
-    def fit(self):
-        """
-        train the model
-        """
-        self.cp_callback, self.checkpoint_path = self._pre_train()
-        self._train()
-
     def evaluate(self):
         """
         print an evaluation of the model which has been trained
         """
-        logger.info(
+        logger.info("Evaluating model")
+        logger.success(
             f"Evaluation: {self.model.evaluate(x=[self.test_input_ids, self.test_attention_mask, self.test_token_type_ids], y=self.y_test, batch_size=self.batch_size)}")
+
+    def tokenize(self, sentences: List[str]) -> np.ndarray:
+        """
+        tokenize inputs
+        """
+        input_ids, input_masks, input_segments = [], [], []
+        for sentence in tqdm(sentences):
+            inputs = self.tokenizer.encode_plus(sentence, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True,
+                                                return_attention_mask=True, return_token_type_ids=True, truncation=True)
+            input_ids.append(inputs['input_ids'])
+            input_masks.append(inputs['attention_mask'])
+            input_segments.append(inputs['token_type_ids'])
+
+        return np.asarray(input_ids, dtype='int32'), np.asarray(input_masks, dtype='int32'), np.asarray(input_segments, dtype='int32')
 
     def _load_data(self):
         """
@@ -145,6 +167,8 @@ class BertModel(BaseModel):
         _indexes = [int(path.split(".")[0]) for path in _clean_data_paths]
         clean_data_file_paths = [join(clean_data_folder_rel, path)
                                  for path in _clean_data_paths]
+
+        data: pd.DataFrame = pd.DataFrame()
 
         logger.info(
             f"Loading data from {len(clean_data_file_paths)} batches...")
@@ -213,10 +237,6 @@ class BertModel(BaseModel):
         X_train, X_test, y_train, y_test = train_test_split(
             self.data.title.to_numpy(), self.data.tags_cat.to_numpy(), test_size=holdout)
 
-        logger.info("Retrieving ALBERT Tokenizer...")
-        tokenizer = AlbertTokenizer.from_pretrained(
-            albert, do_lower_case=do_lower_case, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True)
-
         logger.info("Tokenizing Test / Train Datasets...")
         # length: 14
         # hi how are you
@@ -230,9 +250,9 @@ class BertModel(BaseModel):
         # token_type_ids
         # 0000000000000000000000
         [train_input_ids, train_attention_mask, train_token_type_ids] \
-            = self.tokenize(X_train, tokenizer)
+            = self.tokenize(X_train)
         [test_input_ids, test_attention_mask, test_token_type_ids] \
-            = self.tokenize(X_test, tokenizer)
+            = self.tokenize(X_test)
 
         # because tensorflow didnt work without this
         y_train = list(y_train)
@@ -279,6 +299,13 @@ class BertModel(BaseModel):
             f"Training Success! - Checkpoints saved at {self.checkpoint_path}")
         self.model.training = False
 
+    def _fit(self):
+        """
+        train the model
+        """
+        self.cp_callback, self.checkpoint_path = self._pre_train()
+        self._train()
+
     # TODO - different create model based on the nlp type
     # TODO Might need to be duplicated, similar to above (for lang/lib -- different)
 
@@ -301,21 +328,6 @@ class BertModel(BaseModel):
         # input_ids, input_masks, input_segments, model = get_embedding_layer(config)
 
         return model
-
-    @staticmethod
-    def tokenize(sentences: List[str], tokenizer: AlbertTokenizer) -> np.ndarray:
-        """
-        tokenize inputs
-        """
-        input_ids, input_masks, input_segments = [], [], []
-        for sentence in tqdm(sentences):
-            inputs = tokenizer.encode_plus(sentence, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True,
-                                           return_attention_mask=True, return_token_type_ids=True, truncation=True)
-            input_ids.append(inputs['input_ids'])
-            input_masks.append(inputs['attention_mask'])
-            input_segments.append(inputs['token_type_ids'])
-
-        return np.asarray(input_ids, dtype='int32'), np.asarray(input_masks, dtype='int32'), np.asarray(input_segments, dtype='int32')
 
     @staticmethod
     def _get_embedding_layer(config):

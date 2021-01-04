@@ -2,6 +2,9 @@
 Base model that all of our nlp models should inherit from
 """
 from abc import ABCMeta, abstractmethod
+from typing import List
+
+from shared.Prediction import Prediction
 
 
 class BaseModel(metaclass=ABCMeta):
@@ -14,14 +17,16 @@ class BaseModel(metaclass=ABCMeta):
         init
         """
 
+    @property
     @abstractmethod
-    def fit(self):
+    def mode(self):
         """
-        train the model
+        Mode of the model object
+        initial training, load from disk, etc...
         """
 
     @abstractmethod
-    def predict(self):
+    def predict(self, query: str) -> List[Prediction]:
         """
         predict
         """

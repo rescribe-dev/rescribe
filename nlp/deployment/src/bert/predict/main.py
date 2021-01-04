@@ -22,63 +22,34 @@ if __name__ == '__main__':
 
 from sys import argv
 from loguru import logger
-from initialize_models import main as initialize_models
+from typing import Optional, List, Dict
+
 from config import read_config
-from transformers import AlbertTokenizer
-from tensorflow.keras.models import Model
+from initialize_models import main as initialize_models
+
 from shared.type import NLPType
-from typing import List, Optional, Tuple, Dict
-from bert.predict.tokenize import tokenize
-
-
-class Prediction:
-    """
-    prediction object, output
-    """
-
-    def __init__(self, name: str, score: float) -> None:
-        """
-        prediction initializer
-        """
-        self.name = name
-        self.score = score
-
-    def to_json(self) -> str:
-        """
-        Convert to JSON format string representation.
-        """
-        return self.__dict__
-
-    def __str__(self) -> str:
-        return str(self.__dict__)
-
-    def __repr__(self):
-        return self.__str__()
+from shared.BaseModel import BaseModel
+from shared.Prediction import Prediction
 
 
 def main(query: str, predict_type: NLPType) -> List[Prediction]:
     """
     Prediction
     """
-    model_data: Tuple[Optional[Model], Optional[AlbertTokenizer],
-                      Optional[List[str]]] = (None, None, None)
+    model: Optional[BaseModel]
     if predict_type == NLPType.language:
-        from initialize_models import language_model as model_data
+        from initialize_models import language_model as model
+    elif predict_type == NLPType.base_library:
+        from initialize_models import base_library_model as model
+    elif predict_type == NLPType.library_relation:
+        from initialize_models import library_relation_model as model
     else:
-        from initialize_models import base_library_model as model_data
-    for elem in model_data:
-        if elem is None:
-            raise RuntimeError('model is not initialized')
-    model: Model = model_data[0]
-    tokenizer: AlbertTokenizer = model_data[1]
-    [input_ids, input_mask, token_type_ids] = tokenize([query], tokenizer)
-    confidence: List[float] = model.predict(
-        [input_ids, input_mask, token_type_ids]).tolist()[0]
-    classes: List[str] = model_data[2]
-    res: List[Prediction] = [Prediction(classes[i], conf)
-                             for i, conf in enumerate(confidence)]
-    res.sort(key=lambda elem: elem.score, reverse=True)
-    return res
+        raise RuntimeError(
+            f'Cannot find model to match NLPType {predict_type}')
+    if model is None:
+        raise RuntimeError('model is not initialized')
+
+    return model.predict(query)
 
 
 if __name__ == "__main__":
@@ -88,6 +59,7 @@ if __name__ == "__main__":
     predict_input_type = NLPType(argv[1])
     initialize_models(predict_input_type)
     input_dict: Dict[NLPType, List[str]] = {
+        NLPType.library_relation: [],
         NLPType.base_library: [],
         NLPType.language: ["python", "how do you make a class in C++",
                            "how to create a webpage in java", "List COMPREHENSION",
