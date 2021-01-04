@@ -20,7 +20,7 @@ if __name__ == '__main__':
         pass
 #################################
 
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Any
 from bert.load_model.main import main as load_model
 from library_relation.load_model.main import main as load_library_relation_model
 from transformers import AlbertTokenizer
@@ -32,7 +32,9 @@ language_model: Tuple[Optional[Model], Optional[AlbertTokenizer],
                       Optional[List[str]]] = (None, None, None)
 
 base_library_model: Tuple[Optional[Model], Optional[AlbertTokenizer],
-                     Optional[List[str]]] = (None, None, None)
+                          Optional[List[str]]] = (None, None, None)
+
+library_relation_model: Any = None
 
 
 def main(model_type: Optional[NLPType] = None):
@@ -42,7 +44,7 @@ def main(model_type: Optional[NLPType] = None):
     global base_library_model
     global language_model
     global library_relation_model
-            
+
     if model_type == NLPType.language or model_type:
         language_model = load_model(NLPType.language)
 
@@ -50,10 +52,12 @@ def main(model_type: Optional[NLPType] = None):
         library_model = load_model(NLPType.base_library)
 
     if model_type == NLPType.library_relation or model_type:
-        library_relation_model = load_library_relation_model(NLPType.library_relation)
+        library_relation_model = load_library_relation_model(
+            NLPType.library_relation)
 
     else:
-        raise ValueError(f"Input model_type <{model_type}> is invalid, expected <{NLPType.get_values()}>")
+        raise ValueError(
+            f"Input model_type <{model_type}> is invalid, expected <{NLPType.get_values()}>")
 
 
 if __name__ == "__main__":

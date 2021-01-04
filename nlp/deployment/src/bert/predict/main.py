@@ -65,7 +65,7 @@ def main(query: str, predict_type: NLPType) -> List[Prediction]:
     if predict_type == NLPType.language:
         from initialize_models import language_model as model_data
     else:
-        from initialize_models import library_model as model_data
+        from initialize_models import base_library_model as model_data
     for elem in model_data:
         if elem is None:
             raise RuntimeError('model is not initialized')
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     predict_input_type = NLPType(argv[1])
     initialize_models(predict_input_type)
     input_dict: Dict[NLPType, List[str]] = {
-        NLPType.library: [],
+        NLPType.base_library: [],
         NLPType.language: ["python", "how do you make a class in C++",
                            "how to create a webpage in java", "List COMPREHENSION",
                            "I'm Litera11y 7r0llING"]

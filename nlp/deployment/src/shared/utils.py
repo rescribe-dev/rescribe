@@ -86,7 +86,7 @@ def clean_directory(directory: str, extensions: Iterable) -> None:
     """
     if isinstance(extensions, str):
         extensions = [extensions]
-        
+
     if not exists(directory):
         logger.critical(
             f"Attempting to clean a nonexistent directory: {directory}\nCreating empty folder")

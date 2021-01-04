@@ -1,3 +1,6 @@
+"""
+    main function for library relation model
+"""
 #################################
 # for handling relative imports #
 #################################
@@ -18,34 +21,32 @@ if __name__ == '__main__':
 import tensorflow as tf
 from loguru import logger
 from shared.type import NLPType
-# from shared.variables import type_path_dict, data_folder, models_folder
 from shared.variables import (
     data_folder,
-    clean_data_folder,
     type_path_dict,
     models_folder,
     inter_library_graph_file,
     inter_library_vocabulary_file,
     inter_library_tokenization_model_path
 )
+from shared.utils import get_file_path_relative
 import networkx as nx
 import yaml
-from typing import Tuple
-from shared.utils import get_file_path_relative
-from os.path import exists, basename, join
+from os.path import join
 
 
 def main(model_load_type: NLPType = NLPType.library_relation):
     """
     Load model for interlibrary analysis
     """
-    from shared.config import PRODUCTION
+    # from shared.config import PRODUCTION
 
     folder_name: str = type_path_dict[model_load_type]
     graph_output_path = get_file_path_relative(
         f'{data_folder}/{models_folder}/{folder_name}')
     graph = nx.read_gpickle(join(graph_output_path, inter_library_graph_file))
-    model = tf.keras.models.load_model(join(graph_output_path, inter_library_tokenization_model_path))
+    model = tf.keras.models.load_model(
+        join(graph_output_path, inter_library_tokenization_model_path))
     model.compile()
     vocab = None
     with open(join(graph_output_path, inter_library_vocabulary_file), 'r') as f:
@@ -53,6 +54,7 @@ def main(model_load_type: NLPType = NLPType.library_relation):
     if not (graph and model and vocab):
         raise EnvironmentError("Something went wrong loading in the ")
     return graph, model, vocab
+
 
 if __name__ == "__main__":
     main()

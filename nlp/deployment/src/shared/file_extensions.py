@@ -12,7 +12,7 @@ class FileExtensions(Enum):
     """
     Enum to contain all of the file extensions we support
     """
-    
+
     java = ["java.dat"]
     cpp = ["cpp.dat", "cc.dat"]
     python = ["py.dat"]
