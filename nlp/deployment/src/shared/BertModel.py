@@ -11,17 +11,17 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+from glob import glob
 from tqdm import tqdm
 from loguru import logger
 from os import remove
 from os.path import join, exists, basename
+from typing import List
 
-from glob import glob
 from sklearn.model_selection import train_test_split
 from transformers.modeling_albert import AlbertPreTrainedModel
 from transformers import AlbertTokenizer, AlbertConfig, TFAlbertModel
 
-from predict.tokenize import tokenize
 from shared.BaseModel import BaseModel
 from shared.type import NLPType, BertMode
 from shared.utils import list_files, get_file_path_relative
@@ -230,9 +230,9 @@ class BertModel(BaseModel):
         # token_type_ids
         # 0000000000000000000000
         [train_input_ids, train_attention_mask, train_token_type_ids] \
-            = tokenize(X_train, tokenizer)
+            = self.tokenize(X_train, tokenizer)
         [test_input_ids, test_attention_mask, test_token_type_ids] \
-            = tokenize(X_test, tokenizer)
+            = self.tokenize(X_test, tokenizer)
 
         # because tensorflow didnt work without this
         y_train = list(y_train)
@@ -301,6 +301,21 @@ class BertModel(BaseModel):
         # input_ids, input_masks, input_segments, model = get_embedding_layer(config)
 
         return model
+
+    @staticmethod
+    def tokenize(sentences: List[str], tokenizer: AlbertTokenizer) -> np.ndarray:
+        """
+        tokenize inputs
+        """
+        input_ids, input_masks, input_segments = [], [], []
+        for sentence in tqdm(sentences):
+            inputs = tokenizer.encode_plus(sentence, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True,
+                                           return_attention_mask=True, return_token_type_ids=True, truncation=True)
+            input_ids.append(inputs['input_ids'])
+            input_masks.append(inputs['attention_mask'])
+            input_segments.append(inputs['token_type_ids'])
+
+        return np.asarray(input_ids, dtype='int32'), np.asarray(input_masks, dtype='int32'), np.asarray(input_segments, dtype='int32')
 
     @staticmethod
     def _get_embedding_layer(config):

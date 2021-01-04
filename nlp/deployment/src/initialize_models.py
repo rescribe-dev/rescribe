@@ -19,20 +19,18 @@ if __name__ == '__main__':
     except ValueError:  # Already removed
         pass
 #################################
-
-from typing import Optional, Tuple, List, Any
-from bert.load_model.main import main as load_model
-from library_relation.load_model.main import main as load_library_relation_model
-from transformers import AlbertTokenizer
-from tensorflow.keras.models import Model
-from shared.type import NLPType
 from sys import argv
+from typing import Optional, Any
 
-language_model: Tuple[Optional[Model], Optional[AlbertTokenizer],
-                      Optional[List[str]]] = (None, None, None)
+from library_relation.load_model.main import main as load_library_relation_model
 
-base_library_model: Tuple[Optional[Model], Optional[AlbertTokenizer],
-                          Optional[List[str]]] = (None, None, None)
+from shared.BertModel import BertModel
+from shared.type import NLPType, BertMode
+
+# model, tokenizer, classes
+language_model: BertModel
+
+base_library_model: BertModel
 
 library_relation_model: Any = None
 
@@ -45,13 +43,13 @@ def main(model_type: Optional[NLPType] = None):
     global language_model
     global library_relation_model
 
-    if model_type == NLPType.language or model_type:
-        language_model = load_model(NLPType.language)
+    if model_type == NLPType.language:
+        language_model = BertModel(model_type, mode=BertMode.load_pretrained)
 
-    if model_type == NLPType.base_library or model_type:
-        library_model = load_model(NLPType.base_library)
+    if model_type == NLPType.base_library:
+        language_model = BertModel(model_type, mode=BertMode.load_pretrained)
 
-    if model_type == NLPType.library_relation or model_type:
+    if model_type == NLPType.library_relation:
         library_relation_model = load_library_relation_model(
             NLPType.library_relation)
 
