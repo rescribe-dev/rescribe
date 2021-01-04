@@ -1,3 +1,5 @@
+mike.*
+
 # ignore node modules always
 node_modules/
 
