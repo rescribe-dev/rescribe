@@ -97,7 +97,7 @@ async def predict_library(request: web.Request) -> web.Response:
     json_data = await request.json()
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')
-    res = predict_bert(json_data[QUERY_KEY], NLPType.language)
+    res = predict_bert(json_data[QUERY_KEY], NLPType.base_library)
     if NUM_RES_KEY in json_data:
         res = res[:json_data[NUM_RES_KEY]]
     return web.json_response({
@@ -123,7 +123,7 @@ async def predict_language(request: web.Request) -> web.Response:
     json_data = await request.json()
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')
-    res = predict_bert(json_data[QUERY_KEY], NLPType.base_library)
+    res = predict_bert(json_data[QUERY_KEY], NLPType.language)
     if NUM_RES_KEY in json_data:
         res = res[:json_data[NUM_RES_KEY]]
     return web.json_response({

@@ -24,7 +24,7 @@ from transformers import AlbertTokenizer, AlbertConfig, TFAlbertModel
 
 from shared.BaseModel import BaseModel
 from shared.Prediction import Prediction
-from shared.type import NLPType, BertMode, BaseEnum
+from shared.type import NLPType, ModelMode
 from shared.utils import list_files, get_file_path_relative
 from shared.variables import clean_data_folder, batch_size, do_lower_case, max_sequence_length, holdout, albert, \
     data_folder, models_folder, checkpoint_file, classes_file, type_path_dict, bucket_name
@@ -34,9 +34,9 @@ class BertModel(BaseModel):
     """
     Bert Model class
     """
-    mode: BaseEnum = None
+    mode: ModelMode = None
 
-    def __init__(self, train_type: NLPType, mode: BertMode, delete_checkpoints: bool = False, ):
+    def __init__(self, train_type: NLPType, mode: ModelMode, delete_checkpoints: bool = False):
         """
         init, takes train type, delete checkpoints, and train_on_init
         """
@@ -53,23 +53,26 @@ class BertModel(BaseModel):
         self.tokenizer = AlbertTokenizer.from_pretrained(
             albert, do_lower_case=do_lower_case, add_special_tokens=True, max_length=max_sequence_length, pad_to_max_length=True)
 
-        if self.mode == BertMode.initial_training:
+        if self.mode == ModelMode.initial_training:
             logger.info("Beginning inital BERT model training")
             self.delete_checkpoints = delete_checkpoints
+
             self.raw_data: pd.DataFrame = self._load_data()
             # will log label stats, will also modify self.
             self.data, self.classes, self.num_classes = self._prepare_data()
+
             [self.train_input_ids, self.train_attention_mask, self.train_token_type_ids], [self.test_input_ids,
                                                                                            self.test_attention_mask, self.test_token_type_ids], self.y_train, self.y_test = self._get_train_test()
             self.train_data = [self.train_input_ids,
                                self.train_attention_mask, self.train_token_type_ids]
             self.test_data = [self.test_input_ids,
                               self.test_attention_mask, self.test_token_type_ids]
+                              
             self.model = self.create_model()
             self._fit()
             self.evaluate()
 
-        elif self.mode == BertMode.load_pretrained:
+        elif self.mode == ModelMode.load_pretrained:
             logger.info("Loading pretrained BERT model")
             from shared.config import PRODUCTION
             s3_client = boto3.client('s3')
@@ -106,9 +109,9 @@ class BertModel(BaseModel):
 
         else:
             logger.error(
-                f"Invalid mode argument <{mode}>. Expected {BertMode.get_values()}")
+                f"Invalid mode argument <{mode}>. Expected {ModelMode.get_values()}")
             raise RuntimeError(
-                f"Invalid mode argument <{mode}>. Expected {BertMode.get_values()}")
+                f"Invalid mode argument <{mode}>. Expected {ModelMode.get_values()}")
 
     def predict(self, query: str) -> List[Prediction]:
         """

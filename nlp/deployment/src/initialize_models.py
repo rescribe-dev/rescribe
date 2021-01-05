@@ -25,12 +25,12 @@ from typing import Optional, Any
 from library_relation.load_model.main import main as load_library_relation_model
 
 from shared.BertModel import BertModel
-from shared.type import NLPType, BertMode
+from shared.type import NLPType, ModelMode
 
 # model, tokenizer, classes
-language_model: BertModel
+language_model: BertModel = None
 
-base_library_model: BertModel
+base_library_model: BertModel = None
 
 library_relation_model: Any = None
 
@@ -44,10 +44,10 @@ def main(model_type: Optional[NLPType] = None):
     global library_relation_model
 
     if model_type == NLPType.language:
-        language_model = BertModel(model_type, mode=BertMode.load_pretrained)
+        language_model = BertModel(model_type, mode=ModelMode.load_pretrained)
 
     if model_type == NLPType.base_library:
-        language_model = BertModel(model_type, mode=BertMode.load_pretrained)
+        base_library_model = BertModel(model_type, mode=ModelMode.load_pretrained)
 
     if model_type == NLPType.library_relation:
         library_relation_model = load_library_relation_model(
