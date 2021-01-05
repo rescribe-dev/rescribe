@@ -67,7 +67,7 @@ class BertModel(BaseModel):
                                self.train_attention_mask, self.train_token_type_ids]
             self.test_data = [self.test_input_ids,
                               self.test_attention_mask, self.test_token_type_ids]
-                              
+
             self.model = self.create_model()
             self._fit()
             self.evaluate()

@@ -47,7 +47,8 @@ def main(model_type: Optional[NLPType] = None):
         language_model = BertModel(model_type, mode=ModelMode.load_pretrained)
 
     if model_type == NLPType.base_library:
-        base_library_model = BertModel(model_type, mode=ModelMode.load_pretrained)
+        base_library_model = BertModel(
+            model_type, mode=ModelMode.load_pretrained)
 
     if model_type == NLPType.library_relation:
         library_relation_model = load_library_relation_model(

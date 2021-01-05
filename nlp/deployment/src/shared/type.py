@@ -26,12 +26,14 @@ class BaseEnum(Enum):
         """
         return set(item.value for item in cls)
 
+
 class ModelMode(BaseEnum):
     """
     Mode of model initialization
     """
     initial_training = "initial_training"
     load_pretrained = "load_pretrained"
+
 
 class NLPType(BaseEnum):
     """
