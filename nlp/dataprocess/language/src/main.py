@@ -10,6 +10,7 @@ from shared.config import read_config
 from load.language_load import main as dataload_main
 from loguru import logger
 
+
 @logger.catch
 def main() -> None:
     """

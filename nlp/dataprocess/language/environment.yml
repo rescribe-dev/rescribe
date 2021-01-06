@@ -80,6 +80,7 @@ dependencies:
   - libstdcxx-ng=9.3.0
   - libthrift=0.13.0
   - libutf8proc=2.5.0
+  - llvm-openmp=11.0.0
   - loguru=0.5.0
   - lz4-c=1.9.2
   - mccabe=0.6.1

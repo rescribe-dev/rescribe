@@ -93,7 +93,8 @@ def main(cleaning_type: NLPType, clean_dir: bool = True):
         logger.info("Initiating Directory Cleaning")
         folder_name = type_path_dict[cleaning_type]
         clean_directory(
-            get_file_path_relative(f'{data_folder}/{clean_data_folder}/{folder_name}'), 
+            get_file_path_relative(
+                f'{data_folder}/{clean_data_folder}/{folder_name}'),
             ["dat", "csv"]
         )
         logger.success("Directory Cleaning Complete")

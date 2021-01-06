@@ -21,9 +21,9 @@ if __name__ == '__main__':
 #################################
 
 from sys import argv
-from os import getenv, remove
-from os.path import exists, basename, join
-from typing import Union, List, Dict
+from os import remove
+from os.path import basename, join
+from typing import List, Dict
 from pandas import DataFrame
 from loguru import logger
 from google.cloud import bigquery
@@ -118,13 +118,14 @@ def main(dataload_type: NLPType, clean_dir: bool = True):
     logger.info("\n\nInitiating Data Load\n")
 
     if clean_dir:
-            logger.info("Initiating Directory Cleaning")
-            folder_name = type_path_dict[dataload_type]
-            clean_directory(
-                get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}'), 
-                ["dat", "csv"]
-            )
-            logger.success("Directory Cleaning Complete")
+        logger.info("Initiating Directory Cleaning")
+        folder_name = type_path_dict[dataload_type]
+        clean_directory(
+            get_file_path_relative(
+                f'{data_folder}/{datasets_folder}/{folder_name}'),
+            ["dat", "csv"]
+        )
+        logger.success("Directory Cleaning Complete")
 
     questions: DataFrame = dataload(dataload_type)
 

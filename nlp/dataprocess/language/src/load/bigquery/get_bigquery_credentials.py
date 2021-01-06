@@ -4,10 +4,11 @@ get bigquery credentials
 """
 from boto3.session import Session
 from loguru import logger
-from loguru import logger
 
 secret_name: str = 'BIGQUERY_CREDENTIALS'
 region_name: str = 'us-east-1'
+
+
 @logger.catch
 @logger.catch
 def main() -> str:

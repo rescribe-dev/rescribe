@@ -24,6 +24,7 @@ from load.stackoverflow.stackoverflow_load import main as dataload_stackoverflow
 from shared.type import NLPType
 from loguru import logger
 
+
 @logger.catch
 def main():
     """

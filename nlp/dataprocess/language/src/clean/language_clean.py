@@ -24,6 +24,7 @@ from clean.stackoverflow.stackoverflow_clean import main as dataclean
 from shared.type import NLPType
 from loguru import logger
 
+
 @logger.catch
 def main():
     """
