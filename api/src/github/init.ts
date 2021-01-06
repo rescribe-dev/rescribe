@@ -82,7 +82,7 @@ export const initializeGithub = (): void => {
     throw new Error('github client secret not supplied');
   }
   githubAppClient = createAppAuth({
-    appId: configData.GITHUB_APP_ID,
+    id: configData.GITHUB_APP_ID,
     privateKey: configData.GITHUB_PRIVATE_KEY,
   });
   githubOauthClient = createOAuthAppAuth({

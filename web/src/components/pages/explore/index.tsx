@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Col,
   Container,
@@ -6,11 +6,11 @@ import {
   PaginationItem,
   PaginationLink,
   Row,
-} from "reactstrap";
-import "./index.scss";
-import Description from "./description";
-import { WindowLocation } from "@reach/router";
-import ExploreResultComponent from "./exploreResult";
+} from 'reactstrap';
+import './index.scss';
+import Description from './description';
+import { WindowLocation } from '@reach/router';
+import ExploreResultComponent from './exploreResult';
 
 // export interface ExplorePageProps extends PageProps {
 //   data: Record<string, unknown>;
@@ -22,7 +22,7 @@ import ExploreResultComponent from "./exploreResult";
   - repositoryDescription
 */
 interface ExplorePageContentProps {
-  results: ExploreResult[];
+  results: JSX.Element[];
   location: WindowLocation;
 }
 
@@ -30,20 +30,20 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
   // Dummy variable, set to some client query with useState
   const results = [
     {
-      repoUrl: "jschmidtnj/rescribe/api/login.go",
+      repoUrl: 'jschmidtnj/rescribe/api/login.go',
       repoCode:
         'async create() \n{\n\tawait dataBase.crateUser({name: "hello"})\n}',
-      repoName: "reScribe",
-      repoLang: "TypeScript",
+      repoName: 'reScribe',
+      repoLang: 'TypeScript',
       repoDes:
-        "On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository",
+        'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository',
       selected: true,
     },
     {
-      repoUrl: "jschmidtnj/rescribe/api/login.go",
+      repoUrl: 'jschmidtnj/rescribe/api/login.go',
       repoCode: "console.log('hello')",
-      repoName: "reScribe",
-      repoLang: "TypeScript",
+      repoName: 'reScribe',
+      repoLang: 'TypeScript',
       repoDes:
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." This is the readme (or the text from the beginning of the readme) of the selected text’s repo. On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repostiory',
       selected: false,
@@ -56,7 +56,7 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
     <>
       <Container
         style={{
-          background: "var(--purple-blue)",
+          background: 'var(--purple-blue)',
           // clipPath: "polygon(0% 0%, 0% 89%, 54% 0%)",
         }}
       >
@@ -67,11 +67,11 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                 <Col sm="7">
                   <h5
                     style={{
-                      fontFamily: "NotoSans, sans-serif",
+                      fontFamily: 'NotoSans, sans-serif',
                       fontWeight: 550,
-                      color: "white",
-                      textAlign: "center",
-                      marginTop: "140px",
+                      color: 'white',
+                      textAlign: 'center',
+                      marginTop: '140px',
                     }}
                   >
                     Popular Results
@@ -119,7 +119,7 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                       }
                     }}
                     previous
-                    href={"explore/" + currentPage}
+                    href={'explore/' + currentPage}
                   />
                 </PaginationItem>
                 {[...Array(totalPages).keys()].map((pageNumber) => {
@@ -129,7 +129,7 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                         onClick={() => {
                           setcurrentPage(pageNumber + 1);
                         }}
-                        href={"explore/" + (pageNumber + 1)}
+                        href={'explore/' + (pageNumber + 1)}
                       >
                         {pageNumber + 1}
                       </PaginationLink>
@@ -144,11 +144,11 @@ const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
                       }
                     }}
                     next
-                    href={"explore/" + currentPage}
+                    href={'explore/' + currentPage}
                   />
                 </PaginationItem>
                 <PaginationItem>
-                  <PaginationLink last href={"explore/" + totalPages} />
+                  <PaginationLink last href={'explore/' + totalPages} />
                 </PaginationItem>
               </Pagination>
             </>

@@ -3,7 +3,6 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-client';
 import fetch from 'isomorphic-fetch';
 import { split, from } from 'apollo-link';
-import { HttpLink } from 'apollo-link-http';
 import { WebSocketLink } from 'apollo-link-ws';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
@@ -14,14 +13,14 @@ import { getAuthToken, isLoggedIn } from 'state/auth/getters';
 import { isSSR } from './checkSSR';
 import { useSecure } from './useSecure';
 import { toast } from 'react-toastify';
+import { getAPIURL } from './axios';
+import { createUploadLink } from 'apollo-upload-client';
 
 export let client: ApolloClient<any>;
 
 export const initializeApolloClient = async (): Promise<void> => {
-  const defaultLink = new HttpLink({
-    uri: `${useSecure ? 'https' : 'http'}://${
-      process.env.GATSBY_API_URL
-    }/graphql`,
+  const defaultLink = createUploadLink({
+    uri: `${getAPIURL()}/graphql`,
     fetch,
     credentials: 'include',
   });
@@ -39,6 +38,7 @@ export const initializeApolloClient = async (): Promise<void> => {
     }
   });
 
+  // @ts-ignore
   const httpLink = from([httpMiddleware, defaultLink]);
   if (!process.env.GATSBY_API_URL) {
     throw new Error('no api url provided');
