@@ -79,7 +79,7 @@ interface WrapApolloArgs {
 }
 
 export const WrapApollo = (args: WrapApolloArgs): JSX.Element => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     (async () => {
       try {
