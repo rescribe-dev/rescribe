@@ -5,10 +5,11 @@ export let dbConnectionURI: string;
 export let debug = true;
 export let dbName = 'rescribe';
 export let websiteURL = 'https://rescribe.dev';
+export let production = true;
 
 const secretsManagerStart = 'arn:aws:secretsmanager';
 
-export const initializeGlobalConfig = async (requireAWSConfig: boolean, requiresDBConfig: boolean): Promise<void> => {
+export const initializeGlobalConfig = async (requiresDBConfig: boolean): Promise<void> => {
   config();
   if (process.env.DB_NAME) {
     dbName = process.env.DB_NAME;
@@ -16,10 +17,14 @@ export const initializeGlobalConfig = async (requireAWSConfig: boolean, requires
   if (process.env.DEBUG) {
     debug = process.env.DEBUG === 'true';
   }
+  if (process.env.MODE) {
+    production = process.env.MODE !== 'dev';
+  }
   if (process.env.WEBSITE_URL) {
     websiteURL = process.env.WEBSITE_URL;
   }
   AWS.config = new AWS.Config();
+  const requireAWSConfig = !production;
   if (requireAWSConfig && !process.env.AWS_ACCESS_KEY_ID) {
     throw new Error('no aws access key id provided');
   }

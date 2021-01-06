@@ -10,9 +10,7 @@ from shared.config import read_config
 from load.library_load import main as dataload_main
 from loguru import logger
 
-# Going to get some water 
-# Also, are you using the right conda environment?
-# Also shoule we refactor conda environment names?
+
 @logger.catch
 def main() -> None:
     """
