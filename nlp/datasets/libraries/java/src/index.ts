@@ -27,17 +27,19 @@ const writeData = async (content: string, s3Client: AWS.S3): Promise<void> => {
   if (saveLocal) {
     writeFileSync(`${localDataFolder}/${basename}`, content);
   }
-  await s3Client.upload({
-    Bucket: s3Bucket,
-    Body: content,
-    Key: `${baseFolder}/${dataFolder}/${basename}`,
-    ContentEncoding: 'identity',
-    ContentType: fileType
-  })
-    .on('httpUploadProgress', (evt) => {
-      logger.info(evt);
+  if (saveS3) {
+    await s3Client.upload({
+      Bucket: s3Bucket,
+      Body: content,
+      Key: `${baseFolder}/${dataFolder}/${basename}`,
+      ContentEncoding: 'identity',
+      ContentType: fileType
     })
-    .promise();
+      .on('httpUploadProgress', (evt) => {
+        logger.info(evt);
+      })
+      .promise();
+  }
 };
 
 interface LibraryData {
