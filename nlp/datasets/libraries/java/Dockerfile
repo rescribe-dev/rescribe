@@ -19,5 +19,5 @@ COPY dist .
 ARG CACHEBUST=1
 RUN echo "$CACHEBUST"
 
-# Defines train.py as script entrypoint
-ENV SAGEMAKER_PROGRAM datasets/libraries/java/lib/index.js
+# Defines entrypoint
+ENTRYPOINT [ "node", "datasets/libraries/java/lib/index.js" ]
