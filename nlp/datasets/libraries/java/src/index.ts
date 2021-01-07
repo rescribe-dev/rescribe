@@ -5,7 +5,7 @@ import { dataFolder, initializeConfig, repositoryURL } from './utils/config';
 import { initializeLogger } from './shared/logger';
 import axios from 'axios';
 import statusCodes from 'http-status-codes';
-import { baseFolder, s3Bucket, saveLocal, paginationSize } from './shared/libraries_global_config';
+import { baseFolder, s3Bucket, saveLocal, paginationSize, saveS3 } from './shared/libraries_global_config';
 import YAML from 'yaml';
 import cheerio from 'cheerio';
 import { writeFileSync } from 'fs';
