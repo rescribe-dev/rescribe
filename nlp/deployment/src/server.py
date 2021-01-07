@@ -131,21 +131,21 @@ async def predict_language(request: web.Request) -> web.Response:
     })
 
 async def predict_related_library(request: web.Request) -> web.Response:
-  """
-  predict the n-nearest libraries given the query library
-  ---
-  description: Inter-library prediction resolver
-  tags:
-  - Graph
-  - NLP
-  responses:
-    '200':
-      description: successful operation. Return inter-library predictions.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Prediction"
-  """
+    """
+    predict the n-nearest libraries given the query library
+    ---
+    description: Inter-library prediction resolver
+    tags:
+    - Graph
+    - NLP
+    responses:
+      '200':
+        description: successful operation. Return inter-library predictions.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Prediction"
+    """
     json_data = await request.json()
     required_keys = [QUERY_KEY, NUM_RES_KEY]
     for req_key in required_keys:

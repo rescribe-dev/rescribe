@@ -7,7 +7,7 @@ entry point for running nlp training module
 
 import argparse
 from shared.config import read_config
-from shared.type import NLPType, BertMode
+from shared.type import NLPType, ModelMode
 from train import main as training_main
 from loguru import logger
 
@@ -37,7 +37,7 @@ def main() -> None:
         raise ValueError(
             f'No type argument provided for training\nValid choices are: --type={NLPType.get_values()}')
 
-    training_main(NLPType(args.type), BertMode.initial_training)
+    training_main(NLPType(args.type), ModelMode.initial_training)
 
 
 if __name__ == '__main__':

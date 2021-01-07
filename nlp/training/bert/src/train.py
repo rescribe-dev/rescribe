@@ -5,11 +5,11 @@ from sys import argv
 from loguru import logger
 
 from shared.BertModel import BertModel
-from shared.type import NLPType, BertMode
+from shared.type import NLPType, ModelMode
 
 
 @logger.catch
-def main(model_type: NLPType, mode: BertMode, delete_checkpoints: bool = False):
+def main(model_type: NLPType, mode: ModelMode, delete_checkpoints: bool = False):
     """
     train a bert model
     """
