@@ -13,10 +13,11 @@ import { format } from 'date-fns';
 import { deleteObjects } from './shared/s3utils';
 import { average } from './shared/utils';
 import { createHash } from 'crypto';
+import { resolve } from 'path';
 
 const logger = getLogger();
 
-const localDataFolder = 'data';
+const localDataFolder = resolve('../../../data/datasets/base_library_prediction/java');
 const estimatedNumberArtifacts = 5e6;
 
 const writeData = async (content: string, s3Client: AWS.S3): Promise<void> => {

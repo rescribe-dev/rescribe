@@ -3,18 +3,21 @@ FROM node:15
 # Add Maintainer Info
 LABEL maintainer="reScribe"
 
-# Create app directory
+# create app directory
 WORKDIR /app
 
 # Install app dependencies
 # where available (npm@5+)
 COPY package.json yarn.lock ./
 
-RUN yarn install
-# If you are building your code for production
-# --only=production
+RUN yarn install --only=production
 
 # Copy app
-COPY lib .
+COPY dist .
 
-CMD [ "node", "index.js" ]
+# disregard cache to activate
+ARG CACHEBUST=1
+RUN echo "$CACHEBUST"
+
+# Defines train.py as script entrypoint
+ENV SAGEMAKER_PROGRAM datasets/libraries/java/lib/index.js

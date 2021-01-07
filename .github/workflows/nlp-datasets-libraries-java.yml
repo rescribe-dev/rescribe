@@ -30,7 +30,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Install dependencies
-        id: build-api
+        id: install
         run: |
           cd nlp/datasets/libraries/java
           yarn install
@@ -41,11 +41,17 @@ jobs:
           cd nlp/datasets/libraries/java
           yarn run precommit
           cd -
-      - name: Generate dist
-        id: dist
+      - name: Build
+        id: build
         run: |
           cd nlp/datasets/libraries/java
           yarn run predeploy
+          cd -
+      - name: Generate dist
+        id: dist
+        run: |
+          cd nlp
+          ./build.sh datasets/libraries/java
           cd -
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -87,7 +93,7 @@ jobs:
           # compute power for sagemaker
           # see https://aws.amazon.com/sagemaker/pricing/
           # and https://aws.amazon.com/sagemaker/pricing/instance-types/
-          INSTANCE_TYPE: ml.t3.medium
+          INSTANCE_TYPE: ml.m5.large
         run: |
           cd aws/sagemaker/deploy
           if [ -z "$CONDA_DEFAULT_ENV" ]; then

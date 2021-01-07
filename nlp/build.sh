@@ -11,6 +11,13 @@ fi
 echo "files in source directory:"
 ls "$1"
 
+source_folder="src"
+
+if [ -z "$2" ]; then
+  echo "using Node.js"
+  source_folder="lib"
+fi
+
 data_folder="data"
 
 # delete data
@@ -18,7 +25,6 @@ cd "$data_folder"
 git clean -fx
 cd -
 
-source_folder="src"
 source_dir="$1"/"$source_folder"
 
 # delete gitignored files
