@@ -130,6 +130,33 @@ async def predict_language(request: web.Request) -> web.Response:
         'data': res
     })
 
+async def predict_related_library(request: web.Request) -> web.Response:
+  """
+  predict the n-nearest libraries given the query library
+  ---
+  description: Inter-library prediction resolver
+  tags:
+  - Graph
+  - NLP
+  responses:
+    '200':
+      description: successful operation. Return inter-library predictions.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Prediction"
+  """
+    json_data = await request.json()
+    required_keys = [QUERY_KEY, NUM_RES_KEY]
+    for req_key in required_keys:
+        if req_key not in json_data:
+            raise ValueError(f"cannot find key {req_key} in request body")
+    # TODO: Write this method \/
+    res = predict_graph(json_data[QUERY_KEY]), json_data[NUM_RES_KEY])
+    # ODOT
+    return web.json_response({'data': res})
+
+    
 
 def start_server():
     """
