@@ -11,7 +11,7 @@ from typing import cast
 from loguru import logger
 from aiohttp import web
 from bert.predict.main import main as predict_bert
-from shared.type import NLPType
+from shared.type import NLPType, LanguageType, PackageManager
 from shared.utils import get_file_path_relative
 from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
 from aiohttp_swagger3.routes import _SWAGGER_SPECIFICATION as swaggerspec_key, CustomEncoder
@@ -76,8 +76,30 @@ async def ping() -> web.Response:
 
 
 QUERY_KEY: str = 'query'
+LANG_KEY: str = 'language'
 NUM_RES_KEY: str = 'limit'
 
+async def predict_library_elastic_request(term: str, lang: LanguageType, package_manager: PackageManager):
+    if not LanuageType.has_value(lang):
+        raise TypeError(f"lang has value: {lang} expected {LanguageType.get_values()}")
+    if not PackageManager.has_value(package_manager):
+        raise TypeError(f"lang has value: {package_manager} expected {PackageManager.get_values()}")
+      
+    from config import ELASTICSEARCH_HOST
+    query = json.dumps({
+        "query": {
+          "match": {
+              "library": term,
+              "language": lang.nam,
+              "package_manager": package_manager
+          }
+        }
+    })
+
+    resp = requests.get(ELASTICSEARCH_HOST, data=query)
+    res = json.loads(resp.text)
+
+    return res
 
 async def predict_library(request: web.Request) -> web.Response:
     """
@@ -94,12 +116,13 @@ async def predict_library(request: web.Request) -> web.Response:
             schema:
               $ref: "#/components/schemas/Prediction"
     """
+    from config import ELASTICSEARCH_HOST
     json_data = await request.json()
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')
-    res = predict_bert(json_data[QUERY_KEY], NLPType.base_library)
-    if NUM_RES_KEY in json_data:
-        res = res[:json_data[NUM_RES_KEY]]
+    # res = predict_bert(json_data[QUERY_KEY], NLPType.base_library)
+    res = predict_library_elastic_request(ELASTICSEARCH_HOST, json_data[QUERY_KEY], json_data[LANG_KEY])
+
     return web.json_response({
         'data': res
     })

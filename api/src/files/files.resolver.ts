@@ -19,7 +19,7 @@ import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';
 import { queryMinLength } from '../shared/variables';
 import { Language } from '../schema/misc/language';
-import { predictLanguage } from '../nlp/nlpBridge';
+import { predictLanguage, predictLibrary } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
 import parseQueryLanguage, { languageKey } from './queryLanguage';
@@ -138,10 +138,7 @@ export const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]:
         throw new Error(`cannot find repository with id ${id.toHexString()}`);
       }
       datastore[id.toHexString()] = repository;
-    } else {
-      throw new Error('invalid datastore type');
-    }
-  }
+    } else {LanguageType
 };
 
 
@@ -310,6 +307,12 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
               language: bestLanguage.name
             }
           });
+          const libraryPrediction = await predictLibrary({
+            query: args.query,
+            language: bestLanguage.name,
+            package_manager: "maven",
+          });
+          console.log(`Library Prediction: ${libraryPrediction} `);
         }
       }
     } else if (args.query) {

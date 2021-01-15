@@ -15,10 +15,17 @@ const defaultLimitPredict = 5;
 interface NLPPredictLanguageOutput {
   data: components['schemas']['Prediction'][];
 };
-
+interface NLPPredictLibraryOutput {
+  data: components['schemas']['Prediction'][];
+};
 interface NLPPredictLanguageInput {
   query: string,
   limit?: number;
+};
+interface NLPPredictLibraryInput {
+  query: string,
+  language: string,
+  package_manager: string,
 };
 
 const pingRetryAfter = 5;
@@ -33,6 +40,21 @@ export const predictLanguage = async(input: NLPPredictLanguageInput): Promise<NL
   }
   return processOutput.data;
 };
+
+export const predictLibrary = async (input: NLPPredictLibraryInput): Promise<NLPPredictLibraryOutput> => {
+  if (!input.language ) {
+    throw new Error("No language found for predict library");
+  }
+  if (!input.query) {
+    throw new Error("No query found for predict library");
+  }
+
+  const processOutput = await nlpClient.put<NLPPredictLibraryOutput>('/predictLibrary', input);
+  if (!processOutput.data) {
+    throw new Error("Cannot find output data for predict library");
+  }
+  return processOutput.data;
+}
 
 export const pingNLP = async (): Promise<boolean> => {
   try {
