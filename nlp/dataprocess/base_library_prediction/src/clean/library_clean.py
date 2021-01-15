@@ -20,8 +20,8 @@ if __name__ == '__main__':
         pass
 #################################
 
-from clean.stackoverflow.stackoverflow_clean import main as dataclean
-from shared.type import NLPType
+from clean.maven.maven_clean import main as dataclean
+from shared.type import NLPType, LanguageType
 from loguru import logger
 
 @logger.catch
@@ -29,7 +29,7 @@ def main():
     """
     main clean data script
     """
-    dataclean(NLPType.base_library)
+    dataclean(NLPType.base_library, LanguageType.java)
 
 
 if __name__ == '__main__':

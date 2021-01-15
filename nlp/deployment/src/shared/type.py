@@ -26,6 +26,10 @@ class BaseEnum(Enum):
         """
         return set(item.value for item in cls)
 
+class LanguageType(BaseEnum):
+    java = "java"
+    python = "python"
+    cpp = "cpp"
 
 class ModelMode(BaseEnum):
     """

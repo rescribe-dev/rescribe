@@ -21,6 +21,7 @@ if __name__ == '__main__':
 #################################
 
 from load.stackoverflow.stackoverflow_load import main as dataload_stackoverflow
+# from load.pm_repos.maven.maven_load import main as dataload_pm_dataset
 from shared.type import NLPType
 from loguru import logger
 
@@ -29,8 +30,8 @@ def main():
     """
     main function for dataload
     """
-    dataload_stackoverflow(NLPType.base_library)
-
+    # dataload_stackoverflow(NLPType.base_library)
+    # dataload_pm_dataset(NLPType.base_library)
 
 if __name__ == '__main__':
     main()

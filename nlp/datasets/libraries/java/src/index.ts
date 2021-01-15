@@ -55,6 +55,9 @@ interface PageData {
   totalTime: number;
 }
 
+// eslint-disable-next-line no-useless-escape
+const versionMatch: RegExp = /^([\d]+[\.]+)+[A-z\.\-(0-9)]*$/;
+
 const getData = async (currentPath: string[]): Promise<PageData> => {
   const totalStartTime = new Date();
   const baseURL = new URL(repositoryURL);
@@ -93,7 +96,7 @@ const getData = async (currentPath: string[]): Promise<PageData> => {
     if (link.length === 0) {
       return;
     }
-    if (link.match(/^\d/)) {
+    if (link.match(versionMatch)) {
       // found a version. ignore path data
       if (library === undefined) {
         library = {

@@ -11,6 +11,14 @@
       "Resource": [
         "arn:aws:secretsmanager:us-east-1:259559535892:secret:BIGQUERY_CREDENTIALS-43jZDu"
       ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::rescribe-datasets",
+        "arn:aws:s3:::rescribe-datasets/*"
+      ]
     }
   ]
 }
