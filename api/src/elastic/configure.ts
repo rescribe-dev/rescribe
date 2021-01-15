@@ -2,11 +2,12 @@ import statusCodes from 'http-status-codes';
 import { getLogger } from 'log4js';
 import { elasticClient } from './init';
 import * as settings from './settings';
-import projectMappings from './structureMappings/project';
-import repositoryMappings from './structureMappings/repository';
-import fileMappings from './antlrMappings/file';
+// import projectMappings from './structureMappings/project';
+// import repositoryMappings from './structureMappings/repository';
+// import fileMappings from './antlrMappings/file';
 import { IndicesPutMapping } from '@elastic/elasticsearch/api/requestParams';
-import folderMappings from './structureMappings/folder';
+// import folderMappings from './structureMappings/folder';
+import libraryMappings from './nlpMappings/library';
 
 const logger = getLogger();
 
@@ -46,9 +47,12 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
 };
 
 export const initializeMappings = async (): Promise<string> => {
-  await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType);
-  await initializeMapping(settings.folderIndexName, settings.folderIndexSettings, folderMappings, settings.folderType);
-  await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
-  await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
+  // await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType);
+  // await initializeMapping(settings.folderIndexName, settings.folderIndexSettings, folderMappings, settings.folderType);
+  // await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
+  // await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
+
+  // initialize for nlp
+  await initializeMapping(settings.libraryIndexName, settings.libraryIndexSettings, libraryMappings, settings.libraryType);
   return 'initialized all mappings';
 };

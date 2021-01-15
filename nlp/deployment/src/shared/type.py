@@ -31,6 +31,12 @@ class LanguageType(BaseEnum):
     python = "python"
     cpp = "cpp"
 
+class PackageManager(BaseEnum):
+    maven ="maven"
+    pip = "pip"
+    conda = "conda"
+    gradle = "gradle"
+
 class ModelMode(BaseEnum):
     """
     Mode of model initialization

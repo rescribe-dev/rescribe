@@ -61,7 +61,7 @@ def main(cleaning_type: NLPType, language: LanguageType) -> None:
     
     clean_directory(join(output_folder_path), "csv")
     np.savetxt(join(output_folder_path, main_data_file),
-    libraries, delimiter=", ", fmt="% s")
+                    libraries, delimiter=", ", fmt="% s")
     logger.info(f'num versions: {num_versions}')
 
     

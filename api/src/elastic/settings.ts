@@ -45,3 +45,31 @@ export const fileIndexSettings = {
     }
   }
 };
+
+export const libraryType = 'library';
+export const libraryIndexName = 'library';
+
+// the min_gram determines the minimum search query length, otherwise you get no results
+export const libraryIndexSettings = {
+  number_of_shards: 1,
+  number_of_replicas: 0,
+  analysis: {
+    filter: {
+      trigrams_filter: {
+        type: 'ngram',
+        min_gram: 5,
+        max_gram: 5
+      }
+    },
+    analyzer: {
+      trigrams: {
+        type: 'custom',
+        tokenizer: 'standard',
+        filter: [
+          'lowercase',
+          'trigrams_filter'
+        ]
+      }
+    }
+  }
+};
