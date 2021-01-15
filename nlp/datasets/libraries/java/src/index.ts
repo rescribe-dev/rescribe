@@ -3,7 +3,7 @@ import AWS from 'aws-sdk';
 import { getLogger } from 'log4js';
 import { dataFolder, initializeConfig, repositoryURL } from './utils/config';
 import { initializeLogger } from './shared/logger';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import statusCodes from 'http-status-codes';
 import { baseFolder, s3Bucket, saveLocal, paginationSize, saveS3 } from './shared/libraries_global_config';
 import YAML from 'yaml';
@@ -75,6 +75,16 @@ const getData = async (currentPath: string[]): Promise<PageData> => {
     }
     requestData = res.data;
   } catch (err) {
+    const errObj: AxiosError = err;
+    if (errObj.response?.status === statusCodes.NOT_FOUND) {
+      logger.info(`cannot find page for ${currentURL.href}`);
+      return {
+        libraries: [],
+        paths: [],
+        requestTime: 0,
+        totalTime: 0
+      }
+    }
     logger.error(`got error with http request for ${currentURL}`);
     throw err;
   }
