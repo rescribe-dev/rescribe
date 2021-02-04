@@ -83,9 +83,6 @@ class GraphModel(BaseModel):
         else:
             raise RuntimeError(f"Invalid ModelMode <{mode}> expected <{ModelMode.get_values()}>")
 
-    def predict(self):
-        pass
-
     def run_interactive_test_loop(self):
         """
         Only for debugging -> runs interactively to help ensure everything is working
@@ -242,10 +239,30 @@ class GraphModel(BaseModel):
         # If possible, convert the input into an index. If not an index, give up, it's the name of an import
         try:
             import_to_try = int(import_to_try)
-        except Exception:
+        except ValueError:
             import_to_try = self.model.predict([import_to_try])[0][0]
 
         edges = list(self.graph.edges(import_to_try, data=True))
         edges = sorted(edges, key=lambda i: i[2]["weight"], reverse=True)
         edges = edges[:max_num_imports_to_show]
         return [(self.vocabulary[e[1]], e[2]["weight"]) for e in edges]
+
+    def predict(self, library: Union[int, str], **kwargs) -> List[Tuple[str, int]]:
+        """#
+        Calls a wrapper method to predict the n-nearest libraries
+
+        https://stackoverflow.com/questions/47832762/python-safe-dictionary-key-access
+        
+        Arguments:
+            libary = Either the number of the library (index) or the actual name of the library (case, space - sensitive)
+            n_nearest (optional) = The number of results requested (Does not impact efficiency)
+
+            Returns:
+            (ex)
+                [
+                    ("Library, corresponding_index")
+                    ("java.util.Scanner", 12)
+                    ("java.lang.ArrayList", 18984)
+                ]
+        """
+        return self._get_n_nearest_libraries(library, kwargs.get("n_nearest", 10))

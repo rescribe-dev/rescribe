@@ -113,7 +113,7 @@ class BertModel(BaseModel):
             raise RuntimeError(
                 f"Invalid mode argument <{mode}>. Expected {ModelMode.get_values()}")
 
-    def predict(self, query: str) -> List[Prediction]:
+    def predict(self, query: str, **kwargs) -> List[Prediction]:
         """
         Predict using the trained model
         """

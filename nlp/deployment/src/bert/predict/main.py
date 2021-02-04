@@ -32,7 +32,7 @@ from shared.BaseModel import BaseModel
 from shared.Prediction import Prediction
 
 
-def main(query: str, predict_type: NLPType) -> List[Prediction]:
+def main(query: str, predict_type: NLPType, **kwargs) -> List[Prediction]:
     """
     Prediction
     """
@@ -49,7 +49,7 @@ def main(query: str, predict_type: NLPType) -> List[Prediction]:
     if model is None:
         raise RuntimeError('model is not initialized')
 
-    return model.predict(query)
+    return model.predict(query, **kwargs)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ import { GetObjectRequest } from 'aws-sdk/clients/s3';
 
 const logger = getLogger();
 
-export const s3Client = new AWS.S3();
+export let s3Client: AWS.S3;
 
 export let fileBucket: string;
 export let emailBucket: string;
@@ -108,6 +108,8 @@ export const initializeAWS = async (): Promise<void> => {
     throw new Error('no aws region provided');
   }
   AWS.config.region = configData.AWS_REGION;
+  s3Client = new AWS.S3();
+
   const locationConstraint = (await s3Client.getBucketLocation({
     Bucket: fileBucket
   }).promise()).LocationConstraint;

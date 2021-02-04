@@ -10,7 +10,7 @@ from logging import Logger
 from typing import cast
 from loguru import logger
 from aiohttp import web
-from bert.predict.main import main as predict_bert
+from bert.predict.main import main as predict
 from shared.type import NLPType
 from shared.utils import get_file_path_relative
 from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
@@ -97,7 +97,7 @@ async def predict_library(request: web.Request) -> web.Response:
     json_data = await request.json()
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')
-    res = predict_bert(json_data[QUERY_KEY], NLPType.base_library)
+    res = predict(json_data[QUERY_KEY], NLPType.base_library)
     if NUM_RES_KEY in json_data:
         res = res[:json_data[NUM_RES_KEY]]
     return web.json_response({
@@ -123,7 +123,7 @@ async def predict_language(request: web.Request) -> web.Response:
     json_data = await request.json()
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')
-    res = predict_bert(json_data[QUERY_KEY], NLPType.language)
+    res = predict(json_data[QUERY_KEY], NLPType.language)
     if NUM_RES_KEY in json_data:
         res = res[:json_data[NUM_RES_KEY]]
     return web.json_response({
@@ -152,9 +152,11 @@ async def predict_related_library(request: web.Request) -> web.Response:
         if req_key not in json_data:
             raise ValueError(f"cannot find key {req_key} in request body")
     # TODO: Write this method \/
-    res = predict_graph(json_data[QUERY_KEY]), json_data[NUM_RES_KEY])
-    # ODOT
-    return web.json_response({'data': res})
+    res = predict(json_data[QUERY_KEY], {"n_nearest" : int(json_data[NUM_RES_KEY])})
+    return web.json_response({
+      'data': res
+    })
+
 
     
 

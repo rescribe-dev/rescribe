@@ -26,7 +26,7 @@ class BaseModel(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def predict(self, query: str) -> List[Prediction]:
+    def predict(self, query: str, **kwargs) -> List[Prediction]:
         """
         predict
         """

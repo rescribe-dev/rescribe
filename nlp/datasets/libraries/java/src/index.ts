@@ -56,7 +56,7 @@ interface PageData {
 }
 
 // eslint-disable-next-line no-useless-escape
-const versionMatch: RegExp = /^([\d]+[\.]+)+[A-z\.\-(0-9)]*$/;
+const versionMatch = /^([\d]+[\.]+)+[A-z\.\-(0-9)]*$/;
 
 const getData = async (currentPath: string[]): Promise<PageData> => {
   const totalStartTime = new Date();
@@ -83,7 +83,7 @@ const getData = async (currentPath: string[]): Promise<PageData> => {
         paths: [],
         requestTime: 0,
         totalTime: 0
-      }
+      };
     }
     logger.error(`got error with http request for ${currentURL}`);
     throw err;
