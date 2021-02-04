@@ -20,7 +20,7 @@ if __name__ == '__main__':
         pass
 #################################
 
-from clean.maven.maven_clean import main as dataclean
+from clean.maven.maven_index import main as dataclean
 from shared.type import NLPType, LanguageType
 from loguru import logger
 

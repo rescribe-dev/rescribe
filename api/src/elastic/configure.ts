@@ -7,6 +7,7 @@ import repositoryMappings from './structureMappings/repository';
 import fileMappings from './antlrMappings/file';
 import { IndicesPutMapping } from '@elastic/elasticsearch/api/requestParams';
 import folderMappings from './structureMappings/folder';
+import libraryMappings from './nlpMappings/library';
 
 const logger = getLogger();
 
@@ -24,7 +25,7 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
       }
     });
     logger.info(`created ${indexName} index: ${createIndexRes.statusCode === statusCodes.OK}`);
-  } catch(err) {
+  } catch (err) {
     logger.error(err.meta.body.error);
     throw err;
   }
@@ -39,16 +40,18 @@ const initializeMapping = async (indexName: string, indexSettings: Record<string
   try {
     const setIndexMappingsRes = await elasticClient.indices.putMapping(mappingsConfig);
     logger.info(`set ${indexType} mappings: ${setIndexMappingsRes.statusCode === statusCodes.OK}`);
-  } catch(err) {
+  } catch (err) {
     logger.error(err.meta.body.error);
     throw err;
   }
 };
 
 export const initializeMappings = async (): Promise<string> => {
+  // initialize for nlp
   await initializeMapping(settings.fileIndexName, settings.fileIndexSettings, fileMappings, settings.fileType);
   await initializeMapping(settings.folderIndexName, settings.folderIndexSettings, folderMappings, settings.folderType);
   await initializeMapping(settings.repositoryIndexName, settings.repositoryIndexSettings, repositoryMappings, settings.repositoryType);
   await initializeMapping(settings.projectIndexName, settings.projectIndexSettings, projectMappings, settings.projectType);
+  await initializeMapping(settings.libraryIndexName, settings.libraryIndexSettings, libraryMappings, settings.libraryType);
   return 'initialized all mappings';
 };

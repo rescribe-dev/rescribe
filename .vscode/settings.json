@@ -16,5 +16,9 @@
   "python.linting.enabled": true,
   "files.eol": "\n",
   "editor.tabSize": 2,
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "typescript.tsc.autoDetect": "off",
+  "npm.autoDetect": "off",
+  "html.autoClosingTags": false
+  "python.pythonPath": "/usr/bin/python3"
 }

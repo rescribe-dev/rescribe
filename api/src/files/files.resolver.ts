@@ -19,7 +19,7 @@ import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';
 import { queryMinLength } from '../shared/variables';
 import { Language } from '../schema/misc/language';
-import { predictLanguage } from '../nlp/nlpBridge';
+import { predictLanguage, predictLibrary } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
 import parseQueryLanguage, { languageKey } from './queryLanguage';
@@ -310,6 +310,13 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
               language: bestLanguage.name
             }
           });
+          const libraryPrediction = await predictLibrary({
+            query: args.query,
+            language: bestLanguage.name,
+            package_manager: 'maven',
+          });
+          // eslint-disable-next-line no-console
+          console.log(`Library Prediction: ${libraryPrediction} `);
         }
       }
     } else if (args.query) {
