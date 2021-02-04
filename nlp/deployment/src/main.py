@@ -14,12 +14,13 @@ from typing import Optional
 # TODO - finalize environment file
 
 
-def main(model_type: Optional[NLPType] = None) -> None:
+def main() -> None:
     """
     main entry point
     """
     read_config()
-    initialize_models(model_type)
+    for model_type in NLPType:
+        initialize_models(model_type)
     start_server()
 
 

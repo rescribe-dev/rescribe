@@ -26,16 +26,19 @@ class BaseEnum(Enum):
         """
         return set(item.value for item in cls)
 
+
 class LanguageType(BaseEnum):
     java = "java"
     python = "python"
     cpp = "cpp"
 
+
 class PackageManager(BaseEnum):
-    maven ="maven"
+    maven = "maven"
     pip = "pip"
     conda = "conda"
     gradle = "gradle"
+
 
 class ModelMode(BaseEnum):
     """
