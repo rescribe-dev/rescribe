@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 load data into post questions
 """
@@ -23,6 +23,7 @@ if __name__ == '__main__':
 from load.github.github_load import main as dataload_github
 from shared.type import NLPType
 from loguru import logger
+
 
 @logger.catch
 def main():

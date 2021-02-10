@@ -104,8 +104,6 @@ dependencies:
     - tb-nightly==2.4.0a20200914
     - tensorboard-plugin-wit==1.7.0
     - termcolor==1.1.0
-    - tf-estimator-nightly==2.4.0.dev2020091401
-    - tf-nightly==2.4.0.dev20200914
     - tokenizers==0.8.1rc2
     - torch==1.6.0
     - tqdm==4.49.0

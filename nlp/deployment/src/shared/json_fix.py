@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Module that monkey-patches json module when it's imported so
 JSONEncoder.default() automatically checks for a special "to_json()"

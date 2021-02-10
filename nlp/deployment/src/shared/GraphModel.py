@@ -5,6 +5,8 @@ Contains the GraphModel object which is capable of storing a graph of values
 import ast
 import yaml
 import random
+import tarfile
+import boto3
 
 import pandas as pd
 import numpy as np
@@ -12,9 +14,10 @@ import networkx as nx
 import tensorflow as tf
 
 from loguru import logger
-from os.path import exists, join
+from os import remove
+from os.path import exists, join, dirname, basename
 from itertools import combinations
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Optional
 from tensorflow.python.keras.layers.preprocessing import text_vectorization
 
 from shared.type import NLPType, ModelMode
@@ -29,6 +32,8 @@ from shared.variables import (
     inter_library_graph_file,
     inter_library_vocabulary_file,
     inter_library_tokenization_model_path,
+    bucket_name,
+    datasets_bucket_name
 )
 
 from .BaseModel import BaseModel
@@ -74,12 +79,33 @@ class GraphModel(BaseModel):
             folder_name: str = type_path_dict[self.model_type]
             graph_output_path = get_file_path_relative(
                 f"{data_folder}/{models_folder}/{folder_name}")
-            self.graph = nx.read_gpickle(
-                join(graph_output_path, inter_library_graph_file))
-            self.model = tf.keras.models.load_model(
-                join(graph_output_path, inter_library_tokenization_model_path))
+
+            full_graph_file: str = join(graph_output_path, inter_library_graph_file)
+            model_folder: str = join(graph_output_path, inter_library_tokenization_model_path)
+            vocab_file: str = join(graph_output_path, inter_library_vocabulary_file)
+
+            from shared.config import PRODUCTION
+
+            if any([not exists(full_graph_file), not exists(model_folder), not exists(vocab_file)]):
+                tar_input_path_abs = join(graph_output_path, "model.tar.gz")
+                if not exists(tar_input_path_abs):
+                    if not PRODUCTION:
+                        raise ValueError(
+                            f'cannot find saved model tar file at path: {tar_input_path_abs}')
+
+                    s3_client = boto3.client('s3')
+                    s3_filepath = join(basename(dirname(tar_input_path_abs)), basename(tar_input_path_abs))
+                    with open(tar_input_path_abs, 'wb') as file:
+                        s3_client.download_fileobj(
+                            bucket_name, s3_filepath, file)
+
+                with tarfile.open(tar_input_path_abs, 'r:gz') as tar:
+                    tar.extractall(graph_output_path)
+
+            self.graph = nx.read_gpickle(full_graph_file)
+            self.model = tf.keras.models.load_model(model_folder)
             self.model.compile()
-            with open(join(graph_output_path, inter_library_vocabulary_file), "r") as f:
+            with open(vocab_file, "r") as f:
                 self.vocabulary = yaml.full_load(f)
             if not (self.graph and self.model and self.vocabulary):
                 raise EnvironmentError(
@@ -123,16 +149,40 @@ class GraphModel(BaseModel):
             f"Num GPUs Available: {len(tf.config.experimental.list_physical_devices('GPU'))}")
 
     def _get_data(self, data_type: NLPType, clean_data_path=None):
+        clean_data_dir: Optional[str] = None
+        library_data_folder = type_path_dict[data_type]
         if clean_data_path == None:
             train_name: str = "train"
-            library_data_folder = type_path_dict[data_type]
 
             clean_data_dir = get_file_path_relative(
                 f"{data_folder}/{clean_data_folder}/{library_data_folder}")
             clean_data_path = get_file_path_relative(
                 f"{clean_data_dir}/{main_data_file}")
             logger.info(f"Loading data from: {clean_data_path}")
-        assert exists(clean_data_path)
+        else:
+            clean_data_dir = dirname(clean_data_path)
+
+
+        if not exists(clean_data_path):
+            tar_input_path_abs = join(clean_data_dir, 'data.tar.gz')
+            if not exists(tar_input_path_abs):
+                from shared.config import PRODUCTION
+                if not PRODUCTION:
+                    raise ValueError(
+                        f'cannot find saved model tar file at path: {tar_input_path_abs}')
+                s3_client = boto3.client('s3')
+                s3_file_path = join(library_data_folder, basename(tar_input_path_abs))
+                with open(tar_input_path_abs, 'wb') as file:
+                    s3_client.download_fileobj(
+                        datasets_bucket_name, s3_file_path, file)
+
+            with tarfile.open(tar_input_path_abs) as tar:
+                tar.extractall(clean_data_dir)
+
+            if not exists(clean_data_path):
+                raise ValueError(f'cannot find path {clean_data_path}')
+
+
         imported_data = pd.read_csv(clean_data_path, index_col=0)
         imported_data["imports"] = imported_data["imports"].apply(
             lambda x: ast.literal_eval(x))
@@ -226,17 +276,44 @@ class GraphModel(BaseModel):
             f"{data_folder}/{models_folder}/{folder_name}")
 
         logger.info("Saving graph")
-        nx.write_gpickle(self.graph, join(
-            graph_output_path, inter_library_graph_file))
+        graph_file = join(
+            graph_output_path, inter_library_graph_file)
+        nx.write_gpickle(self.graph, graph_file)
 
         logger.info("Saving vectorization model")
-        self.model.save(
-            join(graph_output_path, inter_library_tokenization_model_path))
+        model_folder = join(graph_output_path, inter_library_tokenization_model_path)
+        self.model.save(model_folder)
 
         logger.info("Saving vocabulary")
-        with open(join(graph_output_path, inter_library_vocabulary_file), "w") as f:
+        vocab_file = join(graph_output_path, inter_library_vocabulary_file)
+        with open(vocab_file, "w") as f:
             yaml.dump(self.vocabulary, stream=f,
                       explicit_start=True, default_flow_style=False)
+        
+        output_file = join(graph_output_path, "model.tar.gz")
+        try:
+            remove(output_file)
+            logger.warning(f"Output file found at {output_file} deleting...")
+        except FileNotFoundError:
+            logger.info("Did not find output file to remove, directory appears to be clean")
+        except Exception as err: 
+            logger.error("Fatal error in _save_graph_state")
+            raise err
+
+        # zip the whole folder
+        with tarfile.open(output_file, 'w:gz') as tar:
+            tar.add(graph_file, arcname=basename(graph_file))
+            tar.add(model_folder, arcname=basename(model_folder))
+            tar.add(vocab_file, arcname=basename(vocab_file))
+
+        from shared.config import PRODUCTION
+
+        if PRODUCTION:
+            s3_client = boto3.resource('s3')
+            s3_filepath = join(basename(dirname(output_file)), basename(output_file))
+            obj = s3_client.Object(bucket_name, s3_filepath)
+            with open(output_file, 'rb') as tar:
+                obj.put(Body=tar)
 
     def _get_n_nearest_libraries(self, base_library: Union[str, int], n: int) -> List[Tuple[str, int]]:
         """
@@ -269,7 +346,7 @@ class GraphModel(BaseModel):
         return [(self.vocabulary[e[1]], e[2]["weight"]) for e in edges]
 
     def predict(self, library: Union[int, str], **kwargs) -> List[Tuple[str, int]]:
-        """#
+        """
         Calls a wrapper method to predict the n-nearest libraries
 
         https://stackoverflow.com/questions/47832762/python-safe-dictionary-key-access

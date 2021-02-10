@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 main file
 
@@ -28,14 +28,14 @@ def main() -> None:
 
     # dataload type
     parser.add_argument('--type', type=str,
-                        choices=NLPType.get_values())
+                        choices=[NLPType.language.name])
 
     # optional arguments
     args = parser.parse_args()
 
     if args.type is None:
         raise ValueError(
-            f'No type argument provided for training\nValid choices are: --type={NLPType.get_values()}')
+            f'No type argument provided for training\nValid choices are: --type="language"')
 
     training_main(NLPType(args.type), ModelMode.initial_training)
 

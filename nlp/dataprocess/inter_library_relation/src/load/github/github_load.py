@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 load data from github 
 """
@@ -82,7 +82,8 @@ def dataload(dataload_type: NLPType, dataset_length: int = default_dataset_lengt
         id_key: str = "id"
         filename_key: str = "filename"
         file_extension_regex: str = ".java"
-        assert(file_extension_regex.startswith("."))  # If not, this will break...
+        # If not, this will break...
+        assert(file_extension_regex.startswith("."))
 
         query: str = f"""
         #
@@ -123,7 +124,8 @@ def main(dataload_type: NLPType, clean_dir: bool = True):
         logger.info("Initiating Directory Cleaning")
         folder_name = type_path_dict[dataload_type]
         clean_directory(
-            get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}'), 
+            get_file_path_relative(
+                f'{data_folder}/{datasets_folder}/{folder_name}'),
             ["dat", "csv"]
         )
         logger.success("Directory Cleaning Complete")

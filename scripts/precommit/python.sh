@@ -7,7 +7,13 @@ cd "../../$1"
 
 source $(conda info --base)/etc/profile.d/conda.sh
 
-env_name=$(grep 'name:' environment.yml | cut -d ' ' -f 2)
+env_file=environment.yml
+
+if ! [ -z "$2" ]; then
+  env_file="$2"
+fi
+
+env_name=$(grep 'name:' "$env_file" | cut -d ' ' -f 2)
 conda activate $env_name
 
 # format files
@@ -20,7 +26,7 @@ pylint src
 mypy src --ignore-missing-imports
 
 # save current environment to file
-conda env export --no-builds | grep -v "^prefix: " > environment.yml
+conda env export --no-builds | grep -v "^prefix: " > "$env_file"
 
 # alternative:
 # conda list -e | sed -E "s/^(.*\=.*)(\=.*)/\1/" > requirements.txt

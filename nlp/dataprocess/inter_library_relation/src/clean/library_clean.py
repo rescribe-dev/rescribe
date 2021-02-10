@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 clean data
 """
@@ -21,19 +21,24 @@ if __name__ == '__main__':
 #################################
 
 from asyncio import get_event_loop
-from clean.github.github_clean import main as dataclean
+from clean.github.github_clean import main as github_clean
+from clean.utils.clean_utils import save_to_s3
+from shared.config import read_config
 from shared.file_extensions import FileExtensions
 from shared.type import NLPType
 from loguru import logger
+
 
 @logger.catch
 async def main():
     """
     main clean data script
     """
-    await dataclean(NLPType.library_relation, [FileExtensions.java])
-
+    cleaning_type: NLPType = NLPType.library_relation
+    await github_clean(cleaning_type, [FileExtensions.java])
+    save_to_s3(cleaning_type)
 
 if __name__ == '__main__':
+    read_config()
     loop = get_event_loop()
     loop.run_until_complete(main())

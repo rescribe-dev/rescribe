@@ -14,3 +14,7 @@ Here's a list of things that should be avoided when developing code for rescribe
 - Forget to lint. Always lint, and make sure the precommit hooks are running for git, so you won't have to worry about it in the future. Not linting code can result in inconsistent code styling and problems in the future.
 - Add documentation to random places. All documentation should be added to the `docs/docs` folder. If it's added in other places, it will cause unnecessary deployment builds whenever the documentation needs to be changed. By keeping the documentation in one place, only the documentation website will rebuild when new documentation is added. Which is what we want. This means avoid having random `README.md` files everywhere.
 - For web, you should really avoid using caching in chrome. Either figure out a way to disable it completely, or alternatively use Firefox private tabs, which always seem to work.
+
+## AWS
+
+- for cloud9 to get the url for previews, use this command: `curl http://169.254.169.254/latest/meta-data/public-ipv4`

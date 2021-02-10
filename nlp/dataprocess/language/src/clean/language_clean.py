@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 clean data
 """
@@ -20,7 +20,8 @@ if __name__ == '__main__':
         pass
 #################################
 
-from clean.stackoverflow.stackoverflow_clean import main as dataclean
+from clean.stackoverflow.stackoverflow_clean import main as stackoverflow_clean
+from clean.utils.clean_utils import save_to_s3
 from shared.type import NLPType
 from loguru import logger
 
@@ -30,7 +31,10 @@ def main():
     """
     main clean data script
     """
-    dataclean(NLPType.language)
+    cleaning_type: NLPType = NLPType.language
+
+    stackoverflow_clean(cleaning_type)
+    save_to_s3(cleaning_type)
 
 
 if __name__ == '__main__':

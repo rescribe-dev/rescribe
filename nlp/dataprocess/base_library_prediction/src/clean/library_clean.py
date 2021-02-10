@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 clean data
 """
@@ -20,8 +20,11 @@ if __name__ == '__main__':
         pass
 #################################
 
-from clean.maven.maven_index import main as dataclean
+from clean.maven.maven_clean import main as maven_clean
+from clean.maven.maven_index import main as maven_index
+from clean.utils.clean_utils import save_to_s3
 from shared.type import NLPType, LanguageType
+from config import read_config_base_library_predict
 from loguru import logger
 
 @logger.catch
@@ -29,8 +32,13 @@ def main():
     """
     main clean data script
     """
-    dataclean(NLPType.base_library, LanguageType.java)
+    cleaning_type: NLPType = NLPType.base_library
 
+    maven_clean(cleaning_type, LanguageType.java)
+    save_to_s3(cleaning_type)
+
+    maven_index(cleaning_type, LanguageType.java)
 
 if __name__ == '__main__':
+    read_config_base_library_predict()
     main()

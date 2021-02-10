@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Utility functions for NLP
 """
@@ -10,6 +10,7 @@ from enum import Enum
 from pathlib import Path
 from loguru import logger
 from typing import List, Dict, Optional, Any, Iterable
+from glob import glob
 
 
 def enum_to_dict(enum: Enum) -> Dict[str, Any]:
@@ -72,11 +73,11 @@ def get_file_path_relative(path):
     return abspath(join(nlp_path, path))
 
 
-def list_files(directory, extension) -> List[str]:
+def list_files(directory, search) -> List[str]:
     """
     list files
     """
-    return [f for f in listdir(directory) if f.endswith('.' + extension)]
+    return glob(join(directory, search))
 
 
 def clean_directory(directory: str, extensions: Iterable) -> None:
@@ -95,7 +96,7 @@ def clean_directory(directory: str, extensions: Iterable) -> None:
 
     filepaths: List[str] = []
     for extension in extensions:
-        filepaths += list_files(directory, extension)
+        filepaths += list_files(directory, f'*.{extension}')
 
     for filepath in filepaths:
         remove(join(directory, filepath))

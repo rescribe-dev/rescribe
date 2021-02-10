@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
     Training and model construction for bert classifiers
 """
@@ -15,7 +15,7 @@ from glob import glob
 from tqdm import tqdm
 from loguru import logger
 from os import remove
-from os.path import join, exists, basename
+from os.path import join, exists, basename, dirname
 from typing import List
 
 from sklearn.model_selection import train_test_split
@@ -27,7 +27,7 @@ from shared.Prediction import Prediction
 from shared.type import NLPType, ModelMode
 from shared.utils import list_files, get_file_path_relative
 from shared.variables import clean_data_folder, batch_size, do_lower_case, max_sequence_length, holdout, albert, \
-    data_folder, models_folder, checkpoint_file, classes_file, type_path_dict, bucket_name
+    data_folder, models_folder, checkpoint_file, classes_file, type_path_dict, bucket_name, datasets_bucket_name
 
 
 class BertModel(BaseModel):
@@ -71,15 +71,14 @@ class BertModel(BaseModel):
             self.model = self.create_model()
             self._fit()
             self.evaluate()
+            self.save_to_s3()
 
         elif self.mode == ModelMode.load_pretrained:
             logger.info("Loading pretrained BERT model")
-            from shared.config import PRODUCTION
-            s3_client = boto3.client('s3')
 
             self.model_abs = get_file_path_relative(
                 f'{data_folder}/{models_folder}/{self.folder_name}/{checkpoint_file}')
-            logger.error(self.model_abs)
+            logger.info("path: {self.model_abs}")
             tarfile_model_output_dir: str = get_file_path_relative(
                 f'{data_folder}/{models_folder}/{self.folder_name}/model.tar.gz')
 
@@ -88,15 +87,17 @@ class BertModel(BaseModel):
                 tar_input_path_abs = get_file_path_relative(
                     tarfile_model_output_dir)
                 if not exists(tar_input_path_abs):
+                    from shared.config import PRODUCTION
                     if not PRODUCTION:
                         raise ValueError(
                             f'cannot find saved model tar file at path: {tar_input_path_abs}')
+                    s3_client = boto3.client('s3')
                     with open(tar_input_path_abs, 'wb') as file:
                         s3_client.download_fileobj(
                             bucket_name, basename(tar_input_path_abs), file)
 
                 with tarfile.open(tar_input_path_abs) as tar:
-                    tar.extractall(self.model_abs)
+                    tar.extractall(get_file_path_relative(f'{data_folder}/{models_folder}'))
 
             if not exists(self.model_index):
                 raise ValueError('cannot find model files')
@@ -164,12 +165,35 @@ class BertModel(BaseModel):
         """
         load "clean" data from the approriate clean data folder
         """
-        clean_data_folder_rel = get_file_path_relative(
+        clean_data_dir = get_file_path_relative(
             f'{data_folder}/{clean_data_folder}/{self.folder_name}')
-        _clean_data_paths = list_files(clean_data_folder_rel, "csv")
-        _indexes = [int(path.split(".")[0]) for path in _clean_data_paths]
-        clean_data_file_paths = [join(clean_data_folder_rel, path)
-                                 for path in _clean_data_paths]
+        clean_data_paths = list_files(clean_data_dir, "*.csv")
+
+        if len(clean_data_paths) == 0:
+            tar_input_path_abs = join(clean_data_dir, 'data.tar.gz')
+            if not exists(tar_input_path_abs):
+                from shared.config import PRODUCTION
+                if not PRODUCTION:
+                    raise ValueError(
+                        f'cannot find saved model tar file at path: {tar_input_path_abs}')
+                s3_client = boto3.client('s3')
+                s3_file_path = join(self.folder_name, basename(tar_input_path_abs))
+                logger.info(s3_file_path)
+                with open(tar_input_path_abs, 'wb') as file:
+                    s3_client.download_fileobj(
+                        datasets_bucket_name, s3_file_path, file)
+
+            with tarfile.open(tar_input_path_abs) as tar:
+                tar.extractall(clean_data_dir)
+
+            clean_data_paths = list_files(clean_data_dir, "*.csv")
+
+            if len(clean_data_paths) == 0:
+                raise ValueError(f'cannot find path {clean_data_dir}')
+
+        _indexes = [int(basename(path).split(".")[0]) for path in clean_data_paths]
+        clean_data_file_paths = [join(clean_data_dir, path)
+                                 for path in clean_data_paths]
 
         data: pd.DataFrame = pd.DataFrame()
 
@@ -331,6 +355,38 @@ class BertModel(BaseModel):
         # input_ids, input_masks, input_segments, model = get_embedding_layer(config)
 
         return model
+
+    def save_to_s3(self):
+        """
+        Save the trained model to s3
+        """
+        checkpoint_path = get_file_path_relative(
+                f'{data_folder}/{models_folder}/{self.folder_name}')
+        
+        output_file: str = get_file_path_relative(
+            f'{data_folder}/{models_folder}/{self.folder_name}/model.tar.gz')
+            
+        try:
+            remove(output_file)
+            logger.warning(f"Output file found at {output_file} deleting...")
+        except FileNotFoundError:
+            logger.info("Did not find output file to remove, directory appears to be clean")
+        except Exception as err: 
+            logger.error("Fatal error in save_to_s3 for bert")
+            raise err
+
+        # zip the whole folder
+        with tarfile.open(output_file, 'w:gz') as tar:
+            tar.add(checkpoint_path, arcname=basename(checkpoint_path))
+
+        from shared.config import PRODUCTION
+
+        if PRODUCTION:
+            s3_client = boto3.resource('s3')
+            s3_filepath = join(basename(dirname(output_file)), basename(output_file))
+            obj = s3_client.Object(bucket_name, s3_filepath)
+            with open(output_file, 'rb') as tar:
+                obj.put(Body=tar)
 
     @staticmethod
     def _get_embedding_layer(config):

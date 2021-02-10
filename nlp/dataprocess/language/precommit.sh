@@ -4,6 +4,6 @@ set -e
 
 cd ../../../scripts/precommit
 
-./python.sh nlp/dataprocess/language
+./python.sh nlp/dataprocess/language ../environment.yml
 
 cd -

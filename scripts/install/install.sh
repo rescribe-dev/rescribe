@@ -53,9 +53,11 @@ cd scripts/install
 
 cd -
 
+conda activate base
+
 # python
-python_paths=("nlp/dataprocess/language" "nlp/dataprocess/library" \
-  "nlp/deployment" "nlp/training/bert" "aws/sagemaker/deploy")
+python_paths=("nlp/dataprocess/" "nlp/training/" \
+              "nlp/deployment/" "aws/sagemaker/deploy")
 
 for path in "${python_paths[@]}"
 do
@@ -65,3 +67,5 @@ do
   conda env create --file ./environment.yml
   cd -
 done
+
+conda deactivate

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 main file
 
@@ -20,7 +20,8 @@ def main() -> None:
     """
     read_config()
     for model_type in NLPType:
-        initialize_models(model_type)
+        if model_type is not NLPType.base_library:
+            initialize_models(model_type)
     start_server()
 
 

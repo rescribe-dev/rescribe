@@ -29,8 +29,8 @@ do
   fi
 done
 
-script_paths=("antlr/" "fast/" "nlp/dataprocess/language/" "nlp/dataprocess/library/" \
-  "nlp/deployment/" "nlp/training/bert/" "aws/sagemaker/deploy/")
+script_paths=("antlr/" "fast/" "nlp/dataprocess/base_library_prediction/" "nlp/dataprocess/inter_library_relation/" \
+  "nlp/dataprocess/language/" "nlp/deployment/" "nlp/training/bert/" "nlp/training/inter_library_relation/" "aws/sagemaker/deploy/")
 
 for path in "${script_paths[@]}"
 do

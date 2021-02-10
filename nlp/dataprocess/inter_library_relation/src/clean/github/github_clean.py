@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 make a request to the ANTLR API and return parsed files
 parse out all of the import statements from the incoming JSON files
@@ -64,13 +64,14 @@ async def main(nlp_type: NLPType, extensions: List[FileExtensions], clean_dir: b
         logger.info("Initiating Directory Cleaning")
         folder_name = type_path_dict[nlp_type]
         clean_directory(
-            get_file_path_relative(f'{data_folder}/{clean_data_folder}/{folder_name}'), 
+            get_file_path_relative(
+                f'{data_folder}/{clean_data_folder}/{folder_name}'),
             ["dat", "csv"]
         )
         logger.success("Directory Cleaning Complete")
 
     logger.info("Retrieving filepaths")
-  
+
     data_path: str = get_file_path_relative(
         f"{data_folder}/{datasets_folder}/{library_data_folder}")
     # Folder where the data will be stored, clean
@@ -83,7 +84,7 @@ async def main(nlp_type: NLPType, extensions: List[FileExtensions], clean_dir: b
     for item in extensions:
         for extension in item.value:
             filepaths += [join(data_path, file_name)
-                          for file_name in list_files(data_path, extension)]
+                          for file_name in list_files(data_path, f'*.{extension}')]
             # extension = 'java' or 'cpp'
 
     logger.info("Making post requests")
@@ -92,13 +93,16 @@ async def main(nlp_type: NLPType, extensions: List[FileExtensions], clean_dir: b
     async with ClientSession(timeout=timeout) as session:
         for abs_file_path in tqdm(filepaths):
             try:
+                # TODO - load from config
                 parsed_file = await post(session, "http://localhost:8081/processFile", abs_file_path)
             except Exception as err:
-                logger.error(f"Error for path: {abs_file_path}\nAre you sure ANTLR is running?")
-                exit()
+                logger.error(
+                    f"Error for path: {abs_file_path}\nAre you sure ANTLR is running?")
+                raise err
+
             json_data = json.loads(parsed_file)
             import_key: str = "imports"
-            
+
             if import_key not in json_data:
                 continue
 

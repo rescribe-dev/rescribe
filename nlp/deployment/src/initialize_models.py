@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Load in the bert model from disk
 """
@@ -20,6 +20,7 @@ if __name__ == '__main__':
         pass
 #################################
 from sys import argv
+from loguru import logger
 from typing import Optional, Any
 
 from library_relation.load_model.main import main as load_library_relation_model
@@ -44,19 +45,27 @@ def main(model_type: Optional[NLPType] = None):
     global library_relation_model
 
     if model_type == NLPType.language:
+        logger.info("Loading language bert model")
         language_model = BertModel(model_type, mode=ModelMode.load_pretrained)
+        logger.success("Loaded language bert model")
+        return
 
     if model_type == NLPType.base_library:
+        logger.info("Loading base library bert model")
         base_library_model = BertModel(
             model_type, mode=ModelMode.load_pretrained)
+        logger.success("Loaded base library bert model")
+        return
 
     if model_type == NLPType.library_relation:
+        logger.info("Loading library relation model")
         library_relation_model = load_library_relation_model(
             NLPType.library_relation)
+        logger.success("Loaded library relation model")
+        return
 
-    else:
-        raise ValueError(
-            f"Input model_type <{model_type}> is invalid, expected <{NLPType.get_values()}>")
+    raise ValueError(
+        f"Input model_type <{model_type}> is invalid, expected <{NLPType.get_values()}>")
 
 
 if __name__ == "__main__":
