@@ -23,6 +23,7 @@ import { predictLanguage, predictLibrary } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
 import parseQueryLanguage, { languageKey } from './queryLanguage';
+import esb from 'elastic-builder';
 
 const logger = getLogger();
 
@@ -151,9 +152,9 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   if (args.onlyUser && !user) {
     throw new Error('cannot get only user files when not logged in');
   }
-  const filterPermissions: TermQuery[] = [];
-  let filterPath: TermQuery[] = [];
-  const queryFilters: Record<string, unknown>[] = [];
+  const filterPermissions: esb.Query[] = [];
+  let filterPath: esb.Query[] = [];
+  const queryFilters: esb.NestedQuery[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
@@ -192,37 +193,18 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       }
     }
     if (args.name && args.branches && args.repositories && args.path) {
-      filterPath = filterPath.concat([{
-        term: {
-          name: args.name
-        }
-      },
-      {
-        term: {
-          path: args.path
-        }
-      },
-      {
-        term: {
-          branch: args.branches[0]
-        }
-      },
-      {
-        term: {
-          repository: args.repositories[0]
-        }
-      }
+      filterPath = filterPath.concat([
+        esb.termQuery('name', args.name),
+        esb.termQuery('path', args.path),
+        esb.termQuery('branch', args.branches[0]),
+        esb.termQuery('repository', args.repositories[0].toHexString()),
       ]);
     } else {
-      filterPath.push({
-        term: {
-          _id: args.file?.toHexString()
-        }
-      });
+      filterPath.push(esb.termQuery('_id', args.file?.toHexString()));
     }
   }
 
-  const repositoryFilters: TermQuery[] = [];
+  const repositoryFilters: esb.Query[] = [];
 
   if (!oneFile && args.projects && args.projects.length > 0) {
     if (!user) {
@@ -236,11 +218,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         throw new Error('user does not have access to project');
       }
       for (const repositoryID of project.repositories) {
-        repositoryFilters.push({
-          term: {
-            repository: repositoryID.toHexString()
-          }
-        });
+        repositoryFilters.push(esb.termQuery('repository', repositoryID.toHexString()));
       }
     }
   }
@@ -259,33 +237,19 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           throw new Error('user does not have access to repository');
         }
       }
-      repositoryFilters.push({
-        term: {
-          repository: repositoryID.toHexString()
-        }
-      });
+      repositoryFilters.push(esb.termQuery('repository', repositoryID.toHexString()));
     }
   }
 
   if (!oneFile && args.path) {
-    filterPath.push({
-      term: {
-        path: args.path
-      }
-    });
+    filterPath.push(esb.termQuery('path', args.path));
   }
 
   const languageFilters: TermQuery[] = [];
   if (!oneFile) {
     if (args.languages) {
-      if (args.languages.length > 0) {
-        for (const language of args.languages) {
-          languageFilters.push({
-            term: {
-              language
-            }
-          });
-        }
+      for (const language of args.languages) {
+        languageFilters.push(esb.termQuery('language', language));
       }
     } else if (args.query && configData.CONNECT_NLP) {
       // get the language from nlp
@@ -305,11 +269,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
             name: Language.none,
             score: 0
           });
-          languageFilters.push({
-            term: {
-              language: bestLanguage.name
-            }
-          });
+          languageFilters.push(esb.termQuery('language': bestLanguage.name));
           const libraryPrediction = await predictLibrary({
             query: args.query,
             language: bestLanguage.name,
@@ -324,11 +284,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       const queryLanguageRes = parseQueryLanguage(args.query);
       if (queryLanguageRes.hasData) {
         for (const language of queryLanguageRes.data[languageKey]) {
-          languageFilters.push({
-            term: {
-              language: language
-            }
-          });
+          languageFilters.push(esb.termQuery('language': language));
         }
       }
     }
@@ -337,53 +293,34 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   if (!oneFile && args.branches && args.branches.length > 0) {
     hasStructureFilter = true;
     for (const branch of args.branches) {
-      filterPermissions.push({
-        term: {
-          branches: branch
-        }
-      });
+      filterPermissions.push(esb.termQuery('branches', branch));
     }
   }
 
   if (!oneFile && !hasStructureFilter) {
     if (args.onlyUser === undefined || !args.onlyUser) {
       // include public files too
-      filterPermissions.push({
-        term: {
-          public: AccessLevel.view
-        }
-      });
+      filterPermissions.push(esb.termQuery('public', AccessLevel.view));
     }
     if (user) {
       if (user.repositories.length === 0) {
         return null;
       }
       for (const repository of user.repositories) {
-        filterPermissions.push({
-          term: {
-            repository: repository._id.toHexString()
-          }
-        });
+        filterPermissions.push(esb.termQuery('repository', repository._id.toHexString()));
       }
-      filterPermissions.push({
-        term: {
-          public: AccessLevel.view
-        }
-      });
-      filterPermissions.push({
-        term: {
-          public: AccessLevel.edit
-        }
-      });
+      filterPermissions.push(esb.termQuery('public', AccessLevel.view));
+      filterPermissions.push(esb.termQuery('public', AccessLevel.edit));
     }
   }
-  const highlight: Record<string, unknown> = {
-    fields: {
-      '*': {}
-    },
-    pre_tags: [''],
-    post_tags: ['']
-  };
+  // const highlight: Record<string, unknown> = {
+  //   fields: {
+  //     '*': {}
+  //   },
+  //   pre_tags: [''],
+  //   post_tags: ['']
+  // };
+  const highlight = esb.highlight().fields(['*']).preTags('').postTags('');
   if (!args.baseFileOnly) {
     for (const nestedField of nestedFields) {
       // TODO - tweak this to get it faster - boosting alternatives
@@ -408,14 +345,19 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     }
   }
   if (args.query) {
-    const fieldsQuery: Record<string, unknown> = {
-      multi_match: {
-        query: args.query,
-        fields: args.baseFileOnly ? baseMainFields : mainFields
-      }
-    };
+    const fieldsQuery = esb.multiMatchQuery(args.baseFileOnly ? baseMainFields : mainFields, args.query);
     queryFilters.push(fieldsQuery);
   }
+  let requestBody = esb.requestBodySearch().query(
+    esb.boolQuery()
+      .should(queryFilters)
+      .filter([
+        esb.boolQuery().should(filterPermissions),
+        esb.boolQuery().must(filterPath),
+        esb.boolQuery().should(languageFilters),
+        esb.boolQuery().should(repositoryFilters),
+      ])
+  )
   const searchParams: RequestParams.Search = {
     index: fileIndexName,
     body: {
@@ -517,3 +459,8 @@ class FilesResolver {
 }
 
 export default FilesResolver;
+
+}
+
+export default FilesResolver;
+esolver;
