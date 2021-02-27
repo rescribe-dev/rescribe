@@ -1,1 +1,11 @@
 // custom styles
+
+.light {
+  --bg-image-color: var(--soft-background);
+  --bg-card-color: white;
+}
+
+.dark {
+  --bg-image-color: var(--gray5);
+  --bg-card-color: var(--gray6);
+}

@@ -7,7 +7,7 @@ const Footer = (): JSX.Element => {
   return (
     <footer
       style={{
-        backgroundColor: 'var(--soft-background)',
+        backgroundColor: 'var(--bg-footer)',
         paddingTop: '2rem',
       }}
     >

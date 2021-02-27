@@ -43,7 +43,7 @@ const HowToUse = (): JSX.Element => {
         margin: 0,
         paddingTop: '5rem',
         borderRadius: 0,
-        backgroundColor: 'var(--gray1)',
+        backgroundColor: 'var(--bg-how-to-use)',
         clipPath: 'polygon(100% 0%, 0% 10%, 0% 100%, 100% 100%)',
       }}
     >

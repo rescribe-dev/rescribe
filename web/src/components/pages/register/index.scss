@@ -1,1 +1,9 @@
 // custom styling
+
+.light {
+  --bg-signup: white;
+}
+
+.dark {
+  --bg-signup: var(--gray6);
+}

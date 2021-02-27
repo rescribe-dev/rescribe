@@ -1,1 +1,9 @@
 // put custom styles here
+
+.light {
+  --bg-login: white;
+}
+
+.dark {
+  --bg-login: var(--gray6);
+}

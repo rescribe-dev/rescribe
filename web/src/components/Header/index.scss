@@ -1,5 +1,12 @@
 // custom styles
 
+.navbar-background {
+  background-color: var(--bg-nav);
+}
+.navbar-home-background {
+  background-color: transparent;
+}
+
 .nav-container-home {
   z-index: 5;
   top: 0;
@@ -13,7 +20,6 @@
 }
 
 .navbar-other {
-  background-color: var(--bg-nav);
   color: var(--text-nav);
 
   .navbar-link {
@@ -30,7 +36,6 @@
 }
 
 .navbar-home {
-  background-color: transparent;
   color: white;
 
   .navbar-nav .nav-link {

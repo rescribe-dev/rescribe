@@ -7,7 +7,7 @@
   --light-green: #2cda96;
   --pastel-red: #d9534f;
   --link-blue: #1373f5;
-  --soft-background: #e2f4f8;
+  --soft-background: #86c5da;
   --green-go: #31bc80;
   --red-stop: #f2453d;
 
@@ -37,14 +37,23 @@ $success: #31bc80;
   --text: var(--gray6);
   --text-nav: var(--purple-blue);
   --secondary-header: var(--purple-blue);
+  --bg-footer: var(--gray1);
 }
 
 .dark {
   --bg: var(--gray5);
-  --bg-nav: var(--dark-blue);
+  --bg-nav: var(--gray6);
   --text: var(--gray0);
-  --text-nav: var(--purple-blue);
+  --text-nav: var(--gray0);
   --secondary-header: var(--gray1);
+  --bg-footer: var(--gray6);
+}
+
+// input elements
+
+.dark input, .dark input:active {
+  background-color: var(--gray6) !important;
+  color: white !important;
 }
 
 // toast overrides

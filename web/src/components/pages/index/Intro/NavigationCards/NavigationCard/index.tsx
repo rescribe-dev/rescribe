@@ -18,10 +18,14 @@ interface NavCardArgs {
 
 const NavigationCard = (args: NavCardArgs): JSX.Element => {
   return (
-    <Card>
+    <Card
+      style={{
+        backgroundColor: 'var(--bg-card-color)',
+      }}
+    >
       <Container
         style={{
-          backgroundColor: 'var(--soft-background)',
+          backgroundColor: 'var(--bg-image-color)',
           paddingBottom: '1rem',
         }}
       >
