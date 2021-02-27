@@ -42,6 +42,6 @@ const server = createServer((req, res) => {
   });
 });
 
-server.listen(PORT.toString(), () => {
+server.listen(PORT.toString(), '0.0.0.0', () => {
   console.log(`app is listening on http://localhost:${PORT} 🚀`);
 });

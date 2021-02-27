@@ -13,36 +13,40 @@ export const getParentFolderPath = (filePath: string): PathData => {
   if (filePath.length === 0) {
     return {
       name: '',
-      path: ''
+      path: '',
     };
   }
   let lastSlash = filePath.lastIndexOf('/');
   if (lastSlash < 0) {
     return {
       name: '',
-      path: ''
+      path: '',
     };
   }
   if (lastSlash === 0) {
     return {
       name: baseFolderName,
-      path: baseFolderPath
+      path: baseFolderPath,
     };
   }
   const folderPathFull = filePath.substring(0, lastSlash);
   lastSlash = folderPathFull.lastIndexOf('/');
-  const path = lastSlash === 0 ?
-    folderPathFull.substring(0, 1)
-    : folderPathFull.substring(0, lastSlash);
+  const path =
+    lastSlash === 0
+      ? folderPathFull.substring(0, 1)
+      : folderPathFull.substring(0, lastSlash);
   return {
     name: folderPathFull.substring(lastSlash + 1),
-    path
+    path,
   };
 };
 
 const fullBasePath = '/';
 
-export const getParentFolderPaths = (filePath: string, reversed?: boolean): PathData[] => {
+export const getParentFolderPaths = (
+  filePath: string,
+  reversed?: boolean
+): PathData[] => {
   if (reversed === undefined) {
     reversed = true;
   }
@@ -52,7 +56,7 @@ export const getParentFolderPaths = (filePath: string, reversed?: boolean): Path
     const parentFolderData = getParentFolderPath(currentFolderPath);
     currentFolderPath = `${parentFolderData.path}${
       parentFolderData.path === fullBasePath ? '' : fullBasePath
-      }${parentFolderData.name}`;
+    }${parentFolderData.name}`;
     if (currentFolderPath !== fullBasePath) {
       parentFolders.push(parentFolderData);
     }

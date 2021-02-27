@@ -26,5 +26,5 @@ export const initializeServer = async (): Promise<void> => {
   });
   app.get('*', prerender);
   const httpServer = createServer(app);
-  httpServer.listen(configData.PORT, () => logger.info(`Prerendering service started: http://localhost:${configData.PORT} 🚀`));
+  httpServer.listen(configData.PORT, '0.0.0.0', () => logger.info(`Prerendering service started: http://localhost:${configData.PORT} 🚀`));
 };

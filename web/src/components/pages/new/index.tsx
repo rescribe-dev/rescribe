@@ -239,7 +239,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                   type: defaultType.value,
                   owner: defaultOwner ? defaultOwner.value : undefined,
                   project: defaultProject,
-                  publicAccessLevel: defaultPublicAccessLevel,
+                  publicAccessLevel: defaultPublicAccessLevel.value,
                   name: '',
                 }}
                 validationSchema={yup.object({
@@ -368,6 +368,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                       const project = formData.project.value.equals(noProjectID)
                         ? undefined
                         : formData.project.value;
+
                       const createRepositoryRes = await client.mutate<
                         AddRepositoryMutation,
                         AddRepositoryMutationVariables
@@ -376,7 +377,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                         variables: {
                           name: formData.name,
                           project,
-                          publicAccess: formData.publicAccessLevel.value,
+                          publicAccess: formData.publicAccessLevel,
                         },
                       });
                       if (createRepositoryRes.errors) {
@@ -400,6 +401,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                     }
                     setSubmitting(false);
                   } catch (err) {
+                    console.log(JSON.stringify(err, null, 2));
                     toast(err.message, {
                       type: 'error',
                     });
@@ -430,7 +432,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                         cacheOptions={true}
                         defaultValue={defaultType}
                         onChange={(
-                          selectedOption: ValueType<SelectTypeObject>
+                          selectedOption: ValueType<SelectTypeObject, false>
                         ) => {
                           if (!selectedOption) {
                             selectedOption = null;
@@ -477,7 +479,7 @@ const NewPage = (args: NewProps): JSX.Element => {
                         options={ownerOptions}
                         defaultValue={defaultOwner}
                         onChange={(
-                          selectedOption: ValueType<SelectOwnerObject>
+                          selectedOption: ValueType<SelectOwnerObject, false>
                         ) => {
                           if (!selectedOption) {
                             selectedOption = null;
@@ -529,7 +531,10 @@ const NewPage = (args: NewProps): JSX.Element => {
                             loadOptions={getProjects}
                             value={selectedProject}
                             onChange={(
-                              selectedOption: ValueType<SelectProjectObject>
+                              selectedOption: ValueType<
+                                SelectProjectObject,
+                                false
+                              >
                             ) => {
                               if (!selectedOption) {
                                 selectedOption = null;
@@ -581,7 +586,10 @@ const NewPage = (args: NewProps): JSX.Element => {
                             cacheOptions={true}
                             defaultValue={defaultPublicAccessLevel}
                             onChange={(
-                              selectedOption: ValueType<SelectPublicAccessObject>
+                              selectedOption: ValueType<
+                                SelectPublicAccessObject,
+                                false
+                              >
                             ) => {
                               if (!selectedOption) {
                                 selectedOption = null;

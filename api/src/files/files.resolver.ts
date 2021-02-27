@@ -6,14 +6,13 @@ import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import User, { UserModel } from '../schema/users/user';
-import { RequestParams, ApiResponse } from '@elastic/elasticsearch';
-import { TermQuery } from '../elastic/types';
+import { ApiResponse } from '@elastic/elasticsearch';
 import { checkProjectAccess } from '../projects/auth';
 import { AccessLevel } from '../schema/users/access';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { Min, Max, MinLength, ArrayMaxSize, ArrayUnique } from 'class-validator';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
-import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
+import { checkPaginationArgs } from '../elastic/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';
@@ -149,12 +148,14 @@ export const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]:
 export const search = async (user: User | null, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
+
   if (args.onlyUser && !user) {
     throw new Error('cannot get only user files when not logged in');
   }
+
   const filterPermissions: esb.Query[] = [];
   let filterPath: esb.Query[] = [];
-  const queryFilters: esb.NestedQuery[] = [];
+  const queryFilters: esb.Query[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
@@ -245,7 +246,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     filterPath.push(esb.termQuery('path', args.path));
   }
 
-  const languageFilters: TermQuery[] = [];
+  const languageFilters: esb.Query[] = [];
   if (!oneFile) {
     if (args.languages) {
       for (const language of args.languages) {
@@ -269,7 +270,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
             name: Language.none,
             score: 0
           });
-          languageFilters.push(esb.termQuery('language': bestLanguage.name));
+          languageFilters.push(esb.termQuery('language', bestLanguage.name));
           const libraryPrediction = await predictLibrary({
             query: args.query,
             language: bestLanguage.name,
@@ -284,7 +285,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       const queryLanguageRes = parseQueryLanguage(args.query);
       if (queryLanguageRes.hasData) {
         for (const language of queryLanguageRes.data[languageKey]) {
-          languageFilters.push(esb.termQuery('language': language));
+          languageFilters.push(esb.termQuery('language', language));
         }
       }
     }
@@ -313,35 +314,18 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       filterPermissions.push(esb.termQuery('public', AccessLevel.edit));
     }
   }
-  // const highlight: Record<string, unknown> = {
-  //   fields: {
-  //     '*': {}
-  //   },
-  //   pre_tags: [''],
-  //   post_tags: ['']
-  // };
+
   const highlight = esb.highlight().fields(['*']).preTags('').postTags('');
   if (!args.baseFileOnly) {
     for (const nestedField of nestedFields) {
       // TODO - tweak this to get it faster - boosting alternatives
       // use boost to make certain fields weighted higher than others
       // now use nlp approach
-      const currentQuery: Record<string, unknown> = args.query ? {
-        multi_match: {
-          query: args.query
-        }
-      } : {
-          match_all: {}
-        };
-      queryFilters.push({
-        nested: {
-          path: nestedField,
-          query: currentQuery,
-          inner_hits: {
-            highlight
-          }
-        }
-      });
+      const currentQuery: esb.Query = args.query ? esb.multiMatchQuery().query(args.query) : esb.matchAllQuery();
+
+      queryFilters.push(esb.nestedQuery().path(nestedField).query(currentQuery).innerHits(
+        esb.innerHits().highlight(highlight)
+      ));
     }
   }
   if (args.query) {
@@ -357,58 +341,15 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         esb.boolQuery().should(languageFilters),
         esb.boolQuery().should(repositoryFilters),
       ])
-  )
-  const searchParams: RequestParams.Search = {
-    index: fileIndexName,
-    body: {
-      query: {
-        bool: {
-          should: [
-            { // holds the query itself
-              bool: {
-                should: queryFilters
-              }
-            }
-          ],
-          filter: [ // filter is ignored from score
-            { // can match to any of should - holds permissions right now
-              bool: {
-                should: filterPermissions
-              }
-            }, // needs to match all in must
-            { // holds single file and / or path
-              bool: {
-                must: filterPath
-              }
-            }, // single category match for individuals
-            { // holds language filters
-              bool: {
-                should: languageFilters
-              }
-            },
-            { // holds repository filters
-              bool: {
-                should: repositoryFilters
-              }
-            }
-          ]
-        }
-      }, // https://discuss.elastic.co/t/providing-weight-to-individual-fields/63081/3
-      //https://stackoverflow.com/questions/39150946/highlight-in-elasticsearch
-      highlight,
-      sort: {
-        _score: {
-          order: 'desc'
-        }
-      }
-    }
-  };
-  if (!oneFile) {
-    setPaginationArgs(args, searchParams);
+  ).highlight(highlight).sort(esb.sort('_score', 'desc'));
+  if (!oneFile && args.page && args.perpage) {
+    requestBody = requestBody.from(args.page).size(args.perpage);
   }
-  logger.info(JSON.stringify(searchParams, null, 2));
   const startTime = new Date();
-  const elasticFileData = await elasticClient.search(searchParams);
+  const elasticFileData = await elasticClient.search({
+    index: fileIndexName,
+    body: requestBody.toJSON()
+  });
   logger.info(`search function time: ${new Date().getTime() - startTime.getTime()}`);
   return elasticFileData;
 };
@@ -459,8 +400,3 @@ class FilesResolver {
 }
 
 export default FilesResolver;
-
-}
-
-export default FilesResolver;
-esolver;

@@ -97,7 +97,8 @@ class BertModel(BaseModel):
                             bucket_name, basename(tar_input_path_abs), file)
 
                 with tarfile.open(tar_input_path_abs) as tar:
-                    tar.extractall(get_file_path_relative(f'{data_folder}/{models_folder}'))
+                    tar.extractall(get_file_path_relative(
+                        f'{data_folder}/{models_folder}'))
 
             if not exists(self.model_index):
                 raise ValueError('cannot find model files')
@@ -177,7 +178,8 @@ class BertModel(BaseModel):
                     raise ValueError(
                         f'cannot find saved model tar file at path: {tar_input_path_abs}')
                 s3_client = boto3.client('s3')
-                s3_file_path = join(self.folder_name, basename(tar_input_path_abs))
+                s3_file_path = join(
+                    self.folder_name, basename(tar_input_path_abs))
                 logger.info(s3_file_path)
                 with open(tar_input_path_abs, 'wb') as file:
                     s3_client.download_fileobj(
@@ -191,7 +193,8 @@ class BertModel(BaseModel):
             if len(clean_data_paths) == 0:
                 raise ValueError(f'cannot find path {clean_data_dir}')
 
-        _indexes = [int(basename(path).split(".")[0]) for path in clean_data_paths]
+        _indexes = [int(basename(path).split(".")[0])
+                    for path in clean_data_paths]
         clean_data_file_paths = [join(clean_data_dir, path)
                                  for path in clean_data_paths]
 
@@ -361,17 +364,18 @@ class BertModel(BaseModel):
         Save the trained model to s3
         """
         checkpoint_path = get_file_path_relative(
-                f'{data_folder}/{models_folder}/{self.folder_name}')
-        
+            f'{data_folder}/{models_folder}/{self.folder_name}')
+
         output_file: str = get_file_path_relative(
             f'{data_folder}/{models_folder}/{self.folder_name}/model.tar.gz')
-            
+
         try:
             remove(output_file)
             logger.warning(f"Output file found at {output_file} deleting...")
         except FileNotFoundError:
-            logger.info("Did not find output file to remove, directory appears to be clean")
-        except Exception as err: 
+            logger.info(
+                "Did not find output file to remove, directory appears to be clean")
+        except Exception as err:
             logger.error("Fatal error in save_to_s3 for bert")
             raise err
 
@@ -383,7 +387,8 @@ class BertModel(BaseModel):
 
         if PRODUCTION:
             s3_client = boto3.resource('s3')
-            s3_filepath = join(basename(dirname(output_file)), basename(output_file))
+            s3_filepath = join(basename(dirname(output_file)),
+                               basename(output_file))
             obj = s3_client.Object(bucket_name, s3_filepath)
             with open(output_file, 'rb') as tar:
                 obj.put(Body=tar)

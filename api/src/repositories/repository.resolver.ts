@@ -23,6 +23,10 @@ class RepositoryArgs {
   owner?: string;
 }
 
+// TODO - extract repo to a separate function
+
+
+
 @Resolver()
 class RepositoryResolver {
   @Query(_returns => Repository)

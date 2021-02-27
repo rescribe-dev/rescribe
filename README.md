@@ -1,4 +1,4 @@
-<img alt="reScribe" src="https://rescribe.dev/logo.svg" style="max-width: 500px">
+<img alt="reScribe Logo" src="https://rescribe.dev/logo.svg" style="max-width: 500px">
 
 > a better way to search code
 
@@ -45,18 +45,25 @@
 
 ## things we need to do for java specifically right now for a one language demo :)
 
+1. go through search line by line, make sure it's calling nlp correctly and getting good outputs
+  - note - this requires updating the parameters for elasticsearch & the overall query structure (a little) 
+2. go page by page and fix all the styling stuff in web. List at the bottom of readme. If there are extraneous requests, clean it up using field resolvers
+3. test full search stack, index a lot of files
+  - add limit to number of characters in file for parsing (we don't care about files that are super big because that'll break search) 
+
+
 - elasticsearch requests are not typed rn, which leads to a bunch of random errors. elasticsearch builder should help to fix that
 - debug with web & api
 - refactor portions of api graph model to include field resolvers as needed
 - in docs, development index run the curl command to get an ip address and then use that to view the output in your browser
-- 
+
 
 ### how to do this 
 
 - Need to spin up all of the produciton / dev servers and get data into elasticsearch (cloud develoepment servers)
 - This means cloning random java repositories and indexing them under the dev user (no premissions, just a login we share, we dont want everything controled by one account)
 - Search page - keep running until it works
-- How do you run the website from cloud nine and view the output and how do you access the graphql playground from cloud 9
+- How do you run the website from cloud nine and view the output and how do you access the graphql playground from cloud 9 - Done
 - we should write a guide on how to index things using the cli
 - 
 
@@ -138,3 +145,16 @@ so we want to write lazy resolvers for each layer of this query
 frontload the keyword search with keywords extracted from file documentaitno and definition names and use that to filter out the files along with public access
 need a compressed representation of data 
 +
+
+
+### Websites that need to be checked. Most important to least important
+
+Login
+Search
+Repository
+Account
+Profile
+Projects
+Repositories
+About
+Explore
