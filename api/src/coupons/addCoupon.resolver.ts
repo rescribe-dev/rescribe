@@ -46,7 +46,7 @@ class AddCouponResolver {
       percent_off: args.isPercent ? args.amount : undefined
     });
     const newCoupon: Coupon = {
-      _id: new ObjectId(),
+      _id: id,
       ...args
     };
     await new CouponModel(newCoupon).save();
