@@ -41,7 +41,7 @@ def read_config() -> None:
     global VERSION
 
     read_shared_config()
-    env_port: Union[str, None] = getenv('PORT')
+    env_port: Union[str, None] = getenv('NLP_PORT')
     PORT = DEFAULT_PORT if env_port is None else int(env_port)
     env_version: Union[str, None] = getenv('VERSION')
     VERSION = DEFAULT_VERSION if env_version is None else env_version
