@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardText, Card, CardBody } from 'reactstrap';
+import { CardText, Card, CardBody, Container } from 'reactstrap';
 import './index.scss';
 import logo from 'assets/images/logo.svg';
 import { Link } from 'gatsby';
@@ -15,11 +15,7 @@ const Description = (args: DescriptionArgs): JSX.Element => {
         marginTop: '31px',
       }}
     >
-      <CardText
-        style={{
-          textAlign: 'center',
-        }}
-      >
+      <Container className="text-center">
         <h2>
           {args.repo.split('/')[0]}&apos;s {args.repo.split('/')[1]}
         </h2>
@@ -27,7 +23,7 @@ const Description = (args: DescriptionArgs): JSX.Element => {
           See the rest here:{' '}
           <Link to={args.repo}>{args.repo.split('/')[1]}</Link>
         </h6>
-      </CardText>
+      </Container>
       <CardBody>
         <CardText
           style={{

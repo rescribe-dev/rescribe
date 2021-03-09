@@ -51,6 +51,7 @@ const indexFilesSubset = async (paths: string[], files: Buffer[], branch: string
       contentType: mimeType
     });
   }
+
   const formLength = form.getLengthSync();
   try {
     const source = axios.CancelToken.source();
@@ -67,6 +68,7 @@ const indexFilesSubset = async (paths: string[], files: Buffer[], branch: string
     clearTimeout(timeout);
     const apolloRes = res.data as ApolloQueryResult<ResIndex>;
     if (apolloRes.errors) {
+      console.log(JSON.stringify(apolloRes.errors, null, 2));
       throw new Error(apolloRes.errors.map((elem: GraphQLError) => elem.message).join(', '));
     } else {
       return apolloRes.data.indexFiles.trim();

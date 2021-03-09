@@ -158,3 +158,10 @@ Projects
 Repositories
 About
 Explore
+
+
+
+
+Bugs
+When indexing with the CLI and making a new repository, it will throw an error that the repo does not exist and then if you run it again the repo will show up and work as expected SOEMTIMES seems like a race condition
+Argument Validation Error : what is it?

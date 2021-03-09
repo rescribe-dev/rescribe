@@ -1,24 +1,27 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, {
+  useState,
+  useEffect,
+  ReactNode,
+  FunctionComponent,
+} from 'react';
 import { ApolloProvider } from '@apollo/react-hooks';
-import ApolloClient from 'apollo-client';
+import { ApolloClient, InMemoryCache, split, from } from '@apollo/client';
 import fetch from 'isomorphic-fetch';
-import { split, from } from 'apollo-link';
-import { HttpLink } from 'apollo-link-http';
-import { WebSocketLink } from 'apollo-link-ws';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
-import { getMainDefinition } from 'apollo-utilities';
 import { setContext } from 'apollo-link-context';
 import ws from 'ws';
 import { getAuthToken, isLoggedIn } from 'state/auth/getters';
 import { isSSR } from './checkSSR';
 import { useSecure } from './useSecure';
 import { toast } from 'react-toastify';
+import { createUploadLink } from 'apollo-upload-client';
+import { getMainDefinition } from '@apollo/client/utilities';
 
 export let client: ApolloClient<any>;
 
 export const initializeApolloClient = async (): Promise<void> => {
-  const defaultLink = new HttpLink({
+  const defaultLink = createUploadLink({
     uri: `${useSecure ? 'https' : 'http'}://${
       process.env.GATSBY_API_URL
     }/graphql`,
@@ -39,6 +42,7 @@ export const initializeApolloClient = async (): Promise<void> => {
     }
   });
 
+  // @ts-ignore
   const httpLink = from([httpMiddleware, defaultLink]);
   if (!process.env.GATSBY_API_URL) {
     throw new Error('no api url provided');
@@ -78,7 +82,9 @@ interface WrapApolloArgs {
   children?: ReactNode;
 }
 
-export const WrapApollo = (args: WrapApolloArgs): JSX.Element => {
+export const WrapApollo: FunctionComponent<WrapApolloArgs> = (
+  args: WrapApolloArgs
+) => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     (async () => {

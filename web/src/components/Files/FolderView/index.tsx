@@ -21,9 +21,8 @@ import {
 import { AiFillFolder, AiOutlineFile, AiFillDelete } from 'react-icons/ai';
 import ObjectId from 'bson-objectid';
 import { Link } from 'gatsby';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, ApolloQueryResult } from '@apollo/react-hooks';
 import { client } from 'utils/apollo';
-import { ApolloQueryResult } from 'apollo-client';
 import DeleteFolderModal from './DeleteFolderModal';
 import DeleteFileModal from './DeleteFileModal';
 
@@ -239,7 +238,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                     ...folders,
                     loading: false,
                     data: {
-                      folders: folders.data.folders.filter(
+                      folders: folders.data!.folders.filter(
                         (elem) => !(elem._id as ObjectId).equals(currentFolder)
                       ),
                     },
@@ -263,7 +262,7 @@ const FilesList = (args: FolderProps): JSX.Element => {
                     ...files,
                     loading: false,
                     data: {
-                      files: files.data.files.filter(
+                      files: files.data!.files.filter(
                         (elem) => !(elem._id as ObjectId).equals(currentFile)
                       ),
                     },

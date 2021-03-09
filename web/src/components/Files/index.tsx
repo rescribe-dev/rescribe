@@ -18,13 +18,13 @@ import {
   FileNameExists,
 } from 'lib/generated/datamodel';
 import ObjectId from 'bson-objectid';
-import { ApolloError } from 'apollo-client';
 import { WindowLocation } from '@reach/router';
 import { client } from 'utils/apollo';
 import FileView from './FileView';
 import FolderView from './FolderView';
 import { getFilePath } from 'shared/files';
 import { Link } from 'gatsby';
+import { ApolloError } from '@apollo/client';
 
 interface FilesProps {
   repositoryName: string;

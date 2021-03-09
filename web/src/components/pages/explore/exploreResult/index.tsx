@@ -1,4 +1,3 @@
-import { ExploreResultType } from 'locale/pages/explore/exploreMessages';
 import React from 'react';
 import { Row, Button, Col, Card, CardBody } from 'reactstrap';
 import './index.scss';
@@ -7,6 +6,14 @@ import './index.scss';
 For a repoUrl, the format will be below:
 author/repoName/pathfile/filename
 */
+export interface ExploreResultType {
+  repoUrl: string;
+  repoCode: string;
+  repoName: string;
+  repoLang: string;
+  repoDes: string;
+  selected: boolean;
+}
 
 const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
   const parts = args.repoUrl.split('/');
@@ -104,9 +111,9 @@ const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
           }}
         >
           <Col>
-            {args.repoCode.split('\n').map((line, index) => {
+            {args.repoCode.split('\n').map((line, i) => {
               return (
-                <Row key={index}>
+                <Row key={`explore-result-line-${i}`}>
                   <Col
                     style={{
                       color: '#999999',
@@ -115,7 +122,7 @@ const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
                     }}
                     sm="1"
                   >
-                    {index + 1}
+                    {i + 1}
                   </Col>
                   <Col
                     style={{

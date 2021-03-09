@@ -7,7 +7,7 @@ import { cacheData } from '../utils/config';
 import glob from 'glob';
 import prompts from 'prompts';
 import { isLoggedIn } from '../utils/authToken';
-import { basename, normalize } from 'path';
+import { normalize, sep, posix } from 'path';
 import yesNoPrompt from '../utils/boolPrompt';
 import { setRepoUtil } from './setRepository';
 import { getBranchUtil } from './getBranch';
@@ -100,11 +100,8 @@ export default async (args: Arguments<Args>): Promise<void> => {
       if (await isBinaryFile(buffer, stats.size)) {
         throw new Error(`file "${path}" is binary`);
       }
-      let cleanPath = args['include-path'] ?
-        // normalize the path
-        normalize(path)
-        // get just the file name
-        : basename(path);
+      // split join for windows nonsense
+      let cleanPath = normalize(path).split(sep).join(posix.sep);
       if (cleanPath[0] !== '/') {
         cleanPath = `/${cleanPath}`;
       }

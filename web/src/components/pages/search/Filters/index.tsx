@@ -31,7 +31,7 @@ import { toast } from 'react-toastify';
 import { thunkSearch } from 'state/search/thunks';
 import { SearchActionTypes } from 'state/search/types';
 import { AppThunkDispatch } from 'state/thunk';
-import { ApolloError } from 'apollo-client';
+import { ApolloError } from '@apollo/client';
 
 interface SelectObject {
   value: Language;
