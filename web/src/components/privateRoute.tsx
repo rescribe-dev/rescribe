@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { WindowLocation } from '@reach/router';
 
+const checkAuthInterval = 5; // check every few minutes
+
 interface PrivateRouteData {
   children?: ReactNode;
   location: WindowLocation;
@@ -13,24 +15,48 @@ interface PrivateRouteData {
 
 const PrivateRoute = (args: PrivateRouteData): JSX.Element => {
   const [isLoading, setLoading] = useState(true);
+
+  const getRedirect = (): string =>
+    `?redirect=${encodeURIComponent(
+      args.location.pathname + args.location.search
+    )}`;
+  const checkLoggedIn = async (): Promise<boolean> => {
+    try {
+      const loggedIn = await isLoggedIn();
+      if (!loggedIn) {
+        navigate('/login' + getRedirect());
+      }
+      return loggedIn;
+    } catch (_err) {
+      // handle error
+      navigate('/login' + getRedirect());
+      return false;
+    }
+  };
+
+  const [checkInterval, setCheckInterval] = useState<
+    ReturnType<typeof setInterval> | undefined
+  >(undefined);
+
   useEffect(() => {
     (async () => {
       // trigger check to see if user is logged in
-      const currentPath = args.location.pathname + args.location.search;
-      const redirectParams = `?redirect=${encodeURIComponent(currentPath)}`;
-      try {
-        const loggedIn = await isLoggedIn();
-        if (!loggedIn) {
-          navigate('/login' + redirectParams);
-        } else {
-          setLoading(false);
-        }
-      } catch (_err) {
-        // handle error
-        navigate('/login' + redirectParams);
+      if (await checkLoggedIn()) {
+        setLoading(false);
       }
     })();
+    setCheckInterval(
+      setInterval(async () => {
+        await checkLoggedIn();
+      }, checkAuthInterval * 60 * 1000)
+    );
+    return () => {
+      if (checkInterval) {
+        clearInterval(checkInterval);
+      }
+    };
   }, []);
+
   const currentlyLoggedIn = isSSR
     ? undefined
     : useSelector<RootState, boolean | undefined>(
@@ -39,9 +65,10 @@ const PrivateRoute = (args: PrivateRouteData): JSX.Element => {
   useEffect(() => {
     if (!currentlyLoggedIn) {
       setLoading(true);
-      navigate('/login');
+      navigate('/login' + getRedirect());
     }
   }, [currentlyLoggedIn]);
+
   return <>{isLoading ? null : args.children}</>;
 };
 

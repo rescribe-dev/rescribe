@@ -6,7 +6,6 @@ import { css } from '@emotion/core';
 import {
   Form,
   Button,
-  Label,
   Input,
   FormFeedback,
   FormGroup,
@@ -84,7 +83,8 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
     <>
       <Container
         style={{
-          marginTop: '4rem',
+          marginTop: '8rem',
+          marginBottom: '4rem',
         }}
       >
         <Row className="justify-content-center">
@@ -93,7 +93,12 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
               size: 4,
             }}
           >
-            <Card>
+            <Card
+              className="shadow rounded-lg"
+              style={{
+                backgroundColor: 'var(--bg-signup)',
+              }}
+            >
               <CardBody>
                 <h3
                   style={{
@@ -139,7 +144,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                         'password must contain at least one special character'
                       ),
                     confirmedPassword: yup.string().when('password', {
-                      is: (val) => val && val.length > 0,
+                      is: (val: string | undefined) => val && val.length > 0,
                       then: yup
                         .string()
                         .oneOf(
@@ -220,8 +225,8 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                     isSubmitting,
                   }) => (
                     <Form onSubmit={handleSubmit} className="underline-inputs">
-                      <FormGroup>
-                        <Label for="username">Username</Label>
+                      <FormGroup className="my-4">
+                        {/* <Label for="username">Username</Label> */}
                         <Input
                           id="username"
                           name="username"
@@ -234,20 +239,14 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                           invalid={!!(touched.username && errors.username)}
                           disabled={isSubmitting}
                         />
-                        <FormFeedback
-                          style={{
-                            marginBottom: '1rem',
-                          }}
-                          className="feedback"
-                          type="invalid"
-                        >
+                        <FormFeedback className="feedback mb-2" type="invalid">
                           {touched.username && errors.username
                             ? errors.username
                             : ''}
                         </FormFeedback>
                       </FormGroup>
                       <FormGroup>
-                        <Label for="email">Email</Label>
+                        {/* <Label for="email">Email</Label> */}
                         <Input
                           id="email"
                           name="email"
@@ -270,8 +269,8 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                           {touched.email && errors.email ? errors.email : ''}
                         </FormFeedback>
                       </FormGroup>
-                      <FormGroup>
-                        <Label for="password">Password</Label>
+                      <FormGroup className="my-4">
+                        {/* <Label for="password">Password</Label> */}
                         <Input
                           id="password"
                           name="password"
@@ -284,13 +283,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                           invalid={!!(touched.password && errors.password)}
                           disabled={isSubmitting}
                         />
-                        <FormFeedback
-                          style={{
-                            marginBottom: '1rem',
-                          }}
-                          className="feedback"
-                          type="invalid"
-                        >
+                        <FormFeedback className="feedback mb-2" type="invalid">
                           {touched.password && errors.password
                             ? errors.password
                             : ''}
@@ -298,10 +291,10 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                       </FormGroup>
                       {values.password.length === 0 ? null : (
                         <>
-                          <FormGroup>
-                            <Label for="confirmedPassword">
+                          <FormGroup className="my-4">
+                            {/* <Label for="confirmedPassword">
                               Confirm Password
-                            </Label>
+                            </Label> */}
                             <Input
                               id="confirmedPassword"
                               name="confirmedPassword"
@@ -326,10 +319,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                               disabled={isSubmitting}
                             />
                             <FormFeedback
-                              style={{
-                                marginBottom: '1rem',
-                              }}
-                              className="feedback"
+                              className="feedback mb-2"
                               type="invalid"
                             >
                               {touched.confirmedPassword &&
@@ -343,10 +333,7 @@ const RegisterPage = (args: RegisterProps): JSX.Element => {
                       <Button
                         type="submit"
                         color="primary"
-                        style={{
-                          width: '100%',
-                          borderRadius: '23px',
-                        }}
+                        className="w-100 p-2"
                         onClick={(evt: React.MouseEvent) => {
                           evt.preventDefault();
                           handleSubmit();

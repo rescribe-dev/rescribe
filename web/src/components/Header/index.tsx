@@ -47,6 +47,7 @@ import { capitalizeFirstLetter } from 'utils/misc';
 import { FiSettings } from 'react-icons/fi';
 import LanguageSelector from 'components/LanguageSelector';
 import ThemeSelector from 'components/ThemeSelector';
+import { Theme, darkThemes } from 'utils/theme';
 
 interface HeaderArgs {
   siteTitle: string;
@@ -118,21 +119,31 @@ const Header = (args: HeaderArgs): JSX.Element => {
     })();
   }, []);
 
+  const currentTheme = isSSR
+    ? undefined
+    : useSelector<RootState, Theme | undefined>(
+        (state) => state.settingsReducer.theme
+      );
+
   const transparentHeader = () =>
     pathname === homepagePath && !hamburgerIsVisible && !headerIsOpen;
 
   return (
-    <>
+    <div
+      className={
+        transparentHeader() ? 'navbar-home-background' : 'navbar-background'
+      }
+    >
       <Container
-        className={transparentHeader() ? 'nav-container-home' : ''}
+        className={transparentHeader() ? 'nav-container-home' : 'navbar-other'}
         style={{
           padding: 0,
         }}
       >
         <Navbar
           light
-          expand="md"
-          className={transparentHeader() ? 'navbar-home' : 'navbar-other'}
+          expand="lg"
+          className={transparentHeader() ? 'navbar-home' : ''}
         >
           <NavbarBrand
             style={{
@@ -142,7 +153,12 @@ const Header = (args: HeaderArgs): JSX.Element => {
             to="/"
           >
             <img
-              src={transparentHeader() ? logoWhite : logo}
+              src={
+                transparentHeader() ||
+                (currentTheme && darkThemes.includes(currentTheme))
+                  ? logoWhite
+                  : logo
+              }
               alt="reScribe"
               style={{
                 width: '9rem',
@@ -151,28 +167,42 @@ const Header = (args: HeaderArgs): JSX.Element => {
               }}
             />
           </NavbarBrand>
-          <VisibilitySensor
-            onChange={setHamburgerVisible}
-            partialVisibility={true}
+          <div
+            className={
+              currentTheme && darkThemes.includes(currentTheme)
+                ? 'navbar-dark'
+                : 'navbar-light'
+            }
           >
-            <NavbarToggler onClick={toggleHeader} />
-          </VisibilitySensor>
+            <VisibilitySensor
+              onChange={setHamburgerVisible}
+              partialVisibility={true}
+            >
+              <NavbarToggler onClick={toggleHeader} />
+            </VisibilitySensor>
+          </div>
           <Collapse isOpen={headerIsOpen} navbar>
             <Nav navbar className="mr-auto">
               <NavLink className="navbar-link" tag={Link} to="/start">
-                <FormattedMessage id="start">
-                  {(messages: string[]) => capitalizeFirstLetter(messages[0])}
-                </FormattedMessage>
+                <span>
+                  <FormattedMessage id="start">
+                    {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                  </FormattedMessage>
+                </span>
               </NavLink>
               <NavLink className="navbar-link" tag={Link} to="/pricing">
-                <FormattedMessage id="pricing">
-                  {(messages: string[]) => capitalizeFirstLetter(messages[0])}
-                </FormattedMessage>
+                <span>
+                  <FormattedMessage id="pricing">
+                    {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                  </FormattedMessage>
+                </span>
               </NavLink>
               <NavLink className="navbar-link" tag={Link} to="/explore">
-                <FormattedMessage id="explore">
-                  {(messages: string[]) => capitalizeFirstLetter(messages[0])}
-                </FormattedMessage>
+                <span>
+                  <FormattedMessage id="explore">
+                    {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                  </FormattedMessage>
+                </span>
               </NavLink>
               {loggedIn
                 ? [
@@ -182,11 +212,13 @@ const Header = (args: HeaderArgs): JSX.Element => {
                       to={username ? `/${username}/projects` : '#'}
                       key="projects"
                     >
-                      <FormattedMessage id="projects">
-                        {(messages: string[]) =>
-                          capitalizeFirstLetter(messages[0])
-                        }
-                      </FormattedMessage>
+                      <span>
+                        <FormattedMessage id="projects">
+                          {(messages: string[]) =>
+                            capitalizeFirstLetter(messages[0])
+                          }
+                        </FormattedMessage>
+                      </span>
                     </NavLink>,
                     <NavLink
                       className="navbar-link"
@@ -194,11 +226,13 @@ const Header = (args: HeaderArgs): JSX.Element => {
                       to={username ? `/${username}/repositories` : '#'}
                       key="repositories"
                     >
-                      <FormattedMessage id="repositories">
-                        {(messages: string[]) =>
-                          capitalizeFirstLetter(messages[0])
-                        }
-                      </FormattedMessage>
+                      <span>
+                        <FormattedMessage id="repositories">
+                          {(messages: string[]) =>
+                            capitalizeFirstLetter(messages[0])
+                          }
+                        </FormattedMessage>
+                      </span>
                     </NavLink>,
                   ]
                 : []}
@@ -399,7 +433,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
           </Collapse>
         </Navbar>
       </Container>
-    </>
+    </div>
   );
 };
 

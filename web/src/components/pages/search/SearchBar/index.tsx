@@ -69,7 +69,8 @@ const SearchBar = (): JSX.Element => {
             onSubmit={handleSubmit}
             style={{
               display: 'flex',
-              width: '100%',
+              width: '75%',
+              paddingLeft: '6rem',
             }}
           >
             <FormGroup

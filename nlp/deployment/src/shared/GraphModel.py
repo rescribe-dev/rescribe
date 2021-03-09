@@ -80,9 +80,12 @@ class GraphModel(BaseModel):
             graph_output_path = get_file_path_relative(
                 f"{data_folder}/{models_folder}/{folder_name}")
 
-            full_graph_file: str = join(graph_output_path, inter_library_graph_file)
-            model_folder: str = join(graph_output_path, inter_library_tokenization_model_path)
-            vocab_file: str = join(graph_output_path, inter_library_vocabulary_file)
+            full_graph_file: str = join(
+                graph_output_path, inter_library_graph_file)
+            model_folder: str = join(
+                graph_output_path, inter_library_tokenization_model_path)
+            vocab_file: str = join(
+                graph_output_path, inter_library_vocabulary_file)
 
             from shared.config import PRODUCTION
 
@@ -94,7 +97,8 @@ class GraphModel(BaseModel):
                             f'cannot find saved model tar file at path: {tar_input_path_abs}')
 
                     s3_client = boto3.client('s3')
-                    s3_filepath = join(basename(dirname(tar_input_path_abs)), basename(tar_input_path_abs))
+                    s3_filepath = join(
+                        basename(dirname(tar_input_path_abs)), basename(tar_input_path_abs))
                     with open(tar_input_path_abs, 'wb') as file:
                         s3_client.download_fileobj(
                             bucket_name, s3_filepath, file)
@@ -162,7 +166,6 @@ class GraphModel(BaseModel):
         else:
             clean_data_dir = dirname(clean_data_path)
 
-
         if not exists(clean_data_path):
             tar_input_path_abs = join(clean_data_dir, 'data.tar.gz')
             if not exists(tar_input_path_abs):
@@ -171,7 +174,8 @@ class GraphModel(BaseModel):
                     raise ValueError(
                         f'cannot find saved model tar file at path: {tar_input_path_abs}')
                 s3_client = boto3.client('s3')
-                s3_file_path = join(library_data_folder, basename(tar_input_path_abs))
+                s3_file_path = join(library_data_folder,
+                                    basename(tar_input_path_abs))
                 with open(tar_input_path_abs, 'wb') as file:
                     s3_client.download_fileobj(
                         datasets_bucket_name, s3_file_path, file)
@@ -181,7 +185,6 @@ class GraphModel(BaseModel):
 
             if not exists(clean_data_path):
                 raise ValueError(f'cannot find path {clean_data_path}')
-
 
         imported_data = pd.read_csv(clean_data_path, index_col=0)
         imported_data["imports"] = imported_data["imports"].apply(
@@ -281,7 +284,8 @@ class GraphModel(BaseModel):
         nx.write_gpickle(self.graph, graph_file)
 
         logger.info("Saving vectorization model")
-        model_folder = join(graph_output_path, inter_library_tokenization_model_path)
+        model_folder = join(graph_output_path,
+                            inter_library_tokenization_model_path)
         self.model.save(model_folder)
 
         logger.info("Saving vocabulary")
@@ -289,14 +293,15 @@ class GraphModel(BaseModel):
         with open(vocab_file, "w") as f:
             yaml.dump(self.vocabulary, stream=f,
                       explicit_start=True, default_flow_style=False)
-        
+
         output_file = join(graph_output_path, "model.tar.gz")
         try:
             remove(output_file)
             logger.warning(f"Output file found at {output_file} deleting...")
         except FileNotFoundError:
-            logger.info("Did not find output file to remove, directory appears to be clean")
-        except Exception as err: 
+            logger.info(
+                "Did not find output file to remove, directory appears to be clean")
+        except Exception as err:
             logger.error("Fatal error in _save_graph_state")
             raise err
 
@@ -310,7 +315,8 @@ class GraphModel(BaseModel):
 
         if PRODUCTION:
             s3_client = boto3.resource('s3')
-            s3_filepath = join(basename(dirname(output_file)), basename(output_file))
+            s3_filepath = join(basename(dirname(output_file)),
+                               basename(output_file))
             obj = s3_client.Object(bucket_name, s3_filepath)
             with open(output_file, 'rb') as tar:
                 obj.put(Body=tar)

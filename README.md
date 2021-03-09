@@ -1,4 +1,4 @@
-<img alt="reScribe" src="https://rescribe.dev/logo.svg" style="max-width: 500px">
+<img alt="reScribe Logo" src="https://rescribe.dev/logo.svg" style="max-width: 500px">
 
 > a better way to search code
 
@@ -40,3 +40,128 @@
 ![Test Code](https://github.com/rescribe-dev/rescribe/workflows/Test%20Code/badge.svg)
 
 [![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/IU2gHt3Qn)
+
+
+
+## things we need to do for java specifically right now for a one language demo :)
+
+1. go through search line by line, make sure it's calling nlp correctly and getting good outputs
+  - note - this requires updating the parameters for elasticsearch & the overall query structure (a little) 
+2. go page by page and fix all the styling stuff in web. List at the bottom of readme. If there are extraneous requests, clean it up using field resolvers
+3. test full search stack, index a lot of files
+  - add limit to number of characters in file for parsing (we don't care about files that are super big because that'll break search) 
+
+
+- elasticsearch requests are not typed rn, which leads to a bunch of random errors. elasticsearch builder should help to fix that
+- debug with web & api
+- refactor portions of api graph model to include field resolvers as needed
+- in docs, development index run the curl command to get an ip address and then use that to view the output in your browser
+
+
+### how to do this 
+
+- Need to spin up all of the produciton / dev servers and get data into elasticsearch (cloud develoepment servers)
+- This means cloning random java repositories and indexing them under the dev user (no premissions, just a login we share, we dont want everything controled by one account)
+- Search page - keep running until it works
+- How do you run the website from cloud nine and view the output and how do you access the graphql playground from cloud 9 - Done
+- we should write a guide on how to index things using the cli
+- 
+
+
+
+
+
+## things that we want to do
+
+- refactor api graph model ( what is an api graph model ) graphql => makes a graph model 
+  - everything is flat rn, which forces us to create extra requests to the api from web & all our other stuff
+  - we can keep the flat attributes with the object id attributes, but add field resolvers to add the graph manually
+  - project -> repository -> folder -> _ file _
+  - project -> field resolver for repo, folder for files, etc
+  - elasticsearch requests are not typed rn, which leads to a bunch of random errors. elasticsearch builder should help to fix that
+  - sync between elastic and the database easily
+  - simplify the logic for getting the data, ideally done during dev of website
+  - simpify existing codebase so that everything is less fragmented 
+  - nested fields in elastic query are slow so how do we handle that
+  - maybe utilize a similar standard output structure to github's semantic ast trees
+
+
+
+ensted is slow becuase we eprform multi match over each field and theyre all trigrams so it ends up beign a lot fo computation
+we may need to do optimizaiton of elastic past what the out of box functionality is 
+
+
+apprently you can convert from h5 to ast (we use h5 for antlr4 currently)
+
+https://github.com/tree-sitter/tree-sitter  
+https://github.com/github/semantic#technology-and-architecture
+
+Elatic nested fields are:
+    comments 
+    variables
+    imports 
+    functions 
+    classes 
+each nested field ahs a parent as laid out in nested obejct
+[id parent and location]
+in elastic they are handled differently   this is how we highlight the individual matching object instead of the whole file 
+
+
+think about optimizing the elastic fields for computation time instead of disk footprint
+possibly more than one search type 
+(classe, functions, libraries, etc...)
+
+
+
+Everything will still be stored in a flat fashion in the database, just with graphql we will simulate making it a phat object for 
+ease of query
+
+
+This is what flat looks like: 
+    {
+        repostiory
+            this id
+            array of ids for children
+        
+        file 
+            this id
+            array of ids for each type of child 
+            parent id 
+        
+        ...
+        
+    }
+
+This is what phat looks like:
+    repository -> [folder] -> [file] -> [class] -> [class functions]
+                                     -> [standalone funcitons]
+                                     -> [imports]
+                                     -> package path
+                                     
+A field resolver is a block of code which runs when you query for a certain field -> basically lazy evaluation of a field in your data object
+so we want to write lazy resolvers for each layer of this query
+
+
+frontload the keyword search with keywords extracted from file documentaitno and definition names and use that to filter out the files along with public access
+need a compressed representation of data 
++
+
+
+### Websites that need to be checked. Most important to least important
+
+Login
+Search
+Repository
+Account
+Profile
+Projects
+Repositories
+About
+Explore
+
+
+
+
+Bugs
+When indexing with the CLI and making a new repository, it will throw an error that the repo does not exist and then if you run it again the repo will show up and work as expected SOEMTIMES seems like a race condition
+Argument Validation Error : what is it?

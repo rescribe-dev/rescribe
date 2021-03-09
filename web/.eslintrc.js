@@ -4,7 +4,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier/@typescript-eslint',
+    'prettier',
     'plugin:prettier/recommended',
   ],
   settings: {
@@ -29,6 +29,7 @@ module.exports = {
     'prettier/prettier': ['error', { singleQuote: true }],
     quotes: [2, 'single', { avoidEscape: true }],
     semi: 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/semi': ['error', 'always'],
     '@typescript-eslint/ban-ts-ignore': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',

@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import { css } from '@emotion/core';
 import {
   Form,
-  Label,
   Input,
   FormFeedback,
   FormGroup,
@@ -36,7 +35,6 @@ import {
 } from 'lib/generated/datamodel';
 import { setToken } from 'state/auth/actions';
 import { LoginMessages } from 'locale/pages/login/loginMessages';
-import { capitalizeFirstLetter } from 'utils/misc';
 import SocialButtons from 'components/SocialButtons';
 
 const loaderCSS = css`
@@ -163,7 +161,8 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
     <>
       <Container
         style={{
-          marginTop: '4rem',
+          marginTop: '8rem',
+          marginBottom: '4rem',
         }}
       >
         <Row className="justify-content-center">
@@ -172,7 +171,12 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
               size: 4,
             }}
           >
-            <Card>
+            <Card
+              className="shadow rounded-lg"
+              style={{
+                backgroundColor: 'var(--bg-login)',
+              }}
+            >
               <CardBody>
                 <h2
                   style={{
@@ -254,10 +258,10 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                     isSubmitting,
                   }) => (
                     <Form onSubmit={handleSubmit}>
-                      <FormGroup>
-                        <Label for="usernameEmail">
+                      <FormGroup className="my-4">
+                        {/*<Label for="usernameEmail">
                           {capitalizeFirstLetter(args.messages.email)}
-                        </Label>
+                        </Label>*/}
                         <Input
                           id="usernameEmail"
                           name="usernameEmail"
@@ -273,22 +277,16 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                           }
                           disabled={isSubmitting}
                         />
-                        <FormFeedback
-                          style={{
-                            marginBottom: '1rem',
-                          }}
-                          className="feedback"
-                          type="invalid"
-                        >
+                        <FormFeedback className="feedback mb-2" type="invalid">
                           {touched.usernameEmail && errors.usernameEmail
                             ? errors.usernameEmail
                             : ''}
                         </FormFeedback>
                       </FormGroup>
-                      <FormGroup>
-                        <Label for="password">
+                      <FormGroup className="my-4">
+                        {/*<Label for="password">
                           {capitalizeFirstLetter(args.messages.password)}
-                        </Label>
+                        </Label>*/}
                         <Input
                           id="password"
                           name="password"
@@ -308,13 +306,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                           invalid={!!(touched.password && errors.password)}
                           disabled={isSubmitting}
                         />
-                        <FormFeedback
-                          style={{
-                            marginBottom: '1rem',
-                          }}
-                          className="feedback"
-                          type="invalid"
-                        >
+                        <FormFeedback className="feedback mb-2" type="invalid">
                           {touched.password && errors.password
                             ? errors.password
                             : ''}
@@ -322,9 +314,7 @@ const LoginPage = (args: LoginPageData): JSX.Element => {
                       </FormGroup>
                       <Button
                         type="submit"
-                        style={{
-                          width: '100%',
-                        }}
+                        className="w-100 p-2"
                         color="primary"
                         onClick={(evt: React.MouseEvent) => {
                           evt.preventDefault();

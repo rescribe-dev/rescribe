@@ -27,7 +27,7 @@ import {
 } from 'lib/generated/datamodel';
 import isDebug from 'utils/mode';
 import { toast } from 'react-toastify';
-import { ApolloError } from 'apollo-client';
+import { ApolloError } from '@apollo/client';
 
 interface ListItem {
   _id: ObjectId;

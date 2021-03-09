@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { prop as Property, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import { AccessLevel } from '../users/access';
 import { BaseTimestamp } from '../misc/timestamp';
+import { Folder } from './folder';
 
 @ObjectType({ description : 'base repository', isAbstract: true })
 export class BaseRepository extends BaseTimestamp {
@@ -29,6 +30,9 @@ export class BaseRepository extends BaseTimestamp {
   @Field({ description: 'base folder containing files' })
   @Property({required: true})
   folder: ObjectId;
+
+  @Field({ description: 'folder containing files (field resolver)' })
+  folderData?: Folder;
 
   @Field(_type => Int, { description: 'number of lines of code' })
   @Property({required: true})

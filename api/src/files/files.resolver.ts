@@ -6,14 +6,13 @@ import { ObjectId } from 'mongodb';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import User, { UserModel } from '../schema/users/user';
-import { RequestParams, ApiResponse } from '@elastic/elasticsearch';
-import { TermQuery } from '../elastic/types';
+import { ApiResponse } from '@elastic/elasticsearch';
 import { checkProjectAccess } from '../projects/auth';
 import { AccessLevel } from '../schema/users/access';
 import { checkRepositoryAccess } from '../repositories/auth';
 import { Min, Max, MinLength, ArrayMaxSize, ArrayUnique } from 'class-validator';
 import { RepositoryDB, RepositoryModel } from '../schema/structure/repository';
-import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
+import { checkPaginationArgs } from '../elastic/pagination';
 import { ProjectDB, ProjectModel } from '../schema/structure/project';
 import { getLogger } from 'log4js';
 import { checkAccessLevel } from '../auth/checkAccess';
@@ -23,6 +22,7 @@ import { predictLanguage, predictLibrary } from '../nlp/nlpBridge';
 import { pairwiseDifference } from '../utils/math';
 import { configData } from '../utils/config';
 import parseQueryLanguage, { languageKey } from './queryLanguage';
+import esb from 'elastic-builder';
 
 const logger = getLogger();
 
@@ -148,12 +148,14 @@ export const getSaveDatastore = async (id: ObjectId, datastore: { [key: string]:
 export const search = async (user: User | null, args: FilesArgs, repositoryData?: { [key: string]: RepositoryDB }): Promise<ApiResponse<any, any> | null> => {
   // for potentially higher search performance:
   // ****************** https://stackoverflow.com/a/53653179/8623391 ***************
+
   if (args.onlyUser && !user) {
     throw new Error('cannot get only user files when not logged in');
   }
-  const filterPermissions: TermQuery[] = [];
-  let filterPath: TermQuery[] = [];
-  const queryFilters: Record<string, unknown>[] = [];
+
+  const filterPermissions: esb.Query[] = [];
+  let filterPath: esb.Query[] = [];
+  const queryFilters: esb.Query[] = [];
   checkPaginationArgs(args);
   let hasStructureFilter = false;
   const projectData: { [key: string]: ProjectDB } = {};
@@ -192,37 +194,18 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       }
     }
     if (args.name && args.branches && args.repositories && args.path) {
-      filterPath = filterPath.concat([{
-        term: {
-          name: args.name
-        }
-      },
-      {
-        term: {
-          path: args.path
-        }
-      },
-      {
-        term: {
-          branch: args.branches[0]
-        }
-      },
-      {
-        term: {
-          repository: args.repositories[0]
-        }
-      }
+      filterPath = filterPath.concat([
+        esb.termQuery('name', args.name),
+        esb.termQuery('path', args.path),
+        esb.termQuery('branch', args.branches[0]),
+        esb.termQuery('repository', args.repositories[0].toHexString()),
       ]);
     } else {
-      filterPath.push({
-        term: {
-          _id: args.file?.toHexString()
-        }
-      });
+      filterPath.push(esb.termQuery('_id', args.file?.toHexString()));
     }
   }
 
-  const repositoryFilters: TermQuery[] = [];
+  const repositoryFilters: esb.Query[] = [];
 
   if (!oneFile && args.projects && args.projects.length > 0) {
     if (!user) {
@@ -236,11 +219,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         throw new Error('user does not have access to project');
       }
       for (const repositoryID of project.repositories) {
-        repositoryFilters.push({
-          term: {
-            repository: repositoryID.toHexString()
-          }
-        });
+        repositoryFilters.push(esb.termQuery('repository', repositoryID.toHexString()));
       }
     }
   }
@@ -259,33 +238,19 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
           throw new Error('user does not have access to repository');
         }
       }
-      repositoryFilters.push({
-        term: {
-          repository: repositoryID.toHexString()
-        }
-      });
+      repositoryFilters.push(esb.termQuery('repository', repositoryID.toHexString()));
     }
   }
 
   if (!oneFile && args.path) {
-    filterPath.push({
-      term: {
-        path: args.path
-      }
-    });
+    filterPath.push(esb.termQuery('path', args.path));
   }
 
-  const languageFilters: TermQuery[] = [];
+  const languageFilters: esb.Query[] = [];
   if (!oneFile) {
     if (args.languages) {
-      if (args.languages.length > 0) {
-        for (const language of args.languages) {
-          languageFilters.push({
-            term: {
-              language
-            }
-          });
-        }
+      for (const language of args.languages) {
+        languageFilters.push(esb.termQuery('language', language));
       }
     } else if (args.query && configData.CONNECT_NLP) {
       // get the language from nlp
@@ -305,11 +270,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
             name: Language.none,
             score: 0
           });
-          languageFilters.push({
-            term: {
-              language: bestLanguage.name
-            }
-          });
+          languageFilters.push(esb.termQuery('language', bestLanguage.name));
           const libraryPrediction = await predictLibrary({
             query: args.query,
             language: bestLanguage.name,
@@ -324,11 +285,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       const queryLanguageRes = parseQueryLanguage(args.query);
       if (queryLanguageRes.hasData) {
         for (const language of queryLanguageRes.data[languageKey]) {
-          languageFilters.push({
-            term: {
-              language: language
-            }
-          });
+          languageFilters.push(esb.termQuery('language', language));
         }
       }
     }
@@ -337,136 +294,62 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   if (!oneFile && args.branches && args.branches.length > 0) {
     hasStructureFilter = true;
     for (const branch of args.branches) {
-      filterPermissions.push({
-        term: {
-          branches: branch
-        }
-      });
+      filterPermissions.push(esb.termQuery('branches', branch));
     }
   }
 
   if (!oneFile && !hasStructureFilter) {
     if (args.onlyUser === undefined || !args.onlyUser) {
       // include public files too
-      filterPermissions.push({
-        term: {
-          public: AccessLevel.view
-        }
-      });
+      filterPermissions.push(esb.termQuery('public', AccessLevel.view));
     }
     if (user) {
       if (user.repositories.length === 0) {
         return null;
       }
       for (const repository of user.repositories) {
-        filterPermissions.push({
-          term: {
-            repository: repository._id.toHexString()
-          }
-        });
+        filterPermissions.push(esb.termQuery('repository', repository._id.toHexString()));
       }
-      filterPermissions.push({
-        term: {
-          public: AccessLevel.view
-        }
-      });
-      filterPermissions.push({
-        term: {
-          public: AccessLevel.edit
-        }
-      });
+      filterPermissions.push(esb.termQuery('public', AccessLevel.view));
+      filterPermissions.push(esb.termQuery('public', AccessLevel.edit));
     }
   }
-  const highlight: Record<string, unknown> = {
-    fields: {
-      '*': {}
-    },
-    pre_tags: [''],
-    post_tags: ['']
-  };
+
+  const highlight = esb.highlight().fields(['*']).preTags('').postTags('');
   if (!args.baseFileOnly) {
     for (const nestedField of nestedFields) {
       // TODO - tweak this to get it faster - boosting alternatives
       // use boost to make certain fields weighted higher than others
       // now use nlp approach
-      const currentQuery: Record<string, unknown> = args.query ? {
-        multi_match: {
-          query: args.query
-        }
-      } : {
-          match_all: {}
-        };
-      queryFilters.push({
-        nested: {
-          path: nestedField,
-          query: currentQuery,
-          inner_hits: {
-            highlight
-          }
-        }
-      });
+      const currentQuery: esb.Query = args.query ? esb.multiMatchQuery().query(args.query) : esb.matchAllQuery();
+
+      queryFilters.push(esb.nestedQuery().path(nestedField).query(currentQuery).innerHits(
+        esb.innerHits().highlight(highlight)
+      ));
     }
   }
   if (args.query) {
-    const fieldsQuery: Record<string, unknown> = {
-      multi_match: {
-        query: args.query,
-        fields: args.baseFileOnly ? baseMainFields : mainFields
-      }
-    };
+    const fieldsQuery = esb.multiMatchQuery(args.baseFileOnly ? baseMainFields : mainFields, args.query);
     queryFilters.push(fieldsQuery);
   }
-  const searchParams: RequestParams.Search = {
-    index: fileIndexName,
-    body: {
-      query: {
-        bool: {
-          should: [
-            { // holds the query itself
-              bool: {
-                should: queryFilters
-              }
-            }
-          ],
-          filter: [ // filter is ignored from score
-            { // can match to any of should - holds permissions right now
-              bool: {
-                should: filterPermissions
-              }
-            }, // needs to match all in must
-            { // holds single file and / or path
-              bool: {
-                must: filterPath
-              }
-            }, // single category match for individuals
-            { // holds language filters
-              bool: {
-                should: languageFilters
-              }
-            },
-            { // holds repository filters
-              bool: {
-                should: repositoryFilters
-              }
-            }
-          ]
-        }
-      }, // https://discuss.elastic.co/t/providing-weight-to-individual-fields/63081/3
-      //https://stackoverflow.com/questions/39150946/highlight-in-elasticsearch
-      highlight,
-      sort: {
-        _score: {
-          order: 'desc'
-        }
-      }
-    }
-  };
-  if (!oneFile) {
-    setPaginationArgs(args, searchParams);
+  let requestBody = esb.requestBodySearch().query(
+    esb.boolQuery()
+      .should(queryFilters)
+      .filter([
+        esb.boolQuery().should(filterPermissions),
+        esb.boolQuery().must(filterPath),
+        esb.boolQuery().should(languageFilters),
+        esb.boolQuery().should(repositoryFilters),
+      ])
+  ).highlight(highlight).sort(esb.sort('_score', 'desc'));
+  if (!oneFile && args.page && args.perpage) {
+    requestBody = requestBody.from(args.page).size(args.perpage);
   }
-  logger.info(JSON.stringify(searchParams, null, 2));
   const startTime = new Date();
-  const elasticFileData = await elasticClient.search(searchParams);
+  const elasticFileData = await elasticClient.search({
+    index: fileIndexName,
+    body: requestBody.toJSON()
+  });
   logger.info(`search function time: ${new Date().getTime() - startTime.getTime()}`);
   return elasticFileData;
 };

@@ -10,11 +10,11 @@ export const getFilePath = (path: string): PathData => {
     const name = pathSplit.length > 1 ? pathSplit[1] : '';
     return {
       name,
-      path: filePath
+      path: filePath,
     };
   }
   return {
     path: '/',
-    name: ''
+    name: '',
   };
 };

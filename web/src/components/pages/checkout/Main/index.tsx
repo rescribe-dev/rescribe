@@ -26,13 +26,16 @@ import {
   Purchase,
 } from 'lib/generated/datamodel';
 import { toast } from 'react-toastify';
-import { ApolloQueryResult } from 'apollo-client';
 import ObjectId from 'bson-objectid';
 import SelectList from '../SelectList';
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
 import DeleteAddressModal from 'components/modals/DeleteAddress';
-import { useMutation, ApolloError } from '@apollo/react-hooks';
+import {
+  useMutation,
+  ApolloError,
+  ApolloQueryResult,
+} from '@apollo/react-hooks';
 import StepLayout from '../StepLayout';
 import { Mode } from '../mode';
 import DeletePaymentMethodModal from 'components/modals/DeletePaymentMethod';
@@ -304,7 +307,9 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                       loading={addresses === undefined || addresses.loading}
                       messages={args.messages}
                       mode={Mode.Address}
-                      numItems={addresses ? addresses.data.addresses.length : 0}
+                      numItems={
+                        addresses ? addresses.data!.addresses.length : 0
+                      }
                       selectMode={addressSelectMode}
                       toggle={() => {
                         if (paymentSelectMode) {
@@ -316,7 +321,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                       <SelectList
                         getListLabel={getAddressListLabel}
                         getSelectedLabel={getAddressListLabel}
-                        items={addresses ? addresses.data.addresses : []}
+                        items={addresses ? addresses.data!.addresses : []}
                         messages={args.messages}
                         mode={Mode.Address}
                         toggleModal={toggleAddressModal}
@@ -339,7 +344,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                       mode={Mode.Payment}
                       numItems={
                         paymentMethods
-                          ? paymentMethods.data.paymentMethods.length
+                          ? paymentMethods.data!.paymentMethods.length
                           : 0
                       }
                       selectMode={paymentSelectMode}
@@ -355,7 +360,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                         getSelectedLabel={getPaymentListLabel}
                         items={
                           paymentMethods
-                            ? paymentMethods.data.paymentMethods
+                            ? paymentMethods.data!.paymentMethods
                             : []
                         }
                         messages={args.messages}
@@ -397,7 +402,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                       id: currentAddress,
                     },
                     update: () => {
-                      const newAddresses = addresses.data.addresses.filter(
+                      const newAddresses = addresses.data!.addresses.filter(
                         (elem) => !(elem._id as ObjectId).equals(currentAddress)
                       );
                       if (newAddresses.length === 1) {
@@ -436,7 +441,7 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
                       id: currentPaymentMethod,
                     },
                     update: () => {
-                      const newPaymentMethods = paymentMethods.data.paymentMethods.filter(
+                      const newPaymentMethods = paymentMethods.data!.paymentMethods.filter(
                         (elem) =>
                           !(elem._id as ObjectId).equals(currentPaymentMethod)
                       );

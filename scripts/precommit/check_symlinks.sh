@@ -5,7 +5,7 @@ cd ../..
 # see https://stackoverflow.com/a/4210072 for excluding directories
 # see https://unix.stackexchange.com/a/38691 for other ways of finding broken symlinks
 broken_symlinks=$(find . -type d \( -name node_modules -o -path ./.git -o -name .gradle -o \
-  -name .cache -name dist \) -prune -false -o -xtype l)
+  -name .cache -name dist -name data \) -prune -false -o -xtype l)
 
 num_broken_symlinks=$(echo -n "$broken_symlinks" | grep -c '^')
 

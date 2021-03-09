@@ -1317,6 +1317,9 @@ type Repository {
   """base folder containing files"""
   folder: ObjectId!
 
+  """folder containing files (field resolver)"""
+  folderData: Folder!
+
   """repository image"""
   image: String!
 
@@ -1351,6 +1354,9 @@ type RepositoryDB {
 
   """base folder containing files"""
   folder: ObjectId!
+
+  """folder containing files (field resolver)"""
+  folderData: Folder!
 
   """repository image"""
   image: String!

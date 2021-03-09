@@ -70,7 +70,7 @@ export const initializeServer = async (): Promise<void> => {
   app.use(statusMonitor({
     path: '/status',
     healthChecks: [{
-      host: 'localhost',
+      host: '0.0.0.0',
       path: '/',
       port: configData.PORT,
       protocol: 'http'
@@ -109,5 +109,5 @@ export const initializeServer = async (): Promise<void> => {
   logger.info(`initialization is ${enableInitialization() ? 'enabled' : 'disabled'}`);
   const httpServer = createServer(app);
   server.installSubscriptionHandlers(httpServer);
-  httpServer.listen(configData.PORT, () => logger.info(`Api started: http://localhost:${configData.PORT}/graphql 🚀`));
+  httpServer.listen(configData.PORT, '0.0.0.0', () => logger.info(`Api started: http://localhost:${configData.PORT}/graphql 🚀`));
 };
