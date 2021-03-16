@@ -67,6 +67,7 @@
 - we should write a guide on how to index things using the cli
 - 
 
+http://54.144.74.130:8000
 
 
 

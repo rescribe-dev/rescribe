@@ -20,6 +20,8 @@ export default {
     },
   },
   plugins: [
+    // fix ssr with aphrodite
+    'gatsby-plugin-aphrodite',
     'gatsby-plugin-react-helmet-async',
     // Add typescript stack into webpack
     'gatsby-plugin-typescript',
