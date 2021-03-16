@@ -1,6 +1,5 @@
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import './index.scss';
 import { IndexMessages } from 'locale/pages/index/indexMessages';
 import Companies from './Companies';
 import NavigationCards from './NavigationCards';

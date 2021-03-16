@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './index.scss';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';

@@ -36,6 +36,7 @@ import {
 } from 'shared/variables';
 import { CurrencyData } from 'state/settings/types';
 import { defaultLanguage } from 'shared/languages';
+import { StyleSheet, css } from 'aphrodite';
 
 interface PricingCardArgs {
   messages: PricingMessages;
@@ -55,6 +56,17 @@ const mutuallyExclusivePlans = new Set([
 
 const storageKey = 'storage';
 const keysWithStorageUnits = [storageKey];
+
+const styles = StyleSheet.create({
+  colors: {
+    '.light': {
+      '--bg-pricing-card-color': 'var(--gray1)',
+    },
+    '.dark': {
+      '--bg-pricing-card-color': 'var(--gray4)',
+    },
+  },
+});
 
 const pricingCard = (args: PricingCardArgs): JSX.Element => {
   const [validProduct, setValidProduct] = useState<boolean>(true);
@@ -144,7 +156,9 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
     <Card
       style={{
         maxWidth: '27rem',
+        backgroundColor: 'var(--bg-pricing-card-color)',
       }}
+      className={css(styles.colors)}
     >
       <CardBody
         className="text-center"
@@ -192,7 +206,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
                     <FormattedMessage
                       id={args.currentlyMonthly ? 'month' : 'year'}
                     >
-                      {(messages: string[]) => '/ ' + messages[0]}
+                      {(messages: string[]) => <>{'/ ' + messages[0]}</>}
                     </FormattedMessage>
                   </CardText>
                 </Col>
@@ -259,6 +273,7 @@ const pricingCard = (args: PricingCardArgs): JSX.Element => {
                       marginBottom: 0,
                       border: 0,
                       textAlign: 'left',
+                      backgroundColor: 'var(--bg-pricing-card-color)',
                     }}
                   >
                     <Row>

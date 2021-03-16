@@ -11,19 +11,18 @@ import {
   ListGroupItem,
   Button,
 } from 'reactstrap';
-import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
 import { CartObject } from 'state/purchase/types';
 import formatCurrency from 'utils/currency';
 import { IntervalType } from 'lib/generated/datamodel';
 import { FormattedMessage } from 'react-intl';
 import { capitalizeFirstLetter, capitalizeOnlyFirstLetter } from 'utils/misc';
-import { CheckoutValues } from '../misc';
 import { isSSR } from 'utils/checkSSR';
 import { defaultLanguage } from 'shared/languages';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { CurrencyData } from 'state/settings/types';
+import { CheckoutValues } from './misc';
 
 interface SummaryArgs {
   messages: CheckoutMessages;

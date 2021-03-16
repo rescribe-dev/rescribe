@@ -76,3 +76,8 @@ body {
 .grecaptcha-badge {
   visibility: hidden;
 }
+
+/* fix select dropdown thing */
+.select-dropdown input:focus {
+  box-shadow: none;
+}

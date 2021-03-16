@@ -186,21 +186,27 @@ const Header = (args: HeaderArgs): JSX.Element => {
               <NavLink className="navbar-link" tag={Link} to="/start">
                 <span>
                   <FormattedMessage id="start">
-                    {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                    {(messages: string[]) => (
+                      <>{capitalizeFirstLetter(messages[0])}</>
+                    )}
                   </FormattedMessage>
                 </span>
               </NavLink>
               <NavLink className="navbar-link" tag={Link} to="/pricing">
                 <span>
                   <FormattedMessage id="pricing">
-                    {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                    {(messages: string[]) => (
+                      <>{capitalizeFirstLetter(messages[0])}</>
+                    )}
                   </FormattedMessage>
                 </span>
               </NavLink>
               <NavLink className="navbar-link" tag={Link} to="/explore">
                 <span>
                   <FormattedMessage id="explore">
-                    {(messages: string[]) => capitalizeFirstLetter(messages[0])}
+                    {(messages: string[]) => (
+                      <>{capitalizeFirstLetter(messages[0])}</>
+                    )}
                   </FormattedMessage>
                 </span>
               </NavLink>
@@ -214,9 +220,9 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     >
                       <span>
                         <FormattedMessage id="projects">
-                          {(messages: string[]) =>
-                            capitalizeFirstLetter(messages[0])
-                          }
+                          {(messages: string[]) => (
+                            <>{capitalizeFirstLetter(messages[0])}</>
+                          )}
                         </FormattedMessage>
                       </span>
                     </NavLink>,
@@ -228,9 +234,9 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     >
                       <span>
                         <FormattedMessage id="repositories">
-                          {(messages: string[]) =>
-                            capitalizeFirstLetter(messages[0])
-                          }
+                          {(messages: string[]) => (
+                            <>{capitalizeFirstLetter(messages[0])}</>
+                          )}
                         </FormattedMessage>
                       </span>
                     </NavLink>,

@@ -98,7 +98,9 @@ export default async (args: Arguments<Args>): Promise<void> => {
       const buffer = readFileSync(path);
       const stats = lstatSync(path);
       if (await isBinaryFile(buffer, stats.size)) {
-        throw new Error(`file "${path}" is binary`);
+        console.warn(`file ${path} is binary, skipping...`);
+        continue;
+        // throw new Error(`file "${path}" is binary`);
       }
       // split join for windows nonsense
       let cleanPath = normalize(path).split(sep).join(posix.sep);

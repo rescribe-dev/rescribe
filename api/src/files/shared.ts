@@ -50,6 +50,7 @@ export const createFolders = async (args: CreateFoldersArgs): Promise<void> => {
     const fileData = fileWrite.mongo.data as unknown as FileDB;
     const fullFilePath = fileData.path + fileData.name;
     let lastFolder = baseFolder;
+    // console.log('full file path', fullFilePath);
     for (const folderPathData of getParentFolderPaths(fullFilePath)) {
       const fullCurrentFolderPath = folderPathData.path + folderPathData.name;
       if (fullCurrentFolderPath in savedFolderData) {

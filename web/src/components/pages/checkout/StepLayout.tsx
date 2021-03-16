@@ -1,9 +1,8 @@
 import React, { ReactNode } from 'react';
-import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
 import { Row, Col } from 'reactstrap';
 import { capitalizeFirstLetter } from 'utils/misc';
-import { Mode } from '../mode';
+import { Mode } from './mode';
 
 interface StepLayoutArgs {
   messages: CheckoutMessages;

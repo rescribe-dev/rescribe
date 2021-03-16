@@ -8,12 +8,12 @@ export interface YesNoChoices {
 const yesNoPrompt = async (question: string): Promise<boolean> => {
   const choices: Array<YesNoChoices> = [
     {
-      title: 'Yes',
-      value: true
-    },
-    {
       title: 'No',
       value: false
+    },
+    {
+      title: 'Yes',
+      value: true
     },
   ];
   const response = await prompts([

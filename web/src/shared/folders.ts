@@ -16,6 +16,8 @@ export const getParentFolderPath = (filePath: string): PathData => {
       path: '',
     };
   }
+  console.log(filePath);
+  console.log(typeof filePath);
   let lastSlash = filePath.lastIndexOf('/');
   if (lastSlash < 0) {
     return {
@@ -52,7 +54,9 @@ export const getParentFolderPaths = (
   }
   let currentFolderPath = filePath;
   const parentFolders: PathData[] = [];
+  console.log('getting parent folder paths');
   while (currentFolderPath !== fullBasePath) {
+    console.log(currentFolderPath);
     const parentFolderData = getParentFolderPath(currentFolderPath);
     currentFolderPath = `${parentFolderData.path}${
       parentFolderData.path === fullBasePath ? '' : fullBasePath

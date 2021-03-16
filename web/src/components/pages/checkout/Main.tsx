@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col, Form } from 'reactstrap';
-import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
-import Summary from '../Summary';
+import Summary from './Summary';
 import useScript from 'react-script-hook';
 import WriteAddress from 'components/modals/WriteAddress';
 import { client } from 'utils/apollo';
@@ -27,7 +26,7 @@ import {
 } from 'lib/generated/datamodel';
 import { toast } from 'react-toastify';
 import ObjectId from 'bson-objectid';
-import SelectList from '../SelectList';
+import SelectList from './SelectList';
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
 import DeleteAddressModal from 'components/modals/DeleteAddress';
@@ -36,12 +35,12 @@ import {
   ApolloError,
   ApolloQueryResult,
 } from '@apollo/react-hooks';
-import StepLayout from '../StepLayout';
-import { Mode } from '../mode';
+import StepLayout from './StepLayout';
+import { Mode } from './mode';
 import DeletePaymentMethodModal from 'components/modals/DeletePaymentMethod';
 import AddPaymentMethodModal from 'components/modals/AddPaymentMethod';
 import { CartObject } from 'state/purchase/types';
-import { UpdateMethod, creditCardBrandToString, CheckoutValues } from '../misc';
+import { UpdateMethod, creditCardBrandToString, CheckoutValues } from './misc';
 import { isSSR } from 'utils/checkSSR';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';

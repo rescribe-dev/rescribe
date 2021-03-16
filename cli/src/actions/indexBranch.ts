@@ -1,5 +1,6 @@
 import Git, { TreeEntry } from 'nodegit';
 import indexFiles from '../utils/indexFiles';
+// import validateRepo from '../utils/validateRepo';
 import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
 import { isLoggedIn } from '../utils/authToken';
@@ -31,10 +32,12 @@ export const indexBranchUtil = async (repo: Git.Repository, branchName: string):
       paths.push(`/${filePath}`);
       const file = await entry.getBlob();
       if (file.isBinary()) {
-        reject(new Error(`file ${filePath} is binary`));
-        return;
+        console.warn(`file ${filePath} is binary`);
+        files.push(file.rawcontent().toBuffer(file.rawsize()));
+      } else {
+        files.push(file.content());
       }
-      files.push(file.content());
+
       if (finished && paths.length === files.length) {
         await callback();
       }
@@ -51,7 +54,7 @@ export const indexBranchUtil = async (repo: Git.Repository, branchName: string):
 
 export default async (args: Arguments<Args>): Promise<void> => {
   if (cacheData.repositoryOwner.length === 0 || cacheData.repository.length === 0) {
-    throw new Error('owner and repository need to be set with <set-repository>');
+    throw new Error('owner and repository need to be set with <set-repo>');
   }
   if (!isLoggedIn(cacheData.authToken)) {
     throw new Error('user must be logged in to index a branch');
@@ -60,6 +63,7 @@ export default async (args: Arguments<Args>): Promise<void> => {
     args.path = '.';
   }
   const repo = await getGitRepo(args.path);
+  // await validateRepo(repo);
   const branchName = args.branch ?
     (await repo.getBranch(args.branch)).name()
     : (await repo.getCurrentBranch()).name();

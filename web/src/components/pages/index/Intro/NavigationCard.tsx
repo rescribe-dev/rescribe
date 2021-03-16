@@ -7,8 +7,8 @@ import {
   Container,
   CardImg,
 } from 'reactstrap';
-import './index.scss';
 import Img, { FluidObject } from 'gatsby-image';
+import { StyleSheet, css } from 'aphrodite';
 
 interface NavCardArgs {
   title: string;
@@ -16,9 +16,21 @@ interface NavCardArgs {
   children: ReactNode;
 }
 
+const styles = StyleSheet.create({
+  colors: {
+    '.light': {
+      '--bg-how-to-use': 'var(--gray1)',
+    },
+    '.dark': {
+      '--bg-how-to-use': 'var(--gray4)',
+    },
+  },
+});
+
 const NavigationCard = (args: NavCardArgs): JSX.Element => {
   return (
     <Card
+      className={css(styles.colors)}
       style={{
         backgroundColor: 'var(--bg-card-color)',
       }}

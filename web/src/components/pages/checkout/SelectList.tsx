@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import './index.scss';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
 import {
   ListGroup,
@@ -17,8 +16,8 @@ import {
 import ObjectId from 'bson-objectid';
 import { capitalizeFirstLetter } from 'utils/misc';
 import { AiFillDelete } from 'react-icons/ai';
-import { Mode } from '../mode';
-import { CurrencyData } from 'state/purchase/types';
+import { Mode } from './mode';
+import { CurrencyData } from 'state/settings/types';
 import { client } from 'utils/apollo';
 import {
   Currencies,

@@ -44,6 +44,7 @@ const indexFilesSubset = async (paths: string[], files: Buffer[], branch: string
     logger.info(`index file "${path}"`);
     const buffer = files[i];
     const name = basename(path);
+    logger.info(`basename: ${name}`);
     const lookupType = mime.lookup(path);
     const mimeType = lookupType ? lookupType : 'text/plain';
     form.append(currentIndex.toString(), buffer, {

@@ -2,6 +2,7 @@ import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
 import { isLoggedIn } from '../utils/authToken';
 import { getGitRepo } from '../utils/git';
+import validateRepo from '../utils/validateRepo';
 import { indexBranchUtil } from './indexBranch';
 
 interface Args {
@@ -10,6 +11,9 @@ interface Args {
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
+  
+
+  
   if (cacheData.repositoryOwner.length === 0 || cacheData.repository.length === 0) {
     throw new Error('owner and repository need to be set with <set-repository>');
   }
@@ -20,6 +24,9 @@ export default async (args: Arguments<Args>): Promise<void> => {
     args.path = '.';
   }
   const repo = await getGitRepo(args.path);
+  
+  await validateRepo(repo);
+  
   let branches: string[] | undefined = undefined;
   if (args.branches) {
     branches = args.branches.trim().split(',');

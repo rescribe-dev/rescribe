@@ -7,7 +7,6 @@ import {
   CardText,
   CardDeck,
 } from 'reactstrap';
-import './index.scss';
 import { PageProps } from 'gatsby';
 import { PricingMessages } from 'locale/pages/pricing/pricingMessages';
 import { useQuery, ApolloError, QueryResult } from '@apollo/react-hooks';

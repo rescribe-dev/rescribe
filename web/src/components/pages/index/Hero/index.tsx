@@ -1,6 +1,5 @@
 import React from 'react';
 import { Container, Jumbotron, Row, Col } from 'reactstrap';
-import './index.scss';
 import { Link } from 'gatsby';
 import { IndexMessages } from 'locale/pages/index/indexMessages';
 import SearchBar from './SearchBar';

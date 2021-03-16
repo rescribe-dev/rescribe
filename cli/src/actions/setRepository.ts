@@ -169,10 +169,10 @@ export const setRepoUtil = async (args: Args): Promise<RepositoryNameExistsQuery
     if (!repoPromptData) {
       return null;
     }
-    console.log(repoPromptData);
+    // console.log(repoPromptData);
     repoQueryVars = repoPromptData;
   }
-  console.log(repoQueryVars);
+  console.log(`Repository: ${repoQueryVars.name}\nOwner: ${repoQueryVars.owner}`);
   const repositoryRes = await apolloClient.query<RepositoryNameExistsQuery, RepositoryNameExistsQueryVariables>({
     query: RepositoryNameExists,
     variables: repoQueryVars

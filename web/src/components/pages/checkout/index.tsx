@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Dispatch } from 'react';
 import { Container, Row, Col } from 'reactstrap';
-import './index.scss';
 import { PageProps } from 'gatsby';
 import { CheckoutMessages } from 'locale/pages/checkout/checkoutMessages';
 import { loadStripe, Stripe } from '@stripe/stripe-js';

@@ -49,12 +49,12 @@ $success: #31bc80;
   --bg-footer: var(--gray6);
 }
 
-// input elements
+// input elements dark mode
 
-.dark input, .dark input:active {
-  background-color: var(--gray6) !important;
-  color: white !important;
-}
+// .dark input, .dark input:active {
+//   background-color: var(--gray6) !important;
+//   color: white !important;
+// }
 
 // toast overrides
 .Toastify__toast-container {

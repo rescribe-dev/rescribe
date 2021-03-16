@@ -13,7 +13,6 @@ import {
   Container,
 } from 'reactstrap';
 
-import './index.scss';
 import { css } from '@emotion/core';
 import { toast } from 'react-toastify';
 import { client } from 'utils/apollo';

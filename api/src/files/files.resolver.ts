@@ -343,7 +343,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
       ])
   ).highlight(highlight).sort(esb.sort('_score', 'desc'));
   if (!oneFile && args.page && args.perpage) {
-    requestBody = requestBody.from(args.page).size(args.perpage);
+    requestBody = requestBody.from(args.page * args.perpage).size(args.perpage);
   }
   const startTime = new Date();
   const elasticFileData = await elasticClient.search({

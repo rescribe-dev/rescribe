@@ -3,7 +3,6 @@ import { CardDeck, Container } from 'reactstrap';
 import { FluidObject } from 'gatsby-image';
 import { useStaticQuery, graphql, Link } from 'gatsby';
 import NavigationCard from './NavigationCard';
-import './index.scss';
 
 interface ImageObj {
   childImageSharp: {

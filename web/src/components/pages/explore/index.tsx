@@ -9,25 +9,26 @@ import {
 } from 'reactstrap';
 import './index.scss';
 import Description from './description';
-import { WindowLocation } from '@reach/router';
 import ExploreResultComponent from './exploreResult';
+import { PageProps } from 'gatsby';
+import { ExploreMessages } from 'locale/pages/explore/exploreMessages';
 
-// export interface ExplorePageProps extends PageProps {
-//   data: Record<string, unknown>;
-// }
+export interface ExplorePageProps extends PageProps {
+  data: Record<string, unknown>;
+}
 /* For these args, we are going to need 
   - repositoryName
   - repostoryCode
   - repositoryLanguage
   - repositoryDescription
 */
-interface ExplorePageContentProps {
-  results: JSX.Element[];
-  location: WindowLocation;
+interface ExplorePageContentProps extends ExplorePageProps {
+  messages: ExploreMessages;
 }
 
 const ExplorePage = (_args: ExplorePageContentProps): JSX.Element => {
   // Dummy variable, set to some client query with useState
+  // TODO - run the query for the data here
   const results = [
     {
       repoUrl: 'jschmidtnj/rescribe/api/login.go',

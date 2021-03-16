@@ -1,5 +1,4 @@
 import React from 'react';
-import './index.scss';
 import {
   Container,
   Jumbotron,
@@ -13,6 +12,7 @@ import {
 } from 'reactstrap';
 import { useStaticQuery, graphql, Link } from 'gatsby';
 import Img, { FluidObject } from 'gatsby-image';
+import { StyleSheet, css } from 'aphrodite';
 
 interface QueryData {
   searchResult: {
@@ -21,6 +21,19 @@ interface QueryData {
     };
   };
 }
+
+const styles = StyleSheet.create({
+  colors: {
+    '.light': {
+      '--bg-image-color': 'var(--soft-background)',
+      '--bg-card-color': 'white',
+    },
+    '.dark': {
+      'bg-image-color': 'var(--gray5)',
+      '--bg-card-color': 'var(--gray6)',
+    },
+  },
+});
 
 const HowToUse = (): JSX.Element => {
   const data = useStaticQuery<QueryData>(
@@ -38,7 +51,7 @@ const HowToUse = (): JSX.Element => {
   );
   return (
     <Jumbotron
-      className="text-center"
+      className={'text-center' + css(styles.colors)}
       style={{
         margin: 0,
         paddingTop: '5rem',
