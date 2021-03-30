@@ -5,7 +5,7 @@ helper for bigquery tasks
 import time
 import pandas as pd
 from loguru import logger
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence
 
 from google.cloud import bigquery
 from google.cloud.bigquery import Client, Dataset
@@ -157,7 +157,10 @@ class BigQueryHelper:
         my_job_config: QueryJobConfig = QueryJobConfig()
         my_job_config.dry_run = True
         my_job: QueryJob = self.client.query(query, job_config=my_job_config)
-        return my_job.total_bytes_processed / self.bytes_per_gb
+        bytes_processed: Optional[int] = my_job.total_bytes_processed
+        assert bytes_processed is not None
+        # Will only be None if total_bytes_processed is accessed before the job is complete
+        return bytes_processed / self.bytes_per_gb
 
     def query_to_pandas(self, query: str) -> Optional[pd.DataFrame]:
         """
