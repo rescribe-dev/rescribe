@@ -2,14 +2,15 @@
 """
 helper for bigquery tasks
 """
+from typing import Any, Dict, List, Optional, Sequence
 import time
+
 import pandas as pd
 from loguru import logger
-from typing import Any, Dict, List, Optional, Sequence
 
 from google.cloud import bigquery
 from google.cloud.bigquery import Client, Dataset
-from google.cloud.bigquery.dataset import DatasetReference as DatasetReference
+from google.cloud.bigquery.dataset import DatasetReference
 from google.cloud.bigquery.schema import SchemaField
 from google.cloud.bigquery.job import QueryJob, QueryJobConfig
 from google.cloud.bigquery.table import Table, RowIterator
@@ -192,7 +193,8 @@ class BigQueryHelper:
         query_size: float = self.estimate_query_size(query)
         if query_size <= max_gb_scanned:
             return self.query_to_pandas(query)
-        msg = f"Query cancelled; estimated size of {query_size} exceeds limit of {max_gb_scanned} GB"
+        msg = f"Query cancelled; estimated size of {query_size}"
+        msg += "exceeds limit of {max_gb_scanned} GB"
         logger.info(msg)
         return None
 
