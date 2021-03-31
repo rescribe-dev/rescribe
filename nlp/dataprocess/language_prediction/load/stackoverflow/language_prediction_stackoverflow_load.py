@@ -34,7 +34,7 @@ from utils.languages import languages
 from utils.bigquery.big_query_helper import BigQueryHelper as bqh
 from utils.bigquery.get_bigquery_client import get_bigquery_client
 from utils.utils import get_file_path_relative, clean_folder, save_to_disk
-from utils.variables import bucket_name, data_folder, datasets_folder, language_predict_raw_data_folder, raw_data_file_name, credentials_file
+from utils.variables import bucket_name, data_folder, datasets_folder, language_prediction_data_folder, raw_data_file_name, credentials_file, compression_extension
 
 DEFAULT_DATASET_LENGTH: int = 100
 
@@ -88,18 +88,18 @@ def load_data(dataset_length: int = DEFAULT_DATASET_LENGTH) -> pd.DataFrame:
     
     
     # Determine output path and clean any existing data held within
-    folder_name: str = language_predict_raw_data_folder
+    folder_name: str = language_prediction_data_folder
     output_folder = get_file_path_relative(
         f'{data_folder}/{datasets_folder}/{folder_name}'
     )
-    clean_folder(output_folder, ['*.tar'])
+    clean_folder(output_folder, [f'*.{compression_extension}'])
     
-    output_path = os.path.join(output_folder, f"{raw_data_file_name}.tgz")
+    output_path = os.path.join(output_folder, f"{raw_data_file_name}.{compression_extension}")
     
     # Save new data to output folder
     logger.info(f"Writing to Local Disk - {output_path}")
     
-    save_to_disk({raw_data_file_name: dataset}, output_path, 'tar')
+    save_to_disk({raw_data_file_name: dataset}, output_path, compression_extension)
     print(os.path.basename(output_path))
     if PRODUCTION:
         s3_client.upload_file(

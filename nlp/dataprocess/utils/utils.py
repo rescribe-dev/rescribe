@@ -2,6 +2,7 @@
 """
 Utility functions for NLP
 """
+import gzip
 import tarfile
 import pandas as pd
 import datetime
@@ -129,9 +130,43 @@ def original_filename(normalized_filename: str) -> str:
 
     return '.'.join(filename_list[:-1]), file_id
 
+def read_from_disk(data_path: str, extension: str, chunksize: int = None) -> pd.DataFrame:
+    if extension == 'gzip':
+        if chunksize is not None:
+            df = pd.read_csv(data_path, compression='gzip', chunksize=chunksize)
+            return df
+            
+        df = pd.read_csv(data_path, compression='gzip')
+        return df 
+        
+    if extension == 'tar':
+        raise NotImplementedError()
+                
+                
 def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension: str) -> None:
-    as_of = datetime.datetime.now()
     
+    if extension == 'gzip':
+        gz_slug = os.path.basename(data_path)
+        gz_name = data_path
+        
+        if len(frame_dict) != 1:
+            raise ValueError(f"Only dictionaries of length 1 are allowed with gzip compression\nRecieved length: {len(frame_dict)}")
+            
+        with gzip.open(gz_name, 'wb') as gzf:
+            
+            for file_name, df in frame_dict.items():
+                
+                archive_name = os.path.join(gz_slug, file_name)
+                
+                with TemporaryDirectory(prefix="rev_processing__") as temp_dir:
+                    
+                    temp_file_name = os.path.join(temp_dir, archive_name)
+                    os.makedirs(os.path.dirname(temp_file_name), exist_ok=True)
+                    df.to_csv(temp_file_name, index=True)
+                    
+                    with open(temp_file_name, 'rb') as f_in:
+                        gzf.writelines(f_in)
+                        
     if extension == 'tar':
         
         tarfile_slug = os.path.basename(data_path)
@@ -153,7 +188,7 @@ def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension:
                     # Write a csv dump of the dataframe to a temporary file
                     temp_file_name = os.path.join(temp_dir, archive_name)
                     os.makedirs(os.path.dirname(temp_file_name), exist_ok=True)
-                    df.to_csv(temp_file_name, index=False)
+                    df.to_csv(temp_file_name, index=True)
     
                     # Add the temp file to the tarfile
                     tfo.add(temp_file_name, arcname=archive_name)

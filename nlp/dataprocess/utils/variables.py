@@ -51,8 +51,9 @@ batch_size: int = 32
 # we_batch_size: int = 64
 # we_tf_data_folder: str = "tf_dataset"
 
-language_predict_raw_data_folder  = 'language_prediction'
+language_prediction_data_folder  = 'language_prediction'
 raw_data_file_name = 'raw_data'
+compression_extension: str = 'gzip'
 
 type_path_dict: Dict[NLPType, str] = {
     NLPType.language_prediction: 'language_prediction',
