@@ -25,11 +25,9 @@ from language_prediction.load.load_language_prediction import main as load_data
 @logger.catch
 def main() -> None:
     read_config()
-    logger.info("Does anything even print")
     load_data()
     # clean_data()
 
 
 if __name__ == "__main__":
-    print("Does this even print")
     main()

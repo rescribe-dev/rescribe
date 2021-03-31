@@ -28,7 +28,6 @@ from language_prediction.load.stackoverflow.language_prediction_stackoverflow_lo
 
 @logger.catch
 def main() -> None:
-    logger.info("Made it to here")
     load_data()
 
 
