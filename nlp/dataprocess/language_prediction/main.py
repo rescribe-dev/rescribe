@@ -25,7 +25,7 @@ from language_prediction.clean.clean_language_prediction import main as clean_da
 @logger.catch
 def main() -> None:
     read_config()
-    # load_data()
+    load_data()
     clean_data()
 
 

@@ -24,7 +24,6 @@ import os
 import boto3
 import pandas as pd
 
-from glob import glob
 from loguru import logger
 from typing import List, Dict
 from google.cloud import bigquery
@@ -34,9 +33,8 @@ from utils.languages import languages
 from utils.bigquery.big_query_helper import BigQueryHelper as bqh
 from utils.bigquery.get_bigquery_client import get_bigquery_client
 from utils.utils import get_file_path_relative, clean_folder, save_to_disk
-from utils.variables import bucket_name, data_folder, datasets_folder, language_prediction_data_folder, raw_data_file_name, credentials_file, compression_extension
+from utils.variables import bucket_name, data_folder, datasets_folder, language_prediction_data_folder, raw_data_file_name, credentials_file, compression_extension, dataset_length
 
-DEFAULT_DATASET_LENGTH: int = 100
 
 s3_client = boto3.client('s3')
 
@@ -56,7 +54,7 @@ def clean_regex_str(input_str: str) -> str:
     """
     return input_str.replace('+', '\\+')
     
-def load_data(dataset_length: int = DEFAULT_DATASET_LENGTH) -> pd.DataFrame:
+def load_data(dataset_length: int = dataset_length) -> pd.DataFrame:
     from utils.config import PRODUCTION
     
     # retrieve the Bigquery Helper
@@ -92,7 +90,7 @@ def load_data(dataset_length: int = DEFAULT_DATASET_LENGTH) -> pd.DataFrame:
     output_folder = get_file_path_relative(
         f'{data_folder}/{datasets_folder}/{folder_name}'
     )
-    clean_folder(output_folder, [f'*.{compression_extension}'])
+    clean_folder(output_folder, '*')
     
     output_path = os.path.join(output_folder, f"{raw_data_file_name}.{compression_extension}")
     
@@ -114,7 +112,7 @@ def main() -> pd.DataFrame:
 
     logger.info("\nMETADATA:\n" + str(dataset.dtypes))
     logger.info(f"Number of rows: {len(dataset)}")
-    logger.info('\n' + str(dataset.sample(5)) + '\n')
+    logger.info('\n' + str(dataset.sample(5, replace=True)) + '\n')
     logger.success("\n\nData Load Complete\n")
     
     

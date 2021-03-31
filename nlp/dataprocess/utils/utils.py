@@ -84,7 +84,7 @@ def list_files(directory, search) -> List[str]:
     return glob(join(directory, search))
 
 
-def clean_folder(directory: str, extensions: Iterable) -> None:
+def clean_folder(directory: str, extensions: Iterable, use_glob=True) -> None:
     """
     Remove all files within a directory with the specified extensions
     If the directory does not exist create the empty directory
@@ -97,13 +97,20 @@ def clean_folder(directory: str, extensions: Iterable) -> None:
             f"Attempting to clean a nonexistent directory: {directory}\nCreating empty folder")
         makedirs(directory)
         return
-
-    filepaths: List[str] = []
-    for extension in extensions:
-        filepaths += list_files(directory, f'*.{extension}')
-
-    for filepath in filepaths:
-        remove(join(directory, filepath))
+    
+    logger.info(f'cleaning directory: {directory}')
+    if use_glob:
+        for extension in extensions:
+            for filepath in glob(os.path.join(directory, extension)):
+                os.remove(filepath)
+                
+    else:        
+        filepaths: List[str] = []
+        for extension in extensions:
+            filepaths += list_files(directory, f'*.{extension}')
+    
+        for filepath in filepaths:
+            remove(join(directory, filepath))
 
 
 def normalize_filename(filename: str, file_id: str) -> str:

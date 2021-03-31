@@ -53,6 +53,7 @@ batch_size: int = 32
 
 language_prediction_data_folder  = 'language_prediction'
 raw_data_file_name = 'raw_data'
+clean_data_file_name = 'clean_data'
 compression_extension: str = 'gzip'
 
 type_path_dict: Dict[NLPType, str] = {
