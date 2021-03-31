@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-"""
-config file
-
-reads configuration from environment
-"""
 #################################
 # for handling relative imports #
 #################################
@@ -11,7 +5,7 @@ if __name__ == "__main__":
     import sys
     from pathlib import Path
 
-    current_file: Path = Path(__file__).resolve()
+    current_file = Path(__file__).resolve()
     root = next(
         elem for elem in current_file.parents if str(elem).endswith("dataprocess")
     )
@@ -23,16 +17,19 @@ if __name__ == "__main__":
         pass
 #################################
 
-
-from os import getenv
-from typing import Union
-from utils.config import read_config
-
-ELASTICSEARCH_HOST: str = ""
+from loguru import logger
+from language_prediction.config import read_config_language_prediction as read_config
+from language_prediction.load.load_language_prediction import main as load_data
 
 
-def read_config_language_prediction() -> None:
-    """
-    read config for language_prediction
-    """
+@logger.catch
+def main() -> None:
     read_config()
+    logger.info("Does anything even print")
+    load_data()
+    # clean_data()
+
+
+if __name__ == "__main__":
+    print("Does this even print")
+    main()

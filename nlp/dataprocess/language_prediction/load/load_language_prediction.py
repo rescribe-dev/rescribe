@@ -23,11 +23,12 @@ if __name__ == "__main__":
 #################################
 
 from loguru import logger
-from load.stackoverflow.language_prediction_stackoverflow_load import main as load_data
+from language_prediction.load.stackoverflow.language_prediction_stackoverflow_load import main as load_data
 
 
 @logger.catch
 def main() -> None:
+    logger.info("Made it to here")
     load_data()
 
 

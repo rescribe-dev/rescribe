@@ -34,12 +34,11 @@ from utils.languages import languages
 from utils.bigquery.big_query_helper import BigQueryHelper as bqh
 from utils.bigquery.get_bigquery_client import get_bigquery_client
 from utils.utils import get_file_path_relative, clean_folder, save_to_disk
-from utils.variables import bucket_name, data_folder, language_predict_raw_data_folder, raw_data_file_name
+from utils.variables import bucket_name, data_folder, datasets_folder, language_predict_raw_data_folder, raw_data_file_name, credentials_file
 
 DEFAULT_DATASET_LENGTH: int = 100
 
 s3_client = boto3.client('s3')
-credentials_file: str = 'utils/bigquery/bigquery_credentials.json'
 
 
 def get_values_concat(input_dictionary: Dict[str, List[str]]) -> List[str]:
@@ -91,17 +90,17 @@ def load_data(dataset_length: int = DEFAULT_DATASET_LENGTH) -> pd.DataFrame:
     # Determine output path and clean any existing data held within
     folder_name: str = language_predict_raw_data_folder
     output_folder = get_file_path_relative(
-        f'{data_folder}/{folder_name}'
+        f'{data_folder}/{datasets_folder}/{folder_name}'
     )
     clean_folder(output_folder, ['*.tar'])
     
-    output_path = os.path.join(output_folder, raw_data_file_name)
+    output_path = os.path.join(output_folder, f"{raw_data_file_name}.tgz")
     
     # Save new data to output folder
     logger.info(f"Writing to Local Disk - {output_path}")
     
-    save_to_disk(dataset, output_path, 'tar')
-    
+    save_to_disk({raw_data_file_name: dataset}, output_path, 'tar')
+    print(os.path.basename(output_path))
     if PRODUCTION:
         s3_client.upload_file(
             dataset, bucket_name, os.path.basename(output_path)    
