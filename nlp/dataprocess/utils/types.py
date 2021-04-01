@@ -11,6 +11,7 @@ class BaseEnum(Enum):
     """
     Base Enum with methods that all of our enums should implement
     """
+
     @classmethod
     def has_value(cls, value: Any) -> bool:
         """
@@ -44,6 +45,7 @@ class ModelMode(BaseEnum):
     """
     Mode of model initialization
     """
+
     initial_training = "initial_training"
     load_pretrained = "load_pretrained"
 
@@ -52,6 +54,7 @@ class NLPType(BaseEnum):
     """
     Enum to store nlp types
     """
+
     language_prediction = "language_prediction"
     base_library_prediction = "base_library_prediction"
     library_relation = "library_relation"

@@ -5,6 +5,7 @@ nlp type
 
 from enum import Enum
 from typing import Dict, List
+
 from utils.utils import enum_to_dict
 
 
@@ -12,6 +13,7 @@ class Libraries(Enum):
     """
     Enum to contain all of the libraries we want
     """
+
     # Java libraries
 
     javafx = ["javafx"]

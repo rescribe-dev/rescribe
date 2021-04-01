@@ -2,16 +2,17 @@
 """
 Utility functions for NLP
 """
-import os
-from os import remove, makedirs
-from os.path import abspath, join, exists
 import gzip
+import os
 import tarfile
 from enum import Enum
-from pathlib import Path
-from typing import List, Dict, Optional, Any, Iterable, Union, Tuple
 from glob import glob
+from os import makedirs, remove
+from os.path import abspath, exists, join
+from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+
 import pandas as pd
 from loguru import logger
 
@@ -173,15 +174,18 @@ def decompress(data_path: str, extension: str) -> None:
         raise NotImplementedError(f"Extension {extension} is not yet supported.")
 
 
-def read_from_disk(data_path: str, extension: str, chunksize: Optional[int] = None) -> Union[pd.DataFrame, List[pd.DataFrame]]:
-
+def read_from_disk(
+    data_path: str, extension: str, chunksize: Optional[int] = None
+) -> Union[pd.DataFrame, List[pd.DataFrame]]:
+    """
+    Reads a GZipped or uncompressed CSV into a dataframe and returns
+    """
+    extension = extension.strip().lower()
     if extension == "gzip":
         if chunksize is not None:
-            df = pd.read_csv(data_path, compression="gzip", chunksize=chunksize)
-            return df
+            return pd.read_csv(data_path, compression="gzip", chunksize=chunksize)
 
-        df = pd.read_csv(data_path, compression="gzip")
-        return df
+        return pd.read_csv(data_path, compression="gzip")
 
     if extension == "csv":
         if chunksize is not None:
@@ -204,7 +208,7 @@ def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension:
 
         with gzip.open(gz_name, "wb") as gzf:
 
-            for file_name, df in frame_dict.items():
+            for file_name, data_frame in frame_dict.items():
 
                 archive_name = os.path.join(gz_slug, file_name)
 
@@ -212,7 +216,7 @@ def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension:
 
                     temp_file_name = os.path.join(temp_dir, archive_name)
                     os.makedirs(os.path.dirname(temp_file_name), exist_ok=True)
-                    df.to_csv(temp_file_name, index=True)
+                    data_frame.to_csv(temp_file_name, index=True)
 
                     with open(temp_file_name, "rb") as f_in:
                         gzf.writelines(f_in)
@@ -227,7 +231,7 @@ def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension:
         with tarfile.open(tarfile_name, mode="w:gz") as tfo:
 
             # Loop over all dataframes to be saved
-            for file_name, df in frame_dict.items():
+            for file_name, data_frame in frame_dict.items():
 
                 # Compute the full path of the output file within the archive
                 archive_name = os.path.join(tarfile_slug, file_name)
@@ -238,7 +242,7 @@ def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension:
                     # Write a csv dump of the dataframe to a temporary file
                     temp_file_name = os.path.join(temp_dir, archive_name)
                     os.makedirs(os.path.dirname(temp_file_name), exist_ok=True)
-                    df.to_csv(temp_file_name, index=True)
+                    data_frame.to_csv(temp_file_name, index=True)
 
                     # Add the temp file to the tarfile
                     tfo.add(temp_file_name, arcname=archive_name)

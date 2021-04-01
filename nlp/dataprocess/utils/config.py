@@ -5,11 +5,10 @@ config file
 reads configuration from environment
 """
 
-from dotenv import load_dotenv, find_dotenv
-from os import getenv, environ
+from os import environ, getenv
 from typing import Union
 
-
+from dotenv import find_dotenv, load_dotenv
 
 """
 Module that monkey-patches json module when it's imported so
@@ -41,7 +40,7 @@ def read_config() -> None:
     """
     global PRODUCTION
     load_dotenv(find_dotenv())
-    production_str: Union[str, None] = getenv('PRODUCTION')
+    production_str: Union[str, None] = getenv("PRODUCTION")
     if production_str is not None:
-        PRODUCTION = production_str == 'true'
-    environ['CUDA_VISIBLE_DEVICES'] = str(0)
+        PRODUCTION = production_str == "true"
+    environ["CUDA_VISIBLE_DEVICES"] = str(0)
