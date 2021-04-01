@@ -66,9 +66,13 @@ const ProjectsPage = (_args: ProjectsProps): JSX.Element => {
           },
           fetchPolicy: 'network-only',
         });
-        projectsRes.data.projects.map((project) => {
-          project._id = new ObjectID(project._id);
-        });
+        projectsRes.data = {
+          ...projectsRes.data,
+          projects: projectsRes.data.projects.map((project) => ({
+            ...project,
+            _id: new ObjectID(project._id),
+          })),
+        };
         setProjects(projectsRes);
       } catch (err) {
         const errObj = err as Error;

@@ -61,12 +61,15 @@ query search(
     page: $page,
     maxResultsPerFile: $maxResultsPerFile
   ) {
-    ...fileFields
+    count
     results {
-      ...resultFields
-    }
-    fileResult {
-      ...fileResultFields
+      ...fileFields
+      results {
+        ...resultFields
+      }
+      fileResult {
+        ...fileResultFields
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Button, Table, Row, Col } from 'reactstrap';
 import { PageProps, navigate } from 'gatsby';
-import { ApolloQueryResult } from 'apollo-client';
+import { ApolloQueryResult } from '@apollo/client';
 
 import './index.scss';
 import { TokensMessages } from 'locale/pages/settings/tokens/tokensMessages';
@@ -46,14 +46,18 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
             fetchPolicy: 'network-only',
           }
         );
-        tokensRes.data.tokens.map((token) => {
-          token._id = new ObjectId(token._id);
-        });
+        tokensRes.data = {
+          ...tokensRes.data,
+          tokens: tokensRes.data.tokens.map((token) => {
+            return {
+              ...token,
+              _id: new ObjectId(token._id),
+            };
+          }),
+        };
         setTokens(tokensRes);
       } catch (err) {
         const errObj = err as Error;
-        console.log(err);
-        console.log(JSON.stringify(err));
         toast(errObj.message, {
           type: 'error',
         });
@@ -70,12 +74,15 @@ const TokensPage = (_args: TokensProps): JSX.Element => {
   >(DeleteToken);
 
   const getExpirationMessage = (expiration: number): string => {
+    if (expiration === Number.MAX_SAFE_INTEGER) {
+      return 'never';
+    }
     const expirationDate = new Date(expiration);
     const now = new Date();
     if (expirationDate < now) {
       return 'expired';
     }
-    return formatDistance(expiration, now);
+    return formatDistance(expirationDate, now);
   };
 
   return (

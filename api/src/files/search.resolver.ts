@@ -9,7 +9,7 @@ import Comment from '../schema/antlr/comment';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import User, { UserModel } from '../schema/users/user';
 import File, { FileModel } from '../schema/structure/file';
-import { SearchResult, ResultType, FileResult, FileLocation, Preview } from '../schema/structure/search';
+import { SearchResult, ResultType, FileResult, FileResults, FileLocation, Preview } from '../schema/structure/search';
 import { ObjectId } from 'mongodb';
 import NestedObject from '../schema/antlr/nestedObject';
 import { getText, getLinesArray } from './fileText.resolver';
@@ -149,8 +149,8 @@ const getPreview = async (fileData: { [key: string]: string[] }, fileID: ObjectI
 
 @Resolver()
 class SearchResolver {
-  @Query(_returns => [FileResult])
-  async search(@Args() args: SearchArgs, @Ctx() ctx: GraphQLContext, @Info() info: GraphQLResolveInfo): Promise<FileResult[]> {
+  @Query(_returns => FileResults)
+  async search(@Args() args: SearchArgs, @Ctx() ctx: GraphQLContext, @Info() info: GraphQLResolveInfo): Promise<FileResults> {
     const startTime = new Date();
     const oneFile = args.file !== undefined;
     if (args.maxResultsPerFile !== undefined && oneFile) {
@@ -168,7 +168,10 @@ class SearchResolver {
     const repositoryData: { [key: string]: RepositoryDB } = {};
     // do the actual search:
     const elasticFileData = await search(user, args, repositoryData);
-    const results: FileResult[] = [];
+    const results: FileResults = {
+      count: 0,
+      results: []
+    };
     if (!elasticFileData) {
       return results;
     }
@@ -188,6 +191,8 @@ class SearchResolver {
 
     const topLevelFields = graphqlFields(info);
     const topLevelFieldNames = Object.keys(topLevelFields);
+
+    results.count = elasticFileData.body.hits.total;
 
     // iterate over top-level hits
 
@@ -300,7 +305,7 @@ class SearchResolver {
           return results;
         }
         if (args.maxResultsPerFile === resultCount) {
-          results.push(currentFileResult);
+          results.results.push(currentFileResult);
           continue;
         }
       }
@@ -397,7 +402,7 @@ class SearchResolver {
           }
         }
       }
-      results.push(currentFileResult);
+      results.results.push(currentFileResult);
     }
     logger.info(`total time: ${new Date().getTime() - startTime.getTime()}`);
     return results;

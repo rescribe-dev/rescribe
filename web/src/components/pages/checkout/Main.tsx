@@ -126,9 +126,13 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
         variables: {},
         fetchPolicy: 'network-only',
       });
-      addressesRes.data.addresses.map((address) => {
-        address._id = new ObjectId(address._id);
-      });
+      addressesRes.data = {
+        ...addressesRes.data,
+        addresses: addressesRes.data.addresses.map((address) => ({
+          ...address,
+          _id: new ObjectId(address._id),
+        })),
+      };
       setAddresses(addressesRes);
       if (args && formRef.current) {
         if (args.id) {
@@ -168,9 +172,13 @@ const Main = (args: CheckoutMainProps): JSX.Element => {
         variables: {},
         fetchPolicy: 'network-only',
       });
-      paymentMethodsRes.data.paymentMethods.map((method) => {
-        method._id = new ObjectId(method._id);
-      });
+      paymentMethodsRes.data = {
+        ...paymentMethodsRes.data,
+        paymentMethods: paymentMethodsRes.data.paymentMethods.map((method) => ({
+          ...method,
+          _id: new ObjectId(method._id),
+        })),
+      };
       setPaymentMethods(paymentMethodsRes);
       if (args && formRef.current) {
         if (args.id) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Form, Label, FormGroup } from 'reactstrap';
 import ObjectId from 'bson-objectid';
 import {
@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'state';
 import { setProjects, setRepositories } from 'state/search/actions';
 import { perpageFilters } from 'utils/variables';
+import { toast } from 'react-toastify';
 
 interface SelectObject {
   value: ObjectId;
@@ -80,9 +81,19 @@ const UserFilters = (_args: UserFiltersPropsDataType): JSX.Element => {
       throw new Error('cannot find projects data');
     }
   };
-  getProjects('').catch((_err) => {
-    // handle error
-  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await getProjects('');
+      } catch (err) {
+        toast((err as Error).message, {
+          type: 'error',
+        });
+      }
+    })();
+  }, []);
+
   const getRepositories = async (
     inputValue: string
   ): Promise<SelectObject[]> => {
@@ -137,7 +148,7 @@ const UserFilters = (_args: UserFiltersPropsDataType): JSX.Element => {
               loadOptions={getProjects}
               defaultOptions={defaultProjectOptions}
               value={selectedProjects}
-              onChange={(selectedOptions: ValueType<SelectObject>) => {
+              onChange={(selectedOptions: ValueType<SelectObject, any>) => {
                 if (!selectedOptions) {
                   selectedOptions = [];
                 }
@@ -166,7 +177,7 @@ const UserFilters = (_args: UserFiltersPropsDataType): JSX.Element => {
               value={selectedRepositories}
               isDisabled={selectedProjects.length !== 1}
               loadOptions={getRepositories}
-              onChange={(selectedOptions: ValueType<SelectObject>) => {
+              onChange={(selectedOptions: ValueType<SelectObject, any>) => {
                 if (!selectedOptions) {
                   selectedOptions = [];
                 }

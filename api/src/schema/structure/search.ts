@@ -99,3 +99,13 @@ export class FileResult {
   @Field(_type => Float, { description: 'result score' })
   score: number;
 }
+
+// file result data (with count)
+@ObjectType({ description: 'file results' })
+export class FileResults {
+  @Field(_type => [FileResult], { description: 'file result data' })
+  results: FileResult[];
+
+  @Field(_type => Int, { description: 'total number of results' })
+  count: number;
+}

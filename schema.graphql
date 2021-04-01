@@ -260,6 +260,15 @@ type FileResult {
   score: Float!
 }
 
+"""file results"""
+type FileResults {
+  """total number of results"""
+  count: Int!
+
+  """file result data"""
+  results: [FileResult!]!
+}
+
 """file result match"""
 type FileSearchResult {
   """file preview"""
@@ -1283,7 +1292,7 @@ type Query {
 
     """repositories"""
     repositories: [ObjectId!]
-  ): [FileResult!]!
+  ): FileResults!
   supportedExtensions: [String!]!
   token(
     """token id"""

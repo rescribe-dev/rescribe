@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { css } from '@emotion/core';
-import { Container, Row, Col } from 'reactstrap';
+import {
+  Container,
+  Row,
+  Col,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+} from 'reactstrap';
 import { PageProps } from 'gatsby';
 
 import './index.scss';
@@ -64,7 +71,7 @@ const SearchPage = (args: SearchProps): JSX.Element => {
         try {
           await dispatchSearchThunk(thunkSearch());
         } catch (err) {
-          toast(err.message, {
+          toast((err as Error).message, {
             type: 'error',
           });
         }
@@ -175,7 +182,7 @@ const SearchPage = (args: SearchProps): JSX.Element => {
                 color="var(--red-stop)"
                 loading={searching}
               />
-            ) : !searchResult || searchResult.search.length === 0 ? (
+            ) : !searchResult || searchResult.search.results.length === 0 ? (
               <>
                 {hasSearched ? (
                   <p>no results found</p>
@@ -185,7 +192,7 @@ const SearchPage = (args: SearchProps): JSX.Element => {
               </>
             ) : (
               <>
-                {searchResult.search.map((file) => {
+                {searchResult.search.results.map((file) => {
                   const fileResults = [...file.results];
                   if (file.fileResult && file.fileResult.results.length > 0) {
                     const names = file.fileResult.results
@@ -199,16 +206,37 @@ const SearchPage = (args: SearchProps): JSX.Element => {
                     });
                   }
                   return (
-                    <FileResultComponent
-                      key={`file-${file._id}`}
-                      file={file}
-                      previewSearchResults={fileResults}
-                    />
+                    <Row key={`file-${file._id}`}>
+                      <Col className="mb-2">
+                        <FileResultComponent
+                          file={file}
+                          previewSearchResults={fileResults}
+                        />
+                      </Col>
+                    </Row>
                   );
                 })}
               </>
             )}
           </Container>
+          {/* TODO - add information for pagination to graphql object return type */}
+          {searching ||
+          !searchResult ||
+          searchResult.search.count === 0 ? null : (
+            <Container>
+              <Pagination>
+                <PaginationItem>
+                  <PaginationLink previous />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink>1</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink next />
+                </PaginationItem>
+              </Pagination>
+            </Container>
+          )}
         </Col>
       </Row>
     </Container>

@@ -66,9 +66,15 @@ const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
           },
           fetchPolicy: 'network-only',
         });
-        repositoriesRes.data.repositories.map((repository) => {
-          repository._id = new ObjectId(repository._id);
-        });
+        repositoriesRes.data = {
+          ...repositoriesRes.data,
+          repositories: repositoriesRes.data.repositories.map((repository) => {
+            return {
+              ...repository,
+              _id: new ObjectId(repository._id),
+            };
+          }),
+        };
         setRepositories(repositoriesRes);
       } catch (err) {
         const errObj = err as Error;

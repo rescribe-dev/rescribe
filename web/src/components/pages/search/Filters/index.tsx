@@ -57,7 +57,7 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
       );
   const [languageOptions, setLanguageOptions] = useState<SelectObject[]>([]);
   const getLabel = (language: LanguageData): string => {
-    return `name: ${language.name}, color: ${language.color}`;
+    return `name: ${language.name}, color: ${language.darkColor}`;
   };
   if (!isSSR) {
     useQuery<LanguagesQuery, LanguagesQueryVariables>(Languages, {
@@ -150,7 +150,7 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
                   cacheOptions={true}
                   loadOptions={getLanguages}
                   value={selectedLanguages}
-                  onChange={(selectedOptions: ValueType<SelectObject>) => {
+                  onChange={(selectedOptions: ValueType<SelectObject, any>) => {
                     if (!selectedOptions) {
                       selectedOptions = [];
                     }

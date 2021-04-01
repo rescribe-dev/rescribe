@@ -39,7 +39,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                 }}
               />
             </Col>
-            <Col md="10" className="align-items-start justify-content-end">
+            <Col md="9" className="align-items-start justify-content-end">
               <Row>
                 <Col>
                   <Row>
@@ -61,7 +61,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                         {' > '}
                       </CardText>
                       <Link
-                        to="/"
+                        to={`/${args.file.location.owner}/${args.file.location.repository}/tree/master${args.file.path}`}
                         style={{
                           color: 'var(--link-blue)',
                         }}
@@ -73,7 +73,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                 </Col>
               </Row>
             </Col>
-            <Col md="1">
+            <Col md="2">
               <Row className="align-items-center justify-content-center no-gutters">
                 <Col xs="3" className="align-items-flex-end">
                   <Media
