@@ -12,3 +12,4 @@
 
 ### language_prediction
 
+See [language_prediction](language_prediction/README.md) for details
