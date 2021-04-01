@@ -53,5 +53,5 @@ class NLPType(BaseEnum):
     Enum to store nlp types
     """
     language_prediction = "language_prediction"
-    base_library = "base_library"
+    base_library_prediction = "base_library_prediction"
     library_relation = "library_relation"

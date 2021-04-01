@@ -46,7 +46,7 @@ def clean_data(chunksize: int = DEFAULT_CHUNKSIZE) -> pd.DataFrame:
     raw_data_path: str = get_file_path_relative(f'{data_folder}/{datasets_folder}/{folder_name}/{raw_data_file_name}.{compression_extension}')
     
     # Note that df_chunks is a TextFileReader, NOT the entire dataset stored in ram
-    df_chunks  = read_from_disk(raw_data_path, compression_extension, chunksize=chunksize)
+    df_chunks = read_from_disk(raw_data_path, compression_extension, chunksize=chunksize)
     
     labelencoder = LabelEncoder()
     labelencoder.fit(list(languages.keys()))

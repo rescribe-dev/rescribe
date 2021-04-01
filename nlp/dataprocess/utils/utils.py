@@ -2,20 +2,36 @@
 """
 Utility functions for NLP
 """
+import os
+from os import remove, makedirs
+from os.path import abspath, join, exists
 import gzip
 import tarfile
-import pandas as pd
-import datetime
-import os
-from os import listdir, remove, makedirs
-from os.path import abspath, join, exists
 from enum import Enum
 from pathlib import Path
-from loguru import logger
-from typing import List, Dict, Optional, Any, Iterable
+from typing import List, Dict, Optional, Any, Iterable, Union, Tuple
 from glob import glob
-
 from tempfile import TemporaryDirectory
+import pandas as pd
+from loguru import logger
+
+
+def get_values_concat(input_dictionary: Dict[str, List[str]]) -> List[str]:
+    """
+    flatten dictionary to list of strings
+    """
+    return_list: List[str] = []
+    for value in input_dictionary.values():
+        return_list.extend(value)
+    return return_list
+
+
+def clean_regex_str(input_str: str) -> str:
+    """
+    sanitize regex bigquery string
+    """
+    return input_str.replace("+", "\\+")
+
 
 def enum_to_dict(enum: Enum) -> Dict[str, Any]:
     """
@@ -56,59 +72,67 @@ def compress_labels(frame: pd.DataFrame, keys: Dict) -> pd.DataFrame:
         tags = row["tags"]
         new_label = _compress_labels_helper(tags, keys)
         if new_label is not None:
-            new_row = {"id": row["id"],
-                       "title": row["title"], "tags": new_label}
+            new_row = {"id": row["id"], "title": row["title"], "tags": new_label}
             output = output.append(new_row, ignore_index=True)
             continue
 
     return output
 
 
-def get_file_path_relative(path):
+def get_file_path_relative(path: str) -> str:
     """
     returns path relative to the home folder (nlp)
     """
-    current_path = abspath(Path(__file__).absolute())
-    separator = '/nlp/'
-    split_path = current_path.split(separator)
+    current_path: str = abspath(Path(__file__).absolute())
+    separator: str = "/nlp/"
+    split_path: List[str] = current_path.split(separator)
     if len(split_path) < 2:
-        raise RuntimeError('nlp path not found')
-    nlp_path = abspath(join(split_path[0], separator.replace('/', '')))
+        raise RuntimeError("nlp path not found")
+    nlp_path: str = abspath(join(split_path[0], separator.replace("/", "")))
     return abspath(join(nlp_path, path))
 
 
-def list_files(directory, search) -> List[str]:
+def list_files(directory: str, search: Iterable) -> List[str]:
     """
     list files
     """
-    return glob(join(directory, search))
+    if isinstance(search, str):
+        search = [search]
+
+    output: List[str] = []
+    for term in search:
+        for filepath in glob(os.path.join(directory, term)):
+            output.append(filepath)
+
+    return output
 
 
-def clean_folder(directory: str, extensions: Iterable, use_glob=True) -> None:
+def clean_folder(directory: str, extensions: Union[Iterable, str], use_glob: bool = True) -> None:
     """
     Remove all files within a directory with the specified extensions
-    If the directory does not exist create the empty directory
+    If the directory does not exist, create the empty directory
     """
     if isinstance(extensions, str):
         extensions = [extensions]
 
     if not exists(directory):
         logger.critical(
-            f"Attempting to clean a nonexistent directory: {directory}\nCreating empty folder")
+            f"Attempting to clean a nonexistent directory: {directory}\nCreating empty folder"
+        )
         makedirs(directory)
         return
-    
-    logger.info(f'cleaning directory: {directory}')
+
+    logger.info(f"cleaning directory: {directory}")
     if use_glob:
         for extension in extensions:
             for filepath in glob(os.path.join(directory, extension)):
                 os.remove(filepath)
-                
-    else:        
+
+    else:
         filepaths: List[str] = []
         for extension in extensions:
-            filepaths += list_files(directory, f'*.{extension}')
-    
+            filepaths += list_files(directory, f"*.{extension}")
+
         for filepath in filepaths:
             remove(join(directory, filepath))
 
@@ -119,83 +143,102 @@ def normalize_filename(filename: str, file_id: str) -> str:
     input: filename.extension, id
     returns: filename.id.extension.dat
     """
-    filename_list: List[str] = filename.split('.')
-    filename_list.append('dat')
+    filename_list: List[str] = filename.split(".")
+    filename_list.append("dat")
     filename_list.insert(-2, file_id)
 
-    return '.'.join(filename_list)
+    return ".".join(filename_list)
 
 
-def original_filename(normalized_filename: str) -> str:
+def original_filename(normalized_filename: str) -> Tuple[str, str]:
     """
     Given a normalized filename, return the original filename
     input: filename.id.extension.dat
     returns: filename.extension, id
     """
-    filename_list: List[str] = normalized_filename.split('.')
+    filename_list: List[str] = normalized_filename.split(".")
     file_id: str = filename_list.pop(-3)
 
-    return '.'.join(filename_list[:-1]), file_id
+    return ".".join(filename_list[:-1]), file_id
 
-def read_from_disk(data_path: str, extension: str, chunksize: int = None) -> pd.DataFrame:
-    if extension == 'gzip':
+
+def decompress(data_path: str, extension: str) -> None:
+    """
+    Decompress your tgz file into the current working directory.
+    """
+    if extension == "tgz":
+        with tarfile.open(data_path, "r:gz") as tar:
+            tar.extractall()
+    else:
+        raise NotImplementedError(f"Extension {extension} is not yet supported.")
+
+
+def read_from_disk(data_path: str, extension: str, chunksize: Optional[int] = None) -> Union[pd.DataFrame, List[pd.DataFrame]]:
+
+    if extension == "gzip":
         if chunksize is not None:
-            df = pd.read_csv(data_path, compression='gzip', chunksize=chunksize)
+            df = pd.read_csv(data_path, compression="gzip", chunksize=chunksize)
             return df
-            
-        df = pd.read_csv(data_path, compression='gzip')
-        return df 
-        
-    if extension == 'tar':
-        raise NotImplementedError()
-                
-                
+
+        df = pd.read_csv(data_path, compression="gzip")
+        return df
+
+    if extension == "csv":
+        if chunksize is not None:
+            return pd.read_csv(data_path, chunksize=chunksize)
+        return pd.read_csv(data_path)
+
+    raise NotImplementedError(f"{extension} files are not yet supported.")
+
+
 def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension: str) -> None:
-    
-    if extension == 'gzip':
+
+    if extension == "gzip":
         gz_slug = os.path.basename(data_path)
         gz_name = data_path
-        
+
         if len(frame_dict) != 1:
-            raise ValueError(f"Only dictionaries of length 1 are allowed with gzip compression\nRecieved length: {len(frame_dict)}")
-            
-        with gzip.open(gz_name, 'wb') as gzf:
-            
+            raise ValueError(
+                f"Only dictionaries of length 1 are allowed with gzip compression\nRecieved length: {len(frame_dict)}"
+            )
+
+        with gzip.open(gz_name, "wb") as gzf:
+
             for file_name, df in frame_dict.items():
-                
+
                 archive_name = os.path.join(gz_slug, file_name)
-                
+
                 with TemporaryDirectory(prefix="rev_processing__") as temp_dir:
-                    
+
                     temp_file_name = os.path.join(temp_dir, archive_name)
                     os.makedirs(os.path.dirname(temp_file_name), exist_ok=True)
                     df.to_csv(temp_file_name, index=True)
-                    
-                    with open(temp_file_name, 'rb') as f_in:
+
+                    with open(temp_file_name, "rb") as f_in:
                         gzf.writelines(f_in)
-                        
-    if extension == 'tar':
-        
+
+    if extension == "tar":
+
         tarfile_slug = os.path.basename(data_path)
         # Compute the full path to the tarfile that will be created
         tarfile_name = data_path
-    
+
         # Create a tarfile into which frames can be added
-        with tarfile.open(tarfile_name, mode='w:gz') as tfo:
-        
+        with tarfile.open(tarfile_name, mode="w:gz") as tfo:
+
             # Loop over all dataframes to be saved
             for file_name, df in frame_dict.items():
-    
+
                 # Compute the full path of the output file within the archive
                 archive_name = os.path.join(tarfile_slug, file_name)
-    
+
                 # Create a temporary directory for packaging into a tar_file
-                with TemporaryDirectory(prefix='rev_processing__') as temp_dir:
-                    
+                with TemporaryDirectory(prefix="rev_processing__") as temp_dir:
+
                     # Write a csv dump of the dataframe to a temporary file
                     temp_file_name = os.path.join(temp_dir, archive_name)
                     os.makedirs(os.path.dirname(temp_file_name), exist_ok=True)
                     df.to_csv(temp_file_name, index=True)
-    
+
                     # Add the temp file to the tarfile
                     tfo.add(temp_file_name, arcname=archive_name)

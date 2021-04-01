@@ -43,7 +43,7 @@ inter_library_tokenization_model_path = 'tokenization_model'
 credentials_file: str = 'utils/bigquery/bigquery_credentials.json'
 classes_file: str = 'classes.yml'
 checkpoint_file: str = 'cp.ckpt'
-main_data_file: str = 'data_file.csv'
+main_data_file: str = 'data_file'
 
 batch_size: int = 32
 
@@ -51,6 +51,7 @@ batch_size: int = 32
 # we_batch_size: int = 64
 # we_tf_data_folder: str = "tf_dataset"
 
+base_library_prediction_data_folder = 'base_library_prediction'
 language_prediction_data_folder  = 'language_prediction'
 raw_data_file_name = 'raw_data'
 clean_data_file_name = 'clean_data'
@@ -58,6 +59,6 @@ compression_extension: str = 'gzip'
 
 type_path_dict: Dict[NLPType, str] = {
     NLPType.language_prediction: 'language_prediction',
-    NLPType.base_library: 'base_library_prediction',
+    NLPType.base_library_prediction: 'base_library_prediction',
     NLPType.library_relation: 'inter_library_relation',
 }
