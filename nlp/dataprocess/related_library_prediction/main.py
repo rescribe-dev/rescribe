@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
 main file
-
 entry point for running nlp dataload module
 """
 
@@ -24,18 +23,19 @@ if __name__ == "__main__":
         pass
 #################################
 
-
 from loguru import logger
-from base_library_prediction.config import read_config_base_library_prediction as read_config
-from base_library_prediction.load.load_base_library_prediction import main as load_data
-from base_library_prediction.clean.clean_base_library_prediction import main as clean_data
+from asyncio import get_event_loop
+from utils.config import read_config
+from related_library_prediction.load.load_related_library_prediction import main as load_data
+# from related_library_prediction.clean.clean_related_library_prediction import main as clean_data
+
 
 @logger.catch
-def main() -> None:
+async def main() -> None:
     read_config()
     load_data()
-    clean_data()
+    # await clean_data()
     
 if __name__ == "__main__":
-    main()
-    
+    loop = get_event_loop()
+    loop.run_until_complete(main())

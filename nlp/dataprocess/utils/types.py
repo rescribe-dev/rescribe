@@ -57,4 +57,4 @@ class NLPType(BaseEnum):
 
     language_prediction = "language_prediction"
     base_library_prediction = "base_library_prediction"
-    library_relation = "library_relation"
+    related_library_prediction = "related_library_prediction"

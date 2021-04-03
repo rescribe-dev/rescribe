@@ -22,13 +22,24 @@ if __name__ == "__main__":
         pass
 #################################
 
+import os
 from loguru import logger
-from base_library_prediction.load.stackoverflow.base_library_prediction_stackoverflow_load import main as load_data
+from Naked.toolshed.shell import execute_js
+from utils.utils import get_file_path_relative
 
+def run_js_datasets() -> bool:
+    success = execute_js(
+        os.path.join("..", "..", "datasets", "libraries", "java", "lib", "index.js")    
+    )
+    
+    return success
 
 @logger.catch
 def main() -> None:
-    load_data()
+    # load the data
+    success = run_js_datasets()
+    if not success:
+        raise RuntimeError("Unable to run the datasets node script successfully")
 
 
 if __name__ == "__main__":

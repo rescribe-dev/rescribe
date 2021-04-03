@@ -51,8 +51,10 @@ batch_size: int = 32
 # we_batch_size: int = 64
 # we_tf_data_folder: str = "tf_dataset"
 
-base_library_prediction_data_folder = "base_library_prediction"
 language_prediction_data_folder = "language_prediction"
+base_library_prediction_data_folder = "base_library_prediction"
+related_library_prediction_data_folder = "related_library_prediction"
+
 raw_data_file_name = "raw_data"
 clean_data_file_name = "clean_data"
 compression_extension: str = "gzip"
@@ -60,5 +62,5 @@ compression_extension: str = "gzip"
 type_path_dict: Dict[NLPType, str] = {
     NLPType.language_prediction: "language_prediction",
     NLPType.base_library_prediction: "base_library_prediction",
-    NLPType.library_relation: "inter_library_relation",
+    NLPType.related_library_prediction: "related_library_prediction",
 }
