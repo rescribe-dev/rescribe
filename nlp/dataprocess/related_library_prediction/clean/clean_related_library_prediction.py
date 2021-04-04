@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 """
-main file
-entry point for running nlp dataload module
+clean data
 """
 
 #################################
 # for handling relative imports #
 #################################
-if __name__ == "__main__":
+if __name__ == '__main__':
     import sys
     from pathlib import Path
-
     current_file = Path(__file__).resolve()
-    root = next(
-        elem for elem in current_file.parents if str(elem).endswith("dataprocess")
-    )
+    root = next(elem for elem in current_file.parents
+                if str(elem).endswith('dataprocess'))
     sys.path.append(str(root))
     # remove the current file's directory from sys.path
     try:
@@ -23,20 +20,24 @@ if __name__ == "__main__":
         pass
 #################################
 
-
 from loguru import logger
+from utils.types import NLPType
 from asyncio import get_event_loop
 from utils.config import read_config
-from related_library_prediction.load.load_related_library_prediction import main as load_data
-from related_library_prediction.clean.clean_related_library_prediction import main as clean_data
+from utils.clean_utils import save_to_s3
+from utils.file_extensions import FileExtensions
+from related_library_prediction.clean.github.related_library_prediction_github_clean import main as clean_data
 
 
 @logger.catch
 async def main() -> None:
     read_config()
-    load_data()
-    await clean_data()
+    await clean_data([FileExtensions.java])
+    save_to_s3(NLPType.related_library_prediction)
     
 if __name__ == "__main__":
     loop = get_event_loop()
     loop.run_until_complete(main())
+
+
+

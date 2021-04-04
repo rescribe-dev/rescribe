@@ -169,7 +169,7 @@ def decompress(data_path: str, extension: str) -> None:
     """
     if extension == "tgz":
         with tarfile.open(data_path, "r:gz") as tar:
-            tar.extractall()
+            tar.extractall(os.path.dirname(data_path))
     else:
         raise NotImplementedError(f"Extension {extension} is not yet supported.")
 
