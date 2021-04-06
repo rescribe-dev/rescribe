@@ -108,6 +108,7 @@ def load_data(dataset_length: int = dataset_length, batch_size: int = 1000) -> p
                     file_id = row[1][id_key]
                     
                     if filename is None or content is None or file_id is None:
+                        pbar.update(1)
                         continue
                     
                     archive_name: str = normalize_filename(filename, file_id)
@@ -117,6 +118,8 @@ def load_data(dataset_length: int = dataset_length, batch_size: int = 1000) -> p
                     tar.add(temp_file_path, arcname=archive_name)
                     
                     pbar.update(1)
+            logger.debug("Finished querying files... ")
+            logger.debug(f"Tar file should now close at {output_path}")
     pbar.close()
     
     return frame

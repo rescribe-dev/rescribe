@@ -108,7 +108,9 @@ def list_files(directory: str, search: Iterable) -> List[str]:
     return output
 
 
-def clean_folder(directory: str, extensions: Union[Iterable, str], use_glob: bool = True) -> None:
+def clean_folder(
+    directory: str, extensions: Union[Iterable, str], use_glob: bool = True
+) -> None:
     """
     Remove all files within a directory with the specified extensions
     If the directory does not exist, create the empty directory
@@ -195,9 +197,11 @@ def read_from_disk(
     raise NotImplementedError(f"{extension} files are not yet supported.")
 
 
-def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension: str) -> None:
+def save_to_disk(
+    frame_dict: Dict[str, pd.DataFrame], data_path: str, extension: str
+) -> None:
 
-    if extension == "gzip":
+    if extension.lower().strip().endswith("gzip"):
         gz_slug = os.path.basename(data_path)
         gz_name = data_path
 
@@ -221,7 +225,7 @@ def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension:
                     with open(temp_file_name, "rb") as f_in:
                         gzf.writelines(f_in)
 
-    if extension == "tar":
+    elif extension.lower().strip().endswith("tar"):
 
         tarfile_slug = os.path.basename(data_path)
         # Compute the full path to the tarfile that will be created
@@ -246,3 +250,7 @@ def save_to_disk(frame_dict: Dict[str, pd.DataFrame], data_path: str, extension:
 
                     # Add the temp file to the tarfile
                     tfo.add(temp_file_name, arcname=archive_name)
+    else:
+        raise NotImplementedError(
+            f"The provided extension, {extension}, is not currently supported... please try again with a supported extension."
+        )
