@@ -5,6 +5,7 @@ Utility functions for NLP
 import gzip
 import os
 import tarfile
+import subprocess
 from enum import Enum
 from glob import glob
 from os import makedirs, remove
@@ -193,7 +194,31 @@ def read_from_disk(
         if chunksize is not None:
             return pd.read_csv(data_path, chunksize=chunksize)
         return pd.read_csv(data_path)
-
+    
+    if extension == 'tgz':
+        output = []
+        with tarfile.open(data_path, 'r:gz') as tar:
+            with TemporaryDirectory(prefix='reading_processing_') as temp_dir:
+                tar.extractall(temp_dir)
+                if chunksize is not None:
+                    logger.info('Chunksize param is ignored for tgz files')
+                filepaths = list_files(temp_dir, '*')
+                logger.info(filepaths)
+                for filepath in filepaths:
+                    if filepath.split('.')[-1] == 'csv':
+                        output.append(pd.read_csv(filepath))
+                    else:
+                        logger.info(f"Found non csv {filepath}, saving to data directory {os.path.dirname(data_path)}/{os.path.basename(filepath)}")
+                        bashCommand = f'mv {filepath} {os.path.dirname(data_path)}'
+                        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+                        process_return, error = process.communicate()
+                        if process_return is not None and len(process_return) > 1:
+                            logger.info(process_return)
+                        if error is not None:
+                            logger.info(error)
+                        
+        return output
+        
     raise NotImplementedError(f"{extension} files are not yet supported.")
 
 
