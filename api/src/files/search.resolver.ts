@@ -104,6 +104,7 @@ const getPreview = async (fileData: { [key: string]: string[] }, fileID: ObjectI
       end: minLinesToSplit
     };
   }
+  // this preview is good
   preview.startPreviewLineNumber = location.start;
   const delta = location.end - preview.startPreviewLineNumber;
   const useSplit = delta >= minLinesToSplit;

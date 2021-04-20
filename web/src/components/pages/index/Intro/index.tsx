@@ -3,6 +3,7 @@ import { Container, Row, Col } from 'reactstrap';
 import { IndexMessages } from 'locale/pages/index/indexMessages';
 import Companies from './Companies';
 import NavigationCards from './NavigationCards';
+import { Link } from 'gatsby';
 
 const Intro = (_messages: IndexMessages): JSX.Element => {
   return (
@@ -36,6 +37,11 @@ const Intro = (_messages: IndexMessages): JSX.Element => {
             <p>
               Code can be indexed using our API, CLI, and soon our website. It
               can be retrieved using our API, website, and our VSCode Extension.
+              Check out our project poster here:{' '}
+              <Link target="_blank" to="https://tinyurl.com/rescribe-dev">
+                https://tinyurl.com/rescribe-dev
+              </Link>
+              .
             </p>
           </Col>
         </Row>

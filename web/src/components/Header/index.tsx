@@ -183,7 +183,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
           </div>
           <Collapse isOpen={headerIsOpen} navbar>
             <Nav navbar className="mr-auto">
-              <NavLink className="navbar-link" tag={Link} to="/start">
+              {/*<NavLink className="navbar-link" tag={Link} to="/start">
                 <span>
                   <FormattedMessage id="start">
                     {(messages: string[]) => (
@@ -191,7 +191,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     )}
                   </FormattedMessage>
                 </span>
-              </NavLink>
+              </NavLink>*/}
               <NavLink className="navbar-link" tag={Link} to="/pricing">
                 <span>
                   <FormattedMessage id="pricing">
@@ -201,7 +201,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                   </FormattedMessage>
                 </span>
               </NavLink>
-              <NavLink className="navbar-link" tag={Link} to="/explore">
+              {/* <NavLink className="navbar-link" tag={Link} to="/explore">
                 <span>
                   <FormattedMessage id="explore">
                     {(messages: string[]) => (
@@ -209,7 +209,7 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     )}
                   </FormattedMessage>
                 </span>
-              </NavLink>
+              </NavLink> */}
               {loggedIn
                 ? [
                     <NavLink

@@ -10,13 +10,13 @@ from logging import Logger
 from typing import cast
 from loguru import logger
 from aiohttp import web
-from bert.predict.main import main as predict_bert
+from bert.predict.main import main as predict
 from shared.type import NLPType, LanguageType, PackageManager
 from shared.utils import get_file_path_relative
 from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
 from aiohttp_swagger3.routes import _SWAGGER_SPECIFICATION as swaggerspec_key, CustomEncoder
-from json import dumps as json_dump, loads as json_load
-
+import json
+import requests
 
 async def index() -> web.Response:
     """
@@ -79,9 +79,9 @@ QUERY_KEY: str = 'query'
 LANG_KEY: str = 'language'
 NUM_RES_KEY: str = 'limit'
 
-
+# use this one, match the package manager to the language
 async def predict_library_elastic_request(term: str, lang: LanguageType, package_manager: PackageManager):
-    if not LanuageType.has_value(lang):
+    if not LanguageType.has_value(lang):
         raise TypeError(
             f"lang has value: {lang} expected {LanguageType.get_values()}")
     if not PackageManager.has_value(package_manager):
@@ -93,7 +93,7 @@ async def predict_library_elastic_request(term: str, lang: LanguageType, package
         "query": {
             "match": {
                 "library": term,
-                "language": lang.nam,
+                "language": lang.name,
                 "package_manager": package_manager
             }
         }
@@ -159,6 +159,7 @@ async def predict_language(request: web.Request) -> web.Response:
     })
 
 
+# this one should also work
 async def predict_related_library(request: web.Request) -> web.Response:
     """
     predict the n-nearest libraries given the query library
@@ -181,8 +182,8 @@ async def predict_related_library(request: web.Request) -> web.Response:
         if req_key not in json_data:
             raise ValueError(f"cannot find key {req_key} in request body")
     # TODO: Write this method \/
-    res = predict(json_data[QUERY_KEY], {
-                  "n_nearest": int(json_data[NUM_RES_KEY])})
+    res = predict_2(json_data[QUERY_KEY], NLPType.library_relation, n_nearest = int(json_data[NUM_RES_KEY]))
+    # {"n_nearest": int(json_data[NUM_RES_KEY])}
     return web.json_response({
         'data': res
     })
@@ -210,11 +211,12 @@ def start_server():
         web.get('/', index),
         web.get('/hello', hello),
         web.get('/ping', ping),
-        web.put('/predictLibrary', predict_library),
+        web.get('/predictRelatedLibrary', predict_related_library),
+        web.put('/predictLibrary', predict_library_elastic_request),
         web.put('/predictLanguage', predict_language)
     ])
-    swagger_spec_dict = json_load(
-        json_dump(app[swaggerspec_key], cls=CustomEncoder))
+    swagger_spec_dict = json.loads(
+        json.dumps(app[swaggerspec_key], cls=CustomEncoder))
     swagger_spec_file_path = get_file_path_relative(
         f'{current_folder}/swagger.yml')
     with open(swagger_spec_file_path, 'w') as swagger_spec_file:
