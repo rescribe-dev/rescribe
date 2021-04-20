@@ -23,7 +23,7 @@ if __name__ == '__main__':
 #################################
 
 from os import getenv
-from typing import Union
+from typing import Optional
 from shared.config import read_config as read_shared_config
 
 PORT: int = -1
@@ -31,6 +31,7 @@ DEFAULT_PORT: int = 8082
 
 VERSION: str = ''
 DEFAULT_VERSION: str = '0.0.1'
+ELASTICSEARCH_HOST: str = ''
 
 
 def read_config() -> None:
@@ -41,7 +42,12 @@ def read_config() -> None:
     global VERSION
 
     read_shared_config()
-    env_port: Union[str, None] = getenv('NLP_PORT')
+    env_port: Optional[str] = getenv('NLP_PORT')
     PORT = DEFAULT_PORT if env_port is None else int(env_port)
-    env_version: Union[str, None] = getenv('VERSION')
+    env_version: Optional[str] = getenv('VERSION')
     VERSION = DEFAULT_VERSION if env_version is None else env_version
+
+    elasticsearch_host: Optional[str] = getenv('ELASTICSEARCH_HOST')
+    if elasticsearch_host is None:
+        raise ValueError('no elasticsearch host provided')
+    ELASTICSEARCH_HOST = elasticsearch_host

@@ -60,8 +60,7 @@ class GraphModel(BaseModel):
 
             self.total_number_imports, self.max_len = self._count_imports_and_max_len()
 
-            (self.vectorized_imports, self.vectorize_layer,
-             self.model,) = self._vectorize_imports()
+            self.vectorized_imports, self.vectorize_layer, self.model = self._vectorize_imports()
             # An array of imports in the order they were
             self.vocabulary = self.vectorize_layer.get_vocabulary()
 
