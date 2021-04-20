@@ -61,11 +61,11 @@ class LanguagePredictionModel():
         classes = self._get_classes()
         clean_folder(self.data_dir, '*.yml')
         
-        clean_data: pd.DataFrame = self._clean_data(data)
+        data: pd.DataFrame = self._concat_data(data)
         
         
     
-    def _clean_data(self, data) -> pd.DataFrame:
+    def _concat_data(self, data) -> pd.DataFrame:
         clean_data: pd.DataFrame = pd.DataFrame()
         
         logger.info(
