@@ -178,7 +178,7 @@ def decompress(data_path: str, extension: str) -> None:
 
 
 def read_from_disk(
-    data_path: str, extension: str, chunksize: Optional[int] = None
+    data_path: str, extension: str, chunksize: Optional[int] = None, extract_only=False
 ) -> Union[pd.DataFrame, List[pd.DataFrame]]:
     """
     Reads a GZipped or uncompressed CSV into a dataframe and returns
@@ -206,6 +206,8 @@ def read_from_disk(
                 logger.info(filepaths)
                 for filepath in filepaths:
                     if filepath.split('.')[-1] == 'csv':
+                        if extract_only:
+                            continue
                         output.append(pd.read_csv(filepath))
                     else:
                         logger.info(f"Found non csv {filepath}, saving to data directory {os.path.dirname(data_path)}/{os.path.basename(filepath)}")

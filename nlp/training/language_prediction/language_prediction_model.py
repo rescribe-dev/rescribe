@@ -28,7 +28,7 @@ from transformers import AlbertTokenizer, AlbertConfig, TFAlbertModel
 
  
 class LanguagePredictionModel(reScribeModel):
-    def __init__(self, learning_rate: float = 1e-4, batch_size: float = 64, max_sequence_length: int = 64, num_labels: int = None): 
+    def __init__(self, max_sequence_length: int = 64, num_labels: int = None): 
         super(LanguagePredictionModel, self).__init__()
         
         assert num_labels is not None
@@ -60,8 +60,8 @@ class LanguagePredictionModel(reScribeModel):
         for layer in self.model.layers[:4]:
             layer.trainable = False
         
-    def call(self, query: tf.Tensor):
-        return self.model(self.tokenize(query))
+    def call(self, inputs):
+        return self.model(inputs)
 
     def summary(self):
         self.model.summary()
@@ -79,6 +79,7 @@ class LanguagePredictionModel(reScribeModel):
         tokenize inputs
         """
         input_ids, input_masks, input_segments = [], [], []
+        print(sentences)
         for sentence in sentences:
             inputs = self.tokenizer.encode_plus(sentence, add_special_tokens=True, max_length=64, padding='max_length',
                                                 return_attention_mask=True, return_token_type_ids=True, truncation=True)
@@ -90,9 +91,9 @@ class LanguagePredictionModel(reScribeModel):
     
 
 def main():
-    model = LanguagePredictionModel(1e-4, 64, 64, 1)
+    model = LanguagePredictionModel(64, 1)
     model.compile(optimizer='rmsprop')
-    print(model(["hello there"]))
+    print(model(model.tokenize(["hello there"])))
     model.summary()
 
 if __name__ == '__main__':
