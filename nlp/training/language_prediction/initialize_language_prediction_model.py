@@ -17,104 +17,84 @@ if __name__ == "__main__":
         pass
 #################################
 
+import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers
 
+from utils.variables import albert
+from tensorflow.keras import layers
+from utils.types import reScribeModel
 from transformers.modeling_albert import AlbertPreTrainedModel
 from transformers import AlbertTokenizer, AlbertConfig, TFAlbertModel
 
-from utils.types import reScribeModel
-from utils.variables import albert
-
-
-class AlbertTokenizationLayer(tf.keras.layers.Layer):
-    def __init__(self, tokenizer):
-        super(AlbertTokenizationLayer, self).__init__()
-        self.tokenizer = tokenizer
-    
-    def build(self, input_shape):
-        super(AlbertTokenizationLayer, self).build(input_shape)
-    
-    def call(self, sentences):
-
-        output_list = []
-        for sentence in sentences:
-            inputs = self.tokenizer.encode_plus(str(sentence), 
-                    add_special_tokens=True, 
-                    max_length=64, 
-                    padding='max_length',
-                    return_attention_mask=True, 
-                    return_token_type_ids=True,
-                    truncation=True)
-        
-            output_list.append(tf.convert_to_tensor([inputs['input_ids'], inputs['attention_mask'], inputs['token_type_ids']], dtype=tf.int32))
-        
-        return tf.stack(output_list)
-        
-        
-        
-        
+ 
 class LanguagePredictionModel(reScribeModel):
-    def __init__(self, learning_rate: float, batch_size: float): 
+    def __init__(self, learning_rate: float = 1e-4, batch_size: float = 64, max_sequence_length: int = 64, num_labels: int = None): 
         super(LanguagePredictionModel, self).__init__()
         
-        self.learning_rate = learning_rate
-        self.batch_size = batch_size
+        assert num_labels is not None
         
         self.tokenizer = AlbertTokenizer.from_pretrained(
             albert, do_lower_case=True, add_special_tokens=True, max_length=64, pad_to_max_length=True)
 
+        albert_config = self._load_albert_config(num_labels)
+        transformer_model = TFAlbertModel.from_pretrained(
+            albert, config=albert_config)
+        input_ids = layers.Input(
+            shape=(max_sequence_length,), name='input_ids', dtype='int32')
+        input_masks = layers.Input(
+            shape=(max_sequence_length,), name='input_masks_ids', dtype='int32')
+        input_segments = layers.Input(
+            shape=(max_sequence_length,), name='input_segments', dtype='int32')
+        
+        embedding_layer = transformer_model(
+            input_ids, attention_mask=input_masks, token_type_ids=input_segments)[0]
+            
+        X = layers.Bidirectional(layers.LSTM(
+            50, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))(embedding_layer)
+        X = layers.GlobalMaxPool1D()(X)  # Dimension Reduction
+        X = layers.Dense(50, activation='relu')(X)
+        X = layers.Dropout(0.2)(X)
+        X = layers.Dense(num_labels, activation='softmax')(X) #maybe needs to be num labels -1
+        
+        self.model = tf.keras.Model(inputs=[input_ids, input_masks, input_segments], outputs=X)
+        for layer in self.model.layers[:4]:
+            layer.trainable = False
+        
+    def call(self, query: tf.Tensor):
+        return self.model(self.tokenize(query))
 
-        self.tokenization_layer = AlbertTokenizationLayer(self.tokenizer)
+    def summary(self):
+        self.model.summary()
         
+    def _load_albert_config(self, num_labels):
+        albert_base_config = AlbertConfig(
+            hidden_size=768, num_attention_heads=12, intermediate_size=3072, num_labels=num_labels)
+        model = AlbertPreTrainedModel(albert_base_config)
+        config = model.config
+        config.output_hidden_states = False
+        return config
         
-        self.pretrained_base = self._load_pretrained_base()
-        self.top_layers = self._load_top_layers()
-        
-        
-    def call(self, query: str):
-        x = self.tokenization_layer(query)
-        x = self.pretrained_base(x)
-        return self.top_layers(x)
+    def tokenize(self, sentences):
+        """
+        tokenize inputs
+        """
+        input_ids, input_masks, input_segments = [], [], []
+        for sentence in sentences:
+            inputs = self.tokenizer.encode_plus(sentence, add_special_tokens=True, max_length=64, padding='max_length',
+                                                return_attention_mask=True, return_token_type_ids=True, truncation=True)
+            input_ids.append(inputs['input_ids'])
+            input_masks.append(inputs['attention_mask'])
+            input_segments.append(inputs['token_type_ids'])
+            
+        return np.asarray(input_ids, dtype='int32'), np.asarray(input_masks, dtype='int32'), np.asarray(input_segments, dtype='int32')
+    
 
-    def _load_input_processor(self):
-        return layers.Reshape((-1, 1))
-    
-    def _load_pretrained_base(self):
-        inp = layers.Input((3, 64))
-        x = layers.Dense(100)(inp)
-        x = layers.Dense(200)(x)
-        x = layers.Dense(10)(x)
-        x = layers.LeakyReLU()(x)
-        # return x
-        return tf.keras.models.Model(inputs=inp, outputs=x)
-        
-    def _load_top_layers(self):
-        return layers.Dense(5, activation='softmax')
-        
-    
-    
 def main():
-    # batch_size = 64
-    
-    # output_list = []
-    # for i in range(batch_size):
-    #     print(tf.concat([tf.ones([1, 64]), tf.ones([1, 64]), tf.ones([1, 64])], axis=0))
-    #     output_list.append(tf.concat([tf.ones([1, 64]), tf.ones([1, 64]), tf.ones([1, 64])], axis=0))
-    # print(tf.stack(output_list))
-    model = LanguagePredictionModel(1e-4, 64)
+    model = LanguagePredictionModel(1e-4, 64, 64, 1)
     model.compile(optimizer='rmsprop')
-    # model.build(input_shape=(3,64))
-    print(model(tf.convert_to_tensor(["helo there"])))
+    print(model(["hello there"]))
     model.summary()
-    print(model.layers)
-    print(layers.Dense(10)(tf.zeros([10, 1])))
-    print(
-        
-        AlbertTokenizationLayer(AlbertTokenizer.from_pretrained(
-            albert, do_lower_case=True, add_special_tokens=True, max_length=64, pad_to_max_length=True))("hello how are you")[0])
-    # model.print_summary()
-    
+
 if __name__ == '__main__':
     main()
 
