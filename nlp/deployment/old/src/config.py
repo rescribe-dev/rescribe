@@ -13,7 +13,7 @@ if __name__ == '__main__':
     from pathlib import Path
     current_file = Path(__file__).resolve()
     root = next(elem for elem in current_file.parents
-                if str(elem).endswith('training'))
+                if str(elem).endswith('src'))
     sys.path.append(str(root))
     # remove the current file's directory from sys.path
     try:
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
 from os import getenv
 from typing import Optional
-from utils.config import read_config as read_shared_config
+from shared.config import read_config as read_shared_config
 
 PORT: int = -1
 DEFAULT_PORT: int = 8082

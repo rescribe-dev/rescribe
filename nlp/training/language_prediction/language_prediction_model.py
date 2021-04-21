@@ -20,6 +20,7 @@ if __name__ == "__main__":
 import numpy as np
 import tensorflow as tf
 
+from typing import List
 from utils.variables import albert
 from tensorflow.keras import layers
 from utils.types import reScribeModel
@@ -28,11 +29,13 @@ from transformers import AlbertTokenizer, AlbertConfig, TFAlbertModel
 
  
 class LanguagePredictionModel(reScribeModel):
-    def __init__(self, max_sequence_length: int = 64, num_labels: int = None): 
+    def __init__(self, max_sequence_length: int = 64, classes: List[str] = None): 
         super(LanguagePredictionModel, self).__init__()
         
-        assert num_labels is not None
-        
+        assert classes is not None
+        self.classes = classes
+        num_labels = len(classes)
+
         self.tokenizer = AlbertTokenizer.from_pretrained(
             albert, do_lower_case=True, add_special_tokens=True, max_length=64, pad_to_max_length=True)
 
@@ -62,13 +65,20 @@ class LanguagePredictionModel(reScribeModel):
         
     def call(self, inputs):
         return self.model(inputs)
-
+    
     def summary(self):
         self.model.summary()
         
+    def load_weights(self, checkpoint_path):
+        self.model.load_weights(checkpoint_path)
+        
     def _load_albert_config(self, num_labels):
-        albert_base_config = AlbertConfig(
-            hidden_size=768, num_attention_heads=12, intermediate_size=3072, num_labels=num_labels)
+        albert_base_config = AlbertConfig(hidden_size=768, 
+                                            num_attention_heads=12, 
+                                            intermediate_size=3072, 
+                                            num_labels=num_labels
+                                )
+                            
         model = AlbertPreTrainedModel(albert_base_config)
         config = model.config
         config.output_hidden_states = False
@@ -79,7 +89,6 @@ class LanguagePredictionModel(reScribeModel):
         tokenize inputs
         """
         input_ids, input_masks, input_segments = [], [], []
-        print(sentences)
         for sentence in sentences:
             inputs = self.tokenizer.encode_plus(sentence, add_special_tokens=True, max_length=64, padding='max_length',
                                                 return_attention_mask=True, return_token_type_ids=True, truncation=True)
@@ -91,7 +100,7 @@ class LanguagePredictionModel(reScribeModel):
     
 
 def main():
-    model = LanguagePredictionModel(64, 1)
+    model = LanguagePredictionModel(64, ['cpp', 'java'])
     model.compile(optimizer='rmsprop')
     print(model(model.tokenize(["hello there"])))
     model.summary()

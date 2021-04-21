@@ -78,7 +78,7 @@ class BertModel(BaseModel):
 
             self.model_abs = get_file_path_relative(
                 f'{data_folder}/{models_folder}/{self.folder_name}/{checkpoint_file}')
-            logger.info("path: {self.model_abs}")
+            logger.info(f"path: {self.model_abs}")
             tarfile_model_output_dir: str = get_file_path_relative(
                 f'{data_folder}/{models_folder}/{self.folder_name}/model.tar.gz')
 
