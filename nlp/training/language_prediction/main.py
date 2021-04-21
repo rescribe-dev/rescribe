@@ -21,7 +21,7 @@ import argparse
 from loguru import logger
 from utils.types import reScribeModel, NLPType
 from language_prediction.config import read_config_language_prediction as read_config
-from language_prediction.initialize_language_prediction_model import LanguagePredictionModel
+from language_prediction.anguage_prediction_model import LanguagePredictionModel
 
 language_prediction_model: reScribeModel = None
 
@@ -40,8 +40,8 @@ def main() -> None:
     # declare global again because we want to change the value of the global variable
     global language_prediction_model
     language_prediction_model = LanguagePredictionModel(
-                                                        learning_rate=args.learning_rate,
-                                                        batch_size=args.batch_size,
-                                                        max_sequence_length=args.max_sequence_length,
-                                                        num_labels=args.num_labels
-                                                    )
+                                    learning_rate=args.learning_rate,
+                                    batch_size=args.batch_size,
+                                    max_sequence_length=args.max_sequence_length,
+                                    num_labels=args.num_labels
+                                )
