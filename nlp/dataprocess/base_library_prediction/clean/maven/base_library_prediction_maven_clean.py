@@ -2,6 +2,26 @@
 """
 clean data from maven
 """
+
+#################################
+# for handling relative imports #
+#################################
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+
+    current_file = Path(__file__).resolve()
+    root = next(
+        elem for elem in current_file.parents if str(elem).endswith("dataprocess")
+    )
+    sys.path.append(str(root))
+    # remove the current file's directory from sys.path
+    try:
+        sys.path.remove(str(current_file.parent))
+    except ValueError:  # Already removed
+        pass
+#################################
+
 import os
 import yaml
 import boto3
@@ -70,7 +90,8 @@ def main(language: LanguageType) -> None:
             
     clean_folder(os.path.join(output_folder), "*")
     np.savetxt(
-        os.path.join(output_folder, clean_data_file_name, libraries, delimiter=', ', fmt='% s')
+        os.path.join(output_folder, f'{clean_data_file_name}.txt'),
+        libraries, delimiter=', ', fmt='% s'
     )
     logger.info(f'num_versions: {num_versions}')
     
