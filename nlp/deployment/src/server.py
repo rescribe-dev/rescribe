@@ -97,7 +97,9 @@ async def predict_language(request: web.Request) -> web.Response:
         'data': res
     })
   
-async def predict_library_elastic_request(term: str, lang: LanguageType, package_manager: PackageManager):
+async def predict_library_elastic_request(request: web.Request): #, lang: LanguageType, package_manager: PackageManager):
+    lang = LanguageType.java.name
+    package_manager = PackageManager.maven.name
     if not LanguageType.has_value(lang):
         raise TypeError(
             f"lang has value: {lang} expected {LanguageType.get_values()}")
@@ -105,13 +107,17 @@ async def predict_library_elastic_request(term: str, lang: LanguageType, package
         raise TypeError(
             f"lang has value: {package_manager} expected {PackageManager.get_values()}")
   
+    json_data = await request.json()
+    if QUERY_KEY not in json_data:
+        raise ValueError(f'cannot find key {QUERY_KEY} in request body')      
+        
     from config import ELASTICSEARCH_HOST
     query = json.dumps({
         "query": {
             "match": {
-                "library": term,
-                "language": lang.nam,
-                "package_manager": package_manager
+                "library": json_data[QUERY_KEY],
+                "language": lang.name,
+                "package_manager": package_manager.name
             }
         }
     })

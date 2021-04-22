@@ -30,7 +30,6 @@ def main():
     
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--learning-rate', type=int, default=1)
     parser.add_argument('--batch-size', type=int, default=64)
     parser.add_argument('--max-sequence-length', type=int, default=64)
     # parser.add_argument('--num-labels', type=int, default=64)

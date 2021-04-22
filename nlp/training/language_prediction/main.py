@@ -37,10 +37,8 @@ def main() -> None:
     
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--learning-rate', type=int, default=1)
     parser.add_argument('--batch-size', type=int, default=64)
     parser.add_argument('--max-sequence-length', type=int, default=64)
-    # parser.add_argument('--num-labels', type=int, default=64)
     args = parser.parse_args()
     
     # load our classes so that we can pass them to train and the language prediction model
@@ -60,7 +58,7 @@ def main() -> None:
                                 
 
 
-    checkpoint_dir = get_file_path_relative(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints')
+    checkpoint_dir = get_file_path_relative(os.path.join(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints'))
     cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(checkpoint_dir, checkpoint_file),
                                                         save_weights_only=True,
                                                         verbose=1)

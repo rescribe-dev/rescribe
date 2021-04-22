@@ -65,9 +65,3 @@ class reScribeModel(tf.keras.Model):
     trained: bool = False
     def __init__(self):
         super(reScribeModel, self).__init__()
-    
-    def train(self):
-        raise NotImplementedError()
-    
-    def predict(self):
-        raise NotImplementedError()
