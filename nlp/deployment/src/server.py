@@ -72,7 +72,6 @@ async def ping() -> web.Response:
     return web.Response(text='')
     
     
-  
 async def predict_language(request: web.Request) -> web.Response:
     """
     predict the language given the query input
