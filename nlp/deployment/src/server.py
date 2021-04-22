@@ -8,7 +8,7 @@ from aiohttp import web
 from loguru import logger
 from logging import Logger
 from utils.utils import get_file_path_relative
-from initialize_models import language_prediction_model
+from src.initialize_models import language_prediction_model
 from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
 from utils.types import NLPType, LanguageType, PackageManager
 from aiohttp_swagger3.routes import _SWAGGER_SPECIFICATION as swaggerspec_key, CustomEncoder
@@ -131,7 +131,7 @@ def start_server():
     """
     run web server
     """
-    from config import PORT, VERSION
+    from src.config import PORT, VERSION
 
     app = web.Application()
 

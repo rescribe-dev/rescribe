@@ -36,9 +36,15 @@ models_folder: str = "models"
 
 # Training - Deployment
 # Inter-Library-Relation-Project
+# Related-Library-Prediction
+
+# File names for loading/saving states
 inter_library_graph_file = "graph.pkl"
 inter_library_vocabulary_file = "vocab.yml"
 inter_library_tokenization_model_path = "tokenization_model"
+
+# DataFrame Column Names
+related_library_imports_column_name = "imports"
 
 credentials_file: str = "utils/bigquery/bigquery_credentials.json"
 classes_file: str = "classes.yml"

@@ -19,11 +19,11 @@ if __name__ == "__main__":
 import os
 import yaml
 import argparse
-from config import read_config
-from server import start_server
+from src.config import read_config
+from src.server import start_server
 from utils.types import NLPType
 from utils.utils import get_file_path_relative
-from initialize_models import main as initialize_models
+from src.initialize_models import main as initialize_models
 from utils.variables import data_folder, models_folder, clean_data_folder, language_prediction_data_folder, clean_data_file_name, checkpoint_file, classes_file
 
 def main():
@@ -40,9 +40,12 @@ def main():
     with open(os.path.join(clean_folder, classes_file)) as stream:
         classes = yaml.safe_load(stream)
     
-    checkpoint_dir = get_file_path_relative(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints')
+    checkpoint_dir = get_file_path_relative(os.path.join(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints'))
     checkpoint_path = os.path.join(checkpoint_dir, checkpoint_file)
     
     read_config()
     initialize_models(args, classes, checkpoint_path)
     start_server()
+    
+if __name__ == '__main__':
+    main()
