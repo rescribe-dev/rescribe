@@ -16,6 +16,8 @@ if __name__ == "__main__":
     except ValueError:  # Already removed
         pass
 #################################
+
+
 import os
 import yaml
 import argparse
@@ -41,10 +43,9 @@ def main():
         classes = yaml.safe_load(stream)
     
     checkpoint_dir = get_file_path_relative(os.path.join(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints'))
-    checkpoint_path = os.path.join(checkpoint_dir, checkpoint_file)
     
     read_config()
-    initialize_models(args, classes, checkpoint_path)
+    initialize_models(args, classes, checkpoint_dir)
     start_server()
     
 if __name__ == '__main__':

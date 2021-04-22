@@ -1,22 +1,21 @@
 import sys
+import tensorflow as tf
+from loguru import logger
 from utils.types import reScribeModel
 from language_prediction.language_prediction_model import LanguagePredictionModel
+
+tokenizer: reScribeModel = None
 language_prediction_model: reScribeModel = None
 
 def main(args, classes, checkpoint_path):
+    global tokenizer
     global language_prediction_model
     
-    language_prediction_model = LanguagePredictionModel(
+    tokenizer = LanguagePredictionModel(
                                     max_sequence_length=args.max_sequence_length,
                                     classes=classes
                                 )
-    try:
-        language_prediction_model.load_weights(checkpoint_path)
-    except Exception as err:
-        with open('file.txt', 'w') as file:
-            file.write(str(err))
-            
-    return
-
+    language_prediction_model = tf.keras.models.load_model(checkpoint_path)
+    logger.success("language_prediction model loaded")            
     
     

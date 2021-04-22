@@ -59,9 +59,6 @@ def main() -> None:
 
 
     checkpoint_dir = get_file_path_relative(os.path.join(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints'))
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(checkpoint_dir, checkpoint_file),
-                                                        save_weights_only=True,
-                                                        verbose=1)
                                                         
     x_train, x_test, y_train, y_test = prepare_data(clean_folder, f'{clean_data_file_name}.tgz', classes)
 
@@ -73,17 +70,22 @@ def main() -> None:
                                             tf.keras.metrics.Precision(),
                                             tf.keras.metrics.Recall()
                                         ])
-                                        
+                                   
+    logger.info('training language_prediction model')     
     language_prediction_model.training = True
     language_prediction_model.fit(language_prediction_model.tokenize(x_train), 
                                     y_train, 
                                     batch_size=args.batch_size, 
                                     epochs=1, 
                                     verbose=1, 
-                                    validation_split=0.20,
-                                    callbacks=[cp_callback])
-    
+                                    validation_split=0.20)
     language_prediction_model.training = False
+    logger.success('language_prediction model trained')
+    
+    logger.info(f'saving trained language_prediction model to {checkpoint_dir}')
+    language_prediction_model.save(checkpoint_dir, save_format='tf')
+    logger.success(f'trained model saved at {checkpoint_dir}')
+    
     
 if __name__ == '__main__':
     main()

@@ -49,7 +49,7 @@ class LanguagePredictionModel(reScribeModel):
         input_segments = layers.Input(
             shape=(max_sequence_length,), name='input_segments', dtype='int32')
         
-        embedding_layer = transformer_model(
+        embedding_layer = transformer_model.albert(
             input_ids, attention_mask=input_masks, token_type_ids=input_segments)[0]
             
         X = layers.Bidirectional(layers.LSTM(

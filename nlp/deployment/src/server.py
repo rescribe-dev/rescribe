@@ -8,9 +8,9 @@ from aiohttp import web
 from loguru import logger
 from logging import Logger
 from utils.utils import get_file_path_relative
-from src.initialize_models import language_prediction_model
 from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
 from utils.types import NLPType, LanguageType, PackageManager
+from src.initialize_models import language_prediction_model, tokenizer
 from aiohttp_swagger3.routes import _SWAGGER_SPECIFICATION as swaggerspec_key, CustomEncoder
 
 QUERY_KEY: str = 'query'
@@ -87,10 +87,12 @@ async def predict_language(request: web.Request) -> web.Response:
             schema:
               $ref: "#/components/schemas/Prediction"
     """
+    print('getting request')
     json_data = await request.json()
+    print(json_data)
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')        
-    res = language_prediction_model(language_prediction_model.tokenize([json_data[QUERY_KEY]]))
+    res = language_prediction_model(tokenizer.tokenize([json_data[QUERY_KEY]]))
     
     return web.json_response({
         'data': res
