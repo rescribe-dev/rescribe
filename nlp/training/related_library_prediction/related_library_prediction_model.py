@@ -90,7 +90,7 @@ class RLP_Model(reScribeModel):
         self.tokenization_model.compile()
         with open(vocab_location, "r") as f:
             self.vocabulary_list = yaml.full_load(f)
-        if not (self.graph and self.model and self.vocabulary_list):
+        if not (self.graph_representation and self.tokenization_model and self.vocabulary_list):
             raise EnvironmentError(
                 "Something went wrong loading in the saved state for related library prediction"
             )
@@ -106,7 +106,7 @@ class RLP_Model(reScribeModel):
         nx.write_gpickle(self.graph_representation, graph_location)
         tf.keras.models.save_model(self.tokenization_model, tok_location)
         with open(vocab_location, 'w') as outfile:
-            outfile.write(yaml.dump(tf.get_static_value(self.vocabulary_list)))
+            outfile.write(yaml.dump(list(self.vocabulary_list)))
         for x in [graph_location, tok_location, vocab_location]:
             if not exists(x):
                 raise RuntimeError("Something seems to have failed to save...")
