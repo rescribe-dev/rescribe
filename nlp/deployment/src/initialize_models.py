@@ -16,6 +16,7 @@ def main(args, classes, checkpoint_path):
                                     classes=classes
                                 )
     language_prediction_model = tf.keras.models.load_model(checkpoint_path)
+
     logger.success("language_prediction model loaded")            
     
     

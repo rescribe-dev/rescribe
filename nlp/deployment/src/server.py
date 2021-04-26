@@ -1,21 +1,24 @@
 import yaml
 import json
 import requests
-
+import tensorflow as tf
 
 from typing import cast
 from aiohttp import web
 from loguru import logger
 from logging import Logger
+from utils.types import reScribeModel
 from utils.utils import get_file_path_relative
 from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
 from utils.types import NLPType, LanguageType, PackageManager
-from src.initialize_models import language_prediction_model, tokenizer
 from aiohttp_swagger3.routes import _SWAGGER_SPECIFICATION as swaggerspec_key, CustomEncoder
 
 QUERY_KEY: str = 'query'
 LANG_KEY: str = 'language'
 NUM_RES_KEY: str = 'limit'
+
+tokenizer: reScribeModel = None
+language_prediction_model: reScribeModel = None
 
 async def index() -> web.Response:
     """
@@ -87,15 +90,13 @@ async def predict_language(request: web.Request) -> web.Response:
             schema:
               $ref: "#/components/schemas/Prediction"
     """
-    print('getting request')
     json_data = await request.json()
-    print(json_data)
     if QUERY_KEY not in json_data:
-        raise ValueError(f'cannot find key {QUERY_KEY} in request body')        
+        raise ValueError(f'cannot find key {QUERY_KEY} in request body')      
+
     res = language_prediction_model(tokenizer.tokenize([json_data[QUERY_KEY]]))
-    
     return web.json_response({
-        'data': res
+        'data': str(tf.get_static_value(res))
     })
   
 async def predict_library_elastic_request(request: web.Request): #, lang: LanguageType, package_manager: PackageManager):
@@ -134,6 +135,13 @@ def start_server():
     run web server
     """
     from src.config import PORT, VERSION
+    from src.initialize_models import language_prediction_model as lpm, tokenizer as tok
+    
+    global tokenizer
+    global language_prediction_model
+
+    tokenizer = tok
+    language_prediction_model = lpm
 
     app = web.Application()
 
