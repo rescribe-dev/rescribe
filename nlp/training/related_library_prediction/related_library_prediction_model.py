@@ -59,6 +59,7 @@ class RLP_Model(reScribeModel):
         tensorflow model: Handles vectorization of libraries and converts the numbers to strings and vice versa
         nxgraph model: Handles all of the graph distance logic for retrieving vectors and connected vectors
         """
+        super(RLP_Model, self).__init__()
         self.graph_representation = None
         self.vocabulary_list = None
         self.tokenization_model = None
