@@ -34,7 +34,6 @@ def main():
     
     parser.add_argument('--batch-size', type=int, default=64)
     parser.add_argument('--max-sequence-length', type=int, default=64)
-    # parser.add_argument('--num-labels', type=int, default=64)
     args = parser.parse_args()
     
     clean_folder = get_file_path_relative(os.path.join(data_folder, clean_data_folder, language_prediction_data_folder))

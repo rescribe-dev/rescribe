@@ -18,35 +18,33 @@ if __name__ == "__main__":
         pass
 #################################
 
+
+import os
 import ast
-
-# import random
-# import tarfile
-from itertools import combinations
-
-# from os import remove
-from os.path import join  # basename, dirname, exists
-from typing import List, Optional, Tuple, Union
-
-# import boto3
-import networkx as nx
+import yaml
 import numpy as np
 import pandas as pd
+import networkx as nx
 import tensorflow as tf
-import yaml
+
 from loguru import logger
-from tensorflow.python.keras.layers.preprocessing import text_vectorization
+from os.path import join, exists  # basename, dirname, exists
+from itertools import combinations
 from utils.types import reScribeModel
-from utils.utils import get_file_path_relative
+from typing import List, Optional, Tuple, Union
+from utils.utils import get_file_path_relative, read_from_disk
+from tensorflow.python.keras.layers.preprocessing import text_vectorization
 from utils.variables import (
     base_library_prediction_data_folder,
     clean_data_file_name,
     clean_data_folder,
     data_folder,
+    models_folder,
     inter_library_graph_file,
     inter_library_tokenization_model_path,
     inter_library_vocabulary_file,
     related_library_imports_column_name,
+    related_library_prediction_data_folder,
 )
 
 
@@ -95,7 +93,23 @@ class RLP_Model(reScribeModel):
             raise EnvironmentError(
                 "Something went wrong loading in the saved state for related library prediction"
             )
-
+            
+    def save_pretrained(self, directory: str):
+        """
+            This is entirely a local load
+        """
+        # TODO: Add S3
+        graph_location = join(directory, inter_library_graph_file)
+        tok_location = join(directory, inter_library_tokenization_model_path)
+        vocab_location = join(directory, inter_library_vocabulary_file)
+        nx.write_gpickle(self.graph_representation, graph_location)
+        tf.keras.models.save_model(self.tokenization_model, tok_location)
+        with open(vocab_location, 'w') as outfile:
+            yaml.dump(self.vocabulary, stream=outfile, explicit_start=True, default_flow_style=False)
+        for x in [graph_location, tok_location, vocab_location]:
+            if not exists(x):
+                raise RuntimeError("Something seems to have failed to save...")
+        
     @staticmethod
     def convert_imports_to_list(df) -> None:
         # Figure out if the dataframe has already had the imports converted to lists:
@@ -130,11 +144,16 @@ class RLP_Model(reScribeModel):
         )
         logger.success("Created vectorize layer")
         logger.info("Preparing to adapt data to vectorize layer")
+        # to_remove = []
+        # for i, row in df.iterrows():
+        #     if len(row['imports']) == 0:
+        #         to_remove.append(i)
+        # df.drop(index=to_remove, inplace=True)
         imports_list = imports_series.to_list()
-        imports_flattened = np.concatenate(imports_list)
-        if additional_libraries:
+        imports_flattened = np.concatenate(imports_list, axis=None)
+        if additional_libraries is not None:
             # If additional libraries are specified, concatenate them into the imports ndarray
-            imports_flattened = np.concatenate(imports_flattened, additional_libraries)
+            imports_flattened = np.concatenate((imports_flattened, additional_libraries))
         tf_data = tf.data.Dataset.from_tensor_slices(imports_flattened)
         vectorize_layer.adapt(tf_data.batch(64))
         model = tf.keras.models.Sequential()
@@ -279,3 +298,41 @@ class RLP_Model(reScribeModel):
         return [self.vocabulary[e[1]] for e in edges]
         # To return name, weight:
         # return [(self.vocabulary[e[1]], e[2]["weight"]) for e in edges]
+
+    def run_interactive_test_loop(self):
+        """
+        Only for debugging -> runs interactively to help ensure everything is working
+        Should never be used in production
+        """
+        logger.info("Stepping into infinite loop to test...")
+        def format_import(n): return f"{n}:{self.vocabulary[n]}"
+        while True:
+            try:
+                import_to_try = input(
+                    "What import would you like to try? >>> "
+                )  # Note that this can either be index of import or name of import
+                max_num_imports_to_show = int(
+                    input(
+                        "What is the maximum number of imports you would like to see? >>> ")
+                )  # This is only a number
+                [print(x) for x in self(
+                    import_to_try, max_num_imports_to_show)]
+            except Exception as err:
+                logger.error("Import was out of range")
+                logger.error(err)
+
+if __name__ == "__main__":
+    rlp = RLP_Model()
+    clean_data_path = get_file_path_relative(join(data_folder, clean_data_folder, related_library_prediction_data_folder, f'{clean_data_file_name}.gzip'))
+    df = read_from_disk(clean_data_path, 'gzip')
+    RLP_Model.convert_imports_to_list(df)
+    # print(df.iloc[0]['imports'])
+    # print(df.head())
+    rlp.fit(df)
+    save_path = get_file_path_relative(join(data_folder, models_folder, related_library_prediction_data_folder))
+    os.makedirs(save_path, exist_ok = True)
+    rlp.save_pretrained(save_path)
+    del rlp
+    rlp = RLP_Model()
+    rlp.load_pretrained(save_path)
+    rlp.run_interactive_test_loop()
