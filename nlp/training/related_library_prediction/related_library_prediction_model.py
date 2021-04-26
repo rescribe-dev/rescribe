@@ -281,11 +281,11 @@ class RLP_Model(reScribeModel):
         except ValueError:
             import_to_try = self.tokenization_model.predict([import_to_try])[0][0]
 
-        edges = list(self.graph.edges(import_to_try, data=True))
+        edges = list(self.graph_representation.edges(import_to_try, data=True))
         edges = sorted(edges, key=lambda i: i[2]["weight"], reverse=True)
         # TODO: It is probably faster to do some sort of ranking with n best maintained and iterate through the list than this inefficient sort-and-crop method
         edges = edges[:max_num_imports_to_show]
-        return [self.vocabulary[e[1]] for e in edges]
+        return [self.vocabulary_list[e[1]] for e in edges]
         # To return name, weight:
         # return [(self.vocabulary[e[1]], e[2]["weight"]) for e in edges]
 
@@ -295,7 +295,7 @@ class RLP_Model(reScribeModel):
         Should never be used in production
         """
         logger.info("Stepping into infinite loop to test...")
-        def format_import(n): return f"{n}:{self.vocabulary[n]}"
+        def format_import(n): return f"{n}:{self.vocabulary_list[n]}"
         while True:
             try:
                 import_to_try = input(
