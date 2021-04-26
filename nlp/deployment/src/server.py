@@ -144,8 +144,14 @@ async def predict_related_library(request: web.Request): #, lang: LanguageType
     if NUM_RES_KEY in json_data:
         lim = int(json_data[NUM_RES_KEY])
         
-    res = rlp_model(query, lim)#language_prediction_model(tokenizer.tokenize([json_data[QUERY_KEY]]))
-    
+    try:
+        res = rlp_model(query, lim)#language_prediction_model(tokenizer.tokenize([json_data[QUERY_KEY]]))
+    except Exception as err:
+        return web.json_response({
+            'data': [],
+            'error': True,
+            'error_msg': str(err)
+        })
     return web.json_response({
         'data': res
     })

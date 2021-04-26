@@ -26,7 +26,7 @@ from src.server import start_server
 from utils.types import NLPType
 from utils.utils import get_file_path_relative
 from src.initialize_models import main as initialize_models
-from utils.variables import data_folder, models_folder, clean_data_folder, language_prediction_data_folder, clean_data_file_name, checkpoint_file, classes_file
+from utils.variables import data_folder, models_folder, clean_data_folder, language_prediction_data_folder, related_library_prediction_data_folder, clean_data_file_name, checkpoint_file, classes_file
 
 def main():
     
@@ -41,10 +41,10 @@ def main():
     with open(os.path.join(clean_folder, classes_file)) as stream:
         classes = yaml.safe_load(stream)
     
-    checkpoint_dir = get_file_path_relative(os.path.join(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints'))
-    
+    lpm_path = get_file_path_relative(os.path.join(data_folder, models_folder, language_prediction_data_folder, 'language_prediction_model_checkpoints'))
+    rlp_path = get_file_path_relative(os.path.join(data_folder, models_folder, related_library_prediction_data_folder))
     read_config()
-    initialize_models(args, classes, checkpoint_dir)
+    initialize_models(args, classes, lpm_path, rlp_path)
     start_server()
     
 if __name__ == '__main__':

@@ -19,7 +19,7 @@ class BaseEnum(Enum):
         """
         Return true / false for whether the input is stored as a value in the enum
         """
-        values = NLPType.get_values()
+        values = cls.get_values()
         return value in values
 
     @classmethod

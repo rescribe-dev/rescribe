@@ -62,7 +62,7 @@ def main(language: LanguageType) -> None:
     )
 
     from base_library_prediction.config import ELASTICSEARCH_HOST
-
+    print(ELASTICSEARCH_HOST)
     elasticsearch_client = Elasticsearch(
         hosts=[ELASTICSEARCH_HOST],
         use_ssl=True,

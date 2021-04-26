@@ -24,17 +24,17 @@ tokenizer: reScribeModel = None
 language_prediction_model: reScribeModel = None
 rlp_model: reScribeModel = None
 
-def main(args, classes, checkpoint_path):
+def main(args, classes, lpm_path, rlp_path):
     global tokenizer, language_prediction_model, rlp_model
     
     tokenizer = LanguagePredictionModel(
                                     max_sequence_length=args.max_sequence_length,
                                     classes=classes
                                 )
-    language_prediction_model = tf.keras.models.load_model(checkpoint_path)
+    language_prediction_model = tf.keras.models.load_model(lpm_path)
     logger.success("language_prediction model loaded")
     rlp_model = RLP_Model()
-    rlp_model.load_pretrained()
+    rlp_model.load_pretrained(rlp_path)
     logger.success("related_library model loaded")            
     
     
