@@ -106,7 +106,7 @@ class RLP_Model(reScribeModel):
         nx.write_gpickle(self.graph_representation, graph_location)
         tf.keras.models.save_model(self.tokenization_model, tok_location)
         with open(vocab_location, 'w') as outfile:
-            yaml.dump(self.vocabulary_list, stream=outfile, explicit_start=False, default_flow_style=False)
+            outfile.write(yaml.dump(self.vocabulary_list))
         for x in [graph_location, tok_location, vocab_location]:
             if not exists(x):
                 raise RuntimeError("Something seems to have failed to save...")
