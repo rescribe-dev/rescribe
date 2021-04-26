@@ -89,8 +89,8 @@ class RLP_Model(reScribeModel):
         self.tokenization_model = tf.keras.models.load_model(tok_location)
         self.tokenization_model.compile()
         with open(vocab_location, "r") as f:
-            self.vocabulary = yaml.full_load(f)
-        if not (self.graph and self.model and self.vocabulary):
+            self.vocabulary_list = yaml.safe_load(f)
+        if not (self.graph and self.model and self.vocabulary_list):
             raise EnvironmentError(
                 "Something went wrong loading in the saved state for related library prediction"
             )
