@@ -102,8 +102,8 @@ async def predict_language(request: web.Request) -> web.Response:
     })
   
 async def predict_library_elastic_request(request: web.Request): #, lang: LanguageType, package_manager: PackageManager):
-    lang = LanguageType.java.name
-    package_manager = PackageManager.maven.name
+    lang = LanguageType.java.value
+    package_manager = PackageManager.maven.value
     if not LanguageType.has_value(lang):
         raise TypeError(
             f"lang has value: {lang} expected {LanguageType.get_values()}")
@@ -115,21 +115,47 @@ async def predict_library_elastic_request(request: web.Request): #, lang: Langua
     if QUERY_KEY not in json_data:
         raise ValueError(f'cannot find key {QUERY_KEY} in request body')      
         
-    from config import ELASTICSEARCH_HOST
+    from src.config import ELASTICSEARCH_HOST
     query = json.dumps({
+        # "query": {
+        #     "match": {
+        #         "library": json_data[QUERY_KEY],
+        #         "language": lang,
+        #         "package_manager": package_manager
+        #     }
+        # }
         "query": {
-            "match": {
-                "library": json_data[QUERY_KEY],
-                "language": lang.name,
-                "package_manager": package_manager.name
+            "bool": {
+                "must": [
+                    {
+                        "match": {
+                            "library": str(json_data[QUERY_KEY]),
+                        },
+                    },
+                    {
+                        "match": {
+                            "language": lang,
+                        },
+                    },
+                    {
+                        "match": {
+                            "package_manager": package_manager
+                        }
+                    },
+                ]
             }
         }
     })
-  
-    resp = requests.get(ELASTICSEARCH_HOST, data=query)
+
+    headers={
+        'Content-Type': 'application/json'
+    }
+    print(query)
+    resp = requests.get(f'{ELASTICSEARCH_HOST}/library/_search', data=query, headers=headers)
     res = json.loads(resp.text)
-  
-    return res
+    return web.json_response({
+        'data': res
+    })
 
 async def predict_related_library(request: web.Request): #, lang: LanguageType
     lang = LanguageType.java.name

@@ -40,6 +40,7 @@ def read_config() -> None:
     """
     global PORT
     global VERSION
+    global ELASTICSEARCH_HOST
 
     read_shared_config()
     env_port: Optional[str] = getenv('NLP_PORT')
