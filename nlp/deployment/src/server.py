@@ -10,7 +10,7 @@ from logging import Logger
 from utils.utils import get_file_path_relative
 from aiohttp_swagger3 import SwaggerDocs, SwaggerUiSettings
 from utils.types import NLPType, LanguageType, PackageManager
-from src.initialize_models import language_prediction_model, tokenizer
+from src.initialize_models import language_prediction_model, tokenizer, rlp_model
 from aiohttp_swagger3.routes import _SWAGGER_SPECIFICATION as swaggerspec_key, CustomEncoder
 
 QUERY_KEY: str = 'query'
@@ -127,7 +127,25 @@ async def predict_library_elastic_request(request: web.Request): #, lang: Langua
     res = json.loads(resp.text)
   
     return res
+
+async def predict_related_library(request: web.Request): #, lang: LanguageType
+    lang = LanguageType.java.name
+    if not LanguageType.has_value(lang):
+        raise TypeError(
+            f"lang has value: {lang} expected {LanguageType.get_values()}")
+    json_data = await request.json()
+    if QUERY_KEY not in json_data: 
+        raise ValueError(f"cannot find key {QUERY_KEY} in request body")
+    query = json_data[QUERY_KEY]
+    lim = 10
+    if NUM_RES_KEY in json_data:
+        lim = int(json_data[NUM_RES_KEY])
+        
+    res = rlp_model(query, lim)#language_prediction_model(tokenizer.tokenize([json_data[QUERY_KEY]]))
     
+    return web.json_response({
+        'data': res
+    })
     
 def start_server():
     """
@@ -151,7 +169,7 @@ def start_server():
         web.get('/', index),
         web.get('/hello', hello),
         web.get('/ping', ping),
-        # web.put('/predictRelatedLibrary', predict_related_library),
+        web.put('/predictRelatedLibrary', predict_related_library),
         web.put('/predictLibrary', predict_library_elastic_request),
         web.put('/predictLanguage', predict_language)
     ])
