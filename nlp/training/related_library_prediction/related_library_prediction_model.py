@@ -308,8 +308,8 @@ class RLP_Model(reScribeModel):
                 [print(x) for x in self(
                     import_to_try, max_num_imports_to_show)]
             except Exception as err:
-                logger.error("Import was out of range")
-                logger.error(err)
+                logger.error("Import not found")
+                # logger.error(err)
 
 if __name__ == "__main__":
     rlp = RLP_Model()
