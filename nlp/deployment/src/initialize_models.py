@@ -35,5 +35,6 @@ def main(args, classes, checkpoint_path):
     logger.success("language_prediction model loaded")
     rlp_model = RLP_Model()
     rlp_model.load_pretrained()
+    logger.success("related_library model loaded")            
     
     
