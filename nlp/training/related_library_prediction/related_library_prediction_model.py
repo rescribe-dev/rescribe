@@ -110,16 +110,6 @@ class RLP_Model(reScribeModel):
             if not exists(x):
                 raise RuntimeError("Something seems to have failed to save...")
         
-    @staticmethod
-    def convert_imports_to_list(df) -> None:
-        # Figure out if the dataframe has already had the imports converted to lists:
-        row = df.iloc[[0]]
-        imports_obj = row[related_library_imports_column_name]
-        # If not already converted, convert and then continue
-        if len(list(imports_obj)) == len(list(str(imports_obj))):
-            df[related_library_imports_column_name] = df[
-                related_library_imports_column_name
-            ].apply(lambda x: ast.literal_eval(x))
 
     @staticmethod
     def _vectorize_imports(
@@ -151,9 +141,9 @@ class RLP_Model(reScribeModel):
         # df.drop(index=to_remove, inplace=True)
         imports_list = imports_series.to_list()
         imports_flattened = np.concatenate(imports_list, axis=None)
-        if additional_libraries is not None:
+        # if additional_libraries is not None:
             # If additional libraries are specified, concatenate them into the imports ndarray
-            imports_flattened = np.concatenate((imports_flattened, additional_libraries))
+            # imports_flattened = np.concatenate((imports_flattened, additional_libraries))
         tf_data = tf.data.Dataset.from_tensor_slices(imports_flattened)
         vectorize_layer.adapt(tf_data.batch(64))
         model = tf.keras.models.Sequential()
@@ -231,7 +221,6 @@ class RLP_Model(reScribeModel):
         """
         It is technically inaccurate to call this 'fit' as we are not fitting a tensorflow model.
         """
-        self.convert_imports_to_list(train_df)
         vectorized_imports, vectorize_layer, model = self.create_vectorization_model(
             train_df
         )
@@ -325,7 +314,9 @@ if __name__ == "__main__":
     rlp = RLP_Model()
     clean_data_path = get_file_path_relative(join(data_folder, clean_data_folder, related_library_prediction_data_folder, f'{clean_data_file_name}.gzip'))
     df = read_from_disk(clean_data_path, 'gzip')
-    RLP_Model.convert_imports_to_list(df)
+    df[related_library_imports_column_name] = df[
+                related_library_imports_column_name
+            ].apply(lambda x: ast.literal_eval(x))
     # print(df.iloc[0]['imports'])
     # print(df.head())
     rlp.fit(df)
