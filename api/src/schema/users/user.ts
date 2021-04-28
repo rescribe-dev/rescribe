@@ -28,6 +28,10 @@ export class PublicUser {
   @Field({ description: 'email' })
   @Property({ required: true })
   email: string;
+
+  @Field({ description: 'avatar picture' })
+  @Property({ required: true })
+  avatar: ObjectId;
 }
 
 @ObjectType({ description: 'user account' })
@@ -73,10 +77,6 @@ export default class User extends PublicUser {
   @Field(_type => [Access], { description: 'project access' })
   @Property({ required: true, type: Access })
   projects: Access[];
-
-  @Field({ description: 'avatar picture', nullable: true })
-  @Property({ required: false })
-  avatar?: ObjectId;
 
   @Field({ description: 'default payment method', nullable: true })
   @Property({ required: false })

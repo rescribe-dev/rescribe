@@ -11,9 +11,6 @@ interface Args {
 }
 
 export default async (args: Arguments<Args>): Promise<void> => {
-  
-
-  
   if (cacheData.repositoryOwner.length === 0 || cacheData.repository.length === 0) {
     throw new Error('owner and repository need to be set with <set-repository>');
   }

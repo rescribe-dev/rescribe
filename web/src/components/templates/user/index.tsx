@@ -15,11 +15,11 @@ import {
 } from 'lib/generated/datamodel';
 import { client } from 'utils/apollo';
 import { UserMessages } from 'locale/templates/user/userMessages';
-import { ApolloError } from 'apollo-client';
+import { ApolloError } from '@apollo/client';
+import { getAPIURL } from 'utils/axios';
 import { getErrorCode } from 'utils/misc';
 import { toast } from 'react-toastify';
 import statusCodes from 'http-status-codes';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserPageDataProps extends PageProps {}
@@ -95,10 +95,10 @@ const UserPage = (args: UserProps): JSX.Element => {
                           marginBottom: '2rem',
                         }}
                       >
-                        <LazyLoadImage
-                          src={'https://i.stack.imgur.com/frlIf.png'}
+                        <img
+                          src={`${getAPIURL()}/media/${user.avatar}`}
                           style={{
-                            borderRadius: '50%',
+                            width: '12em',
                           }}
                         />
                       </Container>
@@ -119,37 +119,6 @@ const UserPage = (args: UserProps): JSX.Element => {
                   </Row>
                 </Col>
                 <Col md="8">
-                  {/* <Container
-                    style={{
-                      marginBottom: '1rem',
-                    }}
-                  >
-                    <Row className="text-center">
-                      <Col md="2">
-                        <Button
-                          onClick={(evt) => {
-                            evt.preventDefault();
-                            navigate(`/${username}/repositories`);
-                          }}
-                          color="primary"
-                        >
-                          Repositories
-                        </Button>
-                      </Col>
-                      <Col md="2">
-                        <Button
-                          onClick={(evt) => {
-                            evt.preventDefault();
-                            navigate(`/${username}/projects`);
-                          }}
-                          color="primary"
-                        >
-                          Projects
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Container> */}
-
                   <Row>
                     <Container
                       style={{

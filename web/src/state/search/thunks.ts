@@ -21,12 +21,11 @@ const search = async (): Promise<SearchQuery> => {
     perpage: state.perpage,
     maxResultsPerFile: 1,
   };
+  if (state.filters.repositories.length > 0) {
+    variables.repositories = state.filters.repositories;
+  }
   if (state.filters.projects.length > 0) {
-    if (state.filters.repositories.length > 0) {
-      variables.repositories = state.filters.repositories;
-    } else {
-      variables.projects = state.filters.projects;
-    }
+    variables.projects = state.filters.projects;
   }
   if (state.filters.languages.length > 0) {
     variables.languages = state.filters.languages;

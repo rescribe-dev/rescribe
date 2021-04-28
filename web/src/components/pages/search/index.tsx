@@ -87,15 +87,17 @@ const SearchPage = (args: SearchProps): JSX.Element => {
       }
     });
   }, []);
-  const searchResult = useSelector<RootState, SearchQuery | null>(
-    (state) => state.searchReducer.searchResults
-  );
-  const currentPage = useSelector<RootState, number>(
-    (state) => state.searchReducer.page
-  );
-  const perpage = useSelector<RootState, number>(
-    (state) => state.searchReducer.perpage
-  );
+  const searchResult = isSSR
+    ? undefined
+    : useSelector<RootState, SearchQuery | null>(
+        (state) => state.searchReducer.searchResults
+      );
+  const currentPage = isSSR
+    ? undefined
+    : useSelector<RootState, number>((state) => state.searchReducer.page);
+  const perpage = isSSR
+    ? undefined
+    : useSelector<RootState, number>((state) => state.searchReducer.perpage);
 
   const hasSearched = isSSR
     ? undefined

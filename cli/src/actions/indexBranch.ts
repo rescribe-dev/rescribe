@@ -4,15 +4,16 @@ import indexFiles from '../utils/indexFiles';
 import { Arguments } from 'yargs';
 import { cacheData } from '../utils/config';
 import { isLoggedIn } from '../utils/authToken';
-import { getGitRepo } from '../utils/git';
+import { getGitRepo, getBranchFromRef } from '../utils/git';
 
 interface Args {
   path?: string;
   branch?: string;
 }
 
-export const indexBranchUtil = async (repo: Git.Repository, branchName: string): Promise<void> => {
-  const commit = await repo.getBranchCommit(branchName);
+export const indexBranchUtil = async (repo: Git.Repository, branchRef: string): Promise<void> => {
+  const commit = await repo.getBranchCommit(branchRef);
+  const branchName = getBranchFromRef(branchRef);
   const tree = await commit.getTree();
   const walker = tree.walk();
   return new Promise(async (resolve, reject) => {
@@ -64,9 +65,9 @@ export default async (args: Arguments<Args>): Promise<void> => {
   }
   const repo = await getGitRepo(args.path);
   // await validateRepo(repo);
-  const branchName = args.branch ?
+  const branchRef = args.branch ?
     (await repo.getBranch(args.branch)).name()
     : (await repo.getCurrentBranch()).name();
-  await indexBranchUtil(repo, branchName);
+  await indexBranchUtil(repo, branchRef);
   console.log('done indexing the branch');
 };

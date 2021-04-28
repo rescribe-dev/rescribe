@@ -40,8 +40,8 @@ export class FilesArgs {
   @Field(_type => String, { description: 'query', nullable: true })
   query?: string;
 
-  @Field({ description: 'only user files', nullable: true })
-  onlyUser?: boolean;
+  @Field({ description: 'only user files', nullable: true, defaultValue: false })
+  onlyUser: boolean;
 
   @Field({ description: 'file path', nullable: true })
   path?: string;
@@ -299,19 +299,15 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   }
 
   if (!oneFile && !hasStructureFilter) {
-    if (args.onlyUser === undefined || !args.onlyUser) {
+    if (!args.onlyUser) {
       // include public files too
       filterPermissions.push(esb.termQuery('public', AccessLevel.view));
+      filterPermissions.push(esb.termQuery('public', AccessLevel.edit));
     }
     if (user) {
-      if (user.repositories.length === 0) {
-        return null;
-      }
       for (const repository of user.repositories) {
         filterPermissions.push(esb.termQuery('repository', repository._id.toHexString()));
       }
-      filterPermissions.push(esb.termQuery('public', AccessLevel.view));
-      filterPermissions.push(esb.termQuery('public', AccessLevel.edit));
     }
   }
 

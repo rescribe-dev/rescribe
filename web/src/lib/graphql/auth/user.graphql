@@ -5,6 +5,7 @@ fragment userFields on User {
   plan
   _id
   type
+  avatar
 }
 
 

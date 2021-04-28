@@ -15,7 +15,7 @@ import {
   Project,
 } from 'lib/generated/datamodel';
 import { isSSR } from 'utils/checkSSR';
-import { ApolloQueryResult } from 'apollo-client';
+import { ApolloQueryResult } from '@apollo/client';
 import { client } from 'utils/apollo';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state';
@@ -77,7 +77,7 @@ const ProjectPage = (args: ProjectProps): JSX.Element => {
                   variables: {
                     projects: [data.project._id as ObjectId],
                     page: 0,
-                    perpage: 18,
+                    perpage: 20,
                   },
                   fetchPolicy: 'no-cache',
                 }

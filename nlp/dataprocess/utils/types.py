@@ -3,8 +3,6 @@
 nlp type
 """
 
-import tensorflow as tf
-
 from enum import Enum
 from typing import Any, Set
 
@@ -60,8 +58,3 @@ class NLPType(BaseEnum):
     language_prediction = "language_prediction"
     base_library_prediction = "base_library_prediction"
     related_library_prediction = "related_library_prediction"
-
-class reScribeModel(tf.keras.Model):
-    trained: bool = False
-    def __init__(self):
-        super(reScribeModel, self).__init__()

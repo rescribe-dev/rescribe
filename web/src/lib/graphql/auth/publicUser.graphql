@@ -2,6 +2,7 @@ fragment publicUserFields on PublicUser {
   name
   username
   email
+  avatar
 }
 
 query publicUser($username: String!) {

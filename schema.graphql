@@ -564,8 +564,8 @@ type Mutation {
     recaptchaToken: String!
   ): String!
   deleteAccount(
-    """email"""
-    email: String
+    """id"""
+    id: String
   ): String!
   deleteAddress(
     """address id"""
@@ -958,6 +958,9 @@ type ProjectDB {
 
 """public user data"""
 type PublicUser {
+  """avatar picture"""
+  avatar: ObjectId!
+
   """email"""
   email: String!
 
@@ -1053,7 +1056,7 @@ type Query {
     name: String
 
     """only user files"""
-    onlyUser: Boolean
+    onlyUser: Boolean = false
 
     """page number"""
     page: Int
@@ -1255,7 +1258,7 @@ type Query {
     name: String
 
     """only user files"""
-    onlyUser: Boolean
+    onlyUser: Boolean = false
 
     """page number"""
     page: Int
@@ -1503,7 +1506,7 @@ type User {
   _id: ObjectId!
 
   """avatar picture"""
-  avatar: ObjectId
+  avatar: ObjectId!
 
   """default address"""
   defaultAddress: ObjectId

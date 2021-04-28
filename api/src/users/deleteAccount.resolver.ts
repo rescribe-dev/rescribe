@@ -22,9 +22,9 @@ class DeleteArgs {
 }
 
 @Resolver()
-class UpdateAccountResolver {
+class DeleteAccountResolver {
   @Mutation(_returns => String)
-  async updateAccount(@Args() args: DeleteArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
+  async deleteAccount(@Args() args: DeleteArgs, @Ctx() ctx: GraphQLContext): Promise<string> {
     if (!verifyLoggedIn(ctx) || !ctx.auth) {
       throw new Error('user not logged in');
     }
@@ -70,4 +70,4 @@ class UpdateAccountResolver {
   }
 }
 
-export default UpdateAccountResolver;
+export default DeleteAccountResolver;

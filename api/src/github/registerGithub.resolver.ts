@@ -6,6 +6,8 @@ import { createGithubOauthClientREST } from './init';
 import { defaultProductName } from '../shared/variables';
 import { ApolloError } from 'apollo-server-express';
 import statusCodes from 'http-status-codes';
+import { addIdenticon } from '../utils/identicon';
+import { AccessLevel } from '../schema/users/access';
 
 @ArgsType()
 class RegisterGithubArgs {
@@ -59,12 +61,17 @@ class RegisterGithubResolver {
     } else {
       name = username;
     }
+
+    const id = new ObjectID();
+    const mediaID = await addIdenticon(id, AccessLevel.view);
+
     const newUser: User = {
-      _id: new ObjectID(),
+      _id: id,
       name,
       username,
       email,
       password: '',
+      avatar: mediaID,
       plan: defaultProductName,
       subscriptionID: '',
       type: UserType.user,

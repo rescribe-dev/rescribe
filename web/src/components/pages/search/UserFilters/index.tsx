@@ -97,9 +97,6 @@ const UserFilters = (_args: UserFiltersPropsDataType): JSX.Element => {
   const getRepositories = async (
     inputValue: string
   ): Promise<SelectObject[]> => {
-    if (!projects) {
-      return [];
-    }
     const repositoriesData = await client.query<
       RepositoriesQuery,
       RepositoriesQueryVariables
@@ -175,7 +172,6 @@ const UserFilters = (_args: UserFiltersPropsDataType): JSX.Element => {
               cacheOptions={false}
               defaultOptions={true}
               value={selectedRepositories}
-              isDisabled={selectedProjects.length !== 1}
               loadOptions={getRepositories}
               onChange={(selectedOptions: ValueType<SelectObject, any>) => {
                 if (!selectedOptions) {

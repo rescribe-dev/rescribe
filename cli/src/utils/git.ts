@@ -16,9 +16,7 @@ export const getGitRepo = async (repositoryPath: string): Promise<Git.Repository
 
 const branchRefStart = 'refs/heads/';
 
-export const getBranch = async (repositoryPath: string): Promise<string> => {
-  const repo = await getGitRepo(repositoryPath);
-  const branchRef = (await repo.getCurrentBranch()).name();
+export const getBranchFromRef = (branchRef: string): string => {
   if (!branchRef.startsWith(branchRefStart)) {
     return branchRef;
   }
@@ -27,6 +25,12 @@ export const getBranch = async (repositoryPath: string): Promise<string> => {
     throw new Error('invalid branch name provided');
   }
   return branchRefSplit[1];
+};
+
+export const getBranch = async (repositoryPath: string): Promise<string> => {
+  const repo = await getGitRepo(repositoryPath);
+  const branchRef = (await repo.getCurrentBranch()).name();
+  return getBranchFromRef(branchRef);
 };
 
 const defaultRemoteName = 'origin';

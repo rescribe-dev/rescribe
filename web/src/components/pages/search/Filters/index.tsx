@@ -1,6 +1,5 @@
 import React, { useState, Dispatch } from 'react';
 import {
-  // Container,
   Form,
   Label,
   FormGroup,
@@ -203,7 +202,7 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
                 }
               }}
             >
-              Submit
+              Refresh
             </Button>
           </Col>
         </Row>

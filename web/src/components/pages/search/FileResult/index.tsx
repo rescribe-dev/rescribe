@@ -31,7 +31,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
           <Row>
             <Col md="1">
               <img
-                src={`${getAPIURL()}/${args.file.location.image}`}
+                src={`${getAPIURL()}/media/${args.file.location.image}`}
                 style={{
                   width: '2em',
                   height: '2em',
@@ -52,22 +52,29 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                       <Row>
                         <Col xs="auto" className="pr-0">
                           <CardText>
-                            <b>
-                              {args.file.location.owner}/
-                              {args.file.location.repository}
-                            </b>
-                            {' > '}
+                            <Link
+                              to={`/${args.file.location.owner}/${args.file.location.repository}`}
+                            >
+                              <div className="button-link text-dark">
+                                <b>
+                                  {args.file.location.owner}/
+                                  {args.file.location.repository}
+                                </b>
+                                {' > '}
+                              </div>
+                            </Link>
                           </CardText>
                         </Col>
                         <Col>
                           <Link
-                            to={`/${args.file.location.owner}/${args.file.location.repository}/tree/master${args.file.path}`}
+                            to={`/${args.file.location.owner}/${args.file.location.repository}/tree/master${args.file.path}${args.file.name}`}
                             style={{
                               color: 'var(--link-blue)',
                             }}
                             className="text-break"
                           >
                             {args.file.path}
+                            {args.file.name}
                           </Link>
                         </Col>
                       </Row>

@@ -4,7 +4,7 @@ import { PageProps, Link } from 'gatsby';
 
 import './index.scss';
 
-import { ApolloQueryResult } from 'apollo-client';
+import { ApolloQueryResult } from '@apollo/client';
 import { useMutation } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
 import {

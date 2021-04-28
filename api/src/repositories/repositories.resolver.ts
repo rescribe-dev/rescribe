@@ -3,16 +3,15 @@ import { elasticClient } from '../elastic/init';
 import { repositoryIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { Repository } from '../schema/structure/repository';
-import { RequestParams } from '@elastic/elasticsearch';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/users/user';
 import { AccessLevel } from '../schema/users/access';
-import { TermQuery } from '../elastic/types';
 import { GraphQLContext } from '../utils/context';
 import { checkProjectAccess } from '../projects/auth';
 import { Min, Max } from 'class-validator';
-import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
+import { checkPaginationArgs } from '../elastic/pagination';
 import { ProjectModel } from '../schema/structure/project';
+import esb from 'elastic-builder';
 
 const maxPerPage = 20;
 
@@ -49,17 +48,13 @@ class RepositoriesResolver {
     if (!user) {
       throw new Error('cannot find user');
     }
-    const shouldParams: TermQuery[] = [];
+    const shouldParams: esb.Query[] = [];
     if (!args.projects || args.projects.length === 0) {
       if (user.repositories.length === 0 && user.projects.length === 0) {
         return [];
       }
       for (const repository of user.repositories) {
-        shouldParams.push({
-          term: {
-            _id: repository._id.toHexString()
-          }
-        });
+        shouldParams.push(esb.termQuery('_id', repository._id.toHexString()));
       }
     } else {
       for (const projectID of args.projects) {
@@ -71,30 +66,26 @@ class RepositoriesResolver {
           throw new Error('user does not have view access to project');
         }
         for (const repositoryID of project.repositories) {
-          shouldParams.push({
-            term: {
-              _id: repositoryID.toHexString()
-            }
-          });
+          shouldParams.push(esb.termQuery('_id', repositoryID.toHexString()));
         }
+      }
+      if (shouldParams.length === 0) {
+        return [];
       }
     }
-    const searchParams: RequestParams.Search = {
+    let requestBody = esb.requestBodySearch().query(
+      esb.boolQuery()
+        .filter(
+          esb.boolQuery().should(shouldParams)
+        )
+    ).sort(esb.sort('_score', 'desc'));
+    if (args.page !== undefined && args.perpage !== undefined) {
+      requestBody = requestBody.from(args.page * args.perpage).size(args.perpage);
+    }
+    const elasticRepositoryData = await elasticClient.search({
       index: repositoryIndexName,
-      body: {
-        query: {
-          bool: {
-            filter: {
-              bool: {
-                should: shouldParams
-              }
-            }
-          }
-        }
-      }
-    };
-    setPaginationArgs(args, searchParams);
-    const elasticRepositoryData = await elasticClient.search(searchParams);
+      body: requestBody.toJSON()
+    });
     const result: Repository[] = [];
     for (const hit of elasticRepositoryData.body.hits.hits) {
       const currentRepository: Repository = {

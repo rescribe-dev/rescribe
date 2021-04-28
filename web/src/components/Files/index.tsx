@@ -75,7 +75,7 @@ const FilesList = (args: FilesProps): JSX.Element => {
   const [loading, setLoading] = useState<boolean>(true);
   const [name, setName] = useState<string>('');
   const [fileView, setFileView] = useState<boolean>(false);
-  const branches = ['dummy branch1', 'branch2'];
+  const [branches] = useState<string[]>(['no other indexed branches']);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);

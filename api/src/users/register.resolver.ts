@@ -16,6 +16,8 @@ import { stripeClient } from '../stripe/init';
 import { getProduct } from '../products/product.resolver';
 import UserCurrency, { UserCurrencyModel } from '../schema/users/userCurrency';
 import { loginType } from '../auth/shared';
+import { addIdenticon } from '../utils/identicon';
+import { AccessLevel } from '../schema/users/access';
 
 @ArgsType()
 class RegisterArgs {
@@ -126,9 +128,11 @@ class RegisterResolver {
       }]
     });
     const hashedPassword = await argon2.hash(args.password);
+    const mediaID = await addIdenticon(id, AccessLevel.view);
     const newUser: User = {
       _id: id,
       name: args.name,
+      avatar: mediaID,
       username: args.username,
       email: args.email,
       password: hashedPassword,
