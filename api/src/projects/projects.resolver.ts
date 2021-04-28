@@ -3,13 +3,12 @@ import { elasticClient } from '../elastic/init';
 import { projectIndexName } from '../elastic/settings';
 import { ObjectId } from 'mongodb';
 import { Project } from '../schema/structure/project';
-import { RequestParams } from '@elastic/elasticsearch';
 import { GraphQLContext } from '../utils/context';
 import { verifyLoggedIn } from '../auth/checkAuth';
 import { UserModel } from '../schema/users/user';
-import { TermQuery } from '../elastic/types';
 import { Min, Max } from 'class-validator';
-import { checkPaginationArgs, setPaginationArgs } from '../elastic/pagination';
+import esb from 'elastic-builder';
+import { checkPaginationArgs } from '../elastic/pagination';
 
 const maxPerPage = 20;
 
@@ -46,26 +45,21 @@ class ProjectsResolver {
     if (user.projects.length === 0) {
       return [];
     }
-    const shouldParams: TermQuery[] = [];
+    const shouldParams: esb.Query[] = [];
     for (const project of user.projects) {
-      shouldParams.push({
-        term: {
-          _id: project._id.toHexString()
-        }
-      });
+      shouldParams.push(esb.termQuery('_id', project._id.toHexString()));
     }
-    const searchParams: RequestParams.Search = {
+    let requestBody = esb.requestBodySearch().query(
+      esb.boolQuery()
+        .should(shouldParams)
+    ).sort(esb.sort('_score', 'desc'));
+    if (args.page !== undefined && args.perpage !== undefined) {
+      requestBody = requestBody.from(args.page * args.perpage).size(args.perpage);
+    }
+    const elasticProjectData = await elasticClient.search({
       index: projectIndexName,
-      body: {
-        query: {
-          bool: {
-            should: shouldParams
-          }
-        }
-      }
-    };
-    setPaginationArgs(args, searchParams);
-    const elasticProjectData = await elasticClient.search(searchParams);
+      body: requestBody.toJSON()
+    });
     const result: Project[] = [];
     for (const hit of elasticProjectData.body.hits.hits) {
       const currentProject: Project = {

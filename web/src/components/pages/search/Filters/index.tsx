@@ -1,12 +1,15 @@
 import React, { useState, Dispatch } from 'react';
 import {
-  Container,
+  // Container,
   Form,
   Label,
   FormGroup,
   Button,
   Row,
   Col,
+  Media,
+  CardBody,
+  Card,
 } from 'reactstrap';
 import AsyncSelect from 'react-select/async';
 import { ValueType } from 'react-select';
@@ -35,7 +38,7 @@ import { ApolloError } from '@apollo/client';
 
 interface SelectObject {
   value: Language;
-  label: string;
+  label: JSX.Element;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -56,9 +59,27 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
         (state) => state.searchReducer.filters.languages
       );
   const [languageOptions, setLanguageOptions] = useState<SelectObject[]>([]);
-  const getLabel = (language: LanguageData): string => {
-    return `name: ${language.name}, color: ${language.darkColor}`;
+
+  const getLabel = (language: LanguageData): JSX.Element => {
+    return (
+      <Row className="align-items-center justify-content-center">
+        <Col xs="3" className="ml-2 align-items-flex-end">
+          <Media
+            style={{
+              backgroundColor: language.darkColor,
+              height: '1em',
+              width: '1em',
+              borderRadius: '0.5em',
+            }}
+          />
+        </Col>
+        <Col>
+          <p className="my-auto">{language.name}</p>
+        </Col>
+      </Row>
+    );
   };
+
   if (!isSSR) {
     useQuery<LanguagesQuery, LanguagesQueryVariables>(Languages, {
       variables: {},
@@ -90,7 +111,7 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
                 ];
               if (!languageObject)
                 return {
-                  label: name,
+                  label: <p>{name}</p>,
                   value: language,
                 };
               return {
@@ -120,20 +141,9 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
     dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
   }
   return (
-    <>
-      <Container
-        style={{
-          marginBottom: 0,
-          padding: 0,
-          marginRight: 0,
-        }}
-      >
-        <hr
-          style={{
-            marginTop: 0,
-          }}
-        />
-        <Row style={{}}>
+    <Card>
+      <CardBody>
+        <Row>
           <Col>
             <Form>
               <FormGroup
@@ -197,8 +207,8 @@ const Filters = (_args: FiltersPropsDataType): JSX.Element => {
             </Button>
           </Col>
         </Row>
-      </Container>
-    </>
+      </CardBody>
+    </Card>
   );
 };
 

@@ -12,6 +12,7 @@ export const checkRepositoryPublic = async (repository: ObjectId | RepositoryDB,
     }
     repository = repositoryData;
   }
+  repository = repository as RepositoryDB;
   return checkAccessLevel(repository.public, accessLevel);
 };
 
@@ -23,6 +24,7 @@ export const checkRepositoryAccess = async (user: User, repository: ObjectId | R
     }
     repository = repositoryData;
   }
+  repository = repository as RepositoryDB;
   return checkAccessLevel(repository.public, accessLevel) ||
     (!checkAccess(repository._id, user.repositories, AccessLevel.none) &&
       checkAccess(repository._id, user.repositories, accessLevel));

@@ -3,6 +3,7 @@ import { repositoryIndexName, projectIndexName } from '../elastic/settings';
 import { elasticClient } from '../elastic/init';
 import { ObjectId } from 'mongodb';
 import { Repository, BaseRepository, RepositoryDB, RepositoryModel } from '../schema/structure/repository';
+import { MediaModel, BaseMedia, MediaParentType } from '../schema/structure/media';
 import { ProjectModel } from '../schema/structure/project';
 import { checkProjectAccess } from '../projects/auth';
 import Access, { AccessLevel, AccessType } from '../schema/users/access';
@@ -12,9 +13,11 @@ import { UserModel } from '../schema/users/user';
 import { Matches, IsNotIn, MinLength } from 'class-validator';
 import { countRepositoriesUserAccess } from './repositoryNameExists.resolver';
 import { validRepositoryName, blacklistedRepositoryNames } from '../shared/variables';
-import { defaultRepositoryImage } from '../utils/variables';
 import { baseFolderName, baseFolderPath } from '../shared/folders';
 import { createFolder } from '../folders/addFolder.resolver';
+import { toSvg } from 'jdenticon';
+import { getMediaKey, fileBucket } from '../utils/aws';
+import { s3Client } from '../utils/aws';
 
 @ArgsType()
 class AddRepositoryArgs {
@@ -64,12 +67,42 @@ class AddRepositoryResolver {
       repository: id,
       branches: []
     });
+
+    const mediaID = new ObjectId();
+    const repoAvatarName = `repo-${id.toHexString()}-avatar.svg`;
+    const avatarMime = 'image/svg+xml';
+    const avatarEncoding = 'utf8';
+    const avatar = toSvg(repoAvatarName, 100);
+    const mediaData: BaseMedia = {
+      parentType: MediaParentType.repository,
+      parent: id,
+      name: repoAvatarName,
+      mime: avatarMime,
+      fileSize: avatar.length,
+      public: args.publicAccess,
+      created: currentTime,
+      updated: currentTime,
+    };
+
+    await s3Client.upload({
+      Bucket: fileBucket,
+      Key: getMediaKey(mediaID),
+      Body: Buffer.from(avatar, avatarEncoding),
+      ContentType: avatarMime,
+      ContentEncoding: avatarEncoding,
+    }).promise();
+
+    await new MediaModel({
+      ...mediaData,
+      _id: mediaID
+    }).save();
+
     const baseRepository: BaseRepository = {
       name: args.name,
       owner: userID,
       branches: [],
       public: args.publicAccess,
-      image: defaultRepositoryImage,
+      image: mediaID,
       linesOfCode: 0,
       numberOfFiles: 0,
       folder: folder._id,

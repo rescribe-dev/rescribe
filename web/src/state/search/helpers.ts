@@ -7,6 +7,7 @@ import { Language } from 'lib/generated/datamodel';
 import { capitalizeFirstLetter, propertyOf } from 'utils/misc';
 
 export const processSearchParams = (searchParamsStr: string): boolean => {
+  console.log('process search params');
   const state = (store.getState() as RootState).searchReducer;
   const searchParams = new URLSearchParams(searchParamsStr);
   let foundQuery = false;

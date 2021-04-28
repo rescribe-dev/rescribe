@@ -1,5 +1,6 @@
 import React from 'react';
 import { Row, Button, Col, Card, CardBody } from 'reactstrap';
+import CodeHighlight from 'components/codeHighlight';
 import './index.scss';
 
 /*
@@ -111,30 +112,11 @@ const ExploreResultComponent = (args: ExploreResultType): JSX.Element => {
           }}
         >
           <Col>
-            {args.repoCode.split('\n').map((line, i) => {
-              return (
-                <Row key={`explore-result-line-${i}`}>
-                  <Col
-                    style={{
-                      color: '#999999',
-                      fontFamily: 'Inconsolata',
-                      marginLeft: '-10px',
-                    }}
-                    sm="1"
-                  >
-                    {i + 1}
-                  </Col>
-                  <Col
-                    style={{
-                      fontFamily: 'Inconsolata',
-                    }}
-                    sm="11"
-                  >
-                    {line}
-                  </Col>
-                </Row>
-              );
-            })}
+            <CodeHighlight
+              startIndex={0}
+              code={args.repoCode.split('\n')}
+              language={'typescript'}
+            />
           </Col>
         </Row>
         <Row>

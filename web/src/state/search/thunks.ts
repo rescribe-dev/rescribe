@@ -18,7 +18,7 @@ const search = async (): Promise<SearchQuery> => {
   const variables: SearchQueryVariables = {
     query: state.query,
     page: state.page,
-    perpage: 1,
+    perpage: state.perpage,
     maxResultsPerFile: 1,
   };
   if (state.filters.projects.length > 0) {

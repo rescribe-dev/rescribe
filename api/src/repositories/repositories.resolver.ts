@@ -100,7 +100,8 @@ class RepositoriesResolver {
       const currentRepository: Repository = {
         ...hit._source as Repository,
         _id: new ObjectId(hit._id as string),
-        owner: new ObjectId(hit._source.owner)
+        owner: new ObjectId(hit._source.owner),
+        image: new ObjectId(hit._source.image)
       };
       result.push(currentRepository);
     }

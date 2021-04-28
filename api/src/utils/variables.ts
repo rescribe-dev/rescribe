@@ -1,6 +1,6 @@
 import { Language } from '../schema/misc/language';
 
-export const defaultRepositoryImage = 'https://example.com/image.jpg';
+export const defaultRepositoryImage = 'https://i.stack.imgur.com/frlIf.png';
 export const maxFileUploadSize = 15 * 1e6; // bytes
 
 export const languageColorMap: {[key: string]: {

@@ -193,7 +193,7 @@ class SearchResolver {
     const topLevelFields = graphqlFields(info);
     const topLevelFieldNames = Object.keys(topLevelFields);
 
-    results.count = elasticFileData.body.hits.total;
+    results.count = elasticFileData.body.hits.total.value;
 
     // iterate over top-level hits
 
@@ -201,7 +201,7 @@ class SearchResolver {
       const fileID = new ObjectId(hit._id as string);
       const currentFile: File = {
         ...hit._source as File,
-        _id: new ObjectId(hit._id as string),
+        _id: new ObjectId(hit._id as string)
       };
       currentFile.repository = new ObjectId(currentFile.repository);
 
@@ -224,7 +224,7 @@ class SearchResolver {
           userData[repository.owner.toHexString()] = currentUser;
         }
         locationData[fileID.toHexString()] = {
-          image: repository.image,
+          image: repository.image ? repository.image : repository._id, // TODO - replace this with repository.image
           owner: userData[repository.owner.toHexString()].name,
           repository: repository.name
         };

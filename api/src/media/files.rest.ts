@@ -19,6 +19,7 @@ export const getFile = async (args: {
   download?: boolean;
   isFile: boolean;
 }): Promise<void> => {
+  // TODO - make sure this is working with cookie auth
   // default query params:
   if (args.download === undefined) {
     args.download = false;

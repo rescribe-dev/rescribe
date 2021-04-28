@@ -83,3 +83,30 @@
     
 - deployment
 - training
+
+RIP
+```python
+class AlbertTokenizationLayer(tf.keras.layers.Layer):
+    def __init__(self, tokenizer):
+        super(AlbertTokenizationLayer, self).__init__()
+        self.tokenizer = tokenizer
+    
+    def build(self, input_shape):
+        super(AlbertTokenizationLayer, self).build(input_shape)
+    
+    def call(self, sentences):
+
+        output_list = []
+        for sentence in sentences:
+            inputs = self.tokenizer.encode_plus(str(sentence), 
+                    add_special_tokens=True, 
+                    max_length=64, 
+                    padding='max_length',
+                    return_attention_mask=True, 
+                    return_token_type_ids=True,
+                    truncation=True)
+        
+            output_list.append(tf.convert_to_tensor([inputs['input_ids'], inputs['attention_mask'], inputs['token_type_ids']], dtype=tf.int32))
+        
+        return tf.stack(output_list)
+```

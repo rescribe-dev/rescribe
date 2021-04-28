@@ -8,7 +8,7 @@ from os import getenv
 from typing import Union
 from dotenv import load_dotenv
 from sagemaker.estimator import Estimator
-from shared.type import NLPType
+from shared.types import NLPType
 
 default_instance_type: str = 'ml.m4.xlarge'
 

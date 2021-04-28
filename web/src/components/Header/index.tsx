@@ -261,9 +261,6 @@ const Header = (args: HeaderArgs): JSX.Element => {
                     dispatch(setQuery(formData.query));
                     await navigate(getSearchURL());
                     if (pathname === '/search') {
-                      // TODO - fix this
-                      // hack to allow for react state to update before search
-                      await sleep(50);
                       try {
                         await dispatchSearchThunk(thunkSearch());
                       } catch (err) {
@@ -416,9 +413,12 @@ const Header = (args: HeaderArgs): JSX.Element => {
                       to="/signup"
                     >
                       <FormattedMessage id="sign up">
-                        {(messages: string[]) =>
-                          capitalizeFirstLetter(messages[0]) + '  >'
-                        }
+                        {(messages: string[]) => (
+                          <>
+                            {capitalizeFirstLetter(messages[0])}
+                            {'  >'}
+                          </>
+                        )}
                       </FormattedMessage>
                     </NavLink>,
                     <NavLink
@@ -428,9 +428,12 @@ const Header = (args: HeaderArgs): JSX.Element => {
                       key="login"
                     >
                       <FormattedMessage id="login">
-                        {(messages: string[]) =>
-                          capitalizeFirstLetter(messages[0]) + '  >'
-                        }
+                        {(messages: string[]) => (
+                          <>
+                            {capitalizeFirstLetter(messages[0])}
+                            {'  >'}
+                          </>
+                        )}
                       </FormattedMessage>
                     </NavLink>,
                   ]

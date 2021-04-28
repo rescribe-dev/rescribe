@@ -110,11 +110,13 @@ class RepositoryResolver {
     }
     const repositoryDBType: RepositoryDB = {
       ...repository,
-      image: '',
       _id: repository._id as ObjectId
     };
-    if (user && !(await checkRepositoryAccess(user, repositoryDBType, AccessLevel.view))) {
-      throw new Error('user not authorized to view repository');
+    if (user) {
+      if (!(await checkRepositoryAccess(user, repositoryDBType, AccessLevel.view))) {
+        throw new Error('user not authorized to view repository'); 
+      }
+      return repository;
     } else if (!await checkRepositoryPublic(repositoryDBType, AccessLevel.view)) {
       throw new Error('repository is not public');
     }

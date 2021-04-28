@@ -334,7 +334,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   }
   let requestBody = esb.requestBodySearch().query(
     esb.boolQuery()
-      .should(queryFilters)
+      .must(queryFilters)
       .filter([
         esb.boolQuery().should(filterPermissions),
         esb.boolQuery().must(filterPath),
@@ -342,7 +342,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
         esb.boolQuery().should(repositoryFilters),
       ])
   ).highlight(highlight).sort(esb.sort('_score', 'desc')).trackTotalHits(true);
-  if (!oneFile && args.page && args.perpage) {
+  if (!oneFile && args.page !== undefined && args.perpage !== undefined) {
     requestBody = requestBody.from(args.page * args.perpage).size(args.perpage);
   }
   const startTime = new Date();
@@ -353,8 +353,6 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
   logger.info(`search function time: ${new Date().getTime() - startTime.getTime()}`);
   return elasticFileData;
 };
-
-// TODO - add information about file count etc to the response object
 
 @Resolver()
 class FilesResolver {

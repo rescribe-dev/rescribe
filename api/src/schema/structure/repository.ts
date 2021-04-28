@@ -23,12 +23,12 @@ export class BaseRepository extends BaseTimestamp {
   @Property({ required: true })
   public: AccessLevel;
 
-  @Property({ required: false })
   @Field({ description: 'repository image' })
-  image: string;
+  @Property({ required: true })
+  image: ObjectId;
 
   @Field({ description: 'base folder containing files' })
-  @Property({required: true})
+  @Property({ required: true })
   folder: ObjectId;
 
   @Field({ description: 'folder containing files (field resolver)' })

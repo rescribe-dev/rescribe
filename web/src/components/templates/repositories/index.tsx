@@ -4,7 +4,7 @@ import { PageProps, Link } from 'gatsby';
 
 import './index.scss';
 
-import { ApolloQueryResult } from 'apollo-client';
+import { ApolloQueryResult } from '@apollo/client';
 import { useMutation } from '@apollo/react-hooks';
 import { toast } from 'react-toastify';
 import {
@@ -24,6 +24,7 @@ import ObjectId from 'bson-objectid';
 import { AiFillDelete } from 'react-icons/ai';
 import { client } from 'utils/apollo';
 import DeleteRepositoryModal from './DeleteRepositoryModal';
+import { getAPIURL } from 'utils/axios';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RepositoriesPageDataProps extends PageProps {}
@@ -115,6 +116,16 @@ const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
                       <tr key={(repository._id as ObjectId).toHexString()}>
                         <td>
                           <Row>
+                            <Col xs="auto">
+                              <img
+                                src={`${getAPIURL()}/media/${repository.image}`}
+                                style={{
+                                  width: '2em',
+                                  height: '2em',
+                                  borderRadius: '1em',
+                                }}
+                              />
+                            </Col>
                             <Col>
                               <Link to={`/${username}/${repository.name}`}>
                                 {repository.name}
@@ -155,25 +166,32 @@ const RepositoriesPage = (_args: RepositoriesProps): JSX.Element => {
             <DeleteRepositoryModal
               isOpen={deleteRepositoryModalIsOpen}
               toggle={deleteRepositoriesModalToggle}
-              deleteRepository={async (): Promise<void> => {
+              deleteRepository={async () => {
                 if (!currentRepository) return;
-                await deleteRepositoryMutation({
-                  variables: {
-                    id: currentRepository,
-                  },
-                  update: () => {
-                    setRepositories({
-                      ...repositories,
-                      loading: false,
-                      data: {
-                        repositories: repositories.data.repositories.filter(
-                          (elem) =>
-                            !(elem._id as ObjectId).equals(currentRepository)
-                        ),
-                      },
-                    });
-                  },
-                });
+                try {
+                  await deleteRepositoryMutation({
+                    variables: {
+                      id: currentRepository,
+                    },
+                    update: () => {
+                      setRepositories({
+                        ...repositories,
+                        loading: false,
+                        data: {
+                          repositories: repositories.data.repositories.filter(
+                            (elem) =>
+                              !(elem._id as ObjectId).equals(currentRepository)
+                          ),
+                        },
+                      });
+                    },
+                  });
+                } catch (err) {
+                  const errObj = err as Error;
+                  toast(errObj.message, {
+                    type: 'error',
+                  });
+                }
               }}
             />
           </>

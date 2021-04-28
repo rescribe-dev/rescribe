@@ -27,9 +27,9 @@ export const checkMediaAccess = async (user: User, media: ObjectId | Media, acce
     return true;
   }
   switch (media.parentType) {
-    case MediaParentType.User:
+    case MediaParentType.user:
       return user._id === media.parent;
-    case MediaParentType.Repository:
+    case MediaParentType.repository:
       return !checkAccess(media.parent, user.repositories, AccessLevel.none) &&
       checkAccess(media.parent, user.repositories, accessLevel);
     default:

@@ -24,11 +24,13 @@ import { AppThunkDispatch } from 'state/thunk';
 import { thunkSearch } from 'state/search/thunks';
 import { FaSlidersH } from 'react-icons/fa';
 import { createHistory, HistorySource } from '@reach/router';
-import sleep from 'shared/sleep';
 import { toast } from 'react-toastify';
 import { SearchMessages } from 'locale/pages/search/searchMessages';
 import SearchBar from './SearchBar';
 import { SearchQuery } from 'lib/generated/datamodel';
+import { useIntl } from 'react-intl';
+import { setPage } from 'state/search/actions';
+import { Dispatch } from 'redux';
 
 const loaderCSS = css`
   display: block;
@@ -48,12 +50,18 @@ const SearchPage = (args: SearchProps): JSX.Element => {
     ? undefined
     : useSelector<RootState, boolean>((state) => state.searchReducer.searching);
   let dispatchSearchThunk: AppThunkDispatch<SearchActionTypes>;
+  let dispatch: Dispatch<any>;
   if (!isSSR) {
     dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
+    dispatch = useDispatch();
   }
-  let foundSearchParams = processSearchParams(args.location.search);
+
+  const intl = useIntl();
+
+  const [numberFormatter] = useState(new Intl.NumberFormat(intl.locale));
+
   useEffect(() => {
-    // only run on component mount
+    let foundSearchParams = processSearchParams(args.location.search);
     if (args.location.search.length > 0 && foundSearchParams && !searching) {
       dispatchSearchThunk(thunkSearch());
     }
@@ -61,13 +69,14 @@ const SearchPage = (args: SearchProps): JSX.Element => {
     // hack to get typescript working:
     const history = createHistory((window as unknown) as HistorySource);
     return history.listen(async (listener) => {
-      foundSearchParams = processSearchParams(args.location.search);
-      await sleep(50);
       if (
-        foundSearchParams &&
         listener.action === 'POP' &&
         listener.location.pathname === '/search'
       ) {
+        foundSearchParams = processSearchParams(args.location.search);
+        if (!foundSearchParams) {
+          return;
+        }
         try {
           await dispatchSearchThunk(thunkSearch());
         } catch (err) {
@@ -78,32 +87,16 @@ const SearchPage = (args: SearchProps): JSX.Element => {
       }
     });
   }, []);
-  const searchResult = isSSR
-    ? undefined
-    : useSelector<RootState, SearchQuery | null>(
-        (state) => state.searchReducer.searchResults
-      );
-  // const searchResult = [
-  //   {
-  //     repoUrl: 'jschmidtnj/rescribe/api/login.go',
-  //     repoCode:
-  //       'async create() \n{\n\tawait dataBase.crateUser({name: "hello"})\n}',
-  //     repoName: 'reScribe',
-  //     repoLang: 'TypeScript',
-  //     repoDes:
-  //       'On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repository',
-  //     selected: true,
-  //   },
-  //   {
-  //     repoUrl: 'jschmidtnj/rescribe/api/login.go',
-  //     repoCode: "console.log('hello')",
-  //     repoName: 'reScribe',
-  //     repoLang: 'TypeScript',
-  //     repoDes:
-  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." This is the readme (or the text from the beginning of the readme) of the selected text’s repo. On mobile this will go below the search result, or disappear entirely to be replaced by only the link to the full repostiory',
-  //     selected: false,
-  //   },
-  // ];
+  const searchResult = useSelector<RootState, SearchQuery | null>(
+    (state) => state.searchReducer.searchResults
+  );
+  const currentPage = useSelector<RootState, number>(
+    (state) => state.searchReducer.page
+  );
+  const perpage = useSelector<RootState, number>(
+    (state) => state.searchReducer.perpage
+  );
+
   const hasSearched = isSSR
     ? undefined
     : useSelector<RootState, boolean>(
@@ -112,18 +105,11 @@ const SearchPage = (args: SearchProps): JSX.Element => {
   const [showFilters, setShowFilters] = useState(true);
   const minFilterWidth = '9rem';
   return (
-    <Container
-      fluid="xl"
-      style={{
-        marginTop: '2rem',
-      }}
-    >
+    <Container fluid="xl" className="my-4">
       <Row
+        className="mb-2 py-2"
         style={{
-          paddingTop: '1rem',
-          paddingBottom: '1rem',
-          borderTop: '3px solid var(--teal-blue)',
-          borderBottom: '3px solid var(--teal-blue)',
+          borderBottom: '2px solid var(--gray1)',
         }}
       >
         <Col
@@ -137,10 +123,11 @@ const SearchPage = (args: SearchProps): JSX.Element => {
           }}
         >
           <button
-            onClick={async (evt: React.MouseEvent): Promise<void> => {
+            onClick={(evt) => {
               evt.preventDefault();
               setShowFilters(!showFilters);
             }}
+            type="button"
             className="button-link"
           >
             <FaSlidersH /> Filter
@@ -149,32 +136,14 @@ const SearchPage = (args: SearchProps): JSX.Element => {
         <SearchBar />
       </Row>
 
-      <Col>{/*This is where the preview goes*/}</Col>
-
-      <Row
-        style={{
-          paddingTop: '1rem',
-        }}
-      >
+      <Row className="pt-1">
         {!showFilters ? null : (
-          <Col
-            xs={3}
-            id="filterColumn"
-            style={{
-              minWidth: minFilterWidth,
-              borderRight: '1px solid rgba(0, 0, 0, 0.2)',
-              paddingRight: 0,
-            }}
-          >
+          <Col md={3} id="filterColumn" className="px-0">
             <Filters />
           </Col>
         )}
         <Col>
-          <Container
-            style={{
-              marginTop: '2rem',
-            }}
-          >
+          <Container>
             {searching ? (
               <BeatLoader
                 css={loaderCSS}
@@ -193,24 +162,12 @@ const SearchPage = (args: SearchProps): JSX.Element => {
             ) : (
               <>
                 {searchResult.search.results.map((file) => {
-                  const fileResults = [...file.results];
-                  if (file.fileResult && file.fileResult.results.length > 0) {
-                    const names = file.fileResult.results
-                      .map((resultData) => resultData.name)
-                      .join(', ');
-                    const type = file.fileResult.results[0].type;
-                    fileResults.unshift({
-                      name: names,
-                      type,
-                      preview: file.fileResult.preview,
-                    });
-                  }
                   return (
                     <Row key={`file-${file._id}`}>
                       <Col className="mb-2">
                         <FileResultComponent
                           file={file}
-                          previewSearchResults={fileResults}
+                          previewSearchResults={file.results}
                         />
                       </Col>
                     </Row>
@@ -219,19 +176,70 @@ const SearchPage = (args: SearchProps): JSX.Element => {
               </>
             )}
           </Container>
-          {/* TODO - add information for pagination to graphql object return type */}
           {searching ||
           !searchResult ||
           searchResult.search.count === 0 ? null : (
             <Container>
+              <p>
+                {numberFormatter.format(
+                  Math.max(
+                    searchResult.search.results.length +
+                      (currentPage - 1) * perpage,
+                    1
+                  )
+                )}
+                -
+                {numberFormatter.format(
+                  searchResult.search.results.length + currentPage * perpage
+                )}
+                {' / '}
+                {numberFormatter.format(searchResult.search.count)}
+              </p>
               <Pagination>
-                <PaginationItem>
+                <PaginationItem
+                  onClick={async (evt) => {
+                    evt.preventDefault();
+                    if (currentPage === 0) {
+                      return;
+                    }
+                    dispatch(setPage(currentPage - 1));
+                    try {
+                      await dispatchSearchThunk(thunkSearch());
+                    } catch (err) {
+                      toast((err as Error).message, {
+                        type: 'error',
+                      });
+                    }
+                  }}
+                  disabled={currentPage === 0}
+                >
                   <PaginationLink previous />
                 </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink>1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
+                <PaginationItem
+                  onClick={async (evt) => {
+                    evt.preventDefault();
+                    if (
+                      currentPage * perpage +
+                        searchResult.search.results.length ===
+                      searchResult.search.count
+                    ) {
+                      return;
+                    }
+                    dispatch(setPage(currentPage + 1));
+                    try {
+                      await dispatchSearchThunk(thunkSearch());
+                    } catch (err) {
+                      toast((err as Error).message, {
+                        type: 'error',
+                      });
+                    }
+                  }}
+                  disabled={
+                    currentPage * perpage +
+                      searchResult.search.results.length ===
+                    searchResult.search.count
+                  }
+                >
                   <PaginationLink next />
                 </PaginationItem>
               </Pagination>

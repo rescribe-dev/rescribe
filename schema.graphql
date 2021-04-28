@@ -135,12 +135,6 @@ type Currency {
   name: String!
 }
 
-"""download link data"""
-type DownloadLinks {
-  blurred: String!
-  original: String!
-}
-
 """file"""
 type File {
   _id: ObjectId!
@@ -156,9 +150,6 @@ type File {
 
   """date created"""
   created: Float!
-
-  """download file links"""
-  downloadLinks: DownloadLinks
 
   """number of lines in file"""
   fileLength: Int!
@@ -210,15 +201,12 @@ type File {
 
   """variables"""
   variables: [Variable!]!
-
-  """viewport sizes for media object"""
-  viewportSizes: ViewportSizes
 }
 
 """file owner"""
 type FileLocation {
   """repository image"""
-  image: String!
+  image: ObjectId!
 
   """repository owner"""
   owner: String!
@@ -418,9 +406,6 @@ type Media {
   """date created"""
   created: Float!
 
-  """download file links"""
-  downloadLinks: DownloadLinks
-
   """file size"""
   fileSize: Float!
 
@@ -441,15 +426,12 @@ type Media {
 
   """date updated"""
   updated: Float!
-
-  """viewport sizes for media object"""
-  viewportSizes: ViewportSizes
 }
 
 """media parent type"""
 enum MediaParentType {
-  Repository
-  User
+  repository
+  user
 }
 
 type Mutation {
@@ -1330,7 +1312,7 @@ type Repository {
   folderData: Folder!
 
   """repository image"""
-  image: String!
+  image: ObjectId!
 
   """number of lines of code"""
   linesOfCode: Int!
@@ -1368,7 +1350,7 @@ type RepositoryDB {
   folderData: Folder!
 
   """repository image"""
-  image: String!
+  image: ObjectId!
 
   """number of lines of code"""
   linesOfCode: Int!
@@ -1595,10 +1577,4 @@ type Variable {
 
   """type"""
   type: String!
-}
-
-"""file viewport info"""
-type ViewportSizes {
-  height: Float!
-  width: Float!
 }

@@ -19,7 +19,7 @@ const initialState: SearchState = {
   hasSearched: false,
   query: '',
   page: 0,
-  perpage: perpageOptions[0],
+  perpage: perpageOptions[1],
   filters: {
     projects: [],
     repositories: [],

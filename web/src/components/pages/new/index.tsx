@@ -13,6 +13,8 @@ import {
   Button,
   Card,
   CardBody,
+  Row,
+  Col,
 } from 'reactstrap';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { PageProps, navigate } from 'gatsby';
@@ -227,341 +229,252 @@ const NewPage = (args: NewProps): JSX.Element => {
 
   return (
     <Container className="input-container mt-4">
-      <Card>
-        <CardBody>
-          {loading ? (
-            <p>loading</p>
-          ) : (
-            <div>
-              <Formik
-                enableReinitialize={true}
-                initialValues={{
-                  type: defaultType.value,
-                  owner: defaultOwner ? defaultOwner.value : undefined,
-                  project: defaultProject,
-                  publicAccessLevel: defaultPublicAccessLevel.value,
-                  name: '',
-                }}
-                validationSchema={yup.object({
-                  type: yup.string().required('type is required'),
-                  owner: yup.string().required('owner is required'),
-                  project: yup.object().when('type', {
-                    is: repositoryType.value,
-                    then: yup.object().required('project is required'),
-                  }),
-                  publicAccessLevel: yup.string().when('type', {
-                    is: repositoryType.value,
-                    then: yup
-                      .string()
-                      .required('public access level is required'),
-                  }),
-                  name: yup
-                    .string()
-                    .required('required')
-                    .when('type', {
-                      is: projectType.value,
-                      then: yup.string().matches(validProjectName, {
-                        message: 'invalid project name',
+      <Row className="justify-content-center">
+        <Col
+          lg={{
+            size: 4,
+          }}
+        >
+          <Card
+            className="shadow rounded-lg"
+            style={{
+              backgroundColor: 'var(--bg-login)',
+            }}
+          >
+            <CardBody>
+              {loading ? (
+                <p>loading</p>
+              ) : (
+                <div>
+                  <Formik
+                    enableReinitialize={true}
+                    initialValues={{
+                      type: defaultType.value,
+                      owner: defaultOwner ? defaultOwner.value : undefined,
+                      project: defaultProject,
+                      publicAccessLevel: defaultPublicAccessLevel.value,
+                      name: '',
+                    }}
+                    validationSchema={yup.object({
+                      type: yup.string().required('type is required'),
+                      owner: yup.string().required('owner is required'),
+                      project: yup.object().when('type', {
+                        is: repositoryType.value,
+                        then: yup.object().required('project is required'),
                       }),
-                      otherwise: yup.string().matches(validRepositoryName, {
-                        message: 'invalid repository name',
+                      publicAccessLevel: yup.string().when('type', {
+                        is: repositoryType.value,
+                        then: yup
+                          .string()
+                          .required('public access level is required'),
                       }),
-                    })
-                    .when('type', {
-                      is: repositoryType.value,
-                      then: yup
+                      name: yup
                         .string()
-                        .notOneOf(
-                          blacklistedRepositoryNames,
-                          'blacklisted repository name'
-                        ),
-                    })
-                    .when('type', {
-                      is: projectType.value,
-                      then: yup
-                        .string()
-                        .test(
-                          'unqiue name',
-                          'name is not unique',
-                          async (name) => {
-                            if (!name || name.length === 0) return false;
-                            try {
-                              const createProjectRes = await client.query<
-                                ProjectNameExistsQuery,
-                                ProjectNameExistsQueryVariables
-                              >({
-                                query: ProjectNameExists,
-                                variables: {
-                                  name,
-                                },
-                              });
-                              if (createProjectRes.errors) {
-                                throw new Error(
-                                  createProjectRes.errors.join(', ')
-                                );
+                        .required('required')
+                        .when('type', {
+                          is: projectType.value,
+                          then: yup.string().matches(validProjectName, {
+                            message: 'invalid project name',
+                          }),
+                          otherwise: yup.string().matches(validRepositoryName, {
+                            message: 'invalid repository name',
+                          }),
+                        })
+                        .when('type', {
+                          is: repositoryType.value,
+                          then: yup
+                            .string()
+                            .notOneOf(
+                              blacklistedRepositoryNames,
+                              'blacklisted repository name'
+                            ),
+                        })
+                        .when('type', {
+                          is: projectType.value,
+                          then: yup
+                            .string()
+                            .test(
+                              'unqiue name',
+                              'name is not unique',
+                              async (name) => {
+                                if (!name || name.length === 0) return false;
+                                try {
+                                  const createProjectRes = await client.query<
+                                    ProjectNameExistsQuery,
+                                    ProjectNameExistsQueryVariables
+                                  >({
+                                    query: ProjectNameExists,
+                                    variables: {
+                                      name,
+                                    },
+                                  });
+                                  if (createProjectRes.errors) {
+                                    throw new Error(
+                                      createProjectRes.errors.join(', ')
+                                    );
+                                  }
+                                  return !createProjectRes.data
+                                    .projectNameExists;
+                                } catch (err) {
+                                  toast(err.message, {
+                                    type: 'error',
+                                  });
+                                }
+                                return false;
                               }
-                              return !createProjectRes.data.projectNameExists;
-                            } catch (err) {
-                              toast(err.message, {
-                                type: 'error',
-                              });
-                            }
-                            return false;
-                          }
-                        ),
-                      otherwise: yup
-                        .string()
-                        .test(
-                          'unqiue name',
-                          'name is not unique',
-                          async (name) => {
-                            if (!name || name.length === 0) return false;
-                            try {
-                              const createRepositoryRes = await client.query<
-                                RepositoryNameExistsQuery,
-                                RepositoryNameExistsQueryVariables
-                              >({
-                                query: RepositoryNameExists,
-                                variables: {
-                                  name,
-                                },
-                              });
-                              if (createRepositoryRes.errors) {
-                                throw new Error(
-                                  createRepositoryRes.errors.join(', ')
-                                );
+                            ),
+                          otherwise: yup
+                            .string()
+                            .test(
+                              'unqiue name',
+                              'name is not unique',
+                              async (name) => {
+                                if (!name || name.length === 0) return false;
+                                try {
+                                  const createRepositoryRes = await client.query<
+                                    RepositoryNameExistsQuery,
+                                    RepositoryNameExistsQueryVariables
+                                  >({
+                                    query: RepositoryNameExists,
+                                    variables: {
+                                      name,
+                                    },
+                                  });
+                                  if (createRepositoryRes.errors) {
+                                    throw new Error(
+                                      createRepositoryRes.errors.join(', ')
+                                    );
+                                  }
+                                  return !createRepositoryRes.data
+                                    .repositoryNameExists;
+                                } catch (err) {
+                                  toast(err.message, {
+                                    type: 'error',
+                                  });
+                                }
+                                return false;
                               }
-                              return !createRepositoryRes.data
-                                .repositoryNameExists;
-                            } catch (err) {
-                              toast(err.message, {
-                                type: 'error',
-                              });
-                            }
-                            return false;
+                            ),
+                        }),
+                    })}
+                    onSubmit={async (
+                      formData,
+                      { setSubmitting, setStatus }
+                    ): Promise<void> => {
+                      try {
+                        if (formData.type === projectType.value) {
+                          const createProjectRes = await client.mutate<
+                            AddProjectMutation,
+                            AddProjectMutationVariables
+                          >({
+                            mutation: AddProject,
+                            variables: {
+                              name: formData.name,
+                            },
+                          });
+                          if (createProjectRes.errors) {
+                            throw new Error(createProjectRes.errors.join(', '));
                           }
-                        ),
-                    }),
-                })}
-                onSubmit={async (
-                  formData,
-                  { setSubmitting, setStatus }
-                ): Promise<void> => {
-                  try {
-                    if (formData.type === projectType.value) {
-                      const createProjectRes = await client.mutate<
-                        AddProjectMutation,
-                        AddProjectMutationVariables
-                      >({
-                        mutation: AddProject,
-                        variables: {
-                          name: formData.name,
-                        },
-                      });
-                      if (createProjectRes.errors) {
-                        throw new Error(createProjectRes.errors.join(', '));
-                      }
-                    } else if (formData.type === repositoryType.value) {
-                      if (!formData.project) {
-                        throw new Error('no project selected');
-                      }
-                      const project = formData.project.value.equals(noProjectID)
-                        ? undefined
-                        : formData.project.value;
+                        } else if (formData.type === repositoryType.value) {
+                          if (!formData.project) {
+                            throw new Error('no project selected');
+                          }
+                          const project = formData.project.value.equals(
+                            noProjectID
+                          )
+                            ? undefined
+                            : formData.project.value;
 
-                      const createRepositoryRes = await client.mutate<
-                        AddRepositoryMutation,
-                        AddRepositoryMutationVariables
-                      >({
-                        mutation: AddRepository,
-                        variables: {
-                          name: formData.name,
-                          project,
-                          publicAccess: formData.publicAccessLevel,
-                        },
-                      });
-                      if (createRepositoryRes.errors) {
-                        throw new Error(createRepositoryRes.errors.join(', '));
+                          const createRepositoryRes = await client.mutate<
+                            AddRepositoryMutation,
+                            AddRepositoryMutationVariables
+                          >({
+                            mutation: AddRepository,
+                            variables: {
+                              name: formData.name,
+                              project,
+                              publicAccess: formData.publicAccessLevel,
+                            },
+                          });
+                          if (createRepositoryRes.errors) {
+                            throw new Error(
+                              createRepositoryRes.errors.join(', ')
+                            );
+                          }
+                        } else {
+                          throw new Error('invalid new type provided');
+                        }
+                        // wait for creation before routing
+                        await sleep(1000);
+                        setStatus({ success: true });
+                        switch (formData.type) {
+                          case projectType.value:
+                            navigate(`/${username}/projects/${formData.name}`);
+                            break;
+                          case repositoryType.value:
+                            navigate(`/${username}/${formData.name}`);
+                            break;
+                          default:
+                            break;
+                        }
+                        setSubmitting(false);
+                      } catch (err) {
+                        console.log(JSON.stringify(err, null, 2));
+                        toast(err.message, {
+                          type: 'error',
+                        });
+                        setStatus({ success: false });
+                        setSubmitting(false);
                       }
-                    } else {
-                      throw new Error('invalid new type provided');
-                    }
-                    // wait for creation before routing
-                    await sleep(1000);
-                    setStatus({ success: true });
-                    switch (formData.type) {
-                      case projectType.value:
-                        navigate(`/${username}/projects/${formData.name}`);
-                        break;
-                      case repositoryType.value:
-                        navigate(`/${username}/${formData.name}`);
-                        break;
-                      default:
-                        break;
-                    }
-                    setSubmitting(false);
-                  } catch (err) {
-                    console.log(JSON.stringify(err, null, 2));
-                    toast(err.message, {
-                      type: 'error',
-                    });
-                    setStatus({ success: false });
-                    setSubmitting(false);
-                  }
-                }}
-              >
-                {({
-                  values,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  isSubmitting,
-                  setFieldValue,
-                  setFieldTouched,
-                }) => (
-                  <Form onSubmit={handleSubmit}>
-                    <FormGroup>
-                      <Label for="type">Type</Label>
-                      <Select
-                        id="type"
-                        name="type"
-                        isMulti={false}
-                        options={typeOptions}
-                        cacheOptions={true}
-                        defaultValue={defaultType}
-                        onChange={(
-                          selectedOption: ValueType<SelectTypeObject, false>
-                        ) => {
-                          if (!selectedOption) {
-                            selectedOption = null;
-                          }
-                          const selected = selectedOption as SelectTypeObject;
-                          setFieldValue('type', selected.value);
-                        }}
-                        onBlur={(evt) => {
-                          handleBlur(evt);
-                          setFieldTouched('type', true);
-                        }}
-                        className={
-                          touched.type && errors.type ? 'is-invalid' : ''
-                        }
-                        styles={{
-                          control: (styles) => ({
-                            ...styles,
-                            borderColor:
-                              touched.type && errors.type
-                                ? 'var(--red-stop)'
-                                : styles.borderColor,
-                          }),
-                        }}
-                        invalid={!!(touched.type && errors.type)}
-                        disabled={isSubmitting}
-                      />
-                      <FormFeedback
-                        style={{
-                          marginBottom: '1rem',
-                        }}
-                        className="feedback"
-                        type="invalid"
-                      >
-                        {touched.type && errors.type ? errors.type : ''}
-                      </FormFeedback>
-                    </FormGroup>
-                    <FormGroup>
-                      <Label for="type">Owner</Label>
-                      <Select
-                        id="owner"
-                        name="owner"
-                        isMulti={false}
-                        cacheOptions={false}
-                        options={ownerOptions}
-                        defaultValue={defaultOwner}
-                        onChange={(
-                          selectedOption: ValueType<SelectOwnerObject, false>
-                        ) => {
-                          if (!selectedOption) {
-                            selectedOption = null;
-                          }
-                          const selected = selectedOption as SelectOwnerObject;
-                          setFieldValue('owner', selected.value);
-                        }}
-                        onBlur={(evt) => {
-                          handleBlur(evt);
-                          setFieldTouched('owner', true);
-                        }}
-                        className={
-                          touched.owner && errors.owner ? 'is-invalid' : ''
-                        }
-                        styles={{
-                          control: (styles) => ({
-                            ...styles,
-                            borderColor:
-                              touched.owner && errors.owner
-                                ? 'var(--red-stop)'
-                                : styles.borderColor,
-                          }),
-                        }}
-                        invalid={!!(touched.owner && errors.owner)}
-                        disabled={isSubmitting}
-                      />
-                      <FormFeedback
-                        style={{
-                          marginBottom: '1rem',
-                        }}
-                        className="feedback"
-                        type="invalid"
-                      >
-                        {touched.owner && errors.owner ? errors.owner : ''}
-                      </FormFeedback>
-                    </FormGroup>
-                    {values.type === projectType.value ? (
-                      <></>
-                    ) : (
-                      <>
+                    }}
+                  >
+                    {({
+                      values,
+                      errors,
+                      touched,
+                      handleChange,
+                      handleBlur,
+                      handleSubmit,
+                      isSubmitting,
+                      setFieldValue,
+                      setFieldTouched,
+                    }) => (
+                      <Form onSubmit={handleSubmit}>
                         <FormGroup>
-                          <Label for="type">Project</Label>
-                          <AsyncSelect
-                            id="project"
-                            name="project"
+                          <Label for="type">Type</Label>
+                          <Select
+                            id="type"
+                            name="type"
                             isMulti={false}
-                            defaultOptions={defaultProjectOptions}
+                            options={typeOptions}
                             cacheOptions={true}
-                            loadOptions={getProjects}
-                            value={selectedProject}
+                            defaultValue={defaultType}
                             onChange={(
-                              selectedOption: ValueType<
-                                SelectProjectObject,
-                                false
-                              >
+                              selectedOption: ValueType<SelectTypeObject, false>
                             ) => {
                               if (!selectedOption) {
                                 selectedOption = null;
                               }
-                              const selected = selectedOption as SelectProjectObject;
-                              setSelectedProject(selected);
-                              setFieldValue('project', selected.value);
+                              const selected = selectedOption as SelectTypeObject;
+                              setFieldValue('type', selected.value);
                             }}
                             onBlur={(evt) => {
                               handleBlur(evt);
-                              setFieldTouched('project', true);
+                              setFieldTouched('type', true);
                             }}
                             className={
-                              touched.project && errors.project
-                                ? 'is-invalid'
-                                : ''
+                              touched.type && errors.type ? 'is-invalid' : ''
                             }
                             styles={{
                               control: (styles) => ({
                                 ...styles,
                                 borderColor:
-                                  touched.project && errors.project
+                                  touched.type && errors.type
                                     ? 'var(--red-stop)'
                                     : styles.borderColor,
                               }),
                             }}
-                            invalid={!!(touched.project && errors.project)}
+                            invalid={!!(touched.type && errors.type)}
                             disabled={isSubmitting}
                           />
                           <FormFeedback
@@ -571,61 +484,198 @@ const NewPage = (args: NewProps): JSX.Element => {
                             className="feedback"
                             type="invalid"
                           >
-                            {touched.project && errors.project
-                              ? errors.project
-                              : ''}
+                            {touched.type && errors.type ? errors.type : ''}
                           </FormFeedback>
                         </FormGroup>
                         <FormGroup>
-                          <Label for="publicAccessLevel">Public Access</Label>
+                          <Label for="type">Owner</Label>
                           <Select
-                            id="publicAccessLevel"
-                            name="publicAccessLevel"
+                            id="owner"
+                            name="owner"
                             isMulti={false}
-                            options={publicAccessOptions}
-                            cacheOptions={true}
-                            defaultValue={defaultPublicAccessLevel}
+                            cacheOptions={false}
+                            options={ownerOptions}
+                            defaultValue={defaultOwner}
                             onChange={(
                               selectedOption: ValueType<
-                                SelectPublicAccessObject,
+                                SelectOwnerObject,
                                 false
                               >
                             ) => {
                               if (!selectedOption) {
                                 selectedOption = null;
                               }
-                              const selected = selectedOption as SelectPublicAccessObject;
-                              setFieldValue(
-                                'publicAccessLevel',
-                                selected.value
-                              );
+                              const selected = selectedOption as SelectOwnerObject;
+                              setFieldValue('owner', selected.value);
                             }}
                             onBlur={(evt) => {
                               handleBlur(evt);
-                              setFieldTouched('publicAccessLevel', true);
+                              setFieldTouched('owner', true);
                             }}
                             className={
-                              touched.publicAccessLevel &&
-                              errors.publicAccessLevel
-                                ? 'is-invalid'
-                                : ''
+                              touched.owner && errors.owner ? 'is-invalid' : ''
                             }
                             styles={{
                               control: (styles) => ({
                                 ...styles,
                                 borderColor:
+                                  touched.owner && errors.owner
+                                    ? 'var(--red-stop)'
+                                    : styles.borderColor,
+                              }),
+                            }}
+                            invalid={!!(touched.owner && errors.owner)}
+                            disabled={isSubmitting}
+                          />
+                          <FormFeedback
+                            style={{
+                              marginBottom: '1rem',
+                            }}
+                            className="feedback"
+                            type="invalid"
+                          >
+                            {touched.owner && errors.owner ? errors.owner : ''}
+                          </FormFeedback>
+                        </FormGroup>
+                        {values.type === projectType.value ? null : (
+                          <>
+                            <FormGroup>
+                              <Label for="type">Project</Label>
+                              <AsyncSelect
+                                id="project"
+                                name="project"
+                                isMulti={false}
+                                defaultOptions={defaultProjectOptions}
+                                cacheOptions={true}
+                                loadOptions={getProjects}
+                                value={selectedProject}
+                                onChange={(
+                                  selectedOption: ValueType<
+                                    SelectProjectObject,
+                                    false
+                                  >
+                                ) => {
+                                  if (!selectedOption) {
+                                    selectedOption = null;
+                                  }
+                                  const selected = selectedOption as SelectProjectObject;
+                                  setSelectedProject(selected);
+                                  setFieldValue('project', selected.value);
+                                }}
+                                onBlur={(evt) => {
+                                  handleBlur(evt);
+                                  setFieldTouched('project', true);
+                                }}
+                                className={
+                                  touched.project && errors.project
+                                    ? 'is-invalid'
+                                    : ''
+                                }
+                                styles={{
+                                  control: (styles) => ({
+                                    ...styles,
+                                    borderColor:
+                                      touched.project && errors.project
+                                        ? 'var(--red-stop)'
+                                        : styles.borderColor,
+                                  }),
+                                }}
+                                invalid={!!(touched.project && errors.project)}
+                                disabled={isSubmitting}
+                              />
+                              <FormFeedback
+                                style={{
+                                  marginBottom: '1rem',
+                                }}
+                                className="feedback"
+                                type="invalid"
+                              >
+                                {touched.project && errors.project
+                                  ? errors.project
+                                  : ''}
+                              </FormFeedback>
+                            </FormGroup>
+                            <FormGroup>
+                              <Label for="publicAccessLevel">
+                                Public Access
+                              </Label>
+                              <Select
+                                id="publicAccessLevel"
+                                name="publicAccessLevel"
+                                isMulti={false}
+                                options={publicAccessOptions}
+                                cacheOptions={true}
+                                defaultValue={defaultPublicAccessLevel}
+                                onChange={(
+                                  selectedOption: ValueType<
+                                    SelectPublicAccessObject,
+                                    false
+                                  >
+                                ) => {
+                                  if (!selectedOption) {
+                                    selectedOption = null;
+                                  }
+                                  const selected = selectedOption as SelectPublicAccessObject;
+                                  setFieldValue(
+                                    'publicAccessLevel',
+                                    selected.value
+                                  );
+                                }}
+                                onBlur={(evt) => {
+                                  handleBlur(evt);
+                                  setFieldTouched('publicAccessLevel', true);
+                                }}
+                                className={
                                   touched.publicAccessLevel &&
                                   errors.publicAccessLevel
-                                    ? 'var(--red-stop)'
-                                    : styles.borderColor,
-                              }),
-                            }}
-                            invalid={
-                              !!(
-                                touched.publicAccessLevel &&
+                                    ? 'is-invalid'
+                                    : ''
+                                }
+                                styles={{
+                                  control: (styles) => ({
+                                    ...styles,
+                                    borderColor:
+                                      touched.publicAccessLevel &&
+                                      errors.publicAccessLevel
+                                        ? 'var(--red-stop)'
+                                        : styles.borderColor,
+                                  }),
+                                }}
+                                invalid={
+                                  !!(
+                                    touched.publicAccessLevel &&
+                                    errors.publicAccessLevel
+                                  )
+                                }
+                                disabled={isSubmitting}
+                              />
+                              <FormFeedback
+                                style={{
+                                  marginBottom: '1rem',
+                                }}
+                                className="feedback"
+                                type="invalid"
+                              >
+                                {touched.publicAccessLevel &&
                                 errors.publicAccessLevel
-                              )
-                            }
+                                  ? errors.publicAccessLevel
+                                  : ''}
+                              </FormFeedback>
+                            </FormGroup>
+                          </>
+                        )}
+                        <FormGroup>
+                          <Label for="name">Name</Label>
+                          <Input
+                            id="name"
+                            name="name"
+                            type="text"
+                            placeholder="Name"
+                            className="form-input"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.name}
+                            invalid={!!(touched.name && errors.name)}
                             disabled={isSubmitting}
                           />
                           <FormFeedback
@@ -635,61 +685,34 @@ const NewPage = (args: NewProps): JSX.Element => {
                             className="feedback"
                             type="invalid"
                           >
-                            {touched.publicAccessLevel &&
-                            errors.publicAccessLevel
-                              ? errors.publicAccessLevel
-                              : ''}
+                            {touched.name && errors.name ? errors.name : ''}
                           </FormFeedback>
                         </FormGroup>
-                      </>
+                        <Button
+                          type="submit"
+                          onClick={(evt: React.MouseEvent) => {
+                            evt.preventDefault();
+                            handleSubmit();
+                          }}
+                          disabled={isSubmitting}
+                        >
+                          Submit
+                        </Button>
+                        <BeatLoader
+                          css={loaderCSS}
+                          size={10}
+                          color="var(--red-stop)"
+                          loading={isSubmitting}
+                        />
+                      </Form>
                     )}
-                    <FormGroup>
-                      <Label for="name">Name</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        type="text"
-                        placeholder="Name"
-                        className="form-input"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.name}
-                        invalid={!!(touched.name && errors.name)}
-                        disabled={isSubmitting}
-                      />
-                      <FormFeedback
-                        style={{
-                          marginBottom: '1rem',
-                        }}
-                        className="feedback"
-                        type="invalid"
-                      >
-                        {touched.name && errors.name ? errors.name : ''}
-                      </FormFeedback>
-                    </FormGroup>
-                    <Button
-                      type="submit"
-                      onClick={(evt: React.MouseEvent) => {
-                        evt.preventDefault();
-                        handleSubmit();
-                      }}
-                      disabled={isSubmitting}
-                    >
-                      Submit
-                    </Button>
-                    <BeatLoader
-                      css={loaderCSS}
-                      size={10}
-                      color="var(--red-stop)"
-                      loading={isSubmitting}
-                    />
-                  </Form>
-                )}
-              </Formik>
-            </div>
-          )}
-        </CardBody>
-      </Card>
+                  </Formik>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        </Col>
+      </Row>
     </Container>
   );
 };

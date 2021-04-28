@@ -37,7 +37,6 @@ class BranchesResolver {
     };
     const repositoryDBType: RepositoryDB = {
       ...repository,
-      image: '', // can leave empty as not necessary to check user access
       _id: repository._id as ObjectId
     };
     if (!(await checkRepositoryAccess(user, repositoryDBType, AccessLevel.view))) {

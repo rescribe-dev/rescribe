@@ -72,7 +72,7 @@ export class FileLocation {
   @Field({ description: 'repository owner' })
   owner: string;
   @Field({ description: 'repository image' })
-  image: string;
+  image: ObjectId;
 }
 
 // single file result (collection of search results)

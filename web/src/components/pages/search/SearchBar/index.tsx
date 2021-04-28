@@ -9,20 +9,17 @@ import { getSearchURL, getQuery } from 'state/search/getters';
 import { useDispatch } from 'react-redux';
 import { isSSR } from 'utils/checkSSR';
 import { Dispatch } from 'redux';
-import { setQuery } from 'state/search/actions';
-import sleep from 'shared/sleep';
+import { setQuery, setPage } from 'state/search/actions';
 import { AppThunkDispatch } from 'state/thunk';
 import { SearchActionTypes } from 'state/search/types';
 import { thunkSearch } from 'state/search/thunks';
 
 const SearchBar = (): JSX.Element => {
   let dispatch: Dispatch<any>;
-  if (!isSSR) {
-    dispatch = useDispatch();
-  }
   let dispatchSearchThunk: AppThunkDispatch<SearchActionTypes>;
   if (!isSSR) {
     dispatchSearchThunk = useDispatch<AppThunkDispatch<SearchActionTypes>>();
+    dispatch = useDispatch();
   }
 
   return (
@@ -36,14 +33,12 @@ const SearchBar = (): JSX.Element => {
       onSubmit={async (formData, { setSubmitting, setStatus }) => {
         setSubmitting(true);
         dispatch(setQuery(formData.query));
+        dispatch(setPage(0));
         window.history.pushState(
           { search: formData.query },
           '',
           getSearchURL()
         );
-        // TODO - fix this
-        // hack to allow for react state to update before search
-        await sleep(50);
         try {
           await dispatchSearchThunk(thunkSearch());
         } catch (err) {

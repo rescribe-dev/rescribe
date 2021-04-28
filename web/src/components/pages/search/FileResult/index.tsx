@@ -16,7 +16,7 @@ import { Language } from 'prism-react-renderer';
 import SearchResultComponent from '../SearchResult';
 import './styles.scss';
 import { Link } from 'gatsby';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { getAPIURL } from 'utils/axios';
 
 export interface FileResultCardArgs {
   file: FileFieldsFragment;
@@ -25,13 +25,13 @@ export interface FileResultCardArgs {
 
 export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
   return (
-    <Card className="search-result-card">
+    <Card className="search-result-card w-100">
       <CardBody>
         <CardTitle>
           <Row>
-            <Col md="1" className="vertical-center">
-              <LazyLoadImage
-                src={args.file.location.image}
+            <Col md="1">
+              <img
+                src={`${getAPIURL()}/${args.file.location.image}`}
                 style={{
                   width: '2em',
                   height: '2em',
@@ -39,7 +39,7 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                 }}
               />
             </Col>
-            <Col md="9" className="align-items-start justify-content-end">
+            <Col>
               <Row>
                 <Col>
                   <Row>
@@ -49,33 +49,36 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                   </Row>
                   <Row>
                     <Col>
-                      <CardText
-                        style={{
-                          display: 'inline',
-                        }}
-                      >
-                        <b>
-                          {args.file.location.repository}/
-                          {args.file.location.owner}
-                        </b>
-                        {' > '}
-                      </CardText>
-                      <Link
-                        to={`/${args.file.location.owner}/${args.file.location.repository}/tree/master${args.file.path}`}
-                        style={{
-                          color: 'var(--link-blue)',
-                        }}
-                      >
-                        {args.file.path}
-                      </Link>
+                      <Row>
+                        <Col xs="auto" className="pr-0">
+                          <CardText>
+                            <b>
+                              {args.file.location.owner}/
+                              {args.file.location.repository}
+                            </b>
+                            {' > '}
+                          </CardText>
+                        </Col>
+                        <Col>
+                          <Link
+                            to={`/${args.file.location.owner}/${args.file.location.repository}/tree/master${args.file.path}`}
+                            style={{
+                              color: 'var(--link-blue)',
+                            }}
+                            className="text-break"
+                          >
+                            {args.file.path}
+                          </Link>
+                        </Col>
+                      </Row>
                     </Col>
                   </Row>
                 </Col>
               </Row>
             </Col>
             <Col md="2">
-              <Row className="align-items-center justify-content-center no-gutters">
-                <Col xs="3" className="align-items-flex-end">
+              <Row className="align-items-center justify-content-start no-gutters">
+                <Col xs="auto" className="align-items-flex-end mr-2">
                   <Media
                     style={{
                       backgroundColor: args.file.language.darkColor,
@@ -83,9 +86,9 @@ export const FileResultComponent = (args: FileResultCardArgs): JSX.Element => {
                       width: '1em',
                       borderRadius: '0.5em',
                     }}
-                  ></Media>
+                  />
                 </Col>
-                <Col xs="8">
+                <Col xs="auto">
                   <CardText>{args.file.language.name}</CardText>
                 </Col>
               </Row>

@@ -12,10 +12,11 @@ import { UserModel } from '../schema/users/user';
 import { SaveElasticElement, bulkSaveToElastic } from '../elastic/elastic';
 import { WriteMongoElement, bulkSaveToMongo } from '../db/mongo';
 import { FileModel } from '../schema/structure/file';
-import { s3Client, fileBucket, getFileKey } from '../utils/aws';
+import { s3Client, fileBucket, getFileKey, getMediaKey } from '../utils/aws';
 import { FolderModel } from '../schema/structure/folder';
 import { WriteType } from '../utils/writeType';
 import { ProjectModel } from '../schema/structure/project';
+import { MediaModel, MediaParentType } from '../schema/structure/media';
 
 @ArgsType()
 class DeleteRepositoryArgs {
@@ -96,6 +97,18 @@ export const deleteRepositoryUtil = async (args: DeleteRepositoryArgs, userID: O
     }
   });
   await deleteAllFilesUtil(args.id);
+  for (const mediaElement of await MediaModel.find({
+    parent: args.id,
+    parentType: MediaParentType.repository
+  })) {
+    await s3Client.deleteObject({
+      Bucket: fileBucket,
+      Key: getMediaKey(mediaElement._id)
+    }).promise();
+    await MediaModel.deleteOne({
+      _id: mediaElement._id
+    });
+  }
   await ProjectModel.updateMany({
     repositories: args.id
   }, {

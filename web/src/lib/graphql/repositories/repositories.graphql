@@ -2,5 +2,6 @@ query repositories($perpage: Int!, $page: Int!, $projects: [ObjectId!]) {
   repositories(perpage: $perpage, page: $page, projects: $projects) {
     _id
     name
+    image
   }
 }
