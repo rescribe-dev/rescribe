@@ -13,14 +13,14 @@ if (process.argv.length > 2) {
 let PORT = 8001;
 
 if (process.env.PORT) {
-  const givenPort = new Number(process.env.PORT);
+  const givenPort = Number(process.env.PORT);
   if (givenPort) {
     PORT = givenPort.valueOf();
   }
 }
 
 if (process.argv.length > 3) {
-  const givenPort = new Number(process.argv[3]);
+  const givenPort = Number(process.argv[3]);
   if (givenPort) {
     PORT = givenPort.valueOf();
   }
