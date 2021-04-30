@@ -5,7 +5,6 @@ import Highlight, {
   Language,
 } from 'prism-react-renderer';
 import githubTheme from 'prism-react-renderer/themes/github';
-import Prism from 'prismjs/components/prism-core';
 
 export type ExtendedLanguage = Language | 'java';
 
@@ -15,8 +14,7 @@ const CodeHighlight = (args: {
   language: ExtendedLanguage;
 }): JSX.Element => {
   return (
-    <Highlight
-      Prism={Prism}
+    <Highlight  
       {...defaultHighlightProps}
       code={args.code.join('\n')}
       language={(args.language as unknown) as Language}

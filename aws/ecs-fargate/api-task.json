@@ -29,6 +29,10 @@
         {
           "name": "ENABLE_INITIALIZATION",
           "value": "true"
+        },
+        {
+          "name": "CONNECT_NLP",
+          "value": "false"
         }
       ],
       "resourceRequirements": null,
