@@ -1,3 +1,3 @@
 # api
 
-> main api for interacting with rescribe. deploy
+> main api for interacting with rescribe.

@@ -18,6 +18,7 @@ RUN yarn install
 COPY lib .
 
 COPY .rescriberc.yml .
+COPY swagger.yml /
 
 EXPOSE 8080
 CMD [ "node", "index.js" ]
