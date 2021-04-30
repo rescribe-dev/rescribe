@@ -67,6 +67,6 @@ export const initializeAntlr = async (): Promise<boolean> => {
     catch (err) {
       logger.error(`cannot connect to antlr server: ${err.message}`);
     }
-    sleep(2000);
+    await sleep(2000);
   }
 };
