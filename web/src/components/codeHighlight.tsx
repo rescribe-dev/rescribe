@@ -5,6 +5,7 @@ import Highlight, {
   Language,
 } from 'prism-react-renderer';
 import githubTheme from 'prism-react-renderer/themes/github';
+import Prism from 'prismjs/components/prism-core';
 
 export type ExtendedLanguage = Language | 'java';
 
@@ -15,6 +16,7 @@ const CodeHighlight = (args: {
 }): JSX.Element => {
   return (
     <Highlight
+      Prism={Prism}
       {...defaultHighlightProps}
       code={args.code.join('\n')}
       language={(args.language as unknown) as Language}
@@ -35,6 +37,7 @@ const CodeHighlight = (args: {
         >
           {tokens.map((line, i) => (
             <Row //The line of Code (Prism handles all of this)
+              display={'table-row'}
               style={{
                 margin: '0px',
               }}
@@ -68,6 +71,14 @@ const CodeHighlight = (args: {
                 ))}
               </Col>
             </Row>
+            //   <Line key={i} {...getLineProps({ line, key: i })}>
+            //   <LineNo>{i + 1}</LineNo>
+            //   <LineContent>
+            //     {line.map((token, key) => (
+            //       <span key={key} {...getTokenProps({ token, key })} />
+            //     ))}
+            //   </LineContent>
+            // </Line>
           ))}
         </pre>
       )}

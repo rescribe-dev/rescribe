@@ -311,13 +311,15 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     }
   }
 
+  const fuzziness = 2;
+
   const highlight = esb.highlight().fields(['*']).preTags('').postTags('');
   if (!args.baseFileOnly) {
     for (const nestedField of nestedFields) {
       // TODO - tweak this to get it faster - boosting alternatives
       // use boost to make certain fields weighted higher than others
       // now use nlp approach
-      const currentQuery: esb.Query = args.query ? esb.multiMatchQuery().query(args.query) : esb.matchAllQuery();
+      const currentQuery: esb.Query = args.query ? esb.multiMatchQuery(args.query).fuzziness(fuzziness) : esb.matchAllQuery();
 
       queryFilters.push(esb.nestedQuery().path(nestedField).query(currentQuery).innerHits(
         esb.innerHits().highlight(highlight)
@@ -325,7 +327,7 @@ export const search = async (user: User | null, args: FilesArgs, repositoryData?
     }
   }
   if (args.query) {
-    const fieldsQuery = esb.multiMatchQuery(args.baseFileOnly ? baseMainFields : mainFields, args.query);
+    const fieldsQuery = esb.multiMatchQuery(args.baseFileOnly ? baseMainFields : mainFields, args.query).fuzziness(fuzziness);
     queryFilters.push(fieldsQuery);
   }
   let requestBody = esb.requestBodySearch().query(
