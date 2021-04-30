@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Container } from 'reactstrap';
+import { Container } from 'reactstrap';
 
 import './index.scss';
 import {
@@ -18,7 +18,7 @@ import { client } from 'utils/apollo';
 
 import CodeHighlight from 'components/codeHighlight';
 import { Language } from 'prism-react-renderer';
-import { AiFillEdit } from 'react-icons/ai';
+// import { AiFillEdit } from 'react-icons/ai';
 import EditFile from './EditFile';
 
 interface FilesProps {

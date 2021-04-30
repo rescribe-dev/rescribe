@@ -4,6 +4,10 @@ import { ProcessFileInput } from './antlrTypes';
 import AntlrFile from '../schema/antlr/file';
 import { configData } from '../utils/config';
 import { contentTypeHeader } from '../utils/misc';
+import sleep from '../shared/sleep';
+import { getLogger } from 'log4js';
+
+const logger = getLogger();
 
 let antlrClient: AxiosInstance;
 
@@ -55,12 +59,14 @@ export const initializeAntlr = async (): Promise<boolean> => {
     },
     timeout: 3000,
   });
-  // try {
-  //   const res = await pingAntlr();
-  //   return res;
-  // }
-  // catch (err) {
-  //   throw new Error(`cannot connect to antlr server: ${err.message}`);
-  // }
-  return true;
+  for (;;) {
+    try {
+      const res = await pingAntlr();
+      return res;
+    }
+    catch (err) {
+      logger.error(`cannot connect to antlr server: ${err.message}`);
+    }
+    sleep(2000);
+  }
 };
