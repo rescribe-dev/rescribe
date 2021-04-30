@@ -14,7 +14,7 @@ import {
 
 import { RepositoryMessages } from 'locale/templates/repository/repositoryMessages';
 import { client } from 'utils/apollo';
-import { ApolloQueryResult, ApolloError } from 'apollo-client';
+import { ApolloQueryResult, ApolloError } from '@apollo/client';
 import { capitalizeFirstLetter, getErrorCode } from 'utils/misc';
 import statusCodes from 'http-status-codes';
 

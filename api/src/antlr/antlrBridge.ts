@@ -55,11 +55,12 @@ export const initializeAntlr = async (): Promise<boolean> => {
     },
     timeout: 3000,
   });
-  try {
-    const res = await pingAntlr();
-    return res;
-  }
-  catch (err) {
-    throw new Error(`cannot connect to antlr server: ${err.message}`);
-  }
+  // try {
+  //   const res = await pingAntlr();
+  //   return res;
+  // }
+  // catch (err) {
+  //   throw new Error(`cannot connect to antlr server: ${err.message}`);
+  // }
+  return true;
 };

@@ -81,22 +81,21 @@ const FileView = (args: FilesProps): JSX.Element => {
       ) : (
         <>
           {fileMode === ViewState.view ? (
-            <>
-              <Button
+            <div className="mt-4">
+              {/*<Button
                 onClick={(evt) => {
                   evt.preventDefault();
                   setFileMode(ViewState.edit);
                 }}
               >
                 <AiFillEdit />
-              </Button>
-              <p>File text:</p>
+              </Button>*/}
               <CodeHighlight
                 startIndex={0}
                 code={fileTextData.data.fileText}
                 language={(fileRes.data.file.language as unknown) as Language}
               />
-            </>
+            </div>
           ) : fileMode === ViewState.edit ? (
             <EditFile
               fileText={fileTextData.data.fileText}
